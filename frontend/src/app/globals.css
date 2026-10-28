@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 17, 24, 39;
+  --background-rgb: 248, 250, 252;
+}
+
+:root.dark,
+.dark {
+  --foreground-rgb: 248, 250, 252;
+  --background-rgb: 7, 14, 30;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Global Dark Mode Overrides for Full Dashboard & Workstation Theme Integration */
+.dark .bg-\[\#f8fafc\],
+.dark .bg-slate-50,
+.dark .bg-slate-100,
+.dark .bg-slate-100\/90 {
+  background-color: #070e1e !important;
+}
+
+.dark .bg-white,
+.dark .bg-white\/70,
+.dark .bg-white\/80,
+.dark .bg-white\/90 {
+  background-color: #0f1c34 !important;
+}
+
+/* Crisp, high-contrast typography in Dark Mode */
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-500 {
+  color: #a6b4c9 !important;
+}
+
+.dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+/* Borders and dividers in Dark Mode */
+.dark .border-slate-200,
+.dark .border-slate-200\/90,
+.dark .border-slate-200\/70,
+.dark .border-slate-200\/60,
+.dark .border-slate-100,
+.dark .border-teal-100,
+.dark .border-slate-300 {
+  border-color: #1e293b !important;
+}
+
+/* High-contrast clinical badges in Dark Mode */
+.dark .bg-teal-50,
+.dark .bg-teal-50\/40,
+.dark .bg-teal-50\/70,
+.dark .bg-teal-100 {
+  background-color: rgba(13, 148, 136, 0.2) !important;
+}
+.dark .text-teal-700,
+.dark .text-teal-800,
+.dark .text-teal-900,
+.dark .text-teal-950 {
+  color: #5eead4 !important;
+}
+
+.dark .bg-blue-50,
+.dark .bg-blue-50\/40,
+.dark .bg-blue-50\/60,
+.dark .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+}
+.dark .text-blue-700,
+.dark .text-blue-800,
+.dark .text-blue-900,
+.dark .text-blue-950 {
+  color: #93c5fd !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+}
+.dark .text-emerald-700,
+.dark .text-emerald-800,
+.dark .text-emerald-900,
+.dark .text-emerald-950 {
+  color: #6ee7b7 !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+}
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-900,
+.dark .text-amber-950 {
+  color: #fde68a !important;
+}
+
+.dark .bg-rose-50,
+.dark .bg-rose-100 {
+  background-color: rgba(244, 63, 94, 0.2) !important;
+}
+.dark .text-rose-700,
+.dark .text-rose-800,
+.dark .text-rose-900,
+.dark .text-rose-950 {
+  color: #fda4af !important;
+}
+
+.dark .spotlight-card {
+  background-color: #0f1c34 !important;
+  border-color: #1e293b !important;
+}
+
+.dark .spotlight-card:hover {
+  background-color: #132442 !important;
+  border-color: #0d9488 !important;
+}
+
+.dark .spotlight-table-row:hover {
+  background-color: #162a4d !important;
+}
+
+.dark .spotlight-input {
+  background-color: #0b1528 !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+/* Light Mode Contrast Enhancements */
+:root:not(.dark) .text-slate-900 {
+  color: #0f172a;
+}
+:root:not(.dark) .text-slate-800 {
+  color: #1e293b;
+}
+:root:not(.dark) .text-slate-700 {
+  color: #334155;
+}
+:root:not(.dark) .text-slate-600 {
+  color: #475569;
+}
+
+@layer components {
+  /* Rectangular Responsive Spotlight for Interactive Cards & Modules */
+  .spotlight-card {
+    @apply relative transition-all duration-200 ease-in-out cursor-pointer rounded-3xl border-2 border-slate-200/90 bg-white hover:border-teal-500 hover:bg-teal-50/70 hover:shadow-lg hover:ring-2 hover:ring-teal-400/40 transform hover:-translate-y-1;
+  }
+
+  /* Rectangular Responsive Spotlight for Interactive Buttons */
+  .spotlight-btn {
+    @apply transition-all duration-150 ease-in-out cursor-pointer rounded-xl border-2 border-slate-200 bg-white hover:border-teal-500 hover:bg-teal-50 hover:text-teal-950 hover:ring-2 hover:ring-teal-400/40;
+  }
+
+  /* Rectangular Responsive Spotlight for Sidebar Navigation Items (Dark Theme) */
+  .spotlight-nav {
+    @apply transition-all duration-150 ease-in-out cursor-pointer rounded-xl text-white font-medium hover:bg-teal-600/30 hover:text-white hover:ring-1 hover:ring-teal-400/60 hover:border-l-4 hover:border-teal-400 hover:shadow-xs;
+  }
+
+  /* Rectangular Responsive Spotlight for Text Blocks & Badges */
+  .spotlight-text {
+    @apply transition-all duration-150 ease-in-out rounded-xl p-1.5 hover:bg-teal-100/70 hover:text-teal-950 hover:ring-2 hover:ring-teal-400/40 hover:border hover:border-teal-400 cursor-pointer;
+  }
+
+  /* Rectangular Responsive Spotlight for Table Rows */
+  .spotlight-table-row {
+    @apply transition-all duration-150 ease-in-out hover:bg-teal-50/80 cursor-pointer;
+  }
+
+  /* Rectangular Responsive Spotlight for Inputs & Selects */
+  .spotlight-input {
+    @apply transition-all duration-150 ease-in-out rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-400/30 focus:outline-none;
+  }
+}

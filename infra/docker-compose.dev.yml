@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: mkh-postgres-dev
+    environment:
+      POSTGRES_USER: mettu_user
+      POSTGRES_PASSWORD: mettu_password
+      POSTGRES_DB: mettu_karl_his
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mettu_user -d mettu_karl_his"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: mkh-redis-dev
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2024-03-05T04-48-44Z
+    container_name: mkh-minio-dev
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadminpassword
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_dev_data:/data
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: mkh-backend-dev
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      APP_ENV: development
+      APP_DEBUG: "true"
+      SECRET_KEY: "dev-secret-key-mettu-karl-local-development-only"
+      DATABASE_URL: "postgresql+asyncpg://mettu_user:mettu_password@postgres:5432/mettu_karl_his"
+      REDIS_URL: "redis://redis:6379/0"
+      MINIO_ENDPOINT: "minio:9000"
+      MINIO_ACCESS_KEY: "minioadmin"
+      MINIO_SECRET_KEY: "minioadminpassword"
+      MINIO_BUCKET_NAME: "mettu-karl-his"
+      MINIO_SECURE: "false"
+      CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+      FHIR_SERVER_BASE_URL: "http://localhost:8000/api/v1/fhir/r4"
+      AUDIT_LOG_FILE: "/tmp/audit.log"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend/app:/app/app
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: mkh-frontend-dev
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: "http://localhost:8000/api/v1"
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_dev_data:
+  minio_dev_data:

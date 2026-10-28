@@ -1,0 +1,91 @@
+# ─── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+!.env.example
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+coverage.html
+*.cover
+
+# ─── Node.js / Next.js ────────────────────────────────────────
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+.vercel/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+*.tsbuildinfo
+
+# ─── Docker ───────────────────────────────────────────────────
+.docker/
+
+# ─── Kubernetes ───────────────────────────────────────────────
+# NEVER commit real secrets — use sealed-secrets or Vault
+k8s/overlays/*/secrets.yaml
+charts/*/secrets.yaml
+secrets.yaml
+
+# ─── IDE ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ─── OS ───────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
+log/
+/var/log/
+
+# ─── Alembic ──────────────────────────────────────────────────
+# Keep migrations tracked; only ignore temp files
+*.pyc
+
+# ─── MinIO / uploads ─────────────────────────────────────────
+uploads/
+media/
+
+# ─── Temporary ────────────────────────────────────────────────
+*.tmp
+*.bak
+*.orig
+.cache/
+tmp/
+temp/

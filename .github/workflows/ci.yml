@@ -1,0 +1,117 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  backend-checks:
+    name: Backend Lint, Test & Coverage
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_mettu_his
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install ruff pytest pytest-asyncio pytest-cov httpx aiosqlite
+          pip install -e .
+
+      - name: Run Ruff Linting
+        run: |
+          cd backend
+          ruff check .
+
+      - name: Run Pytest Suite with Coverage Gate
+        env:
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          SECRET_KEY: "ci-test-secret-key-very-secure"
+          APP_ENV: "test"
+          REDIS_URL: "redis://localhost:6379/0"
+        run: |
+          cd backend
+          pytest tests/ -v --cov=app --cov-report=term-missing --cov-fail-under=80
+
+  frontend-checks:
+    name: Frontend Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run TypeScript typecheck
+        run: |
+          cd frontend
+          npm run typecheck || npx tsc --noEmit
+
+  docker-build:
+    name: Docker Build & Security Scan
+    needs: [backend-checks, frontend-checks]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Backend Image
+        run: |
+          docker build -t mettu-karl-his/backend:${{ github.sha }} backend/
+
+      - name: Build Frontend Image
+        run: |
+          docker build -t mettu-karl-his/frontend:${{ github.sha }} frontend/
+
+      - name: Scan Backend Image for CVEs (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: mettu-karl-his/backend:${{ github.sha }}
+          format: "table"
+          exit-code: "0"
+          severity: "CRITICAL,HIGH"
