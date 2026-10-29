@@ -788,7 +788,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
           {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
           <div
-            className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out scale-[1.08] sm:scale-100 origin-[30%_35%] sm:origin-center bg-[position:30%_35%] sm:bg-[position:center_34%] ${
+            className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out scale-[1.26] sm:scale-100 origin-[28%_36%] sm:origin-center bg-[position:28%_36%] sm:bg-[position:center_34%] ${
               revealStep >= 4
                 ? 'opacity-100 blur-none animate-ken-burns'
                 : 'opacity-0 scale-105 blur-sm pointer-events-none'
@@ -815,7 +815,7 @@ export default function LoginPage() {
                 >
                   {/* Image slice for this part */}
                   <div
-                    className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out transform scale-[1.08] sm:scale-100 origin-[30%_35%] sm:origin-center ${
+                    className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out transform scale-[1.26] sm:scale-100 origin-[28%_36%] sm:origin-center ${
                       isPartOpen
                         ? 'opacity-100 translate-y-0 blur-none'
                         : 'opacity-0 scale-115 translate-y-8 blur-md'
