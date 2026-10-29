@@ -1,0 +1,167 @@
+name: Chainguard DevSecOps & Supply Chain Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissions required for Keyless Cosign Signing (OIDC) and GitHub Packages (GHCR)
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  security-events: write
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/mettu-his-backend
+  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/mettu-his-frontend
+
+jobs:
+  build-sign-attest:
+    name: Build, Scan, SBOM & Cosign Sign
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Install Cosign (Sigstore / Chainguard ecosystem tool)
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
+
+      # 2. Setup Docker Buildx for optimized multi-platform builds
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3. Authenticate with GitHub Container Registry (GHCR)
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 4. Extract Docker Metadata (Tags, Labels)
+      - name: Backend Metadata
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.BACKEND_IMAGE }}
+          tags: |
+            type=sha,format=long
+            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Frontend Metadata
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.FRONTEND_IMAGE }}
+          tags: |
+            type=sha,format=long
+            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      # 5. Build and Push Chainguard-based Containers
+      - name: Build & Push Backend Image
+        id: build-backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+
+      - name: Build & Push Frontend Image
+        id: build-frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+
+      # 6. Generate Software Bill of Materials (SBOM) using Syft
+      - name: Generate Backend SBOM (SPDX JSON)
+        if: github.event_name != 'pull_request'
+        uses: anchore/sbom-action@v0.16.0
+        with:
+          image: ${{ env.BACKEND_IMAGE }}:sha-${{ github.sha }}
+          format: 'spdx-json'
+          output-file: 'backend-sbom.spdx.json'
+
+      - name: Generate Frontend SBOM (SPDX JSON)
+        if: github.event_name != 'pull_request'
+        uses: anchore/sbom-action@v0.16.0
+        with:
+          image: ${{ env.FRONTEND_IMAGE }}:sha-${{ github.sha }}
+          format: 'spdx-json'
+          output-file: 'frontend-sbom.spdx.json'
+
+      # 7. Vulnerability Verification (Assert Zero High/Critical CVEs)
+      - name: Scan Backend Image with Grype
+        uses: anchore/scan-action@v3
+        with:
+          image: ${{ env.BACKEND_IMAGE }}:sha-${{ github.sha }}
+          fail-build: true
+          severity-cutoff: high
+
+      - name: Scan Frontend Image with Grype
+        uses: anchore/scan-action@v3
+        with:
+          image: ${{ env.FRONTEND_IMAGE }}:sha-${{ github.sha }}
+          fail-build: true
+          severity-cutoff: high
+
+      # 8. Keyless Cryptographic Signing with Cosign via GitHub OIDC
+      - name: Sign Backend Container Image
+        if: github.event_name != 'pull_request'
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign sign --yes "${{ env.BACKEND_IMAGE }}:sha-${{ github.sha }}"
+
+      - name: Sign Frontend Container Image
+        if: github.event_name != 'pull_request'
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign sign --yes "${{ env.FRONTEND_IMAGE }}:sha-${{ github.sha }}"
+
+      # 9. Cryptographically Attest the SBOM to the Container
+      - name: Attest Backend SBOM
+        if: github.event_name != 'pull_request'
+        run: |
+          cosign attest --yes \
+            --predicate backend-sbom.spdx.json \
+            --type spdx \
+            "${{ env.BACKEND_IMAGE }}:sha-${{ github.sha }}"
+
+      - name: Attest Frontend SBOM
+        if: github.event_name != 'pull_request'
+        run: |
+          cosign attest --yes \
+            --predicate frontend-sbom.spdx.json \
+            --type spdx \
+            "${{ env.FRONTEND_IMAGE }}:sha-${{ github.sha }}"
+
+      # 10. Verify Image Signatures & Attestations
+      - name: Verify Signed Artifacts
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Verifying Backend Signature with GitHub OIDC certificate..."
+          cosign verify \
+            --certificate-identity-regexp "https://github.com/${{ github.repository_owner }}/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${{ env.BACKEND_IMAGE }}:sha-${{ github.sha }}"
+
+          echo "Verifying Frontend Signature with GitHub OIDC certificate..."
+          cosign verify \
+            --certificate-identity-regexp "https://github.com/${{ github.repository_owner }}/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${{ env.FRONTEND_IMAGE }}:sha-${{ github.sha }}"
