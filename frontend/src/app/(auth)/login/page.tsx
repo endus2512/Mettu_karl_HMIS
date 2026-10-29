@@ -902,14 +902,14 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* 2. CENTER / ACTION BUTTONS SECTION (FLOATING OVER LOWER DRIVEWAY) */}
+        {/* 2. ACTION BUTTONS SECTION (FLOATING TOWARDS BOTTOM OVER DRIVEWAY) */}
         <div
-          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 my-auto py-3 transition-all duration-1000 ${
+          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-3 sm:mb-5 transition-all duration-1000 ${
             revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
           {/* Slight frosted pill grouping buttons smoothly with no harsh border box */}
-          <div className="w-full max-w-md backdrop-blur-md bg-slate-950/45 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 border border-white/20 shadow-2xl ring-1 ring-white/10">
+          <div className="w-full max-w-md backdrop-blur-md bg-slate-950/45 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3.5 border border-white/20 shadow-2xl ring-1 ring-white/10">
             <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
               {/* Login Button */}
               <div className="relative group flex-1">
@@ -957,20 +957,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-          </div>
-
-          {/* Floating Replay Reveal Button */}
-          <div className="mt-2.5 flex justify-center">
-            <button
-              type="button"
-              onClick={startRevealSequence}
-              title="Irra deebii mullisi (Replay Part Reveal)"
-              className="flex items-center gap-1 px-3 py-1 rounded-full bg-slate-950/60 hover:bg-slate-900 border border-white/20 text-sky-200 hover:text-white backdrop-blur-md text-[11px] font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
-              aria-label="Replay Reveal Animation"
-            >
-              <span className="text-xs">🔄</span>
-              <span>{language === 'om' ? 'Irra Deebii' : language === 'am' ? 'ደግመህ እይ' : 'Replay'}</span>
-            </button>
           </div>
         </div>
 
