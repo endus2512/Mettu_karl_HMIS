@@ -21,7 +21,7 @@
  */
 'use client';
 
-import React, { useState, useEffect, useId, useRef } from 'react';
+import React, { useState, useEffect, useId, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -284,6 +284,49 @@ const STAFF_ROLES = [
   { value: 'paramedic', text: 'EMS & Ambulance Paramedic (Ogeessa Ambulaansii 907)' },
 ];
 
+const BUILDING_PARTS = [
+  {
+    id: 1,
+    om: 'Kutaa 1: Gamoo Bitaa',
+    am: 'ክፍል 1፡ ግራ ህንፃ',
+    en: 'Part 1: Left Wing',
+    step: 3,
+    bgPos: '0%',
+  },
+  {
+    id: 2,
+    om: 'Kutaa 2: Kilinika Lixaa',
+    am: 'ክፍል 2፡ ምዕራብ ክሊኒክ',
+    en: 'Part 2: West Wing',
+    step: 2,
+    bgPos: '25%',
+  },
+  {
+    id: 3,
+    om: 'Kutaa 3: Seensa Guddaa & OPD',
+    am: 'ክፍል 3፡ ዋና መግቢያ',
+    en: 'Part 3: Grand Entrance',
+    step: 1,
+    bgPos: '50%',
+  },
+  {
+    id: 4,
+    om: 'Kutaa 4: Kilinika Bahaa',
+    am: 'ክፍል 4፡ ምስራቅ ክሊኒክ',
+    en: 'Part 4: East Wing',
+    step: 2,
+    bgPos: '75%',
+  },
+  {
+    id: 5,
+    om: 'Kutaa 5: Gamoo Mirgaa',
+    am: 'ክፍል 5፡ ቀኝ ህንፃ',
+    en: 'Part 5: Right Wing',
+    step: 3,
+    bgPos: '100%',
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
@@ -350,23 +393,35 @@ export default function LoginPage() {
   const [isDeptDropdownOpen, setIsDeptDropdownOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
 
-  // Progressive cinematic step-by-step reveal for the hospital building hero image
-  // Step 0: Initial soft blur and deep focal zoom
-  // Step 1: Smooth illumination and aperture opening (scale 120, blur reduces)
-  // Step 2: High clarity and full screen expansion (scale 108, blur 0)
-  // Step 3: Hospital crest, title, and action buttons smoothly glide into full view
+  // Progressive cinematic part-by-part reveal for the hospital building
+  // Step 0: All shutter blades veiled
+  // Step 1: Part 3 (Center Entrance) reveals smoothly
+  // Step 2: Part 2 & Part 4 (West & East inner wings) reveal
+  // Step 3: Part 1 & Part 5 (Left & Right outer wings) reveal (all 5 parts visible!)
+  // Step 4: The 5 slices unite into seamless high-definition full image with Ken Burns drift
+  // Step 5: Branding, badges, and interactive buttons glide in with glow
   const [revealStep, setRevealStep] = useState(0);
 
-  useEffect(() => {
-    const t1 = setTimeout(() => setRevealStep(1), 100);
-    const t2 = setTimeout(() => setRevealStep(2), 700);
-    const t3 = setTimeout(() => setRevealStep(3), 1400);
+  const startRevealSequence = useCallback(() => {
+    setRevealStep(0);
+    const t1 = setTimeout(() => setRevealStep(1), 150);
+    const t2 = setTimeout(() => setRevealStep(2), 650);
+    const t3 = setTimeout(() => setRevealStep(3), 1150);
+    const t4 = setTimeout(() => setRevealStep(4), 1650);
+    const t5 = setTimeout(() => setRevealStep(5), 2050);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
     };
   }, []);
+
+  useEffect(() => {
+    const cancel = startRevealSequence();
+    return cancel;
+  }, [startRevealSequence]);
 
   const t = copy[language] ?? copy.om;
 
@@ -775,127 +830,218 @@ export default function LoginPage() {
       </div>
 
       {/* ======================================================================= */}
-      {/* HOSPITAL BUILDING HERO VIEW (FULL SCREEN)                              */}
+      {/* HOSPITAL BUILDING HERO VIEW (MOBILE PORTABLE & DESKTOP WIDESCREEN)       */}
       {/* ======================================================================= */}
-      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-hidden z-10 bg-[#071d3d] border-l-2 border-sky-400/40">
-        {/* UPPER / MIDDLE SECTION: The Hospital Building Photo */}
-        <div className="relative flex-1 w-full overflow-hidden flex flex-col justify-between">
-          {/* Hospital Building Image with Progressive Multi-Step Cinematic Reveal */}
+      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden z-10 bg-[#071d3d] border-l-2 border-sky-400/40">
+        
+        {/* Deep Atmospheric Backdrop: Ensures rich clinical tone across any screen ratio */}
+        <div className="absolute inset-0 bg-[#071d3d] overflow-hidden pointer-events-none">
           <div
-            className={`absolute inset-0 w-full h-full transform transition-all ease-out ${
-              revealStep === 0
-                ? 'scale-125 blur-xl opacity-20 duration-500'
-                : revealStep === 1
-                ? 'scale-118 blur-md opacity-70 duration-700'
-                : revealStep === 2
-                ? 'scale-110 blur-xs opacity-95 duration-900'
-                : 'scale-105 sm:scale-110 blur-none opacity-100 duration-1000 animate-ken-burns'
-            }`}
+            className="absolute inset-0 bg-cover bg-center blur-3xl opacity-30 scale-125 transition-opacity duration-1000"
             style={{
               backgroundImage: "url('/hospital-building.jpg')",
-              backgroundSize: 'cover',
-              backgroundPosition: 'center 40%',
-              backgroundRepeat: 'no-repeat',
             }}
           />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a3a78]/80 via-transparent to-[#051833]/90" />
+        </div>
 
-          {/* Branded Blue Top Scrim */}
-          <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#0a3a78]/90 via-[#0a3a78]/60 to-transparent pointer-events-none" />
+        {/* Branded Blue Scrims */}
+        <div className="hidden lg:block absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#0a3a78]/90 via-[#0a3a78]/60 to-transparent pointer-events-none z-15" />
+        <div className="hidden lg:block absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-[#0a3a78] via-[#0a3a78]/60 to-transparent pointer-events-none z-15" />
+        <div className="hidden lg:block absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#0a3a78]/70 to-transparent pointer-events-none z-15" />
 
-          {/* Right edge blue scrim */}
-          <div className="absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-[#0a3a78] via-[#0a3a78]/60 to-transparent pointer-events-none" />
-
-          {/* Left edge subtle blue scrim */}
-          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#0a3a78]/70 to-transparent pointer-events-none" />
-
-          {/* Top Branding Section (Smooth progressive entrance) */}
-          <div className={`relative z-10 p-4 sm:p-8 xl:p-10 transition-all duration-700 ${
-            revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'
-          }`}>
+        {/* UPPER / MIDDLE SECTION: The Hospital Building Photo & Stage */}
+        <div className="relative flex-1 w-full flex flex-col justify-between p-3 sm:p-6 lg:p-0 min-h-0">
+          
+          {/* Top Branding Section */}
+          <div
+            className={`relative z-20 p-2 sm:p-6 lg:p-10 transition-all duration-700 ${
+              revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+            }`}
+          >
             <div className="flex items-center gap-3 sm:gap-4 xl:gap-5">
               <img
                 src="/hospital-logo-white.png"
                 alt="Mettu Karl Referral Hospital Emblem"
-                className="h-12 w-12 sm:h-16 sm:w-16 xl:h-18 xl:w-18 rounded-full bg-white p-0.5 shadow-lg shrink-0 object-contain"
+                className="h-10 w-10 sm:h-14 sm:w-14 xl:h-18 xl:w-18 rounded-full bg-white p-0.5 shadow-lg shrink-0 object-contain"
               />
               <div className="min-w-0">
-                <h1 className="text-lg sm:text-2xl xl:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
+                <h1 className="text-base sm:text-2xl xl:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
                   {t.hospitalName}
                 </h1>
-                <p className="text-xs sm:text-sm xl:text-base font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+                <p className="text-[11px] sm:text-xs xl:text-base font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
                   {t.hmisTitle} • {t.hmisSubtitle}
                 </p>
               </div>
             </div>
 
             {/* Hospital Tagline */}
-            <p className="text-[11px] sm:text-xs xl:text-sm italic text-sky-100 font-normal mt-2 sm:mt-3 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+            <p className="text-[10px] sm:text-xs xl:text-sm italic text-sky-100 font-normal mt-1 sm:mt-2 xl:mt-3 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
               {t.tagline}
             </p>
           </div>
 
           {/* =================================================================== */}
-          {/* CENTER HERO AREA: ANIMATED LOGIN & SIGNUP BUTTONS ON BUILDING IMAGE */}
+          {/* CENTER HERO AREA: 100% VISIBLE FULL BUILDING + 5-PART PROGRESSIVE REVEAL */}
           {/* =================================================================== */}
-          <div className={`relative z-20 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 my-auto py-4 transition-all duration-1000 ${
-            revealStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
-            {/* Ultra-Transparent Glassmorphic Container for Animated Actions */}
-            <div className="w-full sm:w-auto max-w-xl text-center bg-white/[0.04] dark:bg-slate-950/[0.1] backdrop-blur-sm rounded-3xl p-4 sm:p-6 border border-white/25 shadow-2xl transition-all ring-1 ring-white/10">
-              {/* ANIMATED LOGIN & SIGNUP ACTION BUTTONS WITH ENHANCED ANIMATION */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-5 w-full">
-                {/* 1. Animated Login Button with Ambient Glow & Shimmer */}
-                <div className="relative group w-full sm:w-auto">
-                  {/* Outer Pulsing Glow Aura (Paused when form modal is open to ensure static background stability) */}
-                  <div
-                    className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-75 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
-                      isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
-                    }`}
-                  />
+          <div className="relative z-20 flex-1 flex flex-col items-center justify-center w-full px-2 sm:px-6 my-auto py-2 lg:py-0">
+            
+            {/* The Dedicated Building Canvas (Responsive 16:9 on mobile, Full Bleed on Desktop) */}
+            <div className="w-full max-w-sm sm:max-w-md md:max-w-xl lg:max-w-none aspect-[16/9] lg:aspect-auto lg:absolute lg:inset-0 rounded-2xl lg:rounded-none overflow-hidden border-2 lg:border-none border-sky-400/60 shadow-2xl lg:shadow-none relative bg-slate-950/80">
+              
+              {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
+              <div
+                className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out ${
+                  revealStep >= 4
+                    ? 'opacity-100 scale-100 sm:scale-105 blur-none animate-ken-burns'
+                    : 'opacity-0 scale-110 blur-sm pointer-events-none'
+                }`}
+                style={{
+                  backgroundImage: "url('/hospital-building.jpg')",
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center 40%',
+                  backgroundRepeat: 'no-repeat',
+                }}
+              />
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormType('login');
-                      setIsFormOpen(true);
-                    }}
-                    className="relative overflow-hidden w-full sm:w-auto min-w-[200px] flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-sm sm:text-base shadow-2xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-108 active:scale-95 transition-all duration-300 cursor-pointer border-2 border-sky-300/50"
-                  >
-                    {/* Animated Light Shimmer Sweep Layer */}
-                    <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
+              {/* 2. 5-Part Architectural Shutter Slices (Visible during reveal steps 0-3) */}
+              <div
+                className={`absolute inset-0 w-full h-full flex transition-opacity duration-700 ${
+                  revealStep >= 4 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                }`}
+              >
+                {BUILDING_PARTS.map((part, index) => {
+                  const isPartOpen = revealStep >= part.step;
+                  return (
+                    <div
+                      key={part.id}
+                      className="relative h-full flex-1 overflow-hidden border-r last:border-r-0 border-sky-400/30 bg-slate-950/90"
+                    >
+                      {/* Image slice for this part */}
+                      <div
+                        className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out transform ${
+                          isPartOpen
+                            ? 'opacity-100 scale-100 translate-y-0 blur-none'
+                            : 'opacity-0 scale-115 translate-y-8 blur-md'
+                        }`}
+                        style={{
+                          backgroundImage: "url('/hospital-building.jpg')",
+                          backgroundSize: '500% 100%',
+                          backgroundPosition: `${index * 25}% 40%`,
+                          backgroundRepeat: 'no-repeat',
+                        }}
+                      />
 
-                    <LogIn className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5 group-hover:scale-115" />
-                    <span className="tracking-wide drop-shadow-md">
-                      {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Login'}
-                    </span>
-                  </button>
+                      {/* Frosted Shutter Blade that draws upward */}
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/95 via-[#071d3d]/90 to-[#041124]/95 backdrop-blur-xs transition-all duration-700 pointer-events-none flex flex-col justify-end p-1 sm:p-2 ${
+                          isPartOpen ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
+                        }`}
+                      >
+                        <span className="inline-block px-1 py-0.5 rounded-full bg-sky-950/90 border border-sky-400/50 text-[7.5px] sm:text-[9.5px] font-black text-sky-200 text-center truncate shadow-sm">
+                          {language === 'om' ? part.om : language === 'am' ? part.am : part.en}
+                        </span>
+                      </div>
+
+                      {/* Glowing vertical laser beam partition */}
+                      <div
+                        className={`absolute inset-y-0 right-0 w-0.5 bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#38bdf8] transition-opacity duration-500 ${
+                          isPartOpen ? 'opacity-80' : 'opacity-30'
+                        }`}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Status Pill during progressive reveal */}
+              {revealStep < 4 && (
+                <div className="absolute top-2.5 left-2.5 z-30 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/80 border border-teal-400/50 text-[10px] font-bold text-teal-300 backdrop-blur-md animate-pulse shadow-md">
+                  <span className="h-2 w-2 rounded-full bg-teal-400" />
+                  <span>
+                    {language === 'om'
+                      ? `Gamoo: Kutaa ${revealStep === 1 ? '3 (Seensa)' : revealStep === 2 ? '2, 3, 4' : '1 hanga 5'}...`
+                      : language === 'am'
+                      ? `ህንፃ፡ ክፍል ${revealStep === 1 ? '3' : revealStep === 2 ? '2, 3, 4' : '1 እስከ 5'}...`
+                      : `Building: Part ${revealStep === 1 ? '3' : revealStep === 2 ? '2, 3, 4' : '1 to 5'}...`}
+                  </span>
                 </div>
+              )}
 
-                {/* 2. Animated Sign Up Button with Ambient Glow & Shimmer */}
-                <div className="relative group w-full sm:w-auto">
-                  {/* Outer Pulsing Glow Aura (Paused when form modal is open to ensure static background stability) */}
-                  <div
-                    className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-65 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
-                      isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
-                    }`}
-                  />
+              {/* Replay Reveal Trigger Button */}
+              <button
+                type="button"
+                onClick={startRevealSequence}
+                title="Irra deebii mullisi (Replay Part Reveal)"
+                className="absolute top-2.5 right-2.5 z-30 flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-sky-400/40 text-sky-200 hover:text-white text-[10px] font-bold backdrop-blur-md transition-all shadow-md active:scale-95 cursor-pointer"
+              >
+                <span className="text-xs">🔄</span>
+                <span className="hidden sm:inline">
+                  {language === 'om' ? 'Kutaa mullisi' : language === 'am' ? 'እንደገና አሳይ' : 'Replay'}
+                </span>
+              </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormType('signup');
-                      setIsFormOpen(true);
-                    }}
-                    className="relative overflow-hidden w-full sm:w-auto min-w-[200px] flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-sm sm:text-base border-2 border-white/90 shadow-2xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-108 active:scale-95 backdrop-blur-md transition-all duration-300 cursor-pointer"
-                  >
-                    {/* Animated Light Shimmer Sweep Layer */}
-                    <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
+              {/* Mobile "100% Full View" Badge */}
+              <div className="lg:hidden absolute bottom-2 left-2 z-30">
+                <span className="px-2 py-0.5 rounded-full bg-slate-950/80 border border-emerald-400/50 text-[9px] font-bold text-emerald-300 backdrop-blur-xs">
+                  ✓ Guutuu (Full View)
+                </span>
+              </div>
+            </div>
 
-                    <UserPlus className="w-5 h-5 transition-transform duration-300 group-hover:scale-125" />
-                    <span className="tracking-wide drop-shadow-md">
-                      {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up'}
-                    </span>
-                  </button>
+            {/* ACTION BUTTONS: Positioned directly below building on mobile, in center on desktop */}
+            <div
+              className={`relative z-20 w-full max-w-sm sm:max-w-md md:max-w-xl text-center mt-3 sm:mt-4 lg:mt-0 transition-all duration-1000 ${
+                revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
+              <div className="w-full bg-white/[0.04] dark:bg-slate-950/[0.1] backdrop-blur-sm rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-white/20 shadow-2xl ring-1 ring-white/10">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
+                  {/* 1. Animated Login Button */}
+                  <div className="relative group w-full sm:w-auto">
+                    <div
+                      className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-75 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
+                        isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormType('login');
+                        setIsFormOpen(true);
+                      }}
+                      className="relative overflow-hidden w-full sm:w-auto min-w-[160px] sm:min-w-[190px] flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
+                    >
+                      <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
+                      <LogIn className="w-4 h-4 transition-transform duration-200 group-hover:scale-115 shrink-0" />
+                      <span className="tracking-wide drop-shadow-md">
+                        {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Login'}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* 2. Animated Sign Up Button */}
+                  <div className="relative group w-full sm:w-auto">
+                    <div
+                      className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-65 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
+                        isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormType('signup');
+                        setIsFormOpen(true);
+                      }}
+                      className="relative overflow-hidden w-full sm:w-auto min-w-[160px] sm:min-w-[190px] flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 sm:py-3.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/90 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                    >
+                      <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
+                      <UserPlus className="w-4 h-4 transition-transform duration-200 group-hover:scale-125 shrink-0" />
+                      <span className="tracking-wide drop-shadow-md">
+                        {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
