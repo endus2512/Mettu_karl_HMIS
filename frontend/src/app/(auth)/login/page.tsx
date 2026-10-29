@@ -904,7 +904,7 @@ export default function LoginPage() {
 
         {/* 2. ACTION BUTTONS SECTION (FLOATING TOWARDS BOTTOM OVER DRIVEWAY) */}
         <div
-          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-7 sm:mb-10 lg:mb-12 transition-all duration-1000 ${
+          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-11 sm:mb-10 lg:mb-12 transition-all duration-1000 ${
             revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
@@ -961,7 +961,7 @@ export default function LoginPage() {
         </div>
 
         {/* 3. BOTTOM SECTION: FROSTED GLASS BAR WITH 4 SERVICE BADGES */}
-        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-3 sm:px-6 pt-2.5 pb-4 sm:pt-3 sm:pb-6 shrink-0 shadow-2xl">
+        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-3 sm:px-6 pt-3 pb-6 sm:pt-3 sm:pb-6 shrink-0 shadow-2xl">
           {/* 4 Feature Badges with Vertical Dividers */}
           <div className="w-full max-w-2xl mx-auto">
             <div className="grid grid-cols-4 divide-x divide-white/20">
@@ -970,7 +970,7 @@ export default function LoginPage() {
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
                   <UserCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9.5px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
                   {t.servicePatient}
                 </span>
               </div>
@@ -980,7 +980,7 @@ export default function LoginPage() {
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
                   <Bed className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9.5px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
                   {t.serviceInpatient}
                 </span>
               </div>
@@ -990,7 +990,7 @@ export default function LoginPage() {
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
                   <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9.5px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
                   {t.serviceClinical}
                 </span>
               </div>
@@ -1000,7 +1000,7 @@ export default function LoginPage() {
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
                   <BarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9.5px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
                   {t.serviceAnalytics}
                 </span>
               </div>
@@ -1008,8 +1008,8 @@ export default function LoginPage() {
           </div>
 
           {/* Bottom Hospital HMIS Tag */}
-          <div className="pt-1.5 text-center">
-            <p className="text-[9.5px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide drop-shadow-sm">
+          <div className="pt-2 pb-1.5 sm:pt-1.5 sm:pb-0 text-center">
+            <p className="text-[10px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide drop-shadow-sm">
               Mettu Karl Referral Hospital HMIS
             </p>
           </div>
