@@ -705,7 +705,7 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {/* TOP-RIGHT CONTROLS: LANGUAGE DROPDOWN                                  */}
       {/* ======================================================================= */}
-      <div className="absolute top-6 sm:top-8 right-4 sm:right-8 z-40 flex items-center gap-2 sm:gap-2.5">
+      <div className="absolute top-2.5 sm:top-8 right-3.5 sm:right-8 z-40 flex items-center gap-2 sm:gap-2.5">
         {/* Language Selector Dropdown */}
         <div className="relative" ref={langMenuRef}>
           <button
@@ -790,13 +790,13 @@ export default function LoginPage() {
           <div
             className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out ${
               revealStep >= 4
-                ? 'opacity-100 scale-100 sm:scale-105 blur-none animate-ken-burns'
-                : 'opacity-0 scale-110 blur-sm pointer-events-none'
+                ? 'opacity-100 scale-100 blur-none animate-ken-burns'
+                : 'opacity-0 scale-105 blur-sm pointer-events-none'
             }`}
             style={{
               backgroundImage: "url('/hospital-building.jpg')",
               backgroundSize: 'cover',
-              backgroundPosition: 'center 38%',
+              backgroundPosition: 'center 34%',
               backgroundRepeat: 'no-repeat',
             }}
           />
@@ -824,7 +824,7 @@ export default function LoginPage() {
                     style={{
                       backgroundImage: "url('/hospital-building.jpg')",
                       backgroundSize: '500% 100%',
-                      backgroundPosition: `${index * 25}% 38%`,
+                      backgroundPosition: `${index * 25}% 34%`,
                       backgroundRepeat: 'no-repeat',
                     }}
                   />
@@ -859,7 +859,7 @@ export default function LoginPage() {
         
         {/* 1. TOP BRANDING SECTION (FLOATING ON SKY) */}
         <div
-          className={`relative z-20 px-4 pt-6 sm:px-8 sm:pt-8 transition-all duration-700 max-w-xl ${
+          className={`relative z-20 px-3.5 pt-2.5 sm:px-8 sm:pt-8 transition-all duration-700 max-w-xl ${
             revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
           }`}
         >
@@ -867,7 +867,7 @@ export default function LoginPage() {
             <img
               src="/hospital-logo-white.png"
               alt="Mettu Karl Referral Hospital Emblem"
-              className="h-10 w-10 sm:h-14 sm:w-14 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
+              className="h-9 w-9 sm:h-14 sm:w-14 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
             />
             <div className="min-w-0">
               <h1 className="text-base sm:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-[0_2px_5px_rgba(0,0,0,0.95)] truncate sm:whitespace-normal">
@@ -880,19 +880,19 @@ export default function LoginPage() {
           </div>
 
           {/* Hospital Tagline */}
-          <p className="text-[10px] sm:text-xs italic text-sky-100 font-medium mt-1 sm:mt-2 tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] truncate sm:whitespace-normal">
+          <p className="text-[10px] sm:text-xs italic text-sky-100 font-medium mt-0.5 sm:mt-2 tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] truncate sm:whitespace-normal">
             {t.tagline}
           </p>
         </div>
 
         {/* 2. ACTION BUTTONS SECTION (FLOATING TOWARDS BOTTOM OVER DRIVEWAY) */}
         <div
-          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-11 sm:mb-10 lg:mb-12 transition-all duration-1000 ${
+          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-3 sm:mb-8 lg:mb-10 transition-all duration-1000 ${
             revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
           {/* Slight frosted pill grouping buttons smoothly with no harsh border box */}
-          <div className="w-full max-w-md backdrop-blur-md bg-slate-950/45 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3.5 border border-white/20 shadow-2xl ring-1 ring-white/10">
+          <div className="w-full max-w-md backdrop-blur-md bg-slate-950/45 rounded-2xl sm:rounded-3xl p-2 sm:p-3.5 border border-white/20 shadow-2xl ring-1 ring-white/10">
             <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
               {/* Login Button */}
               <div className="relative group flex-1">
@@ -907,7 +907,7 @@ export default function LoginPage() {
                     setFormType('login');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
                 >
                   <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
                   <LogIn className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-115" />
@@ -930,7 +930,7 @@ export default function LoginPage() {
                     setFormType('signup');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/85 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/85 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
                 >
                   <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
                   <UserPlus className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-125" />
@@ -944,46 +944,46 @@ export default function LoginPage() {
         </div>
 
         {/* 3. BOTTOM SECTION: FROSTED GLASS BAR WITH 4 SERVICE BADGES */}
-        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-3 sm:px-6 pt-3 pb-6 sm:pt-3 sm:pb-6 shrink-0 shadow-2xl">
+        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-2.5 sm:px-6 pt-1.5 pb-2 sm:pt-3 sm:pb-5 shrink-0 shadow-2xl">
           {/* 4 Feature Badges with Vertical Dividers */}
           <div className="w-full max-w-2xl mx-auto">
             <div className="grid grid-cols-4 divide-x divide-white/20">
               {/* Feature 1: Patient Management */}
               <div className="flex flex-col items-center text-center px-1">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <UserCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <UserCheck className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[9px] sm:text-[11px] font-medium text-white/95 mt-0.5 sm:mt-1 leading-tight drop-shadow-sm">
                   {t.servicePatient}
                 </span>
               </div>
 
               {/* Feature 2: Inpatient & Ward Management */}
               <div className="flex flex-col items-center text-center px-1">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <Bed className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <Bed className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[9px] sm:text-[11px] font-medium text-white/95 mt-0.5 sm:mt-1 leading-tight drop-shadow-sm">
                   {t.serviceInpatient}
                 </span>
               </div>
 
               {/* Feature 3: Clinical Services */}
               <div className="flex flex-col items-center text-center px-1">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <Stethoscope className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[9px] sm:text-[11px] font-medium text-white/95 mt-0.5 sm:mt-1 leading-tight drop-shadow-sm">
                   {t.serviceClinical}
                 </span>
               </div>
 
               {/* Feature 4: Reports & Analytics */}
               <div className="flex flex-col items-center text-center px-1">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <BarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <BarChart2 className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[9px] sm:text-[11px] font-medium text-white/95 mt-0.5 sm:mt-1 leading-tight drop-shadow-sm">
                   {t.serviceAnalytics}
                 </span>
               </div>
@@ -991,8 +991,8 @@ export default function LoginPage() {
           </div>
 
           {/* Bottom Hospital HMIS Tag */}
-          <div className="pt-2 pb-1.5 sm:pt-1.5 sm:pb-0 text-center">
-            <p className="text-[10px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide drop-shadow-sm">
+          <div className="pt-1.5 pb-1 sm:pt-1.5 sm:pb-0 text-center">
+            <p className="text-[9.5px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide drop-shadow-sm">
               Mettu Karl Referral Hospital HMIS
             </p>
           </div>
