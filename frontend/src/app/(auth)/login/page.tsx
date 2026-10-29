@@ -795,247 +795,235 @@ export default function LoginPage() {
       </div>
 
       {/* ======================================================================= */}
-      {/* HOSPITAL BUILDING HERO VIEW (MOBILE PORTABLE & DESKTOP WIDESCREEN)       */}
+      {/* HOSPITAL BUILDING HERO VIEW (EDGE-TO-EDGE FULL SCREEN BACKGROUND)       */}
       {/* ======================================================================= */}
-      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden z-10 bg-[#071d3d] border-l-2 border-sky-400/40">
+      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none">
         
-        {/* Deep Atmospheric Backdrop: Ensures rich clinical tone across any screen ratio */}
-        <div className="absolute inset-0 bg-[#071d3d] overflow-hidden pointer-events-none">
+        {/* =================================================================== */}
+        {/* FULL-BLEED BACKGROUND CANVAS (Ken Burns + 5-Part Architectural Reveal) */}
+        {/* =================================================================== */}
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
+          {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
           <div
-            className="absolute inset-0 bg-cover bg-center blur-3xl opacity-30 scale-125 transition-opacity duration-1000"
+            className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out ${
+              revealStep >= 4
+                ? 'opacity-100 scale-100 sm:scale-105 blur-none animate-ken-burns'
+                : 'opacity-0 scale-110 blur-sm pointer-events-none'
+            }`}
             style={{
               backgroundImage: "url('/hospital-building.jpg')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 38%',
+              backgroundRepeat: 'no-repeat',
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a3a78]/80 via-transparent to-[#051833]/90" />
-        </div>
 
-        {/* Branded Blue Scrims */}
-        <div className="hidden lg:block absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#0a3a78]/90 via-[#0a3a78]/60 to-transparent pointer-events-none z-15" />
-        <div className="hidden lg:block absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-[#0a3a78] via-[#0a3a78]/60 to-transparent pointer-events-none z-15" />
-        <div className="hidden lg:block absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#0a3a78]/70 to-transparent pointer-events-none z-15" />
-
-        {/* UPPER / MIDDLE SECTION: The Hospital Building Photo & Stage */}
-        <div className="relative flex-1 w-full flex flex-col justify-between p-2 sm:p-6 lg:p-0 min-h-0">
-          
-          {/* Top Branding Section */}
+          {/* 2. 5-Part Architectural Shutter Slices (Visible during reveal steps 0-3) */}
           <div
-            className={`relative z-20 px-2 pt-1 pb-1 sm:p-6 lg:p-10 transition-all duration-700 ${
-              revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+            className={`absolute inset-0 w-full h-full flex transition-opacity duration-700 ${
+              revealStep >= 4 ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           >
-            <div className="flex items-center gap-2.5 sm:gap-4 xl:gap-5">
-              <img
-                src="/hospital-logo-white.png"
-                alt="Mettu Karl Referral Hospital Emblem"
-                className="h-9 w-9 sm:h-14 sm:w-14 xl:h-18 xl:w-18 rounded-full bg-white p-0.5 shadow-lg shrink-0 object-contain"
-              />
-              <div className="min-w-0">
-                <h1 className="text-sm sm:text-2xl xl:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
-                  {t.hospitalName}
-                </h1>
-                <p className="text-[10px] sm:text-xs xl:text-base font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
-                  {t.hmisTitle} • {t.hmisSubtitle}
-                </p>
-              </div>
-            </div>
+            {BUILDING_PARTS.map((part, index) => {
+              const isPartOpen = revealStep >= part.step;
+              return (
+                <div
+                  key={part.id}
+                  className="relative h-full flex-1 overflow-hidden border-r last:border-r-0 border-white/20 bg-slate-950/80"
+                >
+                  {/* Image slice for this part */}
+                  <div
+                    className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out transform ${
+                      isPartOpen
+                        ? 'opacity-100 scale-100 translate-y-0 blur-none'
+                        : 'opacity-0 scale-115 translate-y-8 blur-md'
+                    }`}
+                    style={{
+                      backgroundImage: "url('/hospital-building.jpg')",
+                      backgroundSize: '500% 100%',
+                      backgroundPosition: `${index * 25}% 38%`,
+                      backgroundRepeat: 'no-repeat',
+                    }}
+                  />
 
-            {/* Hospital Tagline */}
-            <p className="text-[9.5px] sm:text-xs xl:text-sm italic text-sky-100 font-normal mt-0.5 sm:mt-2 xl:mt-3 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
-              {t.tagline}
-            </p>
+                  {/* Frosted Shutter Blade that draws upward */}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/90 via-[#071d3d]/85 to-[#041124]/90 backdrop-blur-xs transition-all duration-700 pointer-events-none ${
+                      isPartOpen ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
+                    }`}
+                  />
+
+                  {/* Glowing vertical laser beam partition */}
+                  <div
+                    className={`absolute inset-y-0 right-0 w-0.5 bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#38bdf8] transition-opacity duration-500 ${
+                      isPartOpen ? 'opacity-70' : 'opacity-25'
+                    }`}
+                  />
+                </div>
+              );
+            })}
           </div>
 
-          {/* =================================================================== */}
-          {/* CENTER HERO AREA: ENLARGED PROMINENT BUILDING + 5-PART PROGRESSIVE REVEAL */}
-          {/* =================================================================== */}
-          <div className="relative z-20 flex-1 flex flex-col items-center justify-center w-full px-1 sm:px-4 my-auto py-0.5 sm:py-2 lg:py-0 min-h-0">
-            
-            {/* The Dedicated Building Canvas (Enlarged & Portable on mobile, Full Bleed on Desktop) */}
-            <div className="w-full max-w-3xl lg:max-w-none h-[58vh] sm:h-[65vh] min-h-[380px] sm:min-h-[440px] max-h-[640px] lg:h-full lg:max-h-none lg:absolute lg:inset-0 rounded-2xl sm:rounded-3xl lg:rounded-none overflow-hidden border-2 lg:border-none border-sky-400/60 shadow-2xl lg:shadow-none relative bg-slate-950/80">
-              
-              {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
-              <div
-                className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out ${
-                  revealStep >= 4
-                    ? 'opacity-100 scale-100 sm:scale-105 blur-none animate-ken-burns'
-                    : 'opacity-0 scale-110 blur-sm pointer-events-none'
-                }`}
-                style={{
-                  backgroundImage: "url('/hospital-building.jpg')",
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center 38%',
-                  backgroundRepeat: 'no-repeat',
-                }}
-              />
+          {/* Atmospheric Scrims: Enhances text readability while preserving the vibrant scene */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-slate-950/80 pointer-events-none" />
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-36 bg-gradient-to-r from-slate-950/50 to-transparent pointer-events-none" />
+          <div className="hidden lg:block absolute inset-y-0 right-0 w-36 bg-gradient-to-l from-slate-950/50 to-transparent pointer-events-none" />
+        </div>
 
-              {/* 2. 5-Part Architectural Shutter Slices (Visible during reveal steps 0-3) */}
-              <div
-                className={`absolute inset-0 w-full h-full flex transition-opacity duration-700 ${
-                  revealStep >= 4 ? 'opacity-0 pointer-events-none' : 'opacity-100'
-                }`}
-              >
-                {BUILDING_PARTS.map((part, index) => {
-                  const isPartOpen = revealStep >= part.step;
-                  return (
-                    <div
-                      key={part.id}
-                      className="relative h-full flex-1 overflow-hidden border-r last:border-r-0 border-sky-400/30 bg-slate-950/90"
-                    >
-                      {/* Image slice for this part */}
-                      <div
-                        className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out transform ${
-                          isPartOpen
-                            ? 'opacity-100 scale-100 translate-y-0 blur-none'
-                            : 'opacity-0 scale-115 translate-y-8 blur-md'
-                        }`}
-                        style={{
-                          backgroundImage: "url('/hospital-building.jpg')",
-                          backgroundSize: '500% 100%',
-                          backgroundPosition: `${index * 25}% 38%`,
-                          backgroundRepeat: 'no-repeat',
-                        }}
-                      />
+        {/* =================================================================== */}
+        {/* FOREGROUND CONTENT LAYER (TOP BRANDING, ACTION BUTTONS, BOTTOM)     */}
+        {/* =================================================================== */}
+        
+        {/* 1. TOP BRANDING SECTION (FLOATING ON SKY) */}
+        <div
+          className={`relative z-20 px-4 pt-4 sm:px-8 sm:pt-6 transition-all duration-700 max-w-xl ${
+            revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+          }`}
+        >
+          <div className="flex items-center gap-3 sm:gap-4">
+            <img
+              src="/hospital-logo-white.png"
+              alt="Mettu Karl Referral Hospital Emblem"
+              className="h-10 w-10 sm:h-14 sm:w-14 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
+            />
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-2xl font-extrabold text-white tracking-tight leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] truncate sm:whitespace-normal">
+                {t.hospitalName}
+              </h1>
+              <p className="text-xs sm:text-sm font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] truncate sm:whitespace-normal">
+                {t.hmisTitle} • {t.hmisSubtitle}
+              </p>
+            </div>
+          </div>
 
-                      {/* Frosted Shutter Blade that draws upward (pure visual action, no text) */}
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/95 via-[#071d3d]/90 to-[#041124]/95 backdrop-blur-xs transition-all duration-700 pointer-events-none ${
-                          isPartOpen ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
-                        }`}
-                      />
+          {/* Hospital Tagline */}
+          <p className="text-[10px] sm:text-xs italic text-sky-100 font-medium mt-1 sm:mt-2 tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] truncate sm:whitespace-normal">
+            {t.tagline}
+          </p>
+        </div>
 
-                      {/* Glowing vertical laser beam partition */}
-                      <div
-                        className={`absolute inset-y-0 right-0 w-0.5 bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#38bdf8] transition-opacity duration-500 ${
-                          isPartOpen ? 'opacity-80' : 'opacity-30'
-                        }`}
-                      />
-                    </div>
-                  );
-                })}
+        {/* 2. CENTER / ACTION BUTTONS SECTION (FLOATING OVER LOWER DRIVEWAY) */}
+        <div
+          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 my-auto py-3 transition-all duration-1000 ${
+            revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`}
+        >
+          {/* Slight frosted pill grouping buttons smoothly with no harsh border box */}
+          <div className="w-full max-w-md backdrop-blur-md bg-slate-950/45 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 border border-white/20 shadow-2xl ring-1 ring-white/10">
+            <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
+              {/* Login Button */}
+              <div className="relative group flex-1">
+                <div
+                  className={`absolute -inset-1 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-80 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
+                    isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormType('login');
+                    setIsFormOpen(true);
+                  }}
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
+                >
+                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
+                  <LogIn className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-115" />
+                  <span className="tracking-wide drop-shadow-md truncate">
+                    {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Login'}
+                  </span>
+                </button>
               </div>
 
-              {/* Replay Reveal Trigger Button (Clean Icon Only, No Text) */}
-              <button
-                type="button"
-                onClick={startRevealSequence}
-                title="Irra deebii mullisi (Replay Part Reveal)"
-                className="absolute top-2.5 right-2.5 z-30 flex items-center justify-center h-8.5 w-8.5 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-sky-400/40 text-sky-200 hover:text-white backdrop-blur-md transition-all shadow-md active:scale-90 cursor-pointer"
-                aria-label="Replay Reveal Animation"
-              >
-                <span className="text-sm">🔄</span>
-              </button>
+              {/* Sign Up Button */}
+              <div className="relative group flex-1">
+                <div
+                  className={`absolute -inset-1 rounded-xl sm:rounded-2xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-70 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
+                    isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormType('signup');
+                    setIsFormOpen(true);
+                  }}
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/85 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                >
+                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
+                  <UserPlus className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-125" />
+                  <span className="tracking-wide drop-shadow-md truncate">
+                    {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up'}
+                  </span>
+                </button>
+              </div>
             </div>
+          </div>
 
-            {/* ACTION BUTTONS: Side-by-side compact on mobile, spacious in center on desktop */}
-            <div
-              className={`relative z-20 w-full max-w-2xl text-center mt-2 sm:mt-3 lg:mt-0 transition-all duration-1000 ${
-                revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
+          {/* Floating Replay Reveal Button */}
+          <div className="mt-2.5 flex justify-center">
+            <button
+              type="button"
+              onClick={startRevealSequence}
+              title="Irra deebii mullisi (Replay Part Reveal)"
+              className="flex items-center gap-1 px-3 py-1 rounded-full bg-slate-950/60 hover:bg-slate-900 border border-white/20 text-sky-200 hover:text-white backdrop-blur-md text-[11px] font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
+              aria-label="Replay Reveal Animation"
             >
-              <div className="w-full bg-white/[0.05] dark:bg-slate-950/[0.15] backdrop-blur-sm rounded-xl sm:rounded-3xl p-1.5 sm:p-3.5 border border-white/20 shadow-2xl ring-1 ring-white/10">
-                <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 w-full">
-                  {/* 1. Animated Login Button */}
-                  <div className="relative group flex-1 sm:flex-initial">
-                    <div
-                      className={`absolute -inset-1 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-75 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
-                        isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
-                      }`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormType('login');
-                        setIsFormOpen(true);
-                      }}
-                      className="relative overflow-hidden w-full sm:w-auto sm:min-w-[190px] flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-8 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
-                    >
-                      <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
-                      <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 group-hover:scale-115 shrink-0" />
-                      <span className="tracking-wide drop-shadow-md truncate">
-                        {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Login'}
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* 2. Animated Sign Up Button */}
-                  <div className="relative group flex-1 sm:flex-initial">
-                    <div
-                      className={`absolute -inset-1 rounded-xl sm:rounded-2xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-65 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
-                        isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
-                      }`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormType('signup');
-                        setIsFormOpen(true);
-                      }}
-                      className="relative overflow-hidden w-full sm:w-auto sm:min-w-[190px] flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-8 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/90 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
-                    >
-                      <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
-                      <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 group-hover:scale-125 shrink-0" />
-                      <span className="tracking-wide drop-shadow-md truncate">
-                        {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up'}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <span className="text-xs">🔄</span>
+              <span>{language === 'om' ? 'Irra Deebii' : language === 'am' ? 'ደግመህ እይ' : 'Replay'}</span>
+            </button>
           </div>
         </div>
 
-        {/* BOTTOM SECTION */}
-        <div className="relative z-10 w-full bg-[#0a3a78] dark:bg-[#072449] border-t border-white/20 px-2 sm:px-6 py-2 sm:py-4 shrink-0 shadow-xl">
+        {/* 3. BOTTOM SECTION: FROSTED GLASS BAR WITH 4 SERVICE BADGES */}
+        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-3 sm:px-6 py-2.5 sm:py-3.5 shrink-0 shadow-2xl">
           {/* 4 Feature Badges with Vertical Dividers */}
           <div className="w-full max-w-2xl mx-auto">
             <div className="grid grid-cols-4 divide-x divide-white/20">
               {/* Feature 1: Patient Management */}
-              <div className="flex flex-col items-center text-center px-0.5 sm:px-2">
-                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+              <div className="flex flex-col items-center text-center px-1">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
                   <UserCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1 sm:mt-1.5 leading-tight sm:leading-snug">
+                <span className="text-[9.5px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
                   {t.servicePatient}
                 </span>
               </div>
 
               {/* Feature 2: Inpatient & Ward Management */}
-              <div className="flex flex-col items-center text-center px-0.5 sm:px-2">
-                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+              <div className="flex flex-col items-center text-center px-1">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
                   <Bed className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1 sm:mt-1.5 leading-tight sm:leading-snug">
+                <span className="text-[9.5px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
                   {t.serviceInpatient}
                 </span>
               </div>
 
               {/* Feature 3: Clinical Services */}
-              <div className="flex flex-col items-center text-center px-0.5 sm:px-2">
-                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+              <div className="flex flex-col items-center text-center px-1">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
                   <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1 sm:mt-1.5 leading-tight sm:leading-snug">
+                <span className="text-[9.5px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
                   {t.serviceClinical}
                 </span>
               </div>
 
               {/* Feature 4: Reports & Analytics */}
-              <div className="flex flex-col items-center text-center px-0.5 sm:px-2">
-                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+              <div className="flex flex-col items-center text-center px-1">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
                   <BarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1 sm:mt-1.5 leading-tight sm:leading-snug">
+                <span className="text-[9.5px] sm:text-[11px] font-medium text-white/95 mt-1 leading-tight drop-shadow-sm">
                   {t.serviceAnalytics}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Bottom Hospital HMIS Tag - Small Font */}
-          <div className="pt-1 sm:pt-2 text-center">
-            <p className="text-[9px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide">
+          {/* Bottom Hospital HMIS Tag */}
+          <div className="pt-1.5 text-center">
+            <p className="text-[9.5px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide drop-shadow-sm">
               Mettu Karl Referral Hospital HMIS
             </p>
           </div>
