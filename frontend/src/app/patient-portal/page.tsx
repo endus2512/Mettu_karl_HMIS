@@ -120,6 +120,7 @@ export default function PatientPortalPage(): React.ReactElement {
 
   // Active Tab: 'queue' | 'history' | 'prescriptions' | 'billing' | 'telemed'
   const [activeTab, setActiveTab] = useState<'queue' | 'history' | 'prescriptions' | 'billing' | 'telemed'>('queue');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Calendar & Shift State for Header
   const [calendarDate, setCalendarDate] = useState('Tikimt 17, 2019 E.C. • Oct 27, 2026 G.C.');
@@ -453,9 +454,10 @@ export default function PatientPortalPage(): React.ReactElement {
     <ProtectedRoute allowedRoles={['patient', 'super_admin']} moduleName="Patient Portal" category="clinical">
       <div className="flex h-screen bg-slate-100 text-slate-900 overflow-hidden">
         {/* =========================================================================
-            1. DEDICATED PATIENT LEFTSIDE NAVIGATION (SIDEBAR - DARK/BLACK THEME)
+            1. DEDICATED PATIENT LEFTSIDE NAVIGATION (SIDEBAR - DESKTOP & MOBILE DRAWER)
             ========================================================================= */}
-        <aside className="w-72 lg:w-80 shrink-0 border-r-2 border-slate-800 bg-slate-950 flex flex-col h-screen sticky top-0 shadow-2xl select-none z-30">
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:flex w-72 lg:w-80 shrink-0 border-r-2 border-slate-800 bg-slate-950 flex-col h-screen sticky top-0 shadow-2xl select-none z-30">
           {/* Sidebar Top: Hospital Brand */}
           <div className="h-18 flex items-center gap-3 border-b border-slate-800 px-4 py-3 bg-slate-900/90 shrink-0">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-md shadow-teal-950/40 border border-teal-400 text-xl shrink-0">
@@ -619,14 +621,167 @@ export default function PatientPortalPage(): React.ReactElement {
           </div>
         </aside>
 
+        {/* Mobile Backdrop Overlay */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden transition-opacity cursor-pointer"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
+        {/* Mobile Drawer (Slide-out) */}
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-slate-950 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${
+            mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {/* Drawer Top Header with Close Button */}
+          <div className="h-16 flex items-center justify-between border-b border-slate-800 px-4 bg-slate-900/95 shrink-0">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl">🏥</span>
+              <span className="text-xs font-black text-white">{t('patient_portal')}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Drawer Profile Capsule */}
+          <div className="p-3.5 border-b border-slate-800 bg-slate-900/40 shrink-0">
+            <div className="rounded-2xl border-2 border-slate-800 bg-slate-900/90 p-3 shadow-md space-y-2">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white font-black text-sm shadow-xs border border-teal-400/30">
+                  {profile?.blood_group || 'O+'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-black text-white truncate">
+                    {profile?.full_name || 'Gudeta Hailu'}
+                  </p>
+                  <p className="text-[11px] font-mono font-bold text-teal-400 truncate">
+                    MRN: {profile?.mrn || 'MKH-2026-0001'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Drawer Nav Items */}
+          <nav className="flex-1 overflow-y-auto p-3 space-y-2">
+            <button
+              type="button"
+              onClick={() => { setActiveTab('queue'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                activeTab === 'queue' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span>🎫</span>
+                <span className="text-xs font-bold">{t('queue_tracking')}</span>
+              </div>
+              {queueStatus?.has_active_token && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-300 text-slate-950">
+                  {queueStatus.token_number}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setActiveTab('history'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                activeTab === 'history' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span>📋</span>
+                <span className="text-xs font-bold">{t('medical_history')}</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
+                {encounters.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setActiveTab('prescriptions'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                activeTab === 'prescriptions' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span>💊</span>
+                <span className="text-xs font-bold">{t('my_prescriptions')}</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
+                {prescriptions.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setActiveTab('billing'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                activeTab === 'billing' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span>💳</span>
+                <span className="text-xs font-bold">{t('billing_telebirr')}</span>
+              </div>
+              {invoices.some((i) => i.status.includes('PENDING')) && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white">Pay</span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setActiveTab('telemed'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                activeTab === 'telemed' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span>🩺</span>
+                <span className="text-xs font-bold">{t('telemedicine_tab')}</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300">Live</span>
+            </button>
+          </nav>
+
+          {/* Drawer Helpline */}
+          <div className="p-3.5 border-t border-slate-800 bg-slate-900/80 shrink-0">
+            <div className="rounded-xl border border-slate-800 bg-slate-950 p-2 text-center">
+              <span className="block text-[10px] uppercase font-bold text-slate-400">
+                📞 907 / 047-111-2233
+              </span>
+            </div>
+          </div>
+        </aside>
+
         {/* =========================================================================
             2. MAIN WORKSPACE (RIGHT SIDE: WIDE & BREATHABLE)
             ========================================================================= */}
-        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden bg-gradient-to-b from-teal-50/40 via-slate-50 to-slate-100/80">
+        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden bg-gradient-to-b from-teal-50/40 via-slate-50 to-slate-100/80 pb-20 lg:pb-0">
           {/* Main Top Header Bar - Solid Black with White Text and Integrated Calendar & Shift Cockpit */}
-          <header className="sticky top-0 z-20 border-b border-slate-800 bg-black text-white px-4 sm:px-6 py-3 shadow-xl flex items-center justify-between gap-3 select-none w-full">
-            {/* Header Left: Active Workstation Title */}
-            <div className="flex items-center gap-2.5 shrink min-w-0">
+          <header className="sticky top-0 z-20 border-b border-slate-800 bg-black text-white px-3 sm:px-6 py-3 shadow-xl flex items-center justify-between gap-2.5 select-none w-full">
+            {/* Header Left: Hamburger for mobile + Active Workstation Title */}
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink min-w-0">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-slate-800 text-teal-300 hover:text-white border border-slate-700 active:scale-95 transition-all shadow-sm shrink-0 touch-manipulation cursor-pointer"
+                title="Toggle Patient Menu"
+                aria-label="Toggle Patient Menu"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+
               <span className="text-xl sm:text-2xl drop-shadow-sm shrink-0">
                 {activeTab === 'queue' && '🎫'}
                 {activeTab === 'history' && '📋'}
@@ -670,7 +825,7 @@ export default function PatientPortalPage(): React.ReactElement {
             </div>
 
             {/* Header Right: Language Selector & Bold Red Logout Button pinned strictly to the far right edge */}
-            <div className="flex items-center justify-end gap-2.5 ml-auto shrink-0">
+            <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 ml-auto shrink-0">
               {/* Language Selector */}
               <div className="rounded-xl border border-slate-700 bg-slate-900/90 p-0.5 shadow-xs shrink-0">
                 <LanguageSelect variant="dark" />
@@ -684,10 +839,10 @@ export default function PatientPortalPage(): React.ReactElement {
                 type="button"
                 onClick={handleInstantLogout}
                 title="Bahuu (Sign out)"
-                className="inline-flex items-center gap-1.5 rounded-xl border-2 border-rose-400 bg-rose-600 px-3.5 py-1.5 text-xs sm:text-sm font-black text-white hover:bg-rose-500 hover:border-rose-300 active:scale-90 active:bg-rose-700 transition-all duration-75 cursor-pointer shadow-md select-none touch-manipulation shrink-0"
+                className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xl border-2 border-rose-400 bg-rose-600 px-2.5 sm:px-3.5 py-1.5 text-xs sm:text-sm font-black text-white hover:bg-rose-500 hover:border-rose-300 active:scale-90 active:bg-rose-700 transition-all duration-75 cursor-pointer shadow-md select-none touch-manipulation shrink-0"
               >
                 <span className="text-sm">🚪</span>
-                <span>{t('logout')}</span>
+                <span className="hidden sm:inline">{t('logout')}</span>
               </button>
             </div>
           </header>
@@ -1365,6 +1520,59 @@ export default function PatientPortalPage(): React.ReactElement {
             </div>
           </div>
         )}
+        {/* Mobile Bottom Tab Navigation Bar for Patients */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-2 py-1.5 flex items-center justify-around shadow-2xl">
+          <button
+            type="button"
+            onClick={() => setActiveTab('queue')}
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              activeTab === 'queue' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <span className="text-base">🎫</span>
+            <span>{language === 'am' ? 'ተራ' : language === 'en' ? 'Queue' : 'Dabaree'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('history')}
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              activeTab === 'history' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <span className="text-base">📋</span>
+            <span>{language === 'am' ? 'ታሪክ' : language === 'en' ? 'History' : 'Seenaa'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('prescriptions')}
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              activeTab === 'prescriptions' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <span className="text-base">💊</span>
+            <span>{language === 'am' ? 'መድኃኒት' : language === 'en' ? 'Rx' : 'Qoricha'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('billing')}
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              activeTab === 'billing' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <span className="text-base">💳</span>
+            <span>{language === 'am' ? 'ክፍያ' : language === 'en' ? 'Pay' : 'Kaffaltii'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('telemed')}
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              activeTab === 'telemed' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <span className="text-base">🩺</span>
+            <span>{language === 'am' ? 'ቴሌሜድ' : language === 'en' ? 'Telemed' : 'Telemed'}</span>
+          </button>
+        </div>
       </div>
     </ProtectedRoute>
   );

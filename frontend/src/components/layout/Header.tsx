@@ -183,24 +183,40 @@ export function Header(): React.ReactElement {
   const roleLabel = user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR';
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-slate-700/80 bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] px-6 sticky top-0 z-30 shadow-md select-none text-white">
-      {/* LEFT: Clinician Profile - Outside the rectangle */}
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="flex h-16 items-center justify-between border-b border-slate-700/80 bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] px-3 sm:px-6 sticky top-0 z-30 shadow-md select-none text-white">
+      {/* LEFT: Clinician Profile & Mobile Drawer Trigger */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button
+          type="button"
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('toggle-mkh-sidebar'));
+            }
+          }}
+          className="lg:hidden flex items-center justify-center h-10 w-10 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-teal-300 hover:text-white border border-slate-700 active:scale-95 transition-all shadow-sm shrink-0 touch-manipulation cursor-pointer"
+          title="Toggle Navigation Menu"
+          aria-label="Toggle Navigation Menu"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
         <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white font-black text-sm flex items-center justify-center shadow-md ring-2 ring-teal-400/40 shrink-0 hover:scale-105 transition-transform cursor-pointer">
           {profile.initials}
         </div>
         <div className="text-left min-w-0">
-          <p className="text-sm sm:text-base font-black text-white truncate leading-tight tracking-tight">
+          <p className="text-xs sm:text-base font-black text-white truncate leading-tight tracking-tight">
             {profile.name}
           </p>
-          <p className="text-[11px] font-bold text-teal-300 capitalize truncate mt-0.5">
-            {roleLabel} • {profile.dept}
+          <p className="text-[10px] sm:text-[11px] font-bold text-teal-300 capitalize truncate mt-0.5">
+            {roleLabel} <span className="hidden sm:inline">• {profile.dept}</span>
           </p>
         </div>
       </div>
 
       {/* RIGHT: UNIFIED COMMAND COCKPIT RECTANGLE (Calendar -> Shift -> Scanner -> SMS -> Languages -> Logout) */}
-      <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3 rounded-2xl border-2 border-slate-700/90 bg-slate-900/90 backdrop-blur-md px-2.5 sm:px-3.5 py-1.5 shadow-md">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-3 rounded-2xl border-2 border-slate-700/90 bg-slate-900/90 backdrop-blur-md px-2 sm:px-3.5 py-1.5 shadow-md shrink-0">
         {/* 1. Calendar (Clickable, Normal Inline) */}
         <button
           type="button"
@@ -222,20 +238,20 @@ export function Header(): React.ReactElement {
         <Link
           href="/scanner"
           title={t('barcode_qr_scanner')}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/70 bg-teal-950/80 hover:bg-teal-700 hover:text-white px-2.5 sm:px-3 py-1.5 text-xs font-bold text-teal-200 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/70 bg-teal-950/80 hover:bg-teal-700 hover:text-white px-2 sm:px-3 py-1.5 text-xs font-bold text-teal-200 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
         >
           <span className="text-sm">📷</span>
-          <span className="font-bold">Scanner</span>
+          <span className="font-bold hidden sm:inline">Scanner</span>
         </Link>
 
         {/* 4. SMS & USSD Gateway (*907#) Quick Launch */}
         <Link
           href="/sms-ussd"
           title={t('sms_ussd_gateway')}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/70 bg-emerald-950/80 hover:bg-emerald-700 hover:text-white px-2.5 sm:px-3 py-1.5 text-xs font-bold text-emerald-200 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/70 bg-emerald-950/80 hover:bg-emerald-700 hover:text-white px-2 sm:px-3 py-1.5 text-xs font-bold text-emerald-200 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
         >
           <span className="text-sm">📱</span>
-          <span className="font-bold">SMS/*907#</span>
+          <span className="font-bold hidden md:inline">SMS/*907#</span>
         </Link>
 
         {/* 5. Language Selector (Afanoota Sadan: Afaan Oromoo, አማርኛ, English) */}
@@ -253,9 +269,9 @@ export function Header(): React.ReactElement {
           type="button"
           onClick={handleInstantLogout}
           title={t('logout')}
-          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-rose-400 bg-rose-600 px-3.5 py-1.5 text-xs sm:text-sm font-black text-white shadow-md hover:bg-rose-500 hover:border-rose-300 active:scale-90 active:bg-rose-700 transition-all duration-75 cursor-pointer select-none shrink-0 touch-manipulation"
+          className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xl border-2 border-rose-400 bg-rose-600 px-2.5 sm:px-3.5 py-1.5 text-xs sm:text-sm font-black text-white shadow-md hover:bg-rose-500 hover:border-rose-300 active:scale-90 active:bg-rose-700 transition-all duration-75 cursor-pointer select-none shrink-0 touch-manipulation"
         >
-          <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-4 w-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -263,7 +279,7 @@ export function Header(): React.ReactElement {
               d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
             />
           </svg>
-          <span className="font-black tracking-wide">{t('logout')}</span>
+          <span className="font-black tracking-wide hidden sm:inline">{t('logout')}</span>
         </button>
       </div>
 

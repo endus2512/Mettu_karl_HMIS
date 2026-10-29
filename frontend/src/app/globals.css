@@ -192,3 +192,28 @@ body {
     @apply transition-all duration-150 ease-in-out rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-400/30 focus:outline-none;
   }
 }
+
+/* Progressive Cinematic Building Image Reveal & Ambient Movement */
+@keyframes kenBurnsSlow {
+  0% {
+    transform: scale(1.04) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate(-0.8%, -0.8%);
+  }
+  100% {
+    transform: scale(1.04) translate(0, 0);
+  }
+}
+
+.animate-ken-burns {
+  animation: kenBurnsSlow 24s ease-in-out infinite alternate;
+}
+
+/* Touch manipulation and viewport protection for mobile devices */
+@media (max-width: 640px) {
+  input, select, textarea, button {
+    font-size: 16px !important; /* Prevents iOS Safari auto-zoom on input focus */
+  }
+}
+

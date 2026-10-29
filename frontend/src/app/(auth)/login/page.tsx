@@ -350,6 +350,24 @@ export default function LoginPage() {
   const [isDeptDropdownOpen, setIsDeptDropdownOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
 
+  // Progressive cinematic step-by-step reveal for the hospital building hero image
+  // Step 0: Initial soft blur and deep focal zoom
+  // Step 1: Smooth illumination and aperture opening (scale 120, blur reduces)
+  // Step 2: High clarity and full screen expansion (scale 108, blur 0)
+  // Step 3: Hospital crest, title, and action buttons smoothly glide into full view
+  const [revealStep, setRevealStep] = useState(0);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setRevealStep(1), 100);
+    const t2 = setTimeout(() => setRevealStep(2), 700);
+    const t3 = setTimeout(() => setRevealStep(3), 1400);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+
   const t = copy[language] ?? copy.om;
 
   // Set theme mode explicitly (light or dark)
@@ -759,22 +777,30 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {/* HOSPITAL BUILDING HERO VIEW (FULL SCREEN)                              */}
       {/* ======================================================================= */}
-      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-hidden z-10 bg-[#0a3a78] border-l-2 border-sky-400/40">
+      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-hidden z-10 bg-[#071d3d] border-l-2 border-sky-400/40">
         {/* UPPER / MIDDLE SECTION: The Hospital Building Photo */}
         <div className="relative flex-1 w-full overflow-hidden flex flex-col justify-between">
-          {/* Hospital Building Image */}
+          {/* Hospital Building Image with Progressive Multi-Step Cinematic Reveal */}
           <div
-            className="absolute inset-0 w-full h-full transform scale-110 sm:scale-112 origin-[26%_40%] transition-transform duration-500 ease-out"
+            className={`absolute inset-0 w-full h-full transform transition-all ease-out ${
+              revealStep === 0
+                ? 'scale-125 blur-xl opacity-20 duration-500'
+                : revealStep === 1
+                ? 'scale-118 blur-md opacity-70 duration-700'
+                : revealStep === 2
+                ? 'scale-110 blur-xs opacity-95 duration-900'
+                : 'scale-105 sm:scale-110 blur-none opacity-100 duration-1000 animate-ken-burns'
+            }`}
             style={{
               backgroundImage: "url('/hospital-building.jpg')",
               backgroundSize: 'cover',
-              backgroundPosition: '24% 40%',
+              backgroundPosition: 'center 40%',
               backgroundRepeat: 'no-repeat',
             }}
           />
 
           {/* Branded Blue Top Scrim */}
-          <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#0a3a78] via-[#0a3a78]/70 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#0a3a78]/90 via-[#0a3a78]/60 to-transparent pointer-events-none" />
 
           {/* Right edge blue scrim */}
           <div className="absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-[#0a3a78] via-[#0a3a78]/60 to-transparent pointer-events-none" />
@@ -782,26 +808,28 @@ export default function LoginPage() {
           {/* Left edge subtle blue scrim */}
           <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#0a3a78]/70 to-transparent pointer-events-none" />
 
-          {/* Top Branding Section */}
-          <div className="relative z-10 p-6 sm:p-8 xl:p-10">
-            <div className="flex items-center gap-3.5 sm:gap-4 xl:gap-5">
+          {/* Top Branding Section (Smooth progressive entrance) */}
+          <div className={`relative z-10 p-4 sm:p-8 xl:p-10 transition-all duration-700 ${
+            revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'
+          }`}>
+            <div className="flex items-center gap-3 sm:gap-4 xl:gap-5">
               <img
                 src="/hospital-logo-white.png"
                 alt="Mettu Karl Referral Hospital Emblem"
-                className="h-14 w-14 sm:h-16 sm:w-16 xl:h-18 xl:w-18 rounded-full bg-white p-0.5 shadow-lg shrink-0 object-contain"
+                className="h-12 w-12 sm:h-16 sm:w-16 xl:h-18 xl:w-18 rounded-full bg-white p-0.5 shadow-lg shrink-0 object-contain"
               />
-              <div>
-                <h1 className="text-xl sm:text-2xl xl:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-md">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl xl:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
                   {t.hospitalName}
                 </h1>
-                <p className="text-xs sm:text-sm xl:text-base font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm">
+                <p className="text-xs sm:text-sm xl:text-base font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
                   {t.hmisTitle} • {t.hmisSubtitle}
                 </p>
               </div>
             </div>
 
             {/* Hospital Tagline */}
-            <p className="text-[11.5px] sm:text-xs xl:text-sm italic text-sky-100 font-normal mt-2.5 sm:mt-3 tracking-wide drop-shadow-sm">
+            <p className="text-[11px] sm:text-xs xl:text-sm italic text-sky-100 font-normal mt-2 sm:mt-3 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
               {t.tagline}
             </p>
           </div>
@@ -809,11 +837,13 @@ export default function LoginPage() {
           {/* =================================================================== */}
           {/* CENTER HERO AREA: ANIMATED LOGIN & SIGNUP BUTTONS ON BUILDING IMAGE */}
           {/* =================================================================== */}
-          <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 my-auto py-4 animate-in fade-in zoom-in-95 duration-500">
+          <div className={`relative z-20 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 my-auto py-4 transition-all duration-1000 ${
+            revealStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
             {/* Ultra-Transparent Glassmorphic Container for Animated Actions */}
-            <div className="w-auto max-w-xl text-center bg-white/[0.03] dark:bg-slate-950/[0.05] backdrop-blur-sm rounded-3xl p-5 sm:p-6 border border-white/25 shadow-2xl transition-all ring-1 ring-white/10">
+            <div className="w-full sm:w-auto max-w-xl text-center bg-white/[0.04] dark:bg-slate-950/[0.1] backdrop-blur-sm rounded-3xl p-4 sm:p-6 border border-white/25 shadow-2xl transition-all ring-1 ring-white/10">
               {/* ANIMATED LOGIN & SIGNUP ACTION BUTTONS WITH ENHANCED ANIMATION */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-5 w-full">
                 {/* 1. Animated Login Button with Ambient Glow & Shimmer */}
                 <div className="relative group w-full sm:w-auto">
                   {/* Outer Pulsing Glow Aura (Paused when form modal is open to ensure static background stability) */}
