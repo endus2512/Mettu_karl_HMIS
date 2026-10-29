@@ -707,7 +707,7 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {/* TOP-RIGHT CONTROLS: LANGUAGE DROPDOWN & SINGLE THEME TOGGLE BUTTON     */}
       {/* ======================================================================= */}
-      <div className="absolute top-4 sm:top-6 right-4 sm:right-8 z-40 flex items-center gap-2 sm:gap-2.5">
+      <div className="absolute top-6 sm:top-8 right-4 sm:right-8 z-40 flex items-center gap-2 sm:gap-2.5">
         {/* Language Selector Dropdown */}
         <div className="relative" ref={langMenuRef}>
           <button
@@ -876,7 +876,7 @@ export default function LoginPage() {
         
         {/* 1. TOP BRANDING SECTION (FLOATING ON SKY) */}
         <div
-          className={`relative z-20 px-4 pt-4 sm:px-8 sm:pt-6 transition-all duration-700 max-w-xl ${
+          className={`relative z-20 px-4 pt-6 sm:px-8 sm:pt-8 transition-all duration-700 max-w-xl ${
             revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
           }`}
         >
@@ -887,7 +887,7 @@ export default function LoginPage() {
               className="h-10 w-10 sm:h-14 sm:w-14 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
             />
             <div className="min-w-0">
-              <h1 className="text-base sm:text-2xl font-extrabold text-white tracking-tight leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] truncate sm:whitespace-normal">
+              <h1 className="text-base sm:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-[0_2px_5px_rgba(0,0,0,0.95)] truncate sm:whitespace-normal">
                 {t.hospitalName}
               </h1>
               <p className="text-xs sm:text-sm font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] truncate sm:whitespace-normal">
