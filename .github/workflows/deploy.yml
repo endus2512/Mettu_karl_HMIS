@@ -1,13 +1,16 @@
 name: CD Deployment Pipeline
 
 on:
+  workflow_dispatch:
   push:
-    branches: [main]
+    tags:
+      - 'v*'
 
 jobs:
   deploy:
     name: Build, Push & Deploy to Kubernetes
     runs-on: ubuntu-latest
+    if: ${{ secrets.CONTAINER_REGISTRY_URL != '' && secrets.REGISTRY_USERNAME != '' && secrets.KUBECONFIG_DATA != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

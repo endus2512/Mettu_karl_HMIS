@@ -26,21 +26,21 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     APP_ENV: str = "development"
     APP_DEBUG: bool = False
-    SECRET_KEY: str
+    SECRET_KEY: str = "ci-default-secret-key-mettu-karl-his"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite+aiosqlite:///./mettu_his.db"
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # MinIO / Object Storage
     MINIO_ENDPOINT: str = "localhost:9000"
-    MINIO_ACCESS_KEY: str
-    MINIO_SECRET_KEY: str
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
     MINIO_BUCKET_NAME: str = "mettu-karl-his"
     MINIO_SECURE: bool = False
 

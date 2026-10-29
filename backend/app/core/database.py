@@ -24,13 +24,20 @@ class Base(DeclarativeBase):
 
 
 # Async engine with connection pooling
+engine_kwargs: dict[str, Any] = {
+    "echo": settings.APP_DEBUG,
+    "pool_pre_ping": True,
+}
+if "sqlite" not in settings.DATABASE_URL:
+    engine_kwargs.update({
+        "pool_size": 20,
+        "max_overflow": 10,
+        "pool_recycle": 3600,
+    })
+
 engine: AsyncEngine = create_async_engine(
     settings.DATABASE_URL,
-    echo=settings.APP_DEBUG,
-    pool_size=20,
-    max_overflow=10,
-    pool_pre_ping=True,  # validate connections before use
-    pool_recycle=3600,   # recycle connections every hour
+    **engine_kwargs,
 )
 
 # Session factory
