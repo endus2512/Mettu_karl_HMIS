@@ -882,7 +882,7 @@ export default function LoginPage() {
 
         {/* 2. ACTION BUTTONS SECTION (FLOATING TOWARDS BOTTOM OVER DRIVEWAY) */}
         <div
-          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-10 sm:mb-8 lg:mb-10 transition-all duration-1000 ${
+          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-14 sm:mb-8 lg:mb-10 transition-all duration-1000 ${
             revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
@@ -939,9 +939,9 @@ export default function LoginPage() {
         </div>
 
         {/* 3. BOTTOM SECTION: FROSTED GLASS BAR WITH 4 SERVICE BADGES */}
-        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-2.5 sm:px-6 pt-2 pb-12 sm:pt-3 sm:pb-5 shrink-0 shadow-2xl">
+        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-2.5 sm:px-6 pt-3 pb-20 sm:pt-3 sm:pb-5 shrink-0 shadow-2xl">
           {/* 4 Feature Badges with Vertical Dividers */}
-          <div className="w-full max-w-2xl mx-auto">
+          <div className="w-full max-w-2xl mx-auto pt-2 sm:pt-0">
             <div className="grid grid-cols-4 divide-x divide-white/20">
               {/* Feature 1: Patient Management */}
               <div className="flex flex-col items-center text-center px-1">
@@ -986,7 +986,7 @@ export default function LoginPage() {
           </div>
 
           {/* Bottom Hospital HMIS Tag */}
-          <div className="pt-1.5 pb-6 sm:pt-1.5 sm:pb-0 text-center">
+          <div className="pt-2 pb-10 sm:pt-1.5 sm:pb-0 text-center">
             <p className="text-[9.5px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide drop-shadow-sm">
               Mettu Karl Referral Hospital HMIS
             </p>
