@@ -2,23 +2,36 @@ name: CD Deployment Pipeline
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
 
 jobs:
   deploy:
     name: Build, Push & Deploy to Kubernetes
     runs-on: ubuntu-latest
-    if: ${{ secrets.CONTAINER_REGISTRY_URL != '' && secrets.REGISTRY_USERNAME != '' && secrets.KUBECONFIG_DATA != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify Deployment Secrets
+        id: check_secrets
+        env:
+          CONTAINER_REGISTRY_URL: ${{ secrets.CONTAINER_REGISTRY_URL }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
+        run: |
+          if [ -z "$CONTAINER_REGISTRY_URL" ] || [ -z "$REGISTRY_USERNAME" ] || [ -z "$KUBECONFIG_DATA" ]; then
+            echo "Secrets are not yet configured in GitHub Settings -> Secrets. Skipping deployment cleanly."
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set up Docker Buildx
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Container Registry
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ secrets.CONTAINER_REGISTRY_URL }}
@@ -26,6 +39,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build & Push Backend
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -35,6 +49,7 @@ jobs:
             ${{ secrets.CONTAINER_REGISTRY_URL }}/mettu-his-backend:${{ github.sha }}
 
       - name: Build & Push Frontend
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -44,12 +59,14 @@ jobs:
             ${{ secrets.CONTAINER_REGISTRY_URL }}/mettu-his-frontend:${{ github.sha }}
 
       - name: Configure Kubeconfig for On-Premises Cluster
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
       - name: Apply Kubernetes Manifests
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         run: |
           kubectl apply -f infra/k8s/namespace.yaml
           kubectl apply -f infra/k8s/configmap.yaml
@@ -61,6 +78,7 @@ jobs:
           kubectl apply -f infra/k8s/ingress.yaml
 
       - name: Rollout Restart Deployments
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         run: |
           kubectl rollout restart deployment/his-backend -n mettu-karl-his
           kubectl rollout restart deployment/his-frontend -n mettu-karl-his
