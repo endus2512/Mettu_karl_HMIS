@@ -1,0 +1,23 @@
+apiVersion: policy.sigstore.dev/v1beta1
+kind: ClusterImagePolicy
+metadata:
+  name: enforce-mettu-karl-hmis-provenance
+spec:
+  # Target all HMIS container images destined for the hospital production namespace
+  images:
+    - glob: "ghcr.io/endus2512/mettu-his-backend*"
+    - glob: "ghcr.io/endus2512/mettu-his-frontend*"
+  authorities:
+    - name: github-keyless-oidc
+      keyless:
+        # Enforce that the image was signed by the official GitHub repo via Sigstore OIDC
+        url: https://fulcio.sigstore.dev
+        identities:
+          - issuer: https://token.actions.githubusercontent.com
+            subjectRegExp: "^https://github.com/endus2512/Mettu_karl_HMIS/.*$"
+      ctlog:
+        url: https://rekor.sigstore.dev
+      # Verify that an attested SPDX SBOM is cryptographically attached to the image
+      attestations:
+        - name: must-have-valid-sbom
+          predicateType: https://spdx.dev/Document

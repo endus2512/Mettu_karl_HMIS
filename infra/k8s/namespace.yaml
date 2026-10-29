@@ -5,3 +5,8 @@ metadata:
   labels:
     app.kubernetes.io/name: mettu-karl-his
     app.kubernetes.io/part-of: healthcare-system
+    # Kubernetes Pod Security Standards (PSS) - Restricted profile for patient data protection
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

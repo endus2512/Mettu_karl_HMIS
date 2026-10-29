@@ -24,10 +24,25 @@ spec:
         prometheus.io/port: "8000"
         prometheus.io/path: "/metrics"
     spec:
+      # Pod-level security context for Chainguard nonroot compliance
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: backend
-          image: mettu-karl-his/backend:latest
+          image: ghcr.io/endus2512/mettu-his-backend:latest
           imagePullPolicy: IfNotPresent
+          # Container-level hardening (HIPAA / Restricted Pod Security Standard)
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 8000
               name: http
@@ -60,8 +75,12 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 2
           volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
             - name: audit-log-storage
               mountPath: /var/log/mettu-karl-his
       volumes:
+        - name: tmp-volume
+          emptyDir: {}
         - name: audit-log-storage
           emptyDir: {}
