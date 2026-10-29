@@ -904,7 +904,7 @@ export default function LoginPage() {
 
         {/* 2. ACTION BUTTONS SECTION (FLOATING TOWARDS BOTTOM OVER DRIVEWAY) */}
         <div
-          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-3 sm:mb-5 transition-all duration-1000 ${
+          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-7 sm:mb-10 lg:mb-12 transition-all duration-1000 ${
             revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
@@ -961,7 +961,7 @@ export default function LoginPage() {
         </div>
 
         {/* 3. BOTTOM SECTION: FROSTED GLASS BAR WITH 4 SERVICE BADGES */}
-        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-3 sm:px-6 py-2.5 sm:py-3.5 shrink-0 shadow-2xl">
+        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/50 border-t border-white/15 px-3 sm:px-6 pt-2.5 pb-4 sm:pt-3 sm:pb-6 shrink-0 shadow-2xl">
           {/* 4 Feature Badges with Vertical Dividers */}
           <div className="w-full max-w-2xl mx-auto">
             <div className="grid grid-cols-4 divide-x divide-white/20">
