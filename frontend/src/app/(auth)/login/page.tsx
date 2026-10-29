@@ -847,12 +847,12 @@ export default function LoginPage() {
           </div>
 
           {/* =================================================================== */}
-          {/* CENTER HERO AREA: 100% VISIBLE FULL BUILDING + 5-PART PROGRESSIVE REVEAL */}
+          {/* CENTER HERO AREA: ENLARGED PROMINENT BUILDING + 5-PART PROGRESSIVE REVEAL */}
           {/* =================================================================== */}
-          <div className="relative z-20 flex-1 flex flex-col items-center justify-center w-full px-2 sm:px-6 my-auto py-2 lg:py-0">
+          <div className="relative z-20 flex-1 flex flex-col items-center justify-center w-full px-1.5 sm:px-6 my-auto py-1 sm:py-2 lg:py-0 min-h-0">
             
-            {/* The Dedicated Building Canvas (Responsive 16:9 on mobile, Full Bleed on Desktop) */}
-            <div className="w-full max-w-sm sm:max-w-md md:max-w-xl lg:max-w-none aspect-[16/9] lg:aspect-auto lg:absolute lg:inset-0 rounded-2xl lg:rounded-none overflow-hidden border-2 lg:border-none border-sky-400/60 shadow-2xl lg:shadow-none relative bg-slate-950/80">
+            {/* The Dedicated Building Canvas (Enlarged & Portable on mobile, Full Bleed on Desktop) */}
+            <div className="w-full max-w-xl lg:max-w-none h-[44vh] sm:h-[50vh] min-h-[290px] max-h-[460px] lg:h-full lg:max-h-none lg:absolute lg:inset-0 rounded-2xl sm:rounded-3xl lg:rounded-none overflow-hidden border-2 lg:border-none border-sky-400/60 shadow-2xl lg:shadow-none relative bg-slate-950/80">
               
               {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
               <div
@@ -864,7 +864,7 @@ export default function LoginPage() {
                 style={{
                   backgroundImage: "url('/hospital-building.jpg')",
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center 40%',
+                  backgroundPosition: 'center 36%',
                   backgroundRepeat: 'no-repeat',
                 }}
               />
@@ -892,7 +892,7 @@ export default function LoginPage() {
                         style={{
                           backgroundImage: "url('/hospital-building.jpg')",
                           backgroundSize: '500% 100%',
-                          backgroundPosition: `${index * 25}% 40%`,
+                          backgroundPosition: `${index * 25}% 36%`,
                           backgroundRepeat: 'no-repeat',
                         }}
                       />
@@ -920,7 +920,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={startRevealSequence}
                 title="Irra deebii mullisi (Replay Part Reveal)"
-                className="absolute top-2.5 right-2.5 z-30 flex items-center justify-center h-8 w-8 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-sky-400/40 text-sky-200 hover:text-white backdrop-blur-md transition-all shadow-md active:scale-90 cursor-pointer"
+                className="absolute top-2.5 right-2.5 z-30 flex items-center justify-center h-8.5 w-8.5 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-sky-400/40 text-sky-200 hover:text-white backdrop-blur-md transition-all shadow-md active:scale-90 cursor-pointer"
                 aria-label="Replay Reveal Animation"
               >
                 <span className="text-sm">🔄</span>
@@ -929,12 +929,12 @@ export default function LoginPage() {
 
             {/* ACTION BUTTONS: Positioned directly below building on mobile, in center on desktop */}
             <div
-              className={`relative z-20 w-full max-w-sm sm:max-w-md md:max-w-xl text-center mt-3 sm:mt-4 lg:mt-0 transition-all duration-1000 ${
+              className={`relative z-20 w-full max-w-xl text-center mt-2.5 sm:mt-3.5 lg:mt-0 transition-all duration-1000 ${
                 revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               }`}
             >
-              <div className="w-full bg-white/[0.04] dark:bg-slate-950/[0.1] backdrop-blur-sm rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-white/20 shadow-2xl ring-1 ring-white/10">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
+              <div className="w-full bg-white/[0.04] dark:bg-slate-950/[0.1] backdrop-blur-sm rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 border border-white/20 shadow-2xl ring-1 ring-white/10">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 w-full">
                   {/* 1. Animated Login Button */}
                   <div className="relative group w-full sm:w-auto">
                     <div
@@ -948,7 +948,7 @@ export default function LoginPage() {
                         setFormType('login');
                         setIsFormOpen(true);
                       }}
-                      className="relative overflow-hidden w-full sm:w-auto min-w-[160px] sm:min-w-[190px] flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
+                      className="relative overflow-hidden w-full sm:w-auto min-w-[150px] sm:min-w-[190px] flex items-center justify-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
                     >
                       <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
                       <LogIn className="w-4 h-4 transition-transform duration-200 group-hover:scale-115 shrink-0" />
@@ -971,7 +971,7 @@ export default function LoginPage() {
                         setFormType('signup');
                         setIsFormOpen(true);
                       }}
-                      className="relative overflow-hidden w-full sm:w-auto min-w-[160px] sm:min-w-[190px] flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 sm:py-3.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/90 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                      className="relative overflow-hidden w-full sm:w-auto min-w-[150px] sm:min-w-[190px] flex items-center justify-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/90 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
                     >
                       <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
                       <UserPlus className="w-4 h-4 transition-transform duration-200 group-hover:scale-125 shrink-0" />
