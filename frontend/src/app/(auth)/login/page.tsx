@@ -786,64 +786,60 @@ export default function LoginPage() {
         {/* FULL-BLEED BACKGROUND CANVAS (Ken Burns + 5-Part Architectural Reveal) */}
         {/* =================================================================== */}
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
-          {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
-          <div
-            className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out scale-[1.26] sm:scale-100 origin-[28%_36%] sm:origin-center bg-[position:28%_36%] sm:bg-[position:center_34%] ${
-              revealStep >= 4
-                ? 'opacity-100 blur-none animate-ken-burns'
-                : 'opacity-0 scale-105 blur-sm pointer-events-none'
-            }`}
-            style={{
-              backgroundImage: "url('/hospital-building.jpg')",
-              backgroundSize: 'cover',
-              backgroundRepeat: 'no-repeat',
-            }}
-          />
+          {/* Zoom Wrapper (Enlarges and brings the building up close on mobile only) */}
+          <div className="absolute inset-0 w-full h-full scale-[1.40] sm:scale-100 origin-[28%_42%] sm:origin-center transition-transform duration-700">
+            {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
+            <div
+              className={`hero-building-image absolute inset-0 w-full h-full transition-opacity duration-1000 ease-out ${
+                revealStep >= 4
+                  ? 'opacity-100 blur-none animate-ken-burns'
+                  : 'opacity-0 blur-sm pointer-events-none'
+              }`}
+            />
 
-          {/* 2. 5-Part Architectural Shutter Slices (Visible during reveal steps 0-3) */}
-          <div
-            className={`absolute inset-0 w-full h-full flex transition-opacity duration-700 ${
-              revealStep >= 4 ? 'opacity-0 pointer-events-none' : 'opacity-100'
-            }`}
-          >
-            {BUILDING_PARTS.map((part, index) => {
-              const isPartOpen = revealStep >= part.step;
-              return (
-                <div
-                  key={part.id}
-                  className="relative h-full flex-1 overflow-hidden border-r last:border-r-0 border-white/20 bg-slate-950/80"
-                >
-                  {/* Image slice for this part */}
+            {/* 2. 5-Part Architectural Shutter Slices (Visible during reveal steps 0-3) */}
+            <div
+              className={`absolute inset-0 w-full h-full flex transition-opacity duration-700 ${
+                revealStep >= 4 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              }`}
+            >
+              {BUILDING_PARTS.map((part, index) => {
+                const isPartOpen = revealStep >= part.step;
+                return (
                   <div
-                    className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out transform scale-[1.26] sm:scale-100 origin-[28%_36%] sm:origin-center ${
-                      isPartOpen
-                        ? 'opacity-100 translate-y-0 blur-none'
-                        : 'opacity-0 scale-115 translate-y-8 blur-md'
-                    }`}
-                    style={{
-                      backgroundImage: "url('/hospital-building.jpg')",
-                      backgroundSize: '500% 100%',
-                      backgroundPosition: `${index * 25}% 34%`,
-                      backgroundRepeat: 'no-repeat',
-                    }}
-                  />
+                    key={part.id}
+                    className="relative h-full flex-1 overflow-hidden border-r last:border-r-0 border-white/20 bg-slate-950/80"
+                  >
+                    {/* Image slice for this part */}
+                    <div
+                      className={`hero-building-image absolute inset-0 w-full h-full transition-all duration-700 ease-out transform ${
+                        isPartOpen
+                          ? 'opacity-100 translate-y-0 blur-none'
+                          : 'opacity-0 scale-110 translate-y-8 blur-md'
+                      }`}
+                      style={{
+                        backgroundSize: '500% 100%',
+                        backgroundPosition: `${index * 25}% 42%`,
+                      }}
+                    />
 
-                  {/* Frosted Shutter Blade that draws upward */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/90 via-[#071d3d]/85 to-[#041124]/90 backdrop-blur-xs transition-all duration-700 pointer-events-none ${
-                      isPartOpen ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
-                    }`}
-                  />
+                    {/* Frosted Shutter Blade that draws upward */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/90 via-[#071d3d]/85 to-[#041124]/90 backdrop-blur-xs transition-all duration-700 pointer-events-none ${
+                        isPartOpen ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
+                      }`}
+                    />
 
-                  {/* Glowing vertical laser beam partition */}
-                  <div
-                    className={`absolute inset-y-0 right-0 w-0.5 bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#38bdf8] transition-opacity duration-500 ${
-                      isPartOpen ? 'opacity-70' : 'opacity-25'
-                    }`}
-                  />
-                </div>
-              );
-            })}
+                    {/* Glowing vertical laser beam partition */}
+                    <div
+                      className={`absolute inset-y-0 right-0 w-0.5 bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#38bdf8] transition-opacity duration-500 ${
+                        isPartOpen ? 'opacity-70' : 'opacity-25'
+                      }`}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Atmospheric Scrims: Enhances text readability while preserving the vibrant scene */}
