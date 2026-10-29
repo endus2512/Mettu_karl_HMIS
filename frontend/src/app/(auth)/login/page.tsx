@@ -285,46 +285,11 @@ const STAFF_ROLES = [
 ];
 
 const BUILDING_PARTS = [
-  {
-    id: 1,
-    om: 'Kutaa 1: Gamoo Bitaa',
-    am: 'ክፍል 1፡ ግራ ህንፃ',
-    en: 'Part 1: Left Wing',
-    step: 3,
-    bgPos: '0%',
-  },
-  {
-    id: 2,
-    om: 'Kutaa 2: Kilinika Lixaa',
-    am: 'ክፍል 2፡ ምዕራብ ክሊኒክ',
-    en: 'Part 2: West Wing',
-    step: 2,
-    bgPos: '25%',
-  },
-  {
-    id: 3,
-    om: 'Kutaa 3: Seensa Guddaa & OPD',
-    am: 'ክፍል 3፡ ዋና መግቢያ',
-    en: 'Part 3: Grand Entrance',
-    step: 1,
-    bgPos: '50%',
-  },
-  {
-    id: 4,
-    om: 'Kutaa 4: Kilinika Bahaa',
-    am: 'ክፍል 4፡ ምስራቅ ክሊኒክ',
-    en: 'Part 4: East Wing',
-    step: 2,
-    bgPos: '75%',
-  },
-  {
-    id: 5,
-    om: 'Kutaa 5: Gamoo Mirgaa',
-    am: 'ክፍል 5፡ ቀኝ ህንፃ',
-    en: 'Part 5: Right Wing',
-    step: 3,
-    bgPos: '100%',
-  },
+  { id: 1, step: 3, bgPos: '0%' },
+  { id: 2, step: 2, bgPos: '25%' },
+  { id: 3, step: 1, bgPos: '50%' },
+  { id: 4, step: 2, bgPos: '75%' },
+  { id: 5, step: 3, bgPos: '100%' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -932,16 +897,12 @@ export default function LoginPage() {
                         }}
                       />
 
-                      {/* Frosted Shutter Blade that draws upward */}
+                      {/* Frosted Shutter Blade that draws upward (pure visual action, no text) */}
                       <div
-                        className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/95 via-[#071d3d]/90 to-[#041124]/95 backdrop-blur-xs transition-all duration-700 pointer-events-none flex flex-col justify-end p-1 sm:p-2 ${
+                        className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/95 via-[#071d3d]/90 to-[#041124]/95 backdrop-blur-xs transition-all duration-700 pointer-events-none ${
                           isPartOpen ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
                         }`}
-                      >
-                        <span className="inline-block px-1 py-0.5 rounded-full bg-sky-950/90 border border-sky-400/50 text-[7.5px] sm:text-[9.5px] font-black text-sky-200 text-center truncate shadow-sm">
-                          {language === 'om' ? part.om : language === 'am' ? part.am : part.en}
-                        </span>
-                      </div>
+                      />
 
                       {/* Glowing vertical laser beam partition */}
                       <div
@@ -954,39 +915,16 @@ export default function LoginPage() {
                 })}
               </div>
 
-              {/* Status Pill during progressive reveal */}
-              {revealStep < 4 && (
-                <div className="absolute top-2.5 left-2.5 z-30 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/80 border border-teal-400/50 text-[10px] font-bold text-teal-300 backdrop-blur-md animate-pulse shadow-md">
-                  <span className="h-2 w-2 rounded-full bg-teal-400" />
-                  <span>
-                    {language === 'om'
-                      ? `Gamoo: Kutaa ${revealStep === 1 ? '3 (Seensa)' : revealStep === 2 ? '2, 3, 4' : '1 hanga 5'}...`
-                      : language === 'am'
-                      ? `ህንፃ፡ ክፍል ${revealStep === 1 ? '3' : revealStep === 2 ? '2, 3, 4' : '1 እስከ 5'}...`
-                      : `Building: Part ${revealStep === 1 ? '3' : revealStep === 2 ? '2, 3, 4' : '1 to 5'}...`}
-                  </span>
-                </div>
-              )}
-
-              {/* Replay Reveal Trigger Button */}
+              {/* Replay Reveal Trigger Button (Clean Icon Only, No Text) */}
               <button
                 type="button"
                 onClick={startRevealSequence}
                 title="Irra deebii mullisi (Replay Part Reveal)"
-                className="absolute top-2.5 right-2.5 z-30 flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-sky-400/40 text-sky-200 hover:text-white text-[10px] font-bold backdrop-blur-md transition-all shadow-md active:scale-95 cursor-pointer"
+                className="absolute top-2.5 right-2.5 z-30 flex items-center justify-center h-8 w-8 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-sky-400/40 text-sky-200 hover:text-white backdrop-blur-md transition-all shadow-md active:scale-90 cursor-pointer"
+                aria-label="Replay Reveal Animation"
               >
-                <span className="text-xs">🔄</span>
-                <span className="hidden sm:inline">
-                  {language === 'om' ? 'Kutaa mullisi' : language === 'am' ? 'እንደገና አሳይ' : 'Replay'}
-                </span>
+                <span className="text-sm">🔄</span>
               </button>
-
-              {/* Mobile "100% Full View" Badge */}
-              <div className="lg:hidden absolute bottom-2 left-2 z-30">
-                <span className="px-2 py-0.5 rounded-full bg-slate-950/80 border border-emerald-400/50 text-[9px] font-bold text-emerald-300 backdrop-blur-xs">
-                  ✓ Guutuu (Full View)
-                </span>
-              </div>
             </div>
 
             {/* ACTION BUTTONS: Positioned directly below building on mobile, in center on desktop */}
