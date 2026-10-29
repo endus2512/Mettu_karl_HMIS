@@ -38,8 +38,6 @@ import {
   Headphones,
   Globe,
   ChevronDown,
-  Sun,
-  Moon,
   Bed,
   Stethoscope,
   BarChart2,
@@ -705,7 +703,7 @@ export default function LoginPage() {
   return (
     <div className="w-screen h-screen min-h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden bg-[#0a3a78] dark:bg-[#061426] font-sans select-none m-0 p-0 relative">
       {/* ======================================================================= */}
-      {/* TOP-RIGHT CONTROLS: LANGUAGE DROPDOWN & SINGLE THEME TOGGLE BUTTON     */}
+      {/* TOP-RIGHT CONTROLS: LANGUAGE DROPDOWN                                  */}
       {/* ======================================================================= */}
       <div className="absolute top-6 sm:top-8 right-4 sm:right-8 z-40 flex items-center gap-2 sm:gap-2.5">
         {/* Language Selector Dropdown */}
@@ -777,21 +775,6 @@ export default function LoginPage() {
             </div>
           )}
         </div>
-
-        {/* SINGLE INTERCHANGEABLE LIGHT / DARK THEME BUTTON (NO TEXT, JUST ICON) */}
-        <button
-          type="button"
-          onClick={() => setThemeMode(!isDarkMode)}
-          className="flex items-center justify-center w-8.5 h-8.5 sm:w-9.5 sm:h-9.5 rounded-full border border-white/25 bg-white/20 hover:bg-white/30 text-white shadow-sm backdrop-blur-md transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95"
-          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        >
-          {isDarkMode ? (
-            <Sun className="h-4 w-4 text-amber-300 transition-transform duration-300 rotate-0 hover:rotate-45" />
-          ) : (
-            <Moon className="h-4 w-4 text-sky-100 transition-transform duration-300 -rotate-12 hover:rotate-0" />
-          )}
-        </button>
       </div>
 
       {/* ======================================================================= */}
