@@ -816,32 +816,32 @@ export default function LoginPage() {
         <div className="hidden lg:block absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#0a3a78]/70 to-transparent pointer-events-none z-15" />
 
         {/* UPPER / MIDDLE SECTION: The Hospital Building Photo & Stage */}
-        <div className="relative flex-1 w-full flex flex-col justify-between p-3 sm:p-6 lg:p-0 min-h-0">
+        <div className="relative flex-1 w-full flex flex-col justify-between p-2 sm:p-6 lg:p-0 min-h-0">
           
           {/* Top Branding Section */}
           <div
-            className={`relative z-20 p-2 sm:p-6 lg:p-10 transition-all duration-700 ${
+            className={`relative z-20 px-2 pt-1 pb-1 sm:p-6 lg:p-10 transition-all duration-700 ${
               revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
             }`}
           >
-            <div className="flex items-center gap-3 sm:gap-4 xl:gap-5">
+            <div className="flex items-center gap-2.5 sm:gap-4 xl:gap-5">
               <img
                 src="/hospital-logo-white.png"
                 alt="Mettu Karl Referral Hospital Emblem"
-                className="h-10 w-10 sm:h-14 sm:w-14 xl:h-18 xl:w-18 rounded-full bg-white p-0.5 shadow-lg shrink-0 object-contain"
+                className="h-9 w-9 sm:h-14 sm:w-14 xl:h-18 xl:w-18 rounded-full bg-white p-0.5 shadow-lg shrink-0 object-contain"
               />
               <div className="min-w-0">
-                <h1 className="text-base sm:text-2xl xl:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
+                <h1 className="text-sm sm:text-2xl xl:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
                   {t.hospitalName}
                 </h1>
-                <p className="text-[11px] sm:text-xs xl:text-base font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+                <p className="text-[10px] sm:text-xs xl:text-base font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
                   {t.hmisTitle} • {t.hmisSubtitle}
                 </p>
               </div>
             </div>
 
             {/* Hospital Tagline */}
-            <p className="text-[10px] sm:text-xs xl:text-sm italic text-sky-100 font-normal mt-1 sm:mt-2 xl:mt-3 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+            <p className="text-[9.5px] sm:text-xs xl:text-sm italic text-sky-100 font-normal mt-0.5 sm:mt-2 xl:mt-3 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
               {t.tagline}
             </p>
           </div>
@@ -849,10 +849,10 @@ export default function LoginPage() {
           {/* =================================================================== */}
           {/* CENTER HERO AREA: ENLARGED PROMINENT BUILDING + 5-PART PROGRESSIVE REVEAL */}
           {/* =================================================================== */}
-          <div className="relative z-20 flex-1 flex flex-col items-center justify-center w-full px-1.5 sm:px-6 my-auto py-1 sm:py-2 lg:py-0 min-h-0">
+          <div className="relative z-20 flex-1 flex flex-col items-center justify-center w-full px-1 sm:px-4 my-auto py-0.5 sm:py-2 lg:py-0 min-h-0">
             
             {/* The Dedicated Building Canvas (Enlarged & Portable on mobile, Full Bleed on Desktop) */}
-            <div className="w-full max-w-xl lg:max-w-none h-[44vh] sm:h-[50vh] min-h-[290px] max-h-[460px] lg:h-full lg:max-h-none lg:absolute lg:inset-0 rounded-2xl sm:rounded-3xl lg:rounded-none overflow-hidden border-2 lg:border-none border-sky-400/60 shadow-2xl lg:shadow-none relative bg-slate-950/80">
+            <div className="w-full max-w-3xl lg:max-w-none h-[58vh] sm:h-[65vh] min-h-[380px] sm:min-h-[440px] max-h-[640px] lg:h-full lg:max-h-none lg:absolute lg:inset-0 rounded-2xl sm:rounded-3xl lg:rounded-none overflow-hidden border-2 lg:border-none border-sky-400/60 shadow-2xl lg:shadow-none relative bg-slate-950/80">
               
               {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
               <div
@@ -864,7 +864,7 @@ export default function LoginPage() {
                 style={{
                   backgroundImage: "url('/hospital-building.jpg')",
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center 36%',
+                  backgroundPosition: 'center 38%',
                   backgroundRepeat: 'no-repeat',
                 }}
               />
@@ -892,7 +892,7 @@ export default function LoginPage() {
                         style={{
                           backgroundImage: "url('/hospital-building.jpg')",
                           backgroundSize: '500% 100%',
-                          backgroundPosition: `${index * 25}% 36%`,
+                          backgroundPosition: `${index * 25}% 38%`,
                           backgroundRepeat: 'no-repeat',
                         }}
                       />
@@ -927,18 +927,18 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* ACTION BUTTONS: Positioned directly below building on mobile, in center on desktop */}
+            {/* ACTION BUTTONS: Side-by-side compact on mobile, spacious in center on desktop */}
             <div
-              className={`relative z-20 w-full max-w-xl text-center mt-2.5 sm:mt-3.5 lg:mt-0 transition-all duration-1000 ${
+              className={`relative z-20 w-full max-w-2xl text-center mt-2 sm:mt-3 lg:mt-0 transition-all duration-1000 ${
                 revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               }`}
             >
-              <div className="w-full bg-white/[0.04] dark:bg-slate-950/[0.1] backdrop-blur-sm rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 border border-white/20 shadow-2xl ring-1 ring-white/10">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 w-full">
+              <div className="w-full bg-white/[0.05] dark:bg-slate-950/[0.15] backdrop-blur-sm rounded-xl sm:rounded-3xl p-1.5 sm:p-3.5 border border-white/20 shadow-2xl ring-1 ring-white/10">
+                <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 w-full">
                   {/* 1. Animated Login Button */}
-                  <div className="relative group w-full sm:w-auto">
+                  <div className="relative group flex-1 sm:flex-initial">
                     <div
-                      className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-75 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
+                      className={`absolute -inset-1 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-75 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
                         isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
                       }`}
                     />
@@ -948,20 +948,20 @@ export default function LoginPage() {
                         setFormType('login');
                         setIsFormOpen(true);
                       }}
-                      className="relative overflow-hidden w-full sm:w-auto min-w-[150px] sm:min-w-[190px] flex items-center justify-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
+                      className="relative overflow-hidden w-full sm:w-auto sm:min-w-[190px] flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-8 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-sky-300/50 touch-manipulation"
                     >
                       <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
-                      <LogIn className="w-4 h-4 transition-transform duration-200 group-hover:scale-115 shrink-0" />
-                      <span className="tracking-wide drop-shadow-md">
+                      <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 group-hover:scale-115 shrink-0" />
+                      <span className="tracking-wide drop-shadow-md truncate">
                         {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Login'}
                       </span>
                     </button>
                   </div>
 
                   {/* 2. Animated Sign Up Button */}
-                  <div className="relative group w-full sm:w-auto">
+                  <div className="relative group flex-1 sm:flex-initial">
                     <div
-                      className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-65 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
+                      className={`absolute -inset-1 rounded-xl sm:rounded-2xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-65 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
                         isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
                       }`}
                     />
@@ -971,11 +971,11 @@ export default function LoginPage() {
                         setFormType('signup');
                         setIsFormOpen(true);
                       }}
-                      className="relative overflow-hidden w-full sm:w-auto min-w-[150px] sm:min-w-[190px] flex items-center justify-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/90 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                      className="relative overflow-hidden w-full sm:w-auto sm:min-w-[190px] flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-8 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border-2 border-white/90 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
                     >
                       <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
-                      <UserPlus className="w-4 h-4 transition-transform duration-200 group-hover:scale-125 shrink-0" />
-                      <span className="tracking-wide drop-shadow-md">
+                      <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 group-hover:scale-125 shrink-0" />
+                      <span className="tracking-wide drop-shadow-md truncate">
                         {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up'}
                       </span>
                     </button>
@@ -987,46 +987,46 @@ export default function LoginPage() {
         </div>
 
         {/* BOTTOM SECTION */}
-        <div className="relative z-10 w-full bg-[#0a3a78] dark:bg-[#072449] border-t border-white/20 px-4 sm:px-6 py-3.5 sm:py-4 shrink-0 shadow-xl">
+        <div className="relative z-10 w-full bg-[#0a3a78] dark:bg-[#072449] border-t border-white/20 px-2 sm:px-6 py-2 sm:py-4 shrink-0 shadow-xl">
           {/* 4 Feature Badges with Vertical Dividers */}
           <div className="w-full max-w-2xl mx-auto">
             <div className="grid grid-cols-4 divide-x divide-white/20">
               {/* Feature 1: Patient Management */}
-              <div className="flex flex-col items-center text-center px-1 sm:px-2">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <UserCheck className="w-5 h-5" />
+              <div className="flex flex-col items-center text-center px-0.5 sm:px-2">
+                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <UserCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1.5 leading-snug">
+                <span className="text-[9px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1 sm:mt-1.5 leading-tight sm:leading-snug">
                   {t.servicePatient}
                 </span>
               </div>
 
               {/* Feature 2: Inpatient & Ward Management */}
-              <div className="flex flex-col items-center text-center px-1 sm:px-2">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <Bed className="w-5 h-5" />
+              <div className="flex flex-col items-center text-center px-0.5 sm:px-2">
+                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <Bed className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1.5 leading-snug">
+                <span className="text-[9px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1 sm:mt-1.5 leading-tight sm:leading-snug">
                   {t.serviceInpatient}
                 </span>
               </div>
 
               {/* Feature 3: Clinical Services */}
-              <div className="flex flex-col items-center text-center px-1 sm:px-2">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <Stethoscope className="w-5 h-5" />
+              <div className="flex flex-col items-center text-center px-0.5 sm:px-2">
+                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1.5 leading-snug">
+                <span className="text-[9px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1 sm:mt-1.5 leading-tight sm:leading-snug">
                   {t.serviceClinical}
                 </span>
               </div>
 
               {/* Feature 4: Reports & Analytics */}
-              <div className="flex flex-col items-center text-center px-1 sm:px-2">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <BarChart2 className="w-5 h-5" />
+              <div className="flex flex-col items-center text-center px-0.5 sm:px-2">
+                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-white/40 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <BarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1.5 leading-snug">
+                <span className="text-[9px] sm:text-[11px] xl:text-[11.5px] font-normal text-white/95 mt-1 sm:mt-1.5 leading-tight sm:leading-snug">
                   {t.serviceAnalytics}
                 </span>
               </div>
@@ -1034,8 +1034,8 @@ export default function LoginPage() {
           </div>
 
           {/* Bottom Hospital HMIS Tag - Small Font */}
-          <div className="pt-2 text-center">
-            <p className="text-[10px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide">
+          <div className="pt-1 sm:pt-2 text-center">
+            <p className="text-[9px] sm:text-[10.5px] font-normal text-sky-200/80 tracking-wide">
               Mettu Karl Referral Hospital HMIS
             </p>
           </div>
