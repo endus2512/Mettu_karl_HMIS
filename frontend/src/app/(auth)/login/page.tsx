@@ -788,15 +788,15 @@ export default function LoginPage() {
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
           {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
           <div
-            className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out ${
+            className={`absolute inset-0 w-full h-full transform transition-all duration-1000 ease-out scale-[1.15] sm:scale-100 origin-[44%_34%] sm:origin-center ${
               revealStep >= 4
-                ? 'opacity-100 scale-100 blur-none animate-ken-burns'
+                ? 'opacity-100 blur-none animate-ken-burns'
                 : 'opacity-0 scale-105 blur-sm pointer-events-none'
             }`}
             style={{
               backgroundImage: "url('/hospital-building.jpg')",
               backgroundSize: 'cover',
-              backgroundPosition: 'center 34%',
+              backgroundPosition: '44% 34%',
               backgroundRepeat: 'no-repeat',
             }}
           />
@@ -816,9 +816,9 @@ export default function LoginPage() {
                 >
                   {/* Image slice for this part */}
                   <div
-                    className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out transform ${
+                    className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out transform scale-[1.15] sm:scale-100 origin-[44%_34%] sm:origin-center ${
                       isPartOpen
-                        ? 'opacity-100 scale-100 translate-y-0 blur-none'
+                        ? 'opacity-100 translate-y-0 blur-none'
                         : 'opacity-0 scale-115 translate-y-8 blur-md'
                     }`}
                     style={{
