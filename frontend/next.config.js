@@ -1,9 +1,18 @@
 /** @type {import('next').NextConfig} */
 const isGithubActions = !!process.env.GITHUB_ACTIONS;
+const isVercel = !!process.env.VERCEL;
 
 const nextConfig = {
-  output: isGithubActions ? 'export' : 'standalone',
-  basePath: isGithubActions ? '/Mettu_karl_HMIS' : '',
+  ...(isGithubActions
+    ? {
+        output: 'export',
+        basePath: '/Mettu_karl_HMIS',
+      }
+    : isVercel
+    ? {}
+    : {
+        output: 'standalone',
+      }),
   reactStrictMode: false,
   swcMinify: true,
   images: {
