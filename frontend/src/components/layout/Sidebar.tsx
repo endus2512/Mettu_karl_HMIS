@@ -90,7 +90,7 @@ export function Sidebar(): React.ReactElement {
   }, [pathname]);
 
   const filterByRole = (items: NavItem[]): NavItem[] => {
-    if (!user?.role || user.role === 'super_admin') return items;
+    if (!user?.role || user.role === 'super_admin' || user.role === 'admin') return items;
     return items.filter((item) => !item.allowedRoles || item.allowedRoles.includes(user.role));
   };
 

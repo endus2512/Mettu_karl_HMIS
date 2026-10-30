@@ -18,6 +18,7 @@ import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
 import type { UserRole } from '@/types';
 
 interface Workstation {
@@ -387,10 +388,11 @@ export default function DashboardPage(): React.ReactElement {
 
   const displayedWorkstations = useMemo(() => {
     return workstations.filter((w) => {
-      // 1. RBAC Filtering by User Role
+      // 1. RBAC Filtering by User Role: Super admin and Admin have full access across all workstations
       const matchesRole =
         !user?.role ||
         user.role === 'super_admin' ||
+        user.role === 'admin' ||
         !w.allowedRoles ||
         w.allowedRoles.includes(user.role);
 
@@ -505,7 +507,7 @@ export default function DashboardPage(): React.ReactElement {
                 <p className="text-xs text-slate-600 mt-0.5">
                   {user?.role === 'admin' && (
                     <>
-                      <strong>Bulchiinsa Hospitaalaa & Executive BI:</strong> Kutaaleen bulchiinsaa, faayinaansii, fi gabaasaa ifa ta'aniiru. Iccitiin yaalaa dhukkubsattootaa heeyyama kiliinikaa waan barbaaduuf dhorkameera.
+                      <strong>To'annoo fi Quunnamtii Bulchiinsa Hospitaalaa:</strong> Kutaaleen hospitaalaa hundi (Ogeeyyii Yaalaa, Narsitoota, Farmaasii, Dhukkubsattoota, fi Faayinaansii) to'annoo keessan jala jiru. Kallattiin to'achuu, hordofuu fi qunnamuuf qophiidha.
                     </>
                   )}
                   {user?.role === 'doctor' && (
@@ -543,10 +545,15 @@ export default function DashboardPage(): React.ReactElement {
             <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
               <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                RBAC Enforced (403 Active)
+                {user?.role === 'admin' || user?.role === 'super_admin' ? 'Executive Governance Active' : 'RBAC Scoped (Active)'}
               </span>
             </div>
           </div>
+
+          {/* DEDICATED HOSPITAL EXECUTIVE OVERSIGHT & DIRECT CONTACT HUB (ADMIN & SUPER ADMIN) */}
+          {(user?.role === 'admin' || user?.role === 'super_admin') && (
+            <AdminOversightHub />
+          )}
 
           {/* SECTION 1: 3-SECOND CLINICAL VITAL SIGNS (Responsive Rectangular Hover Cards) */}
           <div>

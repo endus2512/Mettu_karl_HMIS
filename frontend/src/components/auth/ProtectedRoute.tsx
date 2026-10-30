@@ -46,8 +46,8 @@ export function ProtectedRoute({
     return <div />;
   }
 
-  // Super admin has global bypass
-  if (user.role === 'super_admin') {
+  // Super admin and Hospital Administrator have full oversight and governance across all hospital workstations
+  if (user.role === 'super_admin' || user.role === 'admin') {
     return <>{children}</>;
   }
 
@@ -103,12 +103,6 @@ export function ProtectedRoute({
             {user.role === 'doctor' && (category === 'financial' || moduleName.toLowerCase().includes('account') || moduleName.toLowerCase().includes('billing')) && (
               <div className="rounded-xl border border-amber-500/40 bg-amber-950/40 p-3 text-xs text-amber-200">
                 ⚠️ <span className="font-bold">Ogeessa Yaalaa (Doctor):</span> Herrega baankii, kaffaltii fi faayinaansii hospitaalaa bulchuun ogeessota faayinaansii fi bulchiinsaa qofaaf hayyamama.
-              </div>
-            )}
-
-            {user.role === 'admin' && category === 'clinical' && (
-              <div className="rounded-xl border border-blue-500/40 bg-blue-950/40 p-3 text-xs text-blue-200">
-                ℹ️ <span className="font-bold">Bulchiinsa Hospitaalaa (Admin):</span> Iccitiin yaalaa fi kiliinikaa dhukkubsattootaa ogeessota fayyaa (Doctor/Nurse) qofaaf ifa ta'a. Raawwii waliigalaa ilaaluuf Executive BI fayyadamaa.
               </div>
             )}
 
