@@ -783,23 +783,21 @@ export default function LoginPage() {
       <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none">
         
         {/* =================================================================== */}
-        {/* FULL-BLEED BACKGROUND CANVAS (Ken Burns + 5-Part Architectural Reveal) */}
+        {/* FULL-BLEED BACKGROUND CANVAS (Ultra-Clear HD Razor-Sharp View)       */}
         {/* =================================================================== */}
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
-          {/* Zoom Wrapper (Enlarges and brings the building up close on mobile only) */}
-          <div className="absolute inset-0 w-full h-full scale-[1.40] sm:scale-100 origin-[28%_42%] sm:origin-center transition-transform duration-700">
-            {/* 1. Final Seamless Ken Burns Layer (Fuses smoothly at step >= 4) */}
+          {/* Uncompromised 100% HD Architectural Canvas (Zero blur, zero pixel stretch) */}
+          <div className="absolute inset-0 w-full h-full scale-100 origin-center transition-transform duration-700">
+            {/* 1. Crystal-Clear HD Building Layer */}
             <div
-              className={`hero-building-image absolute inset-0 w-full h-full transition-opacity duration-1000 ease-out ${
-                revealStep >= 4
-                  ? 'opacity-100 blur-none animate-ken-burns'
-                  : 'opacity-0 blur-sm pointer-events-none'
+              className={`hero-building-image absolute inset-0 w-full h-full transition-opacity duration-700 ease-out ${
+                revealStep >= 4 ? 'opacity-100' : 'opacity-0'
               }`}
             />
 
-            {/* 2. 5-Part Architectural Shutter Slices (Visible during reveal steps 0-3) */}
+            {/* 2. Seamless Architectural Shutter Slices */}
             <div
-              className={`absolute inset-0 w-full h-full flex transition-opacity duration-700 ${
+              className={`absolute inset-0 w-full h-full flex transition-opacity duration-500 ${
                 revealStep >= 4 ? 'opacity-0 pointer-events-none' : 'opacity-100'
               }`}
             >
@@ -814,18 +812,18 @@ export default function LoginPage() {
                     <div
                       className={`hero-building-image absolute inset-0 w-full h-full transition-all duration-700 ease-out transform ${
                         isPartOpen
-                          ? 'opacity-100 translate-y-0 blur-none'
-                          : 'opacity-0 scale-110 translate-y-8 blur-md'
+                          ? 'opacity-100 translate-y-0'
+                          : 'opacity-0 scale-105 translate-y-4'
                       }`}
                       style={{
                         backgroundSize: '500% 100%',
-                        backgroundPosition: `${index * 25}% 42%`,
+                        backgroundPosition: `${index * 25}% 36%`,
                       }}
                     />
 
-                    {/* Frosted Shutter Blade that draws upward */}
+                    {/* Shutter Blade that draws upward */}
                     <div
-                      className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/90 via-[#071d3d]/85 to-[#041124]/90 backdrop-blur-xs transition-all duration-700 pointer-events-none ${
+                      className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/80 via-[#071d3d]/75 to-[#041124]/80 transition-all duration-700 pointer-events-none ${
                         isPartOpen ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
                       }`}
                     />
@@ -842,10 +840,10 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Atmospheric Scrims: Enhances text readability while preserving the vibrant scene */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-slate-950/80 pointer-events-none" />
-          <div className="hidden lg:block absolute inset-y-0 left-0 w-36 bg-gradient-to-r from-slate-950/50 to-transparent pointer-events-none" />
-          <div className="hidden lg:block absolute inset-y-0 right-0 w-36 bg-gradient-to-l from-slate-950/50 to-transparent pointer-events-none" />
+          {/* Clean High-Contrast Clarity Scrim: Enhances text legibility while keeping the building 100% sharp */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/45 via-transparent to-slate-950/65 pointer-events-none" />
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-950/40 to-transparent pointer-events-none" />
+          <div className="hidden lg:block absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-slate-950/40 to-transparent pointer-events-none" />
         </div>
 
         {/* =================================================================== */}

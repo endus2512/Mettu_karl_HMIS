@@ -210,17 +210,20 @@ body {
   animation: kenBurnsSlow 24s ease-in-out infinite alternate;
 }
 
-/* Hospital Building Hero Framing: Brings building up close on mobile while preserving wide view on desktop */
+/* Hospital Building Hero Framing: Ultra-clear HD architectural display with crisp-edges */
 .hero-building-image {
   background-image: url('/hospital-building.jpg');
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: 28% 42%;
+  background-position: center center;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter: contrast(1.05) saturate(1.05);
 }
 
 @media (min-width: 640px) {
   .hero-building-image {
-    background-position: center 34%;
+    background-position: center 36%;
   }
 }
 

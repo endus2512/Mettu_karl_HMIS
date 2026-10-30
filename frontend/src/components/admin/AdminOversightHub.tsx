@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { notifications } from '@mantine/notifications';
 import { useTranslation, Language } from '@/lib/i18n';
 import apiClient from '@/lib/api';
+import { addNotification } from '@/lib/notifications';
 
 interface LocalizedText {
   en: string;
@@ -696,6 +697,7 @@ export function AdminOversightHub(): React.ReactElement {
   const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
   const txt = OVERSIGHT_I18N[lang] || OVERSIGHT_I18N['en'];
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [roleFilter, setRoleFilter] = useState<'all' | 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'patient'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -776,6 +778,27 @@ export function AdminOversightHub(): React.ReactElement {
 
     setIsSending(true);
     try {
+      // 1. Create real-time in-app notification with live reaction capability
+      addNotification({
+        senderName: 'Hospital Executive Administrator',
+        senderRole: 'admin',
+        recipientRole: selectedRecipient.role,
+        recipientId: selectedRecipient.id,
+        recipientName: selectedRecipient.name,
+        title: {
+          en: messageTemplate === 'code_blue' ? '🚨 CODE BLUE: Trauma Resuscitation' : messageTemplate === 'urgent_rx' ? '💊 Urgent Medication Order' : '📋 Direct Administrative Alert',
+          om: messageTemplate === 'code_blue' ? '🚨 WAAMICHA TASAA (Code Blue)' : messageTemplate === 'urgent_rx' ? '💊 Qoricha Hatattamaa' : '📋 Ergaa Kallattii Bulchiinsaa',
+          am: messageTemplate === 'code_blue' ? '🚨 የአደጋ ጊዜ ጥሪ (Code Blue)' : messageTemplate === 'urgent_rx' ? '💊 አስቸኳይ መድኃኒት' : '📋 የቀጥታ አስተዳደር ጥሪ',
+        },
+        message: {
+          en: finalMsg,
+          om: finalMsg,
+          am: finalMsg,
+        },
+        type: messageTemplate === 'code_blue' || messageTemplate === 'urgent_rx' || messageTemplate === 'directive' ? messageTemplate : 'custom',
+        channel: messageChannel,
+      });
+
       if (messageChannel === 'sms') {
         await apiClient
           .post('/api/v1/sms/send', {
@@ -818,6 +841,36 @@ export function AdminOversightHub(): React.ReactElement {
 
     setIsBroadcasting(true);
     try {
+      // 1. Dispatch real-time in-app broadcast notification
+      const targetRole =
+        broadcastTarget === 'doctors'
+          ? 'doctor'
+          : broadcastTarget === 'nurses'
+          ? 'nurse'
+          : broadcastTarget === 'pharmacy'
+          ? 'pharmacist'
+          : broadcastTarget === 'patients'
+          ? 'patient'
+          : 'all';
+
+      addNotification({
+        senderName: 'Hospital Executive Administrator',
+        senderRole: 'admin',
+        recipientRole: targetRole,
+        title: {
+          en: `📢 Broadcast Announcement (${broadcastTarget.toUpperCase()})`,
+          om: `📢 Ergaa Labsii Bulchiinsaa (${broadcastTarget.toUpperCase()})`,
+          am: `📢 የአስተዳደር ይፋዊ መግለጫ (${broadcastTarget.toUpperCase()})`,
+        },
+        message: {
+          en: broadcastMessage.trim(),
+          om: broadcastMessage.trim(),
+          am: broadcastMessage.trim(),
+        },
+        type: 'broadcast',
+        channel: 'both',
+      });
+
       await apiClient
         .post('/api/v1/sms/send', {
           phone_number: '+251911000000',
@@ -860,20 +913,30 @@ export function AdminOversightHub(): React.ReactElement {
           </div>
         </div>
 
-        {/* Action Buttons: Broadcast & Quick Oversight */}
+        {/* Action Buttons: Broadcast & Simplicity Collapse/Expand */}
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <button
             type="button"
             onClick={() => setBroadcastModalOpen(true)}
-            className="flex items-center gap-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 text-xs font-black shadow-md transition-all cursor-pointer"
+            className="flex items-center gap-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 text-xs font-black shadow-md transition-all cursor-pointer"
           >
             <span>📢</span>
             <span>{txt.broadcastBtn}</span>
           </button>
+          <button
+            type="button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="flex items-center gap-1.5 rounded-2xl border border-teal-300 bg-white hover:bg-teal-50 text-teal-800 px-3.5 py-2.5 text-xs font-bold shadow-xs transition-all cursor-pointer"
+          >
+            <span>{isCollapsed ? '▼' : '▲'}</span>
+            <span>{isCollapsed ? (lang === 'om' ? 'Kutaalee Agarsiisi' : lang === 'am' ? 'ዘርጋ' : 'Expand') : (lang === 'om' ? 'Simplicity (Dhadhahi)' : lang === 'am' ? 'አሳጥር' : 'Minimize')}</span>
+          </button>
         </div>
       </div>
 
-      {/* 2. Direct 1-Click Department Inspection Jump Tiles */}
+      {!isCollapsed && (
+        <>
+          {/* 2. Direct 1-Click Department Inspection Jump Tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <Link
           href="/patients"
@@ -1065,6 +1128,8 @@ export function AdminOversightHub(): React.ReactElement {
           );
         })}
       </div>
+      </>
+      )}
 
       {/* 5. QUICK DIRECT CONTACT MODAL */}
       {contactModalOpen && selectedRecipient && (

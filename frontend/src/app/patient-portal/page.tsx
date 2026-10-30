@@ -25,6 +25,7 @@ import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
+import { NotificationBell } from '@/components/common/NotificationBell';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import apiClient from '@/lib/api';
 
@@ -824,8 +825,13 @@ export default function PatientPortalPage(): React.ReactElement {
               </div>
             </div>
 
-            {/* Header Right: Language Selector & Bold Red Logout Button pinned strictly to the far right edge */}
+            {/* Header Right: Notifications, Language Selector & Bold Red Logout Button */}
             <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 ml-auto shrink-0">
+              {/* Notification Bell with Live Reactions */}
+              <div className="rounded-xl border border-slate-700 bg-slate-900/90 p-0.5 shadow-xs shrink-0">
+                <NotificationBell variant="dark" />
+              </div>
+
               {/* Language Selector */}
               <div className="rounded-xl border border-slate-700 bg-slate-900/90 p-0.5 shadow-xs shrink-0">
                 <LanguageSelect variant="dark" />

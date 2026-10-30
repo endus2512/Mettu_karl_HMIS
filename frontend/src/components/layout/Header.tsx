@@ -16,6 +16,7 @@ import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
+import { NotificationBell } from '@/components/common/NotificationBell';
 
 const ETH_MONTHS = [
   { val: 'Meskerem', label: 'Meskerem (Fulbaana)' },
@@ -254,7 +255,12 @@ export function Header(): React.ReactElement {
           <span className="font-bold hidden md:inline">SMS/*907#</span>
         </Link>
 
-        {/* 5. Language Selector (Afanoota Sadan: Afaan Oromoo, አማርኛ, English) */}
+        {/* 5. Real-Time Hospital Executive Notification Bell with Live Reactions */}
+        <div className="flex items-center pr-1 sm:pr-2 border-r border-slate-700/80">
+          <NotificationBell variant="dark" />
+        </div>
+
+        {/* 6. Language Selector (Afanoota Sadan: Afaan Oromoo, አማርኛ, English) */}
         <div className="flex items-center pr-1 sm:pr-2 border-r border-slate-700/80">
           <LanguageSelect variant="dark" />
         </div>

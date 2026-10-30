@@ -1090,13 +1090,13 @@ export default function DashboardPage(): React.ReactElement {
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
 
-        <main className="flex-1 p-6 lg:p-8 space-y-7">
-          {/* Top Context & Greeting Bar (Responsive rectangular hover) */}
-          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white px-7 py-5 rounded-3xl border-2 border-slate-200/90 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/30 hover:shadow-md transition-all duration-200">
-            <div className="flex items-center gap-4 min-w-0">
-              <span className="flex h-3.5 w-3.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <div className="min-w-0 space-y-1">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight truncate group-hover:text-teal-950 transition-colors">
+        <main className="flex-1 p-5 sm:p-7 lg:p-8 space-y-6 max-w-[1720px] mx-auto w-full">
+          {/* Top Context & Greeting Bar — Clean, Streamlined Simplicity */}
+          <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between bg-white px-6 py-4 rounded-2xl border border-slate-200/90 shadow-2xs">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate">
                   {t('welcome_back')},{' '}
                   <span className="text-teal-700">
                     {user?.username === 'admin'
@@ -1106,31 +1106,31 @@ export default function DashboardPage(): React.ReactElement {
                       : 'Dr. Bekele Tadesse'}
                   </span>
                 </h1>
-                <p className="text-xs font-semibold text-slate-500 truncate">
-                  {t('hospital_name')} • <span className="text-slate-800 font-bold">{grt.shift}</span> • {grt.catchment}
+                <p className="text-xs text-slate-500 truncate mt-0.5">
+                  {t('hospital_name')} • <span className="text-slate-700 font-semibold">{grt.shift}</span> • {grt.catchment}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="hidden md:inline-block font-mono text-xs font-bold text-slate-700 bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200 group-hover:bg-white transition-colors">
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="hidden md:inline-block font-mono text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
                 {currentDateTime}
               </span>
               <button
                 type="button"
                 onClick={() => setEmergencyModalOpen(true)}
-                className="flex items-center gap-2 rounded-2xl bg-rose-600 px-5 py-2.5 text-xs font-black text-white shadow-sm hover:bg-rose-700 hover:ring-2 hover:ring-rose-400/40 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-black text-white shadow-xs hover:bg-rose-700 active:scale-95 transition-all cursor-pointer"
               >
-                <span className="text-sm">🚨</span>
+                <span>🚨</span>
                 <span>{grt.emergencyAction}</span>
               </button>
             </div>
           </div>
 
-          {/* RBAC SCOPE & ROLE-BASED WORKSTATION NOTICE */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 rounded-2xl border-2 border-slate-200/90 bg-white p-4 shadow-2xs">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white font-black text-lg shadow-sm">
+          {/* RBAC SCOPE STRIP — Compact & Uncluttered Simplicity */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white px-5 py-3 shadow-2xs">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="text-lg shrink-0">
                 {user?.role === 'admin'
                   ? '🏛️'
                   : user?.role === 'doctor'
@@ -1144,29 +1144,22 @@ export default function DashboardPage(): React.ReactElement {
                   : user?.role === 'technician'
                   ? '🔧'
                   : '🏥'}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-black uppercase tracking-wider text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-md border border-teal-200">
-                    {grt.rolePrefix}{user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR'}
-                  </span>
-                  <span className="text-[11px] font-bold text-slate-500">
-                    • {grt.scopedCount}
-                    <strong className="text-slate-800">{displayedWorkstations.length}</strong>
-                  </span>
-                </div>
-                <p className="text-xs text-slate-600 mt-0.5">
-                  <strong>{roleInfo.title}:</strong> {roleInfo.desc}
-                </p>
+              </span>
+              <div className="text-xs truncate">
+                <span className="font-black text-teal-900 uppercase">
+                  {grt.rolePrefix}{user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR'}
+                </span>
+                <span className="text-slate-400 mx-1.5">•</span>
+                <span className="text-slate-600 font-medium">{roleInfo.title}</span>
+                <span className="text-slate-400 mx-1.5">•</span>
+                <span className="text-slate-500 font-bold">{grt.scopedCount}{displayedWorkstations.length}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-              <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                {user?.role === 'admin' || user?.role === 'super_admin' ? grt.executiveActive : grt.rbacActive}
-              </span>
-            </div>
+            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-lg shrink-0 self-end sm:self-auto flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {user?.role === 'admin' || user?.role === 'super_admin' ? grt.executiveActive : grt.rbacActive}
+            </span>
           </div>
 
           {/* DEDICATED HOSPITAL EXECUTIVE OVERSIGHT & DIRECT CONTACT HUB (ADMIN & SUPER ADMIN) */}
@@ -1174,83 +1167,83 @@ export default function DashboardPage(): React.ReactElement {
             <AdminOversightHub />
           )}
 
-          {/* SECTION 1: 3-SECOND CLINICAL VITAL SIGNS (Responsive Rectangular Hover Cards) */}
-          <div>
-            <div className="mb-3.5 flex items-center justify-between">
-              <h2 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          {/* SECTION 1: 3-SECOND CLINICAL VITAL SIGNS — Clean Modern Cards */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
                 <span>📊</span> {sit.sectionTitle}
               </h2>
-              <span className="text-[11px] font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+              <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-lg border border-teal-200">
                 {sit.sensorBadge}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               {/* Tile 1: Bed Capacity */}
-              <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/50 hover:ring-2 hover:ring-teal-400/30 hover:shadow-md transition-all duration-200 cursor-default">
+              <div className="group rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-xs transition-all duration-150 cursor-default">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                   <span className="uppercase tracking-wider">{sit.bedTitle}</span>
-                  <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-bold text-teal-800 border border-teal-200 group-hover:bg-white group-hover:border-teal-400 transition-colors">
+                  <span className="rounded-md bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-800 border border-teal-200">
                     {sit.bedOccupancy}
                   </span>
                 </div>
-                <div className="mt-4 flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-slate-900 group-hover:text-teal-950 transition-colors">340</span>
-                  <span className="text-sm font-bold text-slate-400">{sit.bedTotal}</span>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-slate-900 group-hover:text-teal-900 transition-colors">340</span>
+                  <span className="text-xs font-semibold text-slate-400">{sit.bedTotal}</span>
                 </div>
-                <div className="mt-3.5 h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="mt-2.5 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div className="h-full rounded-full bg-teal-600 transition-all" style={{ width: '85%' }} />
                 </div>
-                <div className="mt-3 flex items-center justify-between text-xs font-semibold text-slate-500">
+                <div className="mt-2.5 flex items-center justify-between text-xs font-medium text-slate-500">
                   <span>{sit.bedAvail}</span>
                   <span className="text-teal-700 font-bold">{sit.bedIcu}</span>
                 </div>
               </div>
 
               {/* Tile 2: START Emergency Triage */}
-              <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/50 hover:ring-2 hover:ring-teal-400/30 hover:shadow-md transition-all duration-200 cursor-default">
+              <div className="group rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-xs transition-all duration-150 cursor-default">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                   <span className="uppercase tracking-wider">{sit.edTitle}</span>
-                  <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-bold text-rose-700 border border-rose-200 group-hover:bg-white transition-colors">
+                  <span className="rounded-md bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700 border border-rose-200">
                     {sit.edBadge}
                   </span>
                 </div>
-                <div className="mt-4 grid grid-cols-4 gap-2 text-center">
-                  <div className="rounded-xl bg-rose-50 py-2 border border-rose-200 group-hover:bg-white transition-colors">
-                    <span className="block text-base font-black text-rose-700">3</span>
+                <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
+                  <div className="rounded-lg bg-rose-50 py-1.5 border border-rose-200">
+                    <span className="block text-sm font-black text-rose-700">3</span>
                     <span className="text-[10px] font-bold text-rose-800 uppercase">Red</span>
                   </div>
-                  <div className="rounded-xl bg-amber-50 py-2 border border-amber-200 group-hover:bg-white transition-colors">
-                    <span className="block text-base font-black text-amber-700">12</span>
+                  <div className="rounded-lg bg-amber-50 py-1.5 border border-amber-200">
+                    <span className="block text-sm font-black text-amber-700">12</span>
                     <span className="text-[10px] font-bold text-amber-800 uppercase">Yel</span>
                   </div>
-                  <div className="rounded-xl bg-emerald-50 py-2 border border-emerald-200 group-hover:bg-white transition-colors">
-                    <span className="block text-base font-black text-emerald-700">48</span>
+                  <div className="rounded-lg bg-emerald-50 py-1.5 border border-emerald-200">
+                    <span className="block text-sm font-black text-emerald-700">48</span>
                     <span className="text-[10px] font-bold text-emerald-800 uppercase">Grn</span>
                   </div>
-                  <div className="rounded-xl bg-slate-100 py-2 border border-slate-200 group-hover:bg-white transition-colors">
-                    <span className="block text-base font-black text-slate-600">0</span>
+                  <div className="rounded-lg bg-slate-100 py-1.5 border border-slate-200">
+                    <span className="block text-sm font-black text-slate-600">0</span>
                     <span className="text-[10px] font-bold text-slate-600 uppercase">Blk</span>
                   </div>
                 </div>
-                <p className="mt-3 text-center text-[11px] font-semibold text-slate-400">
+                <p className="mt-2.5 text-center text-[11px] font-medium text-slate-500">
                   {sit.edSub}
                 </p>
               </div>
 
               {/* Tile 3: Blood & Oxygen Supply */}
-              <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/50 hover:ring-2 hover:ring-teal-400/30 hover:shadow-md transition-all duration-200 cursor-default">
+              <div className="group rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-xs transition-all duration-150 cursor-default">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                   <span className="uppercase tracking-wider">{sit.o2Title}</span>
-                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200 group-hover:bg-white transition-colors">
+                  <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700 border border-blue-200">
                     {sit.o2Badge}
                   </span>
                 </div>
-                <div className="mt-4 flex items-center justify-between">
+                <div className="mt-3 flex items-center justify-between">
                   <div>
-                    <span className="text-2xl font-black text-slate-900 group-hover:text-teal-950 transition-colors">4.8</span>
+                    <span className="text-2xl font-black text-slate-900 group-hover:text-teal-900 transition-colors">4.8</span>
                     <span className="text-xs font-bold text-slate-400 ml-1">Bar</span>
-                    <p className="text-xs font-semibold text-slate-500 mt-0.5">{sit.o2Pipeline}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{sit.o2Pipeline}</p>
                   </div>
                   <div className="text-right">
                     <span className="text-2xl font-black text-rose-600">6</span>
@@ -1258,71 +1251,71 @@ export default function DashboardPage(): React.ReactElement {
                     <p className="text-xs font-bold text-rose-600 mt-0.5">{sit.o2LowStock}</p>
                   </div>
                 </div>
-                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5 text-xs text-slate-400">
+                <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-slate-500">
                   <span>{sit.o2Days}</span>
                   <span className="font-bold text-slate-700">{sit.o2Total}</span>
                 </div>
               </div>
 
               {/* Tile 4: Power Grid & Resilience */}
-              <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/50 hover:ring-2 hover:ring-teal-400/30 hover:shadow-md transition-all duration-200 cursor-default">
+              <div className="group rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-xs transition-all duration-150 cursor-default">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                   <span className="uppercase tracking-wider">{sit.powerTitle}</span>
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200 group-hover:bg-white transition-colors">
+                  <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200">
                     {sit.powerBadge}
                   </span>
                 </div>
-                <div className="mt-4 flex items-baseline gap-2">
-                  <span className="text-xl font-black text-emerald-600">{sit.powerSolar}</span>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-lg font-black text-emerald-600">{sit.powerSolar}</span>
                 </div>
-                <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <div className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   {sit.powerGen}
                 </div>
-                <p className="mt-1.5 text-[11px] text-slate-400">{sit.powerSwitch}</p>
+                <p className="mt-1 text-[11px] text-slate-400">{sit.powerSwitch}</p>
               </div>
             </div>
           </div>
 
-          {/* SECTION 2: WORKSTATION DIRECTORY */}
+          {/* SECTION 2: WORKSTATION DIRECTORY — Clean, Spacious Simplicity */}
           <div className="space-y-4">
-            {/* Filter Toolbar: Search Bar on LEFT + Category Tabs Following Immediately to the Right */}
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-              {/* COMPACT & SHORTENED SEARCH BAR */}
+            {/* Filter Toolbar: Modern Minimalist Search Bar & Category Pills */}
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between">
+              {/* Sleek Search Bar */}
               <div className="relative w-full sm:w-80 md:w-96 shrink-0">
-                <div className="flex h-12 items-center rounded-2xl border-[3px] border-teal-600 bg-white px-4 shadow-sm hover:border-teal-700 focus-within:border-teal-700 focus-within:ring-4 focus-within:ring-teal-400/30 transition-all duration-150">
-                  <span className="text-base text-teal-800 mr-2.5 shrink-0">🔍</span>
+                <div className="flex h-11 items-center rounded-xl border border-slate-300 bg-white px-3.5 shadow-2xs focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-100 transition-all duration-150">
+                  <span className="text-sm text-slate-400 mr-2 shrink-0">🔍</span>
                   <input
                     type="text"
                     placeholder={t('search')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-transparent text-sm sm:text-base font-extrabold text-slate-950 placeholder-slate-400 focus:outline-none tracking-wide"
+                    className="w-full bg-transparent text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none"
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="ml-1 text-slate-400 hover:text-slate-700 text-sm font-bold px-2 py-0.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
+                      className="ml-1 text-slate-400 hover:text-slate-700 text-xs font-bold px-1.5 py-0.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
                     >
                       ✕
                     </button>
                   )}
-                  <span className="ml-2 rounded-xl bg-teal-100/90 border-2 border-teal-300 px-2.5 py-0.5 text-xs font-black text-teal-900 shrink-0">
+                  <span className="ml-2 rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600 shrink-0">
                     {displayedWorkstations.length}
                   </span>
                 </div>
               </div>
 
-              {/* Category Tabs (Localizes across English, Afaan Oromoo, and Amharic) */}
-              <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl bg-slate-200/70 p-1.5 text-xs font-bold text-slate-700">
+              {/* Minimalist Category Tabs */}
+              <div className="flex items-center gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 text-xs font-bold text-slate-600">
                 <button
                   type="button"
                   onClick={() => setActiveTab('all')}
-                  className={`rounded-xl px-4 py-2 transition-all cursor-pointer ${
+                  className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'all'
-                      ? 'bg-teal-700 text-white shadow-xs font-black ring-2 ring-teal-400/40'
-                      : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 hover:ring-1 hover:ring-teal-400/40'
+                      ? 'bg-teal-700 text-white shadow-2xs font-black'
+                      : 'hover:text-slate-900 hover:bg-white/60'
                   }`}
                 >
                   {t('all_tab')} ({workstations.length})
@@ -1330,10 +1323,10 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('emergency')}
-                  className={`flex items-center gap-1.5 rounded-xl px-4 py-2 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'emergency'
-                      ? 'bg-rose-700 text-white shadow-xs font-black ring-2 ring-rose-400/40'
-                      : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 hover:ring-1 hover:ring-teal-400/40'
+                      ? 'bg-rose-700 text-white shadow-2xs font-black'
+                      : 'hover:text-slate-900 hover:bg-white/60'
                   }`}
                 >
                   <span>🚨</span> {t('emergency_triage')}
@@ -1341,10 +1334,10 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('clinical')}
-                  className={`flex items-center gap-1.5 rounded-xl px-4 py-2 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'clinical'
-                      ? 'bg-teal-700 text-white shadow-xs font-black ring-2 ring-teal-400/40'
-                      : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 hover:ring-1 hover:ring-teal-400/40'
+                      ? 'bg-teal-700 text-white shadow-2xs font-black'
+                      : 'hover:text-slate-900 hover:bg-white/60'
                   }`}
                 >
                   <span>🩺</span> {t('clinical_care')}
@@ -1352,10 +1345,10 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('operations')}
-                  className={`flex items-center gap-1.5 rounded-xl px-4 py-2 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'operations'
-                      ? 'bg-blue-700 text-white shadow-xs font-black ring-2 ring-blue-400/40'
-                      : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 hover:ring-1 hover:ring-teal-400/40'
+                      ? 'bg-blue-700 text-white shadow-2xs font-black'
+                      : 'hover:text-slate-900 hover:bg-white/60'
                   }`}
                 >
                   <span>💼</span> {t('operations_erp')}
@@ -1363,10 +1356,10 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('governance')}
-                  className={`flex items-center gap-1.5 rounded-xl px-4 py-2 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'governance'
-                      ? 'bg-purple-700 text-white shadow-xs font-black ring-2 ring-purple-400/40'
-                      : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 hover:ring-1 hover:ring-teal-400/40'
+                      ? 'bg-purple-700 text-white shadow-2xs font-black'
+                      : 'hover:text-slate-900 hover:bg-white/60'
                   }`}
                 >
                   <span>⚖️</span> {t('regulations_governance')}
@@ -1374,7 +1367,7 @@ export default function DashboardPage(): React.ReactElement {
               </div>
             </div>
 
-            {/* 3. WORKSTATIONS GRID (Responsive Rectangular Hover Spotlight & 100% Dynamic Translation) */}
+            {/* 3. WORKSTATIONS GRID — Ultra-Simple, Modern & Airy */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {displayedWorkstations.map((item) => {
                 const titleText = item.title[lang] || item.title.en;
@@ -1388,16 +1381,16 @@ export default function DashboardPage(): React.ReactElement {
                     prefetch={true}
                     onMouseEnter={() => router.prefetch(item.href)}
                     onFocus={() => router.prefetch(item.href)}
-                    className="group relative flex flex-col justify-between rounded-2xl border-2 border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:bg-teal-50/70 hover:shadow-lg hover:ring-2 hover:ring-teal-400/30 transition-all duration-150 ease-in-out cursor-pointer active:scale-[0.98] transform hover:-translate-y-0.5 min-h-[130px]"
+                    className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-md hover:bg-teal-50/20 transition-all duration-150 ease-in-out cursor-pointer active:scale-[0.98] min-h-[125px]"
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-50 border border-slate-200 text-2xl group-hover:scale-110 group-hover:bg-white group-hover:border-teal-400 group-hover:shadow-xs transition-all">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 border border-slate-200/80 text-xl group-hover:scale-105 group-hover:bg-white group-hover:border-teal-300 transition-all">
                           {item.icon}
                         </div>
                         {badgeText && (
                           <span
-                            className={`text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 transition-colors ${item.badgeColor} group-hover:bg-white group-hover:shadow-2xs`}
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 transition-colors ${item.badgeColor}`}
                           >
                             {badgeText}
                           </span>
@@ -1406,14 +1399,14 @@ export default function DashboardPage(): React.ReactElement {
                       <h3 className="text-sm font-black text-slate-900 group-hover:text-teal-950 transition-colors leading-snug">
                         {titleText}
                       </h3>
-                      <p className="text-xs font-semibold text-teal-700 mt-1 truncate group-hover:text-teal-800 transition-colors">
+                      <p className="text-xs text-slate-500 mt-1 truncate group-hover:text-teal-800 transition-colors">
                         {subtitleText}
                       </p>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between text-xs font-bold text-slate-400 group-hover:text-teal-800 border-t border-slate-100 group-hover:border-teal-200/60 pt-2.5 transition-colors">
+                    <div className="mt-3.5 flex items-center justify-between text-xs font-bold text-slate-400 group-hover:text-teal-700 border-t border-slate-100 pt-2 transition-colors">
                       <span className="group-hover:underline">{grt.openWorkstation}</span>
-                      <span className="text-sm group-hover:translate-x-1.5 transition-transform">→</span>
+                      <span className="text-sm group-hover:translate-x-1 transition-transform">→</span>
                     </div>
                   </Link>
                 );
