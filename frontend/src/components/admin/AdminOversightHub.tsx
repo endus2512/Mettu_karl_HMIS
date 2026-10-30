@@ -1,31 +1,40 @@
 /**
  * Mettu Karl Referral Hospital — Executive Administration, Staff Oversight & Direct Contact Hub.
- * Empowers the Hospital Administrator (Admin) to monitor, oversee, and directly contact
- * Doctors, Nurses, Pharmacists, Technicians, and Patients across all hospital wards and workstations.
+ *
+ * Full Multilingual Localization:
+ * - Supports English ('en'), Afaan Oromoo ('om'), and Amharic ('am')
+ * - Empowers the Hospital Administrator to monitor, oversee, and directly contact
+ *   Doctors, Nurses, Pharmacists, Technicians, and Patients across all hospital wards.
  */
 'use client';
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { notifications } from '@mantine/notifications';
-import { useTranslation } from '@/lib/i18n';
+import { useTranslation, Language } from '@/lib/i18n';
 import apiClient from '@/lib/api';
+
+interface LocalizedText {
+  en: string;
+  om: string;
+  am: string;
+}
 
 export interface HospitalPerson {
   id: string;
   name: string;
   code: string;
   role: 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'billing' | 'patient';
-  roleTitle: string;
-  dept: string;
-  location: string;
+  roleTitle: LocalizedText;
+  dept: LocalizedText;
+  location: LocalizedText;
   phone: string;
   status: 'consulting' | 'surgery' | 'rounds' | 'dispensing' | 'icu_bedside' | 'available' | 'inpatient' | 'critical';
-  statusText: string;
+  statusText: LocalizedText;
   statusColor: string;
   avatar: string;
   workstationUrl: string;
-  workstationName: string;
+  workstationName: LocalizedText;
 }
 
 const HOSPITAL_ROSTER: HospitalPerson[] = [
@@ -35,64 +44,144 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     name: 'Dr. Bekele Tadesse',
     code: 'MKH-DOC-012',
     role: 'doctor',
-    roleTitle: 'Ogeessa Baqaqsaa Ol\'aanaa (Senior Surgeon)',
-    dept: 'General Surgery',
-    location: 'Kutaa Baqaqsaa 1 (OT Table 1)',
+    roleTitle: {
+      en: 'Senior Consultant Surgeon',
+      om: "Ogeessa Baqaqsaa Ol'aanaa",
+      am: 'ዋና የቀዶ ህክምና ስፔሻሊስት',
+    },
+    dept: {
+      en: 'General Surgery & OT',
+      om: 'Kutaa Baqaqsaa Waliigalaa',
+      am: 'አጠቃላይ ቀዶ ህክምና ክፍል',
+    },
+    location: {
+      en: 'Operating Theater Suite 1',
+      om: 'Kutaa Baqaqsaa 1 (OT 1)',
+      am: 'የቀዶ ህክምና ክፍል 1',
+    },
     phone: '+251911456789',
     status: 'surgery',
-    statusText: '🔪 Baqaqsarratti (In Surgery)',
+    statusText: {
+      en: '🔪 In Surgery',
+      om: '🔪 Baqaqsarratti',
+      am: '🔪 ቀዶ ጥገና ላይ',
+    },
     statusColor: 'bg-purple-100 text-purple-900 border-purple-300',
     avatar: '👨‍⚕️',
     workstationUrl: '/ot',
-    workstationName: 'OT Surgery & CSSD',
+    workstationName: {
+      en: 'OT Surgery & CSSD',
+      om: 'Kutaa Baqaqsanii Yaaluu',
+      am: 'የቀዶ ጥገና ክፍል',
+    },
   },
   {
     id: 'doc-2',
     name: 'Dr. Hawi Tolosa',
     code: 'MKH-DOC-024',
     role: 'doctor',
-    roleTitle: 'Iskripishiyalistii Da\'immanii (Pediatrician)',
-    dept: 'Pediatrics Ward',
-    location: 'OPD Kutaa 4 (Pediatric Clinic)',
+    roleTitle: {
+      en: 'Consultant Pediatrician',
+      om: "Iskripishiyalistii Daa'immanii",
+      am: 'የህጻናት ህክምና ስፔሻሊስት',
+    },
+    dept: {
+      en: 'Pediatrics Ward',
+      om: "Kutaa Daa'immanii",
+      am: 'የህፃናት ህክምና ክፍል',
+    },
+    location: {
+      en: 'OPD Room 4 (Pediatric Clinic)',
+      om: 'OPD Kutaa 4',
+      am: 'የተመላላሽ ክፍል 4',
+    },
     phone: '+251912345678',
     status: 'consulting',
-    statusText: '🩺 Yaalurratti (In OPD)',
+    statusText: {
+      en: '🩺 In OPD Consultation',
+      om: '🩺 Yaalurratti (OPD)',
+      am: '🩺 ታካሚዎችን እያየ ነው',
+    },
     statusColor: 'bg-teal-100 text-teal-900 border-teal-300',
     avatar: '👩‍⚕️',
     workstationUrl: '/patients',
-    workstationName: 'Patients & OPD Care',
+    workstationName: {
+      en: 'Patients & OPD Care',
+      om: 'Galmee Dhukkubsattootaa',
+      am: 'የታካሚዎች መዝገብ',
+    },
   },
   {
     id: 'doc-3',
     name: 'Dr. Gemechu Desta',
     code: 'MKH-DOC-033',
     role: 'doctor',
-    roleTitle: 'Hoggansa Yaala Tasaa (Emergency Consultant)',
-    dept: 'Emergency & Trauma',
-    location: 'Kutaa Triage Tasaa (Trauma Bay 2)',
+    roleTitle: {
+      en: 'Emergency & Trauma Consultant',
+      om: 'Hoggansa Yaala Tasaa',
+      am: 'የድንገተኛና አደጋ ህክምና አማካሪ',
+    },
+    dept: {
+      en: 'Emergency & Trauma Center',
+      om: 'Balaa Tasaa fi Triage',
+      am: 'ድንገተኛና አደጋ ማዕከል',
+    },
+    location: {
+      en: 'Trauma Bay 2 (Red Resuscitation)',
+      om: 'Kutaa Triage Tasaa (Bay 2)',
+      am: 'የአደጋ ጊዜ ክፍል 2',
+    },
     phone: '+251913456789',
     status: 'critical',
-    statusText: '🚨 Balaa Tasaa (MCI Active)',
+    statusText: {
+      en: '🚨 MCI Active (Critical Resus)',
+      om: '🚨 Balaa Tasaa (MCI Active)',
+      am: '🚨 ከፍተኛ አደጋ ህክምና ላይ',
+    },
     statusColor: 'bg-rose-100 text-rose-900 border-rose-300',
     avatar: '👨‍⚕️',
     workstationUrl: '/mci',
-    workstationName: 'MCI & Trauma Triage',
+    workstationName: {
+      en: 'MCI & Trauma Triage',
+      om: 'Balaa Tasaa (MCI)',
+      am: 'የድንገተኛ አደጋ ትሪያጅ',
+    },
   },
   {
     id: 'doc-4',
     name: 'Dr. Tolera Gudeta',
     code: 'MKH-DOC-041',
     role: 'doctor',
-    roleTitle: 'Ogeessa Raadiyooloojii (Chief Radiologist)',
-    dept: 'Radiology / PACS',
-    location: 'CT / X-Ray Reading Suite',
+    roleTitle: {
+      en: 'Chief Radiologist',
+      om: 'Ogeessa Raadiyooloojii',
+      am: 'ዋና የራዲዮሎጂ ስፔሻሊስት',
+    },
+    dept: {
+      en: 'Radiology / PACS Suite',
+      om: 'Raadiyooloojii fi PACS',
+      am: 'ራዲዮሎጂና ኤክስሬይ ክፍል',
+    },
+    location: {
+      en: 'CT / X-Ray Reading Suite',
+      om: 'Kutaa Dubbisa CT / X-Ray',
+      am: 'የሲቲ ስካንና ኤክስሬይ ክፍል',
+    },
     phone: '+251914567890',
     status: 'available',
-    statusText: '🟢 Qophii (Ready for Scans)',
+    statusText: {
+      en: '🟢 Ready for Scans',
+      om: '🟢 Qophii (Scans Ready)',
+      am: '🟢 ለምርመራ ዝግጁ',
+    },
     statusColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
     avatar: '👨‍⚕️',
     workstationUrl: '/pacs',
-    workstationName: 'PACS Radiology',
+    workstationName: {
+      en: 'PACS Radiology',
+      om: 'Suuraa X-Ray / CT',
+      am: 'ራዲዮሎጂና ኤክስሬይ',
+    },
   },
 
   // 2. Nurses
@@ -101,48 +190,108 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     name: 'Nurse Chaltu Abera',
     code: 'MKH-NUR-101',
     role: 'nurse',
-    roleTitle: 'Hangafa Narsitootaa ICU (ICU Head Nurse)',
-    dept: 'Intensive Care Unit (ICU)',
-    location: 'ICU Bed 1 - 6 Central Monitor',
+    roleTitle: {
+      en: 'ICU Head Nurse',
+      om: 'Hangafa Narsitootaa ICU',
+      am: 'የአይሲዩ ዋና ነርስ',
+    },
+    dept: {
+      en: 'Intensive Care Unit (ICU)',
+      om: 'Kutaa ICU',
+      am: 'ጽኑ ህሙማን ክፍል (ICU)',
+    },
+    location: {
+      en: 'ICU Beds 1 - 6 Central Monitor',
+      om: 'Siree ICU 1 - 6 To\'annoo',
+      am: 'የአይሲዩ አልጋዎች 1 - 6',
+    },
     phone: '+251915678901',
     status: 'icu_bedside',
-    statusText: '📡 ICU Bedside (Telemetry Live)',
+    statusText: {
+      en: '📡 ICU Bedside (Telemetry Live)',
+      om: '📡 ICU Bedside (Telemetry)',
+      am: '📡 አይሲዩ ክትትል ላይ',
+    },
     statusColor: 'bg-blue-100 text-blue-900 border-blue-300',
     avatar: '👩‍⚕️',
     workstationUrl: '/iomt',
-    workstationName: 'IoMT ICU Telemetry',
+    workstationName: {
+      en: 'IoMT ICU Telemetry',
+      om: 'Mallattoo Lubbuu ICU',
+      am: 'አይሲዩ ቴሌሜትሪ',
+    },
   },
   {
     id: 'nur-2',
     name: 'Nurse Aster Bekele',
     code: 'MKH-NUR-115',
     role: 'nurse',
-    roleTitle: 'Narsii Triage & Dabaree (OPD Triage Nurse)',
-    dept: 'Outpatient Triage',
-    location: 'Dabaree OPD Counter 2',
+    roleTitle: {
+      en: 'OPD Triage Nurse',
+      om: 'Narsii Triage & Dabaree',
+      am: 'የተመላላሽ ትሪያጅ ነርስ',
+    },
+    dept: {
+      en: 'Outpatient Triage',
+      om: 'Dabaree OPD',
+      am: 'የተመላላሽ ታካሚዎች ተራ',
+    },
+    location: {
+      en: 'OPD Triage Counter 2',
+      om: 'Dabaree OPD Counter 2',
+      am: 'የተራ ቁጥር መስኮት 2',
+    },
     phone: '+251916789012',
     status: 'rounds',
-    statusText: '🎫 Dabaree OPD (18 Waiting)',
+    statusText: {
+      en: '🎫 OPD Queue (18 Waiting)',
+      om: '🎫 Dabaree OPD (18 Eegaa)',
+      am: '🎫 የተመላላሽ ተራ (18 በመጠባበቅ)',
+    },
     statusColor: 'bg-amber-100 text-amber-900 border-amber-300',
     avatar: '👩‍⚕️',
     workstationUrl: '/queue',
-    workstationName: 'Queue & Token TV',
+    workstationName: {
+      en: 'Queue & Token TV',
+      om: "To'annoo Dabaree OPD",
+      am: 'የተራ ቁጥርና ቶከን',
+    },
   },
   {
     id: 'nur-3',
     name: 'Nurse Tigist Gemechu',
     code: 'MKH-NUR-128',
     role: 'nurse',
-    roleTitle: 'Narsii Baqaqsaa (OT Scrub Nurse)',
-    dept: 'Surgical Suites',
-    location: 'OT Suite 2 Sterilization',
+    roleTitle: {
+      en: 'OT Scrub Nurse',
+      om: 'Narsii Baqaqsaa (OT Scrub)',
+      am: 'የቀዶ ጥገና ረዳት ነርስ',
+    },
+    dept: {
+      en: 'Surgical Suites & CSSD',
+      om: 'Kutaa Baqaqsaa fi CSSD',
+      am: 'የቀዶ ጥገናና ማምከኛ ክፍል',
+    },
+    location: {
+      en: 'OT Suite 2 Sterilization',
+      om: 'OT Suite 2 Qulqulleessa',
+      am: 'የቀዶ ጥገና ክፍል 2',
+    },
     phone: '+251917890123',
     status: 'available',
-    statusText: '🟢 Qophii (Pre-Op Prepared)',
+    statusText: {
+      en: '🟢 Pre-Op Prepared',
+      om: '🟢 Qophii (Pre-Op Ready)',
+      am: '🟢 ለቀዶ ጥገና ዝግጁ',
+    },
     statusColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
     avatar: '👩‍⚕️',
     workstationUrl: '/ot',
-    workstationName: 'OT Surgery & CSSD',
+    workstationName: {
+      en: 'OT Surgery & CSSD',
+      om: 'Kutaa Baqaqsanii Yaaluu',
+      am: 'የቀዶ ጥገና ክፍል',
+    },
   },
 
   // 3. Pharmacy Team
@@ -151,32 +300,72 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     name: 'Pharm. Obsa Kuma',
     code: 'MKH-PHM-008',
     role: 'pharmacist',
-    roleTitle: 'Faarmaasistii Ol\'aanaa (Lead Pharmacist)',
-    dept: 'Outpatient Dispensary',
-    location: 'Farmaasii Counter 1',
+    roleTitle: {
+      en: 'Lead Pharmacist',
+      om: "Faarmaasistii Ol'aanaa",
+      am: 'ዋና የመድኃኒት ባለሙያ',
+    },
+    dept: {
+      en: 'Outpatient Dispensary',
+      om: 'Kutaa Kenniinsa Qorichaa',
+      am: 'የመድኃኒት መስጫ ክፍል',
+    },
+    location: {
+      en: 'Pharmacy Counter 1',
+      om: 'Farmaasii Counter 1',
+      am: 'ፋርማሲ መስኮት 1',
+    },
     phone: '+251918901234',
     status: 'dispensing',
-    statusText: '💊 Qoricha Raabsaa (Dispensing Active)',
+    statusText: {
+      en: '💊 Dispensing Active',
+      om: '💊 Qoricha Raabsaa',
+      am: '💊 መድኃኒት በመስጠት ላይ',
+    },
     statusColor: 'bg-teal-100 text-teal-900 border-teal-300',
     avatar: '💊',
     workstationUrl: '/pharmacy',
-    workstationName: 'Pharmacy & FEFO Stock',
+    workstationName: {
+      en: 'Pharmacy & FEFO Stock',
+      om: 'Farmaasii fi Qoricha',
+      am: 'ፋርማሲና መድኃኒት',
+    },
   },
   {
     id: 'phm-2',
     name: 'Pharm. Derartu Kebede',
     code: 'MKH-PHM-014',
     role: 'pharmacist',
-    roleTitle: 'Qorannoo Kuusaa & FEFO (Inventory Officer)',
-    dept: 'Central Pharmacy Vault',
-    location: 'Kuusaa Qorichaa (Cold Chain Vault)',
+    roleTitle: {
+      en: 'Inventory & FEFO Officer',
+      om: 'Qorannoo Kuusaa & FEFO',
+      am: 'የክምችትና ፈጣን ቁጥጥር ባለሙያ',
+    },
+    dept: {
+      en: 'Central Pharmacy Vault',
+      om: 'Kuusaa Qorichaa Giddu-galeessaa',
+      am: 'ዋና የመድኃኒት መጋዘን',
+    },
+    location: {
+      en: 'Cold Chain Vault (2°C - 8°C)',
+      om: 'Kuusaa Qabbanaawaa (Cold Chain)',
+      am: 'የማቀዝቀዣ መጋዘን (2°C - 8°C)',
+    },
     phone: '+251919012345',
     status: 'available',
-    statusText: '⚖️ EFDA Audit (Stock 98%)',
+    statusText: {
+      en: '⚖️ EFDA Compliant (98%)',
+      om: '⚖️ EFDA Mirkanaa\'e (98%)',
+      am: '⚖️ የEFDA ህግ የተሟላ (98%)',
+    },
     statusColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
     avatar: '💊',
     workstationUrl: '/efda',
-    workstationName: 'EFDA Drug Safety & Vault',
+    workstationName: {
+      en: 'EFDA Drug Safety & Vault',
+      om: 'Nageenya Qorichaa (EFDA)',
+      am: 'የመድኃኒት ደህንነት',
+    },
   },
 
   // 4. Biomedical & Laboratory
@@ -185,16 +374,36 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     name: 'Tech Dawit Girma',
     code: 'MKH-TCH-019',
     role: 'technician',
-    roleTitle: 'Injinara Meeshaalee Yaalaa (Biomedical Eng.)',
-    dept: 'Biomedical Engineering',
-    location: 'Warshaa Oksijiinii (O2 Plant)',
+    roleTitle: {
+      en: 'Biomedical Engineer',
+      om: 'Injinara Meeshaalee Yaalaa',
+      am: 'የህክምና መሳሪያዎች መሀንዲስ',
+    },
+    dept: {
+      en: 'Biomedical Engineering',
+      om: 'Injinariingii Meeshaalee',
+      am: 'የህክምና መሳሪያዎች ጥገና',
+    },
+    location: {
+      en: 'Liquid Oxygen & Power Plant',
+      om: 'Warshaa Oksijiinii fi Humnaa',
+      am: 'የኦክስጅንና መብራት ማመንጫ',
+    },
     phone: '+251920123456',
     status: 'available',
-    statusText: '⚡ O2 & Generator Ready (100%)',
+    statusText: {
+      en: '⚡ Grid & O2 Online (100%)',
+      om: '⚡ Humna & O2 Qophii (100%)',
+      am: '⚡ መብራትና ኦክስጅን 100% ዝግጁ',
+    },
     statusColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
     avatar: '🔬',
     workstationUrl: '/assets',
-    workstationName: 'Biomedical Assets & PPM',
+    workstationName: {
+      en: 'Biomedical Assets & PPM',
+      om: 'Meeshaalee Yaalaa',
+      am: 'የህክምና መሳሪያዎች ቁጥጥር',
+    },
   },
 
   // 5. Inpatients & Outpatients
@@ -203,53 +412,290 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     name: 'Tolosa Dinsa',
     code: 'MRN-90412',
     role: 'patient',
-    roleTitle: 'Dhukkubsataa Ciisee Yaalamu (Inpatient)',
-    dept: 'Surgical Inpatient Ward',
-    location: 'Siree 8 (Bed 8, Surgical Ward)',
+    roleTitle: {
+      en: 'Surgical Inpatient',
+      om: 'Dhukkubsataa Ciisee Yaalamu',
+      am: 'የቀዶ ህክምና ተኝቶ ታካሚ',
+    },
+    dept: {
+      en: 'Surgical Inpatient Ward',
+      om: 'Wardi Baqaqsaa',
+      am: 'የቀዶ ህክምና ህሙማን ክፍል',
+    },
+    location: {
+      en: 'Bed 8 (Surgical Ward)',
+      om: 'Siree 8 (Wardi Baqaqsaa)',
+      am: 'አልጋ 8 (የቀዶ ህክምና)',
+    },
     phone: '+251921345678',
     status: 'inpatient',
-    statusText: '🛌 Guyyaa 2ffaa Baqaqsaa Booda',
+    statusText: {
+      en: '🛌 Post-Op Day 2 Stable',
+      om: '🛌 Guyyaa 2ffaa Baqaqsaa Booda',
+      am: '🛌 ከቀዶ ጥገና በኋላ 2ኛ ቀን',
+    },
     statusColor: 'bg-slate-100 text-slate-800 border-slate-300',
     avatar: '👤',
     workstationUrl: '/patients',
-    workstationName: 'Patient Clinical File (FHIR)',
+    workstationName: {
+      en: 'Patient Clinical File (FHIR)',
+      om: 'Galmee Dhukkubsattootaa',
+      am: 'የታካሚ የህክምና መዝገብ',
+    },
   },
   {
     id: 'pat-2',
     name: 'Chaltu Worku',
     code: 'MRN-90418',
     role: 'patient',
-    roleTitle: 'Haadha Deessuu (Maternity Ward)',
-    dept: 'Maternity & Neonatal Ward',
-    location: 'Kutaa Haadholee (Maternity Bed 3)',
+    roleTitle: {
+      en: 'Maternity Inpatient',
+      om: 'Haadha Deessuu',
+      am: 'የወሊድ ክፍል ተኝቶ ታካሚ',
+    },
+    dept: {
+      en: 'Maternity & Neonatal Ward',
+      om: "Kutaa Haadholee fi Daa'immanii",
+      am: 'የእናቶችና ጨቅላ ህጻናት ክፍል',
+    },
+    location: {
+      en: 'Maternity Ward Bed 3',
+      om: 'Kutaa Haadholee Siree 3',
+      am: 'የወሊድ ክፍል አልጋ 3',
+    },
     phone: '+251922456789',
     status: 'inpatient',
-    statusText: '👶 Da\'imti Nagaan Dhalatteetti',
+    statusText: {
+      en: '👶 Healthy Delivery',
+      om: '👶 Daa\'imti Nagaan Dhalatteetti',
+      am: '👶 ጤናማ ልጅ ተወልዷል',
+    },
     statusColor: 'bg-pink-100 text-pink-900 border-pink-300',
     avatar: '👤',
     workstationUrl: '/patient-portal',
-    workstationName: 'Patient Portal Record',
+    workstationName: {
+      en: 'Patient Portal Record',
+      om: 'Poortaalii Dhukkubsataa',
+      am: 'የታካሚ ፖርታል',
+    },
   },
   {
     id: 'pat-3',
     name: 'Gudeta Benti',
     code: 'MRN-90425',
     role: 'patient',
-    roleTitle: 'Balaa Tasaa (Emergency Patient)',
-    dept: 'Emergency Red Bay',
-    location: 'ICU Bed 2 (Ventilated)',
+    roleTitle: {
+      en: 'Emergency Trauma Inpatient',
+      om: 'Balaa Tasaa (Emergency)',
+      am: 'የድንገተኛ አደጋ ተኝቶ ታካሚ',
+    },
+    dept: {
+      en: 'Emergency Red Bay',
+      om: 'Kutaa Tasaa Diimaa',
+      am: 'የድንገተኛ ቀይ ክፍል',
+    },
+    location: {
+      en: 'ICU Bed 2 (Ventilated)',
+      om: 'ICU Siree 2 (Oksijiinii)',
+      am: 'አይሲዩ አልጋ 2 (በኦክስጅን)',
+    },
     phone: '+251923567890',
     status: 'critical',
-    statusText: '🚨 Yaaddoo Ol\'aanaa (SpO2 91%)',
+    statusText: {
+      en: '🚨 Critical (SpO2 91%)',
+      om: '🚨 Yaaddoo Ol\'aanaa (SpO2 91%)',
+      am: '🚨 ከፍተኛ ክትትል (SpO2 91%)',
+    },
     statusColor: 'bg-rose-100 text-rose-900 border-rose-300',
     avatar: '👤',
     workstationUrl: '/iomt',
-    workstationName: 'Live ICU Telemetry',
+    workstationName: {
+      en: 'Live ICU Telemetry',
+      om: 'Mallattoo Lubbuu ICU',
+      am: 'የቀጥታ አይሲዩ ክትትል',
+    },
   },
 ];
 
+const OVERSIGHT_I18N: Record<Language, {
+  badge: string;
+  title: string;
+  subtitle: string;
+  broadcastBtn: string;
+  tabAll: string;
+  tabDoctor: string;
+  tabNurse: string;
+  tabPharmacy: string;
+  tabTechnician: string;
+  tabPatient: string;
+  searchPlaceholder: string;
+  labelDept: string;
+  labelLocation: string;
+  labelPhone: string;
+  contactBtn: string;
+  inspectBtn: string;
+  contactModalTitle: string;
+  channelLabel: string;
+  channelSms: string;
+  channelSystem: string;
+  templateLabel: string;
+  tmplCodeBlue: string;
+  tmplUrgentRx: string;
+  tmplDirective: string;
+  tmplCustom: string;
+  msgInputLabel: string;
+  msgPreviewLabel: string;
+  sendBtn: string;
+  sendingText: string;
+  cancelBtn: string;
+  broadcastModalTitle: string;
+  broadcastTargetLabel: string;
+  broadcastMsgLabel: string;
+  broadcastPlaceholder: string;
+  broadcastSendBtn: string;
+  emptyMsgError: string;
+  emptyMsgErrorDesc: string;
+  sendSuccessTitle: string;
+  sendSuccessMsg: string;
+  broadcastSuccessTitle: string;
+  broadcastSuccessMsg: string;
+}> = {
+  en: {
+    badge: 'Hospital Executive Command & Oversight',
+    title: 'Hospital Staff, Pharmacy & Patient Command Center',
+    subtitle: 'The Administrator has universal oversight over Doctors, Nurses, Pharmacists, Technicians, and Patients with direct 1-click SMS & Alert communication.',
+    broadcastBtn: 'Broadcast Message',
+    tabAll: '👥 All',
+    tabDoctor: '👨‍⚕️ Doctors',
+    tabNurse: '👩‍⚕️ Nurses',
+    tabPharmacy: '💊 Pharmacy',
+    tabTechnician: '🔬 Technicians',
+    tabPatient: '🛌 Patients',
+    searchPlaceholder: 'Search: Name, Code, Ward, Phone...',
+    labelDept: 'Department / Ward:',
+    labelLocation: 'Current Location:',
+    labelPhone: 'Phone Number:',
+    contactBtn: 'Contact',
+    inspectBtn: 'Inspect',
+    contactModalTitle: 'Direct Contact:',
+    channelLabel: 'Communication Channel:',
+    channelSms: 'SMS (Ethio Telecom Gateway)',
+    channelSystem: 'System Pager / Alert',
+    templateLabel: 'Quick Message Template:',
+    tmplCodeBlue: '🚨 Emergency Call (Code Blue)',
+    tmplUrgentRx: '💊 Urgent Pharmacy Clearance',
+    tmplDirective: '📋 Administrative Directive',
+    tmplCustom: '✏️ Custom Message',
+    msgInputLabel: 'Write Your Message:',
+    msgPreviewLabel: 'Message Preview:',
+    sendBtn: 'Send Message Now',
+    sendingText: 'Sending...',
+    cancelBtn: 'Cancel',
+    broadcastModalTitle: 'Hospital-Wide Executive Broadcast',
+    broadcastTargetLabel: 'Select Recipient Group:',
+    broadcastMsgLabel: 'Broadcast Announcement:',
+    broadcastPlaceholder: 'Enter official hospital announcement to be dispatched instantly via SMS & System Alerts...',
+    broadcastSendBtn: 'Dispatch Broadcast to All',
+    emptyMsgError: 'Message Empty',
+    emptyMsgErrorDesc: 'Please write a message before sending.',
+    sendSuccessTitle: 'Message Dispatched Successfully!',
+    sendSuccessMsg: 'Message was sent via Ethio Telecom SMS and System Alert.',
+    broadcastSuccessTitle: 'Executive Broadcast Dispatched! 📢',
+    broadcastSuccessMsg: 'Official administrative announcement sent to all designated staff members.',
+  },
+  om: {
+    badge: "Wiirtuu To'annoo & Quunnamtii Bulchiinsaa",
+    title: "To'annoo Guutuu Ogeeyyii Yaalaa, Narsitoota, Farmaasii fi Dhukkubsattootaa",
+    subtitle: "Admin kutaalee hospitaalaa hundaa to'achuu, hojii isaanii hordofuu, fi kallattiin ogeeyyii fi dhukkubsattoota qunnamuu danda'a.",
+    broadcastBtn: 'Ergaa Waliigalaa Ergi (Broadcast)',
+    tabAll: '👥 Hunda',
+    tabDoctor: '👨‍⚕️ Doktoorota',
+    tabNurse: '👩‍⚕️ Narsitoota',
+    tabPharmacy: '💊 Faarmaasii',
+    tabTechnician: '🔬 Ogeeyyii Meeshaa',
+    tabPatient: '🛌 Dhukkubsattoota',
+    searchPlaceholder: 'Barbaadi: Maqaa, Koodii, Kutaa, Bilbila...',
+    labelDept: 'Kutaa / Waajjira:',
+    labelLocation: 'Iddoo Ammaa:',
+    labelPhone: 'Lakk. Bilbilaa:',
+    contactBtn: 'Quunnami',
+    inspectBtn: "To'adhu",
+    contactModalTitle: 'Quunnamtii Kallattii:',
+    channelLabel: 'Daandii Ergaa (Channel):',
+    channelSms: 'SMS (Ethio Telecom Gateway)',
+    channelSystem: 'System Pager / Alert',
+    templateLabel: 'Gosa Ergaa (Quick Templates):',
+    tmplCodeBlue: '🚨 Waamicha Tasaa (Code Blue)',
+    tmplUrgentRx: '💊 Qoricha Hatattamaa',
+    tmplDirective: '📋 Qajeelfama Bulchiinsaa',
+    tmplCustom: '✏️ Ergaa Dhuunfaa (Custom)',
+    msgInputLabel: 'Ergaa Keessan Barreessaa:',
+    msgPreviewLabel: 'Ilaallata Ergaa (Message Preview):',
+    sendBtn: 'Amma Ergi',
+    sendingText: 'Ergaa Jira...',
+    cancelBtn: 'Dhiisi',
+    broadcastModalTitle: 'Ergaa Waliigalaa Bulchiinsa Hospitaalaa',
+    broadcastTargetLabel: 'Garee Ergaan Dhaqqabu Filadhaa:',
+    broadcastMsgLabel: 'Ergaa Labsii Bulchiinsaa:',
+    broadcastPlaceholder: 'Ergaa labsii hospitaalaa kan kallattiin karaa SMS fi Siisteemii darbu asitti barreessaa...',
+    broadcastSendBtn: 'Ergaa Waliigalaa Daddarsi',
+    emptyMsgError: 'Ergaan Duwwaadha',
+    emptyMsgErrorDesc: 'Maaloo ergaa keessan barreessaa.',
+    sendSuccessTitle: "Ergaan Milkaa'inaan Ergameera!",
+    sendSuccessMsg: 'Ergaan karaa SMS Ethio Telecom fi System Alert ergameera.',
+    broadcastSuccessTitle: 'Ergaan Waliigalaa Daddarfeera! 📢',
+    broadcastSuccessMsg: 'Ergaan bulchiinsaa garee filatame hundaaf kallattiin ergameera.',
+  },
+  am: {
+    badge: 'የሆስፒታል አስተዳደር አመራርና የቀጥታ ቁጥጥር ማዕከል',
+    title: 'የዶክተሮች፣ ነርሶች፣ ፋርማሲና ታካሚዎች ሙሉ የአስተዳደር ቁጥጥር',
+    subtitle: 'የሆስፒታል አስተዳዳሪ ሁሉንም ክፍሎች መቆጣጠር፣ የስራ እንቅስቃሴያቸውን መከታተል፣ እና በኤስኤምኤስ ወይም ፈጣን ማንቂያ ሰራተኞችንና ታካሚዎችን ማግኘት ይችላሉ።',
+    broadcastBtn: 'አጠቃላይ መልዕክት ላክ (Broadcast)',
+    tabAll: '👥 ሁሉም',
+    tabDoctor: '👨‍⚕️ ዶክተሮች',
+    tabNurse: '👩‍⚕️ ነርሶች',
+    tabPharmacy: '💊 ፋርማሲ',
+    tabTechnician: '🔬 ቴክኒሻኖች',
+    tabPatient: '🛌 ታካሚዎች',
+    searchPlaceholder: 'ፈልግ: ስም፣ መለያ ቁጥር፣ ክፍል፣ ስልክ...',
+    labelDept: 'ክፍል / ዋርድ:',
+    labelLocation: 'የአሁን ቦታ:',
+    labelPhone: 'ስልክ ቁጥር:',
+    contactBtn: 'አግኝ',
+    inspectBtn: 'ተመልከት',
+    contactModalTitle: 'የቀጥታ ግንኙነት:',
+    channelLabel: 'የመልዕክት መስመር:',
+    channelSms: 'ኤስኤምኤስ (ኢትዮ ቴሌኮም)',
+    channelSystem: 'የሲስተም ማንቂያ (Alert)',
+    templateLabel: 'የመልዕክት አብነቶች:',
+    tmplCodeBlue: '🚨 የአደጋ ጊዜ ጥሪ (Code Blue)',
+    tmplUrgentRx: '💊 አስቸኳይ መድኃኒት',
+    tmplDirective: '📋 የአስተዳደር መመሪያ',
+    tmplCustom: '✏️ የራስዎ መልዕክት',
+    msgInputLabel: 'መልዕክትዎን ይጻፉ:',
+    msgPreviewLabel: 'የመልዕክት ቅድመ-ዕይታ:',
+    sendBtn: 'አሁን ላክ',
+    sendingText: 'በመላክ ላይ...',
+    cancelBtn: 'ሰርዝ',
+    broadcastModalTitle: 'አጠቃላይ የሆስፒታል አስተዳደር መግለጫ',
+    broadcastTargetLabel: 'የተቀባይ ቡድን ይምረጡ:',
+    broadcastMsgLabel: 'የመግለጫው መልዕክት:',
+    broadcastPlaceholder: 'በኤስኤምኤስና በሲስተም የሚሰራጭ ይፋዊ የሆስፒታል መመሪያ ወይም ማስታወቂያ እዚህ ይጻፉ...',
+    broadcastSendBtn: 'መግለጫውን ለሁሉም አሰራጭ',
+    emptyMsgError: 'ባዶ መልዕክት',
+    emptyMsgErrorDesc: 'እባክዎ ከመላክዎ በፊት መልዕክት ይጻፉ።',
+    sendSuccessTitle: 'መልዕክቱ በተሳካ ሁኔታ ተልኳል!',
+    sendSuccessMsg: 'መልዕክቱ በኢትዮ ቴሌኮም ኤስኤምኤስ እና በሲስተም ማስጠንቀቂያ ተልኳል።',
+    broadcastSuccessTitle: 'አጠቃላይ መልዕክት ተሰራጭቷል! 📢',
+    broadcastSuccessMsg: 'የአስተዳደር መግለጫው ለተመረጡት ሰራተኞች በሙሉ ደርሷል።',
+  },
+};
+
 export function AdminOversightHub(): React.ReactElement {
-  const { t } = useTranslation();
+  const { language } = useTranslation();
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
+  const txt = OVERSIGHT_I18N[lang] || OVERSIGHT_I18N['en'];
+
   const [roleFilter, setRoleFilter] = useState<'all' | 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'patient'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -271,16 +717,17 @@ export function AdminOversightHub(): React.ReactElement {
   const filteredRoster = useMemo(() => {
     return HOSPITAL_ROSTER.filter((p) => {
       const matchesRole = roleFilter === 'all' || p.role === roleFilter;
+      const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
-        !searchQuery.trim() ||
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.dept.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.phone.includes(searchQuery.trim());
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.code.toLowerCase().includes(q) ||
+        p.dept[lang].toLowerCase().includes(q) ||
+        p.location[lang].toLowerCase().includes(q) ||
+        p.phone.includes(q);
       return matchesRole && matchesSearch;
     });
-  }, [roleFilter, searchQuery]);
+  }, [roleFilter, searchQuery, lang]);
 
   // Open direct contact modal
   const handleOpenContact = (person: HospitalPerson) => {
@@ -293,19 +740,35 @@ export function AdminOversightHub(): React.ReactElement {
   // Send Direct Message
   const handleSendMessage = async () => {
     if (!selectedRecipient) return;
-    const finalMsg =
-      messageTemplate === 'code_blue'
-        ? `🚨 WAAMICHA TASAA: Dr./Nurse ${selectedRecipient.name}, bakka jirtan ${selectedRecipient.location} tti waamicha hatattamaa qabdu! - Bulchiinsa Hospitaala Meettuu Kaarli`
-        : messageTemplate === 'urgent_rx'
-        ? `💊 QORICHA HATATTAMAA: Qoricha dhukkubsataa qorachuun barbaachisaadha. Kutaa Faarmaasiitti dhiyaadhaa! - Bulchiinsa Hospitaalaa`
-        : messageTemplate === 'directive'
-        ? `📋 QAJEELFAMA BULCHIINSAA: Hojjetoota hospitaalaa hundaaf: Qulqullina yaalaa EHSTG eeguun dirqama. - Waajjira Daarektaraa`
-        : customMessage.trim();
+
+    let finalMsg = customMessage.trim();
+    if (messageTemplate === 'code_blue') {
+      finalMsg =
+        lang === 'om'
+          ? `🚨 WAAMICHA TASAA: ${selectedRecipient.name}, bakka jirtan ${selectedRecipient.location.om} tti waamicha hatattamaa qabdu! - Bulchiinsa Hospitaala Meettuu Kaarli`
+          : lang === 'am'
+          ? `🚨 የአደጋ ጊዜ ጥሪ: ${selectedRecipient.name}፣ ባሉበት ${selectedRecipient.location.am} አስቸኳይ ህክምና ይፈለጋል! - መቱ ካርል ሆስፒታል አስተዳደር`
+          : `🚨 CODE BLUE ALERT: ${selectedRecipient.name}, urgent clinical response required at ${selectedRecipient.location.en}! - Mettu Karl Administration`;
+    } else if (messageTemplate === 'urgent_rx') {
+      finalMsg =
+        lang === 'om'
+          ? `💊 QORICHA HATATTAMAA: Qoricha dhukkubsataa qorachuun barbaachisaadha. Kutaa Faarmaasiitti dhiyaadhaa! - Bulchiinsa Hospitaalaa`
+          : lang === 'am'
+          ? `💊 አስቸኳይ መድኃኒት: የታካሚ መድኃኒት ማረጋገጫ ያስፈልጋል። እባክዎ ፋርማሲ ያግኙ! - የሆስፒታል አስተዳደር`
+          : `💊 URGENT PHARMACY CLEARANCE: Immediate medication verification required. Please report to pharmacy! - Hospital Administration`;
+    } else if (messageTemplate === 'directive') {
+      finalMsg =
+        lang === 'om'
+          ? `📋 QAJEELFAMA BULCHIINSAA: Hojjetoota hospitaalaa hundaaf: Qulqullina yaalaa EHSTG eeguun dirqama. - Waajjira Daarektaraa`
+          : lang === 'am'
+          ? `📋 የአስተዳደር መመሪያ: ለሁሉም ሰራተኞች: የEHSTG የህክምና ጥራት ደረጃን መጠበቅ ግዴታ ነው። - የሆስፒታል ዋና ዳይሬክተር`
+          : `📋 ADMINISTRATIVE DIRECTIVE: Hospital Staff Notice: Strict adherence to EHSTG clinical quality standards is mandatory. - CEO Office`;
+    }
 
     if (!finalMsg) {
       notifications.show({
-        title: 'Ergaan Duwwaadha',
-        message: 'Maaloo ergaa keessan barreessaa.',
+        title: txt.emptyMsgError,
+        message: txt.emptyMsgErrorDesc,
         color: 'red',
       });
       return;
@@ -314,26 +777,26 @@ export function AdminOversightHub(): React.ReactElement {
     setIsSending(true);
     try {
       if (messageChannel === 'sms') {
-        await apiClient.post('/api/v1/sms/send', {
-          phone_number: selectedRecipient.phone,
-          custom_message: finalMsg,
-          language: 'om',
-        }).catch(() => {
-          // Gracefully handle if backend demo mode
-        });
+        await apiClient
+          .post('/api/v1/sms/send', {
+            phone_number: selectedRecipient.phone,
+            custom_message: finalMsg,
+            language: lang,
+          })
+          .catch(() => {});
       }
 
       notifications.show({
-        title: 'Ergaan Milkaa\'inaan Ergameera!',
-        message: `Ergaan gara ${selectedRecipient.name} (${selectedRecipient.phone}) karaa ${messageChannel === 'sms' ? 'SMS Ethio Telecom' : 'System Alert'} ergameera.`,
+        title: txt.sendSuccessTitle,
+        message: `${txt.sendSuccessMsg} (${selectedRecipient.name} - ${selectedRecipient.phone})`,
         color: 'teal',
       });
 
       setContactModalOpen(false);
     } catch {
       notifications.show({
-        title: 'Ergaan Ergameera',
-        message: `Ergaan gara ${selectedRecipient.name} tiitti ergameera.`,
+        title: txt.sendSuccessTitle,
+        message: `${txt.sendSuccessMsg} (${selectedRecipient.name})`,
         color: 'teal',
       });
       setContactModalOpen(false);
@@ -346,8 +809,8 @@ export function AdminOversightHub(): React.ReactElement {
   const handleSendBroadcast = async () => {
     if (!broadcastMessage.trim()) {
       notifications.show({
-        title: 'Ergaan Duwwaadha',
-        message: 'Maaloo ergaa waliigalaa barreessaa.',
+        title: txt.emptyMsgError,
+        message: txt.emptyMsgErrorDesc,
         color: 'red',
       });
       return;
@@ -355,15 +818,17 @@ export function AdminOversightHub(): React.ReactElement {
 
     setIsBroadcasting(true);
     try {
-      await apiClient.post('/api/v1/sms/send', {
-        phone_number: '+251911000000',
-        custom_message: `📢 ERGAA WALIIGALAA (${broadcastTarget.toUpperCase()}): ${broadcastMessage.trim()} - Bulchiinsa Hospitaala Rifeeraalaa Meettuu Kaarli`,
-        language: 'om',
-      }).catch(() => {});
+      await apiClient
+        .post('/api/v1/sms/send', {
+          phone_number: '+251911000000',
+          custom_message: `📢 [BROADCAST - ${broadcastTarget.toUpperCase()}]: ${broadcastMessage.trim()} - Mettu Karl Referral Hospital Administration`,
+          language: lang,
+        })
+        .catch(() => {});
 
       notifications.show({
-        title: 'Ergaan Waliigalaa Daddarfeera! 📢',
-        message: `Ergaan bulchiinsaa garee [${broadcastTarget.toUpperCase()}] hundaaf kallattiin ergameera.`,
+        title: txt.broadcastSuccessTitle,
+        message: txt.broadcastSuccessMsg,
         color: 'teal',
       });
 
@@ -384,13 +849,13 @@ export function AdminOversightHub(): React.ReactElement {
           </div>
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/50 bg-teal-100/70 px-3 py-0.5 text-xs font-black uppercase tracking-wider text-teal-950 mb-1">
-              Wiirtuu To\'annoo & Quunnamtii Bulchiinsaa (Hospital Executive Command)
+              {txt.badge}
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              To\'annoo Guutuu Ogeeyyii Yaalaa, Narsitoota, Farmaasii fi Dhukkubsattootaa
+              {txt.title}
             </h2>
             <p className="text-xs font-medium text-slate-600 mt-0.5">
-              Admin kutaalee hospitaalaa hundaa to\'achuu, hojii isaanii hordofuu, fi kallattiin ogeeyyii fi dhukkubsattoota qunnamuu danda\'a.
+              {txt.subtitle}
             </p>
           </div>
         </div>
@@ -403,7 +868,7 @@ export function AdminOversightHub(): React.ReactElement {
             className="flex items-center gap-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 text-xs font-black shadow-md transition-all cursor-pointer"
           >
             <span>📢</span>
-            <span>Ergaa Waliigalaa Ergi (Broadcast)</span>
+            <span>{txt.broadcastBtn}</span>
           </button>
         </div>
       </div>
@@ -418,8 +883,8 @@ export function AdminOversightHub(): React.ReactElement {
             <span className="text-2xl">👨‍⚕️</span>
             <span className="text-[10px] font-black bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">48 Active</span>
           </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">Ogeeyyii Yaalaa</span>
-          <span className="text-[11px] text-slate-500">Kiliinikaa & OPD</span>
+          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">{txt.tabDoctor}</span>
+          <span className="text-[11px] text-slate-500">OPD & Clinical</span>
         </Link>
 
         <Link
@@ -430,8 +895,8 @@ export function AdminOversightHub(): React.ReactElement {
             <span className="text-2xl">👩‍⚕️</span>
             <span className="text-[10px] font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">124 Shifts</span>
           </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">Narsitoota & ICU</span>
-          <span className="text-[11px] text-slate-500">ICU Bed Telemetry</span>
+          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">{txt.tabNurse}</span>
+          <span className="text-[11px] text-slate-500">ICU Telemetry</span>
         </Link>
 
         <Link
@@ -442,8 +907,8 @@ export function AdminOversightHub(): React.ReactElement {
             <span className="text-2xl">💊</span>
             <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">98% FEFO</span>
           </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">Faarmaasii & Qoricha</span>
-          <span className="text-[11px] text-slate-500">Kuusaa & Kenniinsa</span>
+          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">{txt.tabPharmacy}</span>
+          <span className="text-[11px] text-slate-500">FEFO Stock</span>
         </Link>
 
         <Link
@@ -454,7 +919,7 @@ export function AdminOversightHub(): React.ReactElement {
             <span className="text-2xl">🔪</span>
             <span className="text-[10px] font-black bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">3 In Surgery</span>
           </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">Baqaqsaa OT</span>
+          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">OT Surgery</span>
           <span className="text-[11px] text-slate-500">Surgical Suites</span>
         </Link>
 
@@ -467,7 +932,7 @@ export function AdminOversightHub(): React.ReactElement {
             <span className="text-[10px] font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">12 Scans</span>
           </div>
           <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">PACS / X-Ray</span>
-          <span className="text-[11px] text-slate-500">Raadiyooloojii</span>
+          <span className="text-[11px] text-slate-500">Radiology Suite</span>
         </Link>
 
         <Link
@@ -478,8 +943,8 @@ export function AdminOversightHub(): React.ReactElement {
             <span className="text-2xl">💳</span>
             <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">84.5K Today</span>
           </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">Faayinaansii & Telebirr</span>
-          <span className="text-[11px] text-slate-500">Kaffaltii & CBHI</span>
+          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">Telebirr & POS</span>
+          <span className="text-[11px] text-slate-500">Revenue & CBHI</span>
         </Link>
       </div>
 
@@ -488,12 +953,12 @@ export function AdminOversightHub(): React.ReactElement {
         {/* Role Tabs */}
         <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200">
           {[
-            { key: 'all', label: '👥 Hunda (All)', count: HOSPITAL_ROSTER.length },
-            { key: 'doctor', label: '👨‍⚕️ Doktoorota', count: HOSPITAL_ROSTER.filter((r) => r.role === 'doctor').length },
-            { key: 'nurse', label: '👩‍⚕️ Narsitoota', count: HOSPITAL_ROSTER.filter((r) => r.role === 'nurse').length },
-            { key: 'pharmacist', label: '💊 Faarmaasii', count: HOSPITAL_ROSTER.filter((r) => r.role === 'pharmacist').length },
-            { key: 'technician', label: '🔬 Ogeeyyii Meeshaa', count: HOSPITAL_ROSTER.filter((r) => r.role === 'technician').length },
-            { key: 'patient', label: '🛌 Dhukkubsattoota', count: HOSPITAL_ROSTER.filter((r) => r.role === 'patient').length },
+            { key: 'all', label: txt.tabAll, count: HOSPITAL_ROSTER.length },
+            { key: 'doctor', label: txt.tabDoctor, count: HOSPITAL_ROSTER.filter((r) => r.role === 'doctor').length },
+            { key: 'nurse', label: txt.tabNurse, count: HOSPITAL_ROSTER.filter((r) => r.role === 'nurse').length },
+            { key: 'pharmacist', label: txt.tabPharmacy, count: HOSPITAL_ROSTER.filter((r) => r.role === 'pharmacist').length },
+            { key: 'technician', label: txt.tabTechnician, count: HOSPITAL_ROSTER.filter((r) => r.role === 'technician').length },
+            { key: 'patient', label: txt.tabPatient, count: HOSPITAL_ROSTER.filter((r) => r.role === 'patient').length },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -517,7 +982,7 @@ export function AdminOversightHub(): React.ReactElement {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Barbaadi: Maqaa, Koodii, Kutaa, Bilbila..."
+            placeholder={txt.searchPlaceholder}
             className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-2xl border-2 border-slate-200 focus:border-teal-500 focus:outline-none bg-white shadow-2xs"
           />
         </div>
@@ -525,72 +990,80 @@ export function AdminOversightHub(): React.ReactElement {
 
       {/* 4. Live Roster Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredRoster.map((person) => (
-          <div
-            key={person.id}
-            className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 hover:shadow-md transition-all"
-          >
-            {/* Top Person Info */}
-            <div className="space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 border border-teal-200 text-2xl">
-                    {person.avatar}
+        {filteredRoster.map((person) => {
+          const roleTitle = person.roleTitle[lang] || person.roleTitle.en;
+          const statusText = person.statusText[lang] || person.statusText.en;
+          const dept = person.dept[lang] || person.dept.en;
+          const location = person.location[lang] || person.location.en;
+          const workstationName = person.workstationName[lang] || person.workstationName.en;
+
+          return (
+            <div
+              key={person.id}
+              className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 hover:shadow-md transition-all"
+            >
+              {/* Top Person Info */}
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 border border-teal-200 text-2xl">
+                      {person.avatar}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 leading-tight">
+                        {person.name}
+                      </h3>
+                      <p className="text-[11px] font-bold text-teal-800">{roleTitle}</p>
+                      <span className="font-mono text-[10px] text-slate-400">{person.code}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-black text-slate-900 leading-tight">
-                      {person.name}
-                    </h3>
-                    <p className="text-[11px] font-bold text-teal-800">{person.roleTitle}</p>
-                    <span className="font-mono text-[10px] text-slate-400">{person.code}</span>
-                  </div>
+
+                  {/* Status Badge */}
+                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border ${person.statusColor} shrink-0`}>
+                    {statusText}
+                  </span>
                 </div>
 
-                {/* Status Badge */}
-                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border ${person.statusColor} shrink-0`}>
-                  {person.statusText}
-                </span>
+                {/* Department & Location Details */}
+                <div className="space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px] text-slate-600">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">{txt.labelDept}</span>
+                    <span className="font-bold text-slate-800">{dept}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">{txt.labelLocation}</span>
+                    <span className="font-semibold text-slate-700">{location}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">{txt.labelPhone}</span>
+                    <span className="font-mono font-bold text-teal-700">{person.phone}</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Department & Location Details */}
-              <div className="space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px] text-slate-600">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Kutaa / Waajjira:</span>
-                  <span className="font-bold text-slate-800">{person.dept}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Iddoo Ammaa:</span>
-                  <span className="font-semibold text-slate-700">{person.location}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Lakk. Bilbilaa:</span>
-                  <span className="font-mono font-bold text-teal-700">{person.phone}</span>
-                </div>
+              {/* Bottom Actions: Contact & Inspect Workstation */}
+              <div className="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
+                <button
+                  type="button"
+                  onClick={() => handleOpenContact(person)}
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white py-2 text-xs font-black shadow-xs transition-all cursor-pointer"
+                >
+                  <span>📞</span>
+                  <span>{txt.contactBtn}</span>
+                </button>
+
+                <Link
+                  href={person.workstationUrl}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:border-teal-500 bg-slate-50 hover:bg-teal-50 text-slate-700 hover:text-teal-900 text-xs font-bold transition-all"
+                  title={`${txt.inspectBtn}: ${workstationName}`}
+                >
+                  <span>👁️</span>
+                  <span>{txt.inspectBtn}</span>
+                </Link>
               </div>
             </div>
-
-            {/* Bottom Actions: Contact & Inspect Workstation */}
-            <div className="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
-              <button
-                type="button"
-                onClick={() => handleOpenContact(person)}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white py-2 text-xs font-black shadow-xs transition-all cursor-pointer"
-              >
-                <span>📞</span>
-                <span>Quunnami (Contact)</span>
-              </button>
-
-              <Link
-                href={person.workstationUrl}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:border-teal-500 bg-slate-50 hover:bg-teal-50 text-slate-700 hover:text-teal-900 text-xs font-bold transition-all"
-                title={`Kutaa ${person.workstationName} ilaali`}
-              >
-                <span>👁️</span>
-                <span>To\'adhu</span>
-              </Link>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 5. QUICK DIRECT CONTACT MODAL */}
@@ -603,10 +1076,10 @@ export function AdminOversightHub(): React.ReactElement {
                 <span className="text-3xl">{selectedRecipient.avatar}</span>
                 <div>
                   <h3 className="text-base font-black text-slate-900">
-                    Quunnamtii Kallattii: {selectedRecipient.name}
+                    {txt.contactModalTitle} {selectedRecipient.name}
                   </h3>
                   <p className="text-xs text-slate-500">
-                    {selectedRecipient.roleTitle} • {selectedRecipient.phone}
+                    {selectedRecipient.roleTitle[lang] || selectedRecipient.roleTitle.en} • {selectedRecipient.phone}
                   </p>
                 </div>
               </div>
@@ -621,7 +1094,7 @@ export function AdminOversightHub(): React.ReactElement {
 
             {/* Channel Switcher: SMS or In-System Alert */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">Daandii Ergaa (Channel):</label>
+              <label className="text-xs font-black text-slate-700">{txt.channelLabel}</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -633,7 +1106,7 @@ export function AdminOversightHub(): React.ReactElement {
                   }`}
                 >
                   <span>📱</span>
-                  <span>SMS (Ethio Telecom Gateway)</span>
+                  <span>{txt.channelSms}</span>
                 </button>
                 <button
                   type="button"
@@ -645,14 +1118,14 @@ export function AdminOversightHub(): React.ReactElement {
                   }`}
                 >
                   <span>🚨</span>
-                  <span>System Pager / Alert</span>
+                  <span>{txt.channelSystem}</span>
                 </button>
               </div>
             </div>
 
             {/* Template Selector Pills */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">Gosa Ergaa (Quick Templates):</label>
+              <label className="text-xs font-black text-slate-700">{txt.templateLabel}</label>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
@@ -663,7 +1136,7 @@ export function AdminOversightHub(): React.ReactElement {
                       : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  🚨 Waamicha Tasaa (Code Blue)
+                  {txt.tmplCodeBlue}
                 </button>
                 <button
                   type="button"
@@ -674,7 +1147,7 @@ export function AdminOversightHub(): React.ReactElement {
                       : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  💊 Qoricha Hatattamaa
+                  {txt.tmplUrgentRx}
                 </button>
                 <button
                   type="button"
@@ -685,7 +1158,7 @@ export function AdminOversightHub(): React.ReactElement {
                       : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  📋 Qajeelfama Bulchiinsaa
+                  {txt.tmplDirective}
                 </button>
                 <button
                   type="button"
@@ -696,7 +1169,7 @@ export function AdminOversightHub(): React.ReactElement {
                       : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  ✏️ Ergaa Dhuunfaa (Custom)
+                  {txt.tmplCustom}
                 </button>
               </div>
             </div>
@@ -704,24 +1177,36 @@ export function AdminOversightHub(): React.ReactElement {
             {/* Message Preview or Input Box */}
             <div className="space-y-1.5">
               <label className="text-xs font-black text-slate-700">
-                {messageTemplate === 'custom' ? 'Ergaa Keessan Barreessaa:' : 'Ilaallata Ergaa (Message Preview):'}
+                {messageTemplate === 'custom' ? txt.msgInputLabel : txt.msgPreviewLabel}
               </label>
               {messageTemplate === 'custom' ? (
                 <textarea
                   rows={3}
                   value={customMessage}
                   onChange={(e) => setCustomMessage(e.target.value)}
-                  placeholder={`Fakkeenya: Kabajamoo ${selectedRecipient.name}, maaloo gara waajjira daarektaraatti dhiyaadhaa...`}
+                  placeholder={`${selectedRecipient.name}: ...`}
                   className="w-full p-3 rounded-2xl border-2 border-slate-200 focus:border-teal-500 focus:outline-none text-xs text-slate-800"
                 />
               ) : (
                 <div className="p-3 rounded-2xl border border-teal-200 bg-teal-50/70 text-xs font-semibold text-slate-800">
                   {messageTemplate === 'code_blue' &&
-                    `🚨 WAAMICHA TASAA: Dr./Nurse ${selectedRecipient.name}, bakka jirtan ${selectedRecipient.location} tti waamicha hatattamaa qabdu! - Bulchiinsa Hospitaala Meettuu Kaarli`}
+                    (lang === 'om'
+                      ? `🚨 WAAMICHA TASAA: ${selectedRecipient.name}, bakka jirtan ${selectedRecipient.location.om} tti waamicha hatattamaa qabdu! - Bulchiinsa Hospitaala Meettuu Kaarli`
+                      : lang === 'am'
+                      ? `🚨 የአደጋ ጊዜ ጥሪ: ${selectedRecipient.name}፣ ባሉበት ${selectedRecipient.location.am} አስቸኳይ ህክምና ይፈለጋል! - መቱ ካርል ሆስፒታል አስተዳደር`
+                      : `🚨 CODE BLUE ALERT: ${selectedRecipient.name}, urgent clinical response required at ${selectedRecipient.location.en}! - Mettu Karl Administration`)}
                   {messageTemplate === 'urgent_rx' &&
-                    `💊 QORICHA HATATTAMAA: Qoricha dhukkubsataa qorachuun barbaachisaadha. Kutaa Faarmaasiitti dhiyaadhaa! - Bulchiinsa Hospitaalaa`}
+                    (lang === 'om'
+                      ? `💊 QORICHA HATATTAMAA: Qoricha dhukkubsataa qorachuun barbaachisaadha. Kutaa Faarmaasiitti dhiyaadhaa! - Bulchiinsa Hospitaalaa`
+                      : lang === 'am'
+                      ? `💊 አስቸኳይ መድኃኒት: የታካሚ መድኃኒት ማረጋገጫ ያስፈልጋል። እባክዎ ፋርማሲ ያግኙ! - የሆስፒታል አስተዳደር`
+                      : `💊 URGENT PHARMACY CLEARANCE: Immediate medication verification required. Please report to pharmacy! - Hospital Administration`)}
                   {messageTemplate === 'directive' &&
-                    `📋 QAJEELFAMA BULCHIINSAA: Hojjetoota hospitaalaa hundaaf: Qulqullina yaalaa EHSTG eeguun dirqama. - Waajjira Daarektaraa`}
+                    (lang === 'om'
+                      ? `📋 QAJEELFAMA BULCHIINSAA: Hojjetoota hospitaalaa hundaaf: Qulqullina yaalaa EHSTG eeguun dirqama. - Waajjira Daarektaraa`
+                      : lang === 'am'
+                      ? `📋 የአስተዳደር መመሪያ: ለሁሉም ሰራተኞች: የEHSTG የህክምና ጥራት ደረጃን መጠበቅ ግዴታ ነው። - የሆስፒታል ዋና ዳይሬክተር`
+                      : `📋 ADMINISTRATIVE DIRECTIVE: Hospital Staff Notice: Strict adherence to EHSTG clinical quality standards is mandatory. - CEO Office`)}
                 </div>
               )}
             </div>
@@ -733,7 +1218,7 @@ export function AdminOversightHub(): React.ReactElement {
                 onClick={() => setContactModalOpen(false)}
                 className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold cursor-pointer"
               >
-                Dhiisi (Cancel)
+                {txt.cancelBtn}
               </button>
               <button
                 type="button"
@@ -744,12 +1229,12 @@ export function AdminOversightHub(): React.ReactElement {
                 {isSending ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Ergaa Jira...</span>
+                    <span>{txt.sendingText}</span>
                   </>
                 ) : (
                   <>
                     <span>📤</span>
-                    <span>Ergi (Send Alert)</span>
+                    <span>{txt.sendBtn}</span>
                   </>
                 )}
               </button>
@@ -758,7 +1243,7 @@ export function AdminOversightHub(): React.ReactElement {
         </div>
       )}
 
-      {/* 6. HOSPITAL-WIDE BROADCAST MODAL */}
+      {/* 6. HOSPITAL-WIDE EXECUTIVE BROADCAST MODAL */}
       {broadcastModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border-2 border-amber-500 space-y-5 animate-in fade-in zoom-in-95 duration-150">
@@ -767,10 +1252,10 @@ export function AdminOversightHub(): React.ReactElement {
                 <span className="text-3xl">📢</span>
                 <div>
                   <h3 className="text-base font-black text-slate-900">
-                    Ergaa Waliigalaa Erguu (Hospital Broadcast)
+                    {txt.broadcastModalTitle}
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Waajjira Daarektaraa • Ethio Telecom SMS & System Pager
+                    Ethio Telecom SMS Gateway & In-App Hospital Alert
                   </p>
                 </div>
               </div>
@@ -783,22 +1268,22 @@ export function AdminOversightHub(): React.ReactElement {
               </button>
             </div>
 
-            {/* Target Group Selector */}
+            {/* Target Select */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">Garee Ergaan Kun Dhaqu (Target Audience):</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <label className="text-xs font-black text-slate-700">{txt.broadcastTargetLabel}</label>
+              <div className="grid grid-cols-3 gap-2 text-xs font-bold">
                 {[
-                  { key: 'all', label: '🏥 Hunda (All 482)' },
-                  { key: 'doctors', label: '👨‍⚕️ Doktoorota (48)' },
-                  { key: 'nurses', label: '👩‍⚕️ Narsitoota (124)' },
-                  { key: 'pharmacy', label: '💊 Faarmaasii (26)' },
-                  { key: 'patients', label: '🛌 Dhukkubsattoota' },
+                  { key: 'all', label: txt.tabAll },
+                  { key: 'doctors', label: txt.tabDoctor },
+                  { key: 'nurses', label: txt.tabNurse },
+                  { key: 'pharmacy', label: txt.tabPharmacy },
+                  { key: 'patients', label: txt.tabPatient },
                 ].map((target) => (
                   <button
                     key={target.key}
                     type="button"
                     onClick={() => setBroadcastTarget(target.key as any)}
-                    className={`py-2 px-3 rounded-xl border text-xs font-black cursor-pointer transition-all ${
+                    className={`py-2 px-3 rounded-xl border cursor-pointer transition-all ${
                       broadcastTarget === target.key
                         ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
                         : 'border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -812,24 +1297,24 @@ export function AdminOversightHub(): React.ReactElement {
 
             {/* Broadcast Message Input */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">Ergaa Waliigalaa:</label>
+              <label className="text-xs font-black text-slate-700">{txt.broadcastMsgLabel}</label>
               <textarea
                 rows={4}
                 value={broadcastMessage}
                 onChange={(e) => setBroadcastMessage(e.target.value)}
-                placeholder="Fakkeenya: Hojjetoota hospitaalaa hundaaf: Sababa yaala balaa tasaatiin (MCI) doktooronni fi narsitoonni hundi kutaa Emergency tti dhiyaadhaa..."
+                placeholder={txt.broadcastPlaceholder}
                 className="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:outline-none text-xs text-slate-800"
               />
             </div>
 
-            {/* Broadcast Actions */}
+            {/* Actions */}
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setBroadcastModalOpen(false)}
                 className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold cursor-pointer"
               >
-                Dhiisi (Cancel)
+                {txt.cancelBtn}
               </button>
               <button
                 type="button"
@@ -840,12 +1325,12 @@ export function AdminOversightHub(): React.ReactElement {
                 {isBroadcasting ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Daddarsaa Jira...</span>
+                    <span>{txt.sendingText}</span>
                   </>
                 ) : (
                   <>
                     <span>📢</span>
-                    <span>Waliigalatti Daddarsi</span>
+                    <span>{txt.broadcastSendBtn}</span>
                   </>
                 )}
               </button>
