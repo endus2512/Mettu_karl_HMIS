@@ -4,18 +4,13 @@
 
 ---
 
-## 🌐 Live Demonstration & 1-Click Free Cloud Deployment
+## 🌐 Live Demonstration & Permanent Cloud Deployment
 
-### 🟢 Live Demo URL (Instant Public Access)
-- **Live System Link**: [https://practical-establishment-opt-findings.trycloudflare.com](https://practical-establishment-opt-findings.trycloudflare.com)
+### 🟢 Official Permanent Live URL (24/7 Global Access)
+- **Official Live Link**: **[https://endus2512.github.io/Mettu_karl_HMIS/](https://endus2512.github.io/Mettu_karl_HMIS/)**
+- **Direct Login Portal**: **[https://endus2512.github.io/Mettu_karl_HMIS/login](https://endus2512.github.io/Mettu_karl_HMIS/login)**
+- **Availability**: 24/7/365 Cloud CDN (Accessible worldwide from Mobile Data, Wi-Fi, and any device even when local servers are offline).
 - **Features Active**: Universal single login, Patient Portal, Doctor/Nurse/Admin dashboards, Tri-lingual interface (Afaan Oromoo, Amharic, English), Single-button Light/Dark mode, Zero-Trust security.
-
-### ⚡ 1-Click Free Cloud Deployment
-Deploy your own instance of Mettu Karl HMIS for **100% FREE** with one click:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fendus2512%2FMettu_karl_HMIS&root-directory=frontend)
-&nbsp;
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/endus2512/Mettu_karl_HMIS)
 
 ---
 
