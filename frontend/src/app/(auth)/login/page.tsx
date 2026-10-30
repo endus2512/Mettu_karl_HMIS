@@ -363,7 +363,7 @@ export default function LoginPage() {
   // Step 3: Part 1 & Part 5 (Left & Right outer wings) reveal (all 5 parts visible!)
   // Step 4: The 5 slices unite into seamless high-definition full image with Ken Burns drift
   // Step 5: Branding, badges, and interactive buttons glide in with glow
-  const [revealStep, setRevealStep] = useState(0);
+  const [revealStep, setRevealStep] = useState(5);
 
   const startRevealSequence = useCallback(() => {
     setRevealStep(0);
@@ -783,67 +783,27 @@ export default function LoginPage() {
       <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none">
         
         {/* =================================================================== */}
-        {/* FULL-BLEED BACKGROUND CANVAS (Ultra-Clear HD Razor-Sharp View)       */}
+        {/* FULL-BLEED BACKGROUND CANVAS (Ultra-Clear HD 1920x3413 >1080p View)   */}
         {/* =================================================================== */}
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
-          {/* Uncompromised 100% HD Architectural Canvas (Zero blur, zero pixel stretch) */}
-          <div className="absolute inset-0 w-full h-full scale-100 origin-center transition-transform duration-700">
-            {/* 1. Crystal-Clear HD Building Layer */}
-            <div
-              className={`hero-building-image absolute inset-0 w-full h-full transition-opacity duration-700 ease-out ${
-                revealStep >= 4 ? 'opacity-100' : 'opacity-0'
-              }`}
+          {/* Direct, reliable HTML image rendering with crisp-edges & zero blur */}
+          <picture className="w-full h-full block">
+            <source srcSet="/hospital-building.webp" type="image/webp" />
+            <img
+              src="/hospital-building.jpg"
+              alt="Mettu Karl Referral Hospital Building"
+              loading="eager"
+              decoding="sync"
+              className="w-full h-full object-cover object-center transform scale-100"
+              style={{
+                imageRendering: 'crisp-edges',
+                WebkitBackfaceVisibility: 'hidden',
+              }}
             />
+          </picture>
 
-            {/* 2. Seamless Architectural Shutter Slices */}
-            <div
-              className={`absolute inset-0 w-full h-full flex transition-opacity duration-500 ${
-                revealStep >= 4 ? 'opacity-0 pointer-events-none' : 'opacity-100'
-              }`}
-            >
-              {BUILDING_PARTS.map((part, index) => {
-                const isPartOpen = revealStep >= part.step;
-                return (
-                  <div
-                    key={part.id}
-                    className="relative h-full flex-1 overflow-hidden border-r last:border-r-0 border-white/20 bg-slate-950/80"
-                  >
-                    {/* Image slice for this part */}
-                    <div
-                      className={`hero-building-image absolute inset-0 w-full h-full transition-all duration-700 ease-out transform ${
-                        isPartOpen
-                          ? 'opacity-100 translate-y-0'
-                          : 'opacity-0 scale-105 translate-y-4'
-                      }`}
-                      style={{
-                        backgroundSize: '500% 100%',
-                        backgroundPosition: `${index * 25}% 36%`,
-                      }}
-                    />
-
-                    {/* Shutter Blade that draws upward */}
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-b from-[#0a3a78]/80 via-[#071d3d]/75 to-[#041124]/80 transition-all duration-700 pointer-events-none ${
-                        isPartOpen ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
-                      }`}
-                    />
-
-                    {/* Glowing vertical laser beam partition */}
-                    <div
-                      className={`absolute inset-y-0 right-0 w-0.5 bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#38bdf8] transition-opacity duration-500 ${
-                        isPartOpen ? 'opacity-70' : 'opacity-25'
-                      }`}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Clean High-Contrast Clarity Scrim: Enhances text legibility while keeping the building 100% sharp */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/45 via-transparent to-slate-950/65 pointer-events-none" />
-          <div className="hidden lg:block absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-950/40 to-transparent pointer-events-none" />
-          <div className="hidden lg:block absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-slate-950/40 to-transparent pointer-events-none" />
+          {/* Minimal atmospheric clarity overlay to protect text legibility without dimming the building */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
         </div>
 
         {/* =================================================================== */}
@@ -851,11 +811,7 @@ export default function LoginPage() {
         {/* =================================================================== */}
         
         {/* 1. TOP BRANDING SECTION (FLOATING ON SKY) */}
-        <div
-          className={`relative z-20 px-3.5 pt-8 sm:px-8 sm:pt-8 transition-all duration-700 max-w-xl ${
-            revealStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-          }`}
-        >
+        <div className="relative z-20 px-3.5 pt-8 sm:px-8 sm:pt-8 max-w-xl opacity-100 translate-y-0">
           <div className="flex items-center gap-3 sm:gap-4">
             <img
               src="/hospital-logo-white.png"
@@ -879,11 +835,7 @@ export default function LoginPage() {
         </div>
 
         {/* 2. ACTION BUTTONS SECTION (FLOATING TOWARDS BOTTOM OVER DRIVEWAY) */}
-        <div
-          className={`relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-14 sm:mb-8 lg:mb-10 transition-all duration-1000 ${
-            revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          }`}
-        >
+        <div className="relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-14 sm:mb-8 lg:mb-10 opacity-100 translate-y-0">
           {/* Slight frosted pill grouping buttons smoothly with no harsh border box */}
           <div className="w-full max-w-md backdrop-blur-md bg-slate-950/45 rounded-2xl sm:rounded-3xl p-2 sm:p-3.5 border border-white/20 shadow-2xl ring-1 ring-white/10">
             <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
