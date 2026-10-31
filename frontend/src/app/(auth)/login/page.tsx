@@ -791,36 +791,36 @@ export default function LoginPage() {
         {/* =================================================================== */}
         {/* 1. TOP BRANDING SECTION                                            */}
         {/* =================================================================== */}
-        <div className="relative z-20 px-4 pt-4 sm:px-8 sm:pt-6 max-w-2xl shrink-0">
+        <div className="relative z-20 px-4 pt-3 sm:px-8 sm:pt-4 max-w-2xl shrink-0">
           <div className="flex items-center gap-3 sm:gap-4">
             <img
               src="/hospital-logo-white.png"
               alt="Mettu Karl Referral Hospital Emblem"
-              className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
+              className="h-9 w-9 sm:h-11 sm:w-11 lg:h-13 lg:w-13 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
             />
             <div className="min-w-0">
-              <h1 className="text-base sm:text-xl lg:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
+              <h1 className="text-sm sm:text-lg lg:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
                 {t.hospitalName}
               </h1>
-              <p className="text-xs sm:text-sm font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+              <p className="text-[11px] sm:text-xs lg:text-sm font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
                 {t.hmisTitle} • {t.hmisSubtitle}
               </p>
             </div>
           </div>
 
           {/* Hospital Tagline */}
-          <p className="text-[10.5px] sm:text-xs italic text-sky-100 font-medium mt-1 sm:mt-1.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+          <p className="text-[10px] sm:text-xs italic text-sky-100 font-medium mt-0.5 sm:mt-1 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
             {t.tagline}
           </p>
         </div>
 
         {/* =================================================================== */}
-        {/* 2. CENTER HERO AREA: SHOWCASE BUILDING CANVAS + ACTION BUTTONS      */}
+        {/* 2. CENTER HERO AREA: ENLARGED PORTABLE BUILDING CANVAS & ACTIONS    */}
         {/* =================================================================== */}
-        <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-3 sm:px-6 my-auto py-2 min-h-0 w-full max-w-5xl mx-auto">
+        <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-2.5 sm:px-6 my-auto py-1 sm:py-2 min-h-0 w-full max-w-7xl mx-auto">
           
-          {/* THE DEDICATED BUILDING CANVAS (Controlled PC Size, Razor-Sharp Clarity) */}
-          <div className="w-full max-w-md sm:max-w-xl lg:max-w-3xl xl:max-w-4xl h-[42vh] sm:h-[48vh] lg:h-[50vh] min-h-[260px] max-h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-sky-400/50 shadow-[0_20px_50px_rgba(0,0,0,0.6)] ring-1 ring-white/20 relative bg-slate-950 group">
+          {/* THE DEDICATED BUILDING CANVAS (Enlarged Hero Canvas, Portable on Mobile & PC, 100% Ultra-HD) */}
+          <div className="w-full max-w-lg sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl h-[48vh] sm:h-[52vh] md:h-[55vh] lg:h-[58vh] xl:h-[60vh] min-h-[300px] sm:min-h-[340px] max-h-[640px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-sky-400/60 shadow-[0_24px_60px_rgba(0,0,0,0.7)] ring-1 ring-white/25 relative bg-slate-950 group transition-all duration-300">
             
             {/* Direct, reliable HTML image rendering with crisp-edges & zero blur */}
             <picture className="w-full h-full block">
@@ -830,7 +830,7 @@ export default function LoginPage() {
                 alt="Mettu Karl Referral Hospital Building"
                 loading="eager"
                 decoding="sync"
-                className="w-full h-full object-cover object-[center_34%] transform group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+                className="w-full h-full object-cover object-[center_35%] transform group-hover:scale-[1.015] transition-transform duration-700 ease-out"
                 style={{
                   imageRendering: 'crisp-edges',
                   WebkitBackfaceVisibility: 'hidden',
@@ -839,17 +839,17 @@ export default function LoginPage() {
             </picture>
 
             {/* Subtle bottom edge gradient to ground the building naturally */}
-            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 via-black/15 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
 
             {/* Architectural Frame Badge */}
-            <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-semibold shadow-lg">
+            <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/65 backdrop-blur-md border border-white/25 text-white text-[10px] sm:text-xs font-semibold shadow-lg">
               <Building2 className="w-3.5 h-3.5 text-sky-300" />
               <span>Mettu Karl Main Facility</span>
             </div>
           </div>
 
           {/* ACTION BUTTONS: FLOATING DIRECTLY UNDER SHOWCASE CANVAS */}
-          <div className="w-full max-w-md mt-3 sm:mt-4">
+          <div className="w-full max-w-md sm:max-w-lg mt-3 sm:mt-3.5 shrink-0">
             <div className="backdrop-blur-md bg-slate-950/60 rounded-2xl p-2 sm:p-2.5 border border-white/20 shadow-2xl ring-1 ring-white/10">
               <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
                 {/* Login Button */}
