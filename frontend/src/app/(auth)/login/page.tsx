@@ -778,125 +778,118 @@ export default function LoginPage() {
       </div>
 
       {/* ======================================================================= */}
-      {/* HOSPITAL BUILDING HERO VIEW (SHOWCASE CONTAINER WITH CONTROLLED PC SIZE) */}
+      {/* HOSPITAL BUILDING HERO VIEW (EDGE-TO-EDGE FULL SCREEN BACKGROUND)       */}
       {/* ======================================================================= */}
-      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none bg-gradient-to-b from-[#05162e] via-[#072146] to-[#030d1c]">
+      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none bg-slate-950">
         
-        {/* Subtle Atmospheric Backdrop Glow */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-sky-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-1/3 w-[500px] h-[350px] bg-blue-600/10 rounded-full blur-3xl" />
+        {/* =================================================================== */}
+        {/* FULL-SCREEN 4K ULTRA-HD ARCHITECTURAL CANVAS (Edge-to-Edge)         */}
+        {/* =================================================================== */}
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
+          {/* Direct, reliable HTML image rendering with crisp-edges & zero blur */}
+          <picture className="w-full h-full block">
+            <source srcSet="/hospital-building.webp" type="image/webp" />
+            <img
+              src="/hospital-building.jpg"
+              alt="Mettu Karl Referral Hospital Building"
+              loading="eager"
+              decoding="sync"
+              className="w-full h-full object-cover object-[center_32%] transform scale-100"
+              style={{
+                imageRendering: 'crisp-edges',
+                WebkitBackfaceVisibility: 'hidden',
+              }}
+            />
+          </picture>
+
+          {/* Clarity Atmospheric Scrims: Enhances text legibility while keeping the building 100% sharp & vibrant */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/45 via-transparent to-slate-950/70 pointer-events-none" />
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-slate-950/35 to-transparent pointer-events-none" />
+          <div className="hidden lg:block absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-slate-950/35 to-transparent pointer-events-none" />
         </div>
 
         {/* =================================================================== */}
-        {/* 1. TOP BRANDING SECTION                                            */}
+        {/* 1. TOP BRANDING SECTION (High-Contrast Frosted Glass Shield)        */}
         {/* =================================================================== */}
-        <div className="relative z-20 px-4 pt-3 sm:px-8 sm:pt-4 max-w-2xl shrink-0">
-          <div className="flex items-center gap-3 sm:gap-4">
+        <div className="relative z-20 px-3.5 pt-4 sm:px-8 sm:pt-6 shrink-0">
+          <div className="inline-flex items-center gap-3 sm:gap-4.5 bg-slate-950/60 backdrop-blur-xl px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-2xl sm:rounded-3xl border border-white/25 shadow-2xl ring-1 ring-white/15 max-w-[92vw] sm:max-w-xl">
             <img
               src="/hospital-logo-white.png"
               alt="Mettu Karl Referral Hospital Emblem"
-              className="h-9 w-9 sm:h-11 sm:w-11 lg:h-13 lg:w-13 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
+              className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
             />
             <div className="min-w-0">
-              <h1 className="text-sm sm:text-lg lg:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-md truncate sm:whitespace-normal">
+              <h1 className="text-base sm:text-xl lg:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] truncate sm:whitespace-normal">
                 {t.hospitalName}
               </h1>
-              <p className="text-[11px] sm:text-xs lg:text-sm font-semibold text-sky-200 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+              <p className="text-[11px] sm:text-xs lg:text-sm font-bold text-sky-200 mt-0.5 tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)] truncate sm:whitespace-normal">
                 {t.hmisTitle} • {t.hmisSubtitle}
+              </p>
+              <p className="text-[10px] sm:text-xs italic text-sky-100 font-medium mt-1 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+                {t.tagline}
               </p>
             </div>
           </div>
-
-          {/* Hospital Tagline */}
-          <p className="text-[10px] sm:text-xs italic text-sky-100 font-medium mt-0.5 sm:mt-1 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
-            {t.tagline}
-          </p>
         </div>
 
         {/* =================================================================== */}
-        {/* 2. CENTER HERO AREA: ENLARGED PORTABLE BUILDING CANVAS & ACTIONS    */}
+        {/* 2. ACTION BUTTONS SECTION (FLOATING OVER LOWER DRIVEWAY)            */}
         {/* =================================================================== */}
-        <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-2.5 sm:px-6 my-auto py-1 sm:py-2 min-h-0 w-full max-w-7xl mx-auto">
+        <div className="relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-6 sm:mb-8 shrink-0">
           
-          {/* THE DEDICATED BUILDING CANVAS (Enlarged Hero Canvas, Portable on Mobile & PC, 100% Ultra-HD) */}
-          <div className="w-full max-w-lg sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl h-[48vh] sm:h-[52vh] md:h-[55vh] lg:h-[58vh] xl:h-[60vh] min-h-[300px] sm:min-h-[340px] max-h-[640px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-sky-400/60 shadow-[0_24px_60px_rgba(0,0,0,0.7)] ring-1 ring-white/25 relative bg-slate-950 group transition-all duration-300">
-            
-            {/* Direct, reliable HTML image rendering with crisp-edges & zero blur */}
-            <picture className="w-full h-full block">
-              <source srcSet="/hospital-building.webp" type="image/webp" />
-              <img
-                src="/hospital-building.jpg"
-                alt="Mettu Karl Referral Hospital Building"
-                loading="eager"
-                decoding="sync"
-                className="w-full h-full object-cover object-[center_35%] transform group-hover:scale-[1.015] transition-transform duration-700 ease-out"
-                style={{
-                  imageRendering: 'crisp-edges',
-                  WebkitBackfaceVisibility: 'hidden',
-                }}
-              />
-            </picture>
-
-            {/* Subtle bottom edge gradient to ground the building naturally */}
-            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
-
-            {/* Architectural Frame Badge */}
-            <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/65 backdrop-blur-md border border-white/25 text-white text-[10px] sm:text-xs font-semibold shadow-lg">
-              <Building2 className="w-3.5 h-3.5 text-sky-300" />
-              <span>Mettu Karl Main Facility</span>
-            </div>
+          {/* Prominent Mettu Karl Facility Pill Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/70 backdrop-blur-md border border-sky-400/50 text-white text-xs sm:text-sm font-bold shadow-xl mb-3">
+            <Building2 className="w-4 h-4 text-sky-400 shrink-0" />
+            <span className="tracking-wide">Mettu Karl Referral Hospital</span>
           </div>
 
-          {/* ACTION BUTTONS: FLOATING DIRECTLY UNDER SHOWCASE CANVAS */}
-          <div className="w-full max-w-md sm:max-w-lg mt-3 sm:mt-3.5 shrink-0">
-            <div className="backdrop-blur-md bg-slate-950/60 rounded-2xl p-2 sm:p-2.5 border border-white/20 shadow-2xl ring-1 ring-white/10">
-              <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
-                {/* Login Button */}
-                <div className="relative group flex-1">
-                  <div
-                    className={`absolute -inset-1 rounded-xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-80 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
-                      isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormType('login');
-                      setIsFormOpen(true);
-                    }}
-                    className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-sky-300/50 touch-manipulation"
-                  >
-                    <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
-                    <LogIn className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-115" />
-                    <span className="tracking-wide drop-shadow-md truncate">
-                      {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Login'}
-                    </span>
-                  </button>
-                </div>
+          {/* Slight frosted glass pill grouping buttons cleanly */}
+          <div className="w-full max-w-md sm:max-w-lg backdrop-blur-xl bg-slate-950/65 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 border border-white/25 shadow-[0_20px_50px_rgba(0,0,0,0.8)] ring-1 ring-white/15">
+            <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
+              {/* Login Button */}
+              <div className="relative group flex-1">
+                <div
+                  className={`absolute -inset-1 rounded-xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-80 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
+                    isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormType('login');
+                    setIsFormOpen(true);
+                  }}
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-sky-300/50 touch-manipulation"
+                >
+                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
+                  <LogIn className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-115" />
+                  <span className="tracking-wide drop-shadow-md truncate">
+                    {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Login'}
+                  </span>
+                </button>
+              </div>
 
-                {/* Sign Up Button */}
-                <div className="relative group flex-1">
-                  <div
-                    className={`absolute -inset-1 rounded-xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-70 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
-                      isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormType('signup');
-                      setIsFormOpen(true);
-                    }}
-                    className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border border-white/75 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
-                  >
-                    <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
-                    <UserPlus className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-125" />
-                    <span className="tracking-wide drop-shadow-md truncate">
-                      {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up'}
-                    </span>
-                  </button>
-                </div>
+              {/* Sign Up Button */}
+              <div className="relative group flex-1">
+                <div
+                  className={`absolute -inset-1 rounded-xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-70 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
+                    isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormType('signup');
+                    setIsFormOpen(true);
+                  }}
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border border-white/75 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                >
+                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
+                  <UserPlus className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-125" />
+                  <span className="tracking-wide drop-shadow-md truncate">
+                    {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up'}
+                  </span>
+                </button>
               </div>
             </div>
           </div>
