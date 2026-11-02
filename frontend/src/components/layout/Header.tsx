@@ -1,11 +1,11 @@
 /**
  * Enterprise Hospital Information System Header.
  *
- * Enhancements:
- * 1. Background: "Daalacha" (Soft Clinical Slate Grey: bg-slate-100 / #f1f5f9).
- * 2. Editable Dual Calendar & Shift Modal: Clinicians can click the calendar capsule
- *    to edit the Ethiopian/Gregorian date and shift, with live persistence.
- * 3. Responsive Rectangular Cursor Spotlight on all buttons, controls, and avatar capsules.
+ * Enterprise Healthcare Design System:
+ * - Professional Navy & Teal palette
+ * - Modern Lucide SVG icons
+ * - Clean command bar with calendar, shift, scanner, SMS gateway, notifications, language, theme, and logout
+ * - Modal configuration for Ethiopian/Gregorian date and shift with local persistence
  */
 'use client';
 
@@ -17,6 +17,20 @@ import { useTranslation } from '@/lib/i18n';
 import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
+import {
+  Calendar,
+  Sun,
+  Moon,
+  CloudSun,
+  QrCode,
+  Smartphone,
+  Menu,
+  X,
+  RotateCcw,
+  LogOut,
+  Building2,
+  Clock,
+} from 'lucide-react';
 
 const ETH_MONTHS = [
   { val: 'Meskerem', label: 'Meskerem (Fulbaana)' },
@@ -46,7 +60,7 @@ export function Header(): React.ReactElement {
   const [ethYear, setEthYear] = useState('2019');
   const [gcDate, setGcDate] = useState('2026-10-27');
   const [shiftName, setShiftName] = useState('Morning Shift (08:00–16:00)');
-  const [shiftIcon, setShiftIcon] = useState('☀️');
+  const [shiftType, setShiftType] = useState<'morning' | 'afternoon' | 'night'>('morning');
 
   // Pre-warm / prefetch all key routes on idle so clicking any link opens instantly
   useEffect(() => {
@@ -82,7 +96,7 @@ export function Header(): React.ReactElement {
         if (parsed.ethYear) setEthYear(parsed.ethYear);
         if (parsed.gcDate) setGcDate(parsed.gcDate);
         if (parsed.shiftName) setShiftName(parsed.shiftName);
-        if (parsed.shiftIcon) setShiftIcon(parsed.shiftIcon);
+        if (parsed.shiftType) setShiftType(parsed.shiftType);
       }
     } catch {
       // fallback to defaults
@@ -97,7 +111,7 @@ export function Header(): React.ReactElement {
       ethYear,
       gcDate,
       shiftName,
-      shiftIcon,
+      shiftType,
     };
     try {
       localStorage.setItem('mkh_header_date', JSON.stringify(config));
@@ -115,7 +129,7 @@ export function Header(): React.ReactElement {
     setEthYear('2019');
     setGcDate(iso);
     setShiftName('Morning Shift (08:00–16:00)');
-    setShiftIcon('☀️');
+    setShiftType('morning');
     try {
       localStorage.removeItem('mkh_header_date');
     } catch {
@@ -184,9 +198,9 @@ export function Header(): React.ReactElement {
   const roleLabel = user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR';
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-slate-700/80 bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] px-3 sm:px-6 sticky top-0 z-30 shadow-md select-none text-white">
+    <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-[#080e1e] px-3 sm:px-6 sticky top-0 z-30 shadow-sm select-none text-white">
       {/* LEFT: Clinician Profile & Mobile Drawer Trigger */}
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <button
           type="button"
           onClick={() => {
@@ -194,113 +208,110 @@ export function Header(): React.ReactElement {
               window.dispatchEvent(new CustomEvent('toggle-mkh-sidebar'));
             }
           }}
-          className="lg:hidden flex items-center justify-center h-10 w-10 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-teal-300 hover:text-white border border-slate-700 active:scale-95 transition-all shadow-sm shrink-0 touch-manipulation cursor-pointer"
+          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 hover:text-white border border-slate-700 transition-colors shrink-0 cursor-pointer"
           title="Toggle Navigation Menu"
           aria-label="Toggle Navigation Menu"
         >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+          <Menu className="h-4.5 w-4.5" />
         </button>
 
-        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white font-black text-sm flex items-center justify-center shadow-md ring-2 ring-teal-400/40 shrink-0 hover:scale-105 transition-transform cursor-pointer">
+        <div className="h-9 w-9 rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-300 font-bold text-xs flex items-center justify-center shrink-0">
           {profile.initials}
         </div>
         <div className="text-left min-w-0">
-          <p className="text-xs sm:text-base font-black text-white truncate leading-tight tracking-tight">
+          <p className="text-xs sm:text-sm font-semibold text-white truncate leading-tight">
             {profile.name}
           </p>
-          <p className="text-[10px] sm:text-[11px] font-bold text-teal-300 capitalize truncate mt-0.5">
-            {roleLabel} <span className="hidden sm:inline">• {profile.dept}</span>
+          <p className="text-[11px] text-teal-400 capitalize truncate mt-0.5">
+            {roleLabel} <span className="hidden sm:inline text-slate-400">• {profile.dept}</span>
           </p>
         </div>
       </div>
 
-      {/* RIGHT: UNIFIED COMMAND COCKPIT RECTANGLE (Calendar -> Shift -> Scanner -> SMS -> Languages -> Logout) */}
-      <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-3 rounded-2xl border-2 border-slate-700/90 bg-slate-900/90 backdrop-blur-md px-2 sm:px-3.5 py-1.5 shadow-md shrink-0">
+      {/* RIGHT: UNIFIED COMMAND COCKPIT (Calendar -> Shift -> Scanner -> SMS -> Languages -> Logout) */}
+      <div className="flex items-center gap-1.5 sm:gap-2.5 rounded-xl border border-slate-800 bg-[#0b1329] px-2 sm:px-3 py-1 shadow-xs shrink-0">
         {/* 1. Calendar (Clickable, Normal Inline) */}
         <button
           type="button"
           onClick={() => setCalendarModalOpen(true)}
           title="Click to configure hospital date (Kalandarii jijjiiruuf cuqaasaa)"
-          className="hidden 2xl:flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-100 hover:text-teal-300 transition-colors cursor-pointer select-none pr-3 border-r border-slate-700/80"
+          className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-slate-200 hover:text-teal-300 transition-colors cursor-pointer select-none pr-2.5 border-r border-slate-800"
         >
-          <span className="text-teal-400 text-base">📅</span>
-          <span className="hover:underline decoration-teal-400 underline-offset-4 font-bold">{dateDisplay}</span>
+          <Calendar className="h-3.5 w-3.5 text-teal-400" />
+          <span className="hover:underline decoration-teal-400 underline-offset-2">{dateDisplay}</span>
         </button>
 
         {/* 2. Shift (Normal Inline) */}
-        <div className="hidden 2xl:flex items-center gap-1.5 text-xs sm:text-sm font-bold text-teal-300 select-none pr-3 border-r border-slate-700/80">
-          <span className="text-base">{shiftIcon}</span>
-          <span className="font-bold">{shiftName}</span>
+        <div className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-teal-300 select-none pr-2.5 border-r border-slate-800">
+          {shiftType === 'morning' ? (
+            <Sun className="h-3.5 w-3.5 text-amber-400" />
+          ) : shiftType === 'afternoon' ? (
+            <CloudSun className="h-3.5 w-3.5 text-sky-400" />
+          ) : (
+            <Moon className="h-3.5 w-3.5 text-indigo-400" />
+          )}
+          <span>{shiftName}</span>
         </div>
 
         {/* 3. Barcode & QR Code Scanner Quick Launch */}
         <Link
           href="/scanner"
           title={t('barcode_qr_scanner')}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/70 bg-teal-950/80 hover:bg-teal-700 hover:text-white px-2 sm:px-3 py-1.5 text-xs font-bold text-teal-200 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-950/40 hover:bg-teal-700 hover:text-white px-2.5 py-1 text-xs font-medium text-teal-300 transition-colors cursor-pointer shrink-0"
         >
-          <span className="text-sm">📷</span>
-          <span className="font-bold hidden sm:inline">Scanner</span>
+          <QrCode className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Scanner</span>
         </Link>
 
         {/* 4. SMS & USSD Gateway (*907#) Quick Launch */}
         <Link
           href="/sms-ussd"
           title={t('sms_ussd_gateway')}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/70 bg-emerald-950/80 hover:bg-emerald-700 hover:text-white px-2 sm:px-3 py-1.5 text-xs font-bold text-emerald-200 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 hover:bg-emerald-700 hover:text-white px-2.5 py-1 text-xs font-medium text-emerald-300 transition-colors cursor-pointer shrink-0"
         >
-          <span className="text-sm">📱</span>
-          <span className="font-bold hidden md:inline">SMS/*907#</span>
+          <Smartphone className="h-3.5 w-3.5" />
+          <span className="hidden md:inline">SMS/*907#</span>
         </Link>
 
-        {/* 5. Real-Time Hospital Executive Notification Bell with Live Reactions */}
-        <div className="flex items-center pr-1 sm:pr-2 border-r border-slate-700/80">
+        {/* 5. Hospital Notification Bell */}
+        <div className="flex items-center pr-1 border-r border-slate-800">
           <NotificationBell variant="dark" />
         </div>
 
-        {/* 6. Language Selector (Afanoota Sadan: Afaan Oromoo, አማርኛ, English) */}
-        <div className="flex items-center pr-1 sm:pr-2 border-r border-slate-700/80">
+        {/* 6. Language Selector */}
+        <div className="flex items-center pr-1 border-r border-slate-800">
           <LanguageSelect variant="dark" />
         </div>
 
-        {/* 6. Single Interchangeable Light/Dark Theme Toggle Button */}
-        <div className="flex items-center pr-1 sm:pr-2 border-r border-slate-700/80">
+        {/* 7. Theme Toggle */}
+        <div className="flex items-center pr-1 border-r border-slate-800">
           <ThemeToggle variant="cockpit" />
         </div>
 
-        {/* 7. Rectangular Instant Touch Logout Button */}
+        {/* 8. Logout Button */}
         <button
           type="button"
           onClick={handleInstantLogout}
           title={t('logout')}
-          className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xl border-2 border-rose-400 bg-rose-600 px-2.5 sm:px-3.5 py-1.5 text-xs sm:text-sm font-black text-white shadow-md hover:bg-rose-500 hover:border-rose-300 active:scale-90 active:bg-rose-700 transition-all duration-75 cursor-pointer select-none shrink-0 touch-manipulation"
+          className="inline-flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-950/50 hover:bg-rose-600 hover:text-white px-2.5 py-1 text-xs font-medium text-rose-300 transition-colors cursor-pointer shrink-0"
         >
-          <svg className="h-4 w-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2.5}
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-            />
-          </svg>
-          <span className="font-black tracking-wide hidden sm:inline">{t('logout')}</span>
+          <LogOut className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">{t('logout')}</span>
         </button>
       </div>
 
       {/* EDITABLE CALENDAR & SHIFT MODAL */}
       {calendarModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-          <div className="flex w-full max-w-lg flex-col rounded-3xl bg-white shadow-2xl border-2 border-teal-500 overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-6 py-4">
+          <div className="flex w-full max-w-lg flex-col rounded-xl bg-white dark:bg-[#0f172a] shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 px-5 py-3.5">
               <div className="flex items-center gap-2.5">
-                <span className="text-xl">📅</span>
+                <Calendar className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
                 <div>
-                  <h3 className="text-sm font-black text-slate-900">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                     Hospital Calendar & Shift Configuration
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Guyyaa Kalandarii Itoophiyaa fi Shiftii Hojii Jijjiiri
                   </p>
                 </div>
@@ -308,27 +319,27 @@ export function Header(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setCalendarModalOpen(false)}
-                className="rounded-full p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                className="rounded-md p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 cursor-pointer"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveCalendar} className="p-6 space-y-4">
+            <form onSubmit={handleSaveCalendar} className="p-5 space-y-4">
               {/* Ethiopian Calendar Controls */}
-              <div className="rounded-2xl border-2 border-slate-200 p-4 bg-slate-50/60 space-y-3">
-                <span className="text-xs font-black uppercase tracking-wider text-teal-800 block">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-2.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
                   1. Ethiopian Calendar (Kalandarii Itoophiyaa - E.C.)
                 </span>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2.5">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Ji'a (Month)
                     </label>
                     <select
                       value={ethMonth}
                       onChange={(e) => setEthMonth(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 bg-white p-2 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                      className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
                     >
                       {ETH_MONTHS.map((m) => (
                         <option key={m.val} value={m.val}>
@@ -338,7 +349,7 @@ export function Header(): React.ReactElement {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Guyyaa (Day)
                     </label>
                     <input
@@ -347,44 +358,41 @@ export function Header(): React.ReactElement {
                       max="30"
                       value={ethDay}
                       onChange={(e) => setEthDay(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 bg-white p-2 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                      className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Waggaa (Year)
                     </label>
                     <input
                       type="number"
                       value={ethYear}
                       onChange={(e) => setEthYear(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 bg-white p-2 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                      className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Gregorian Calendar Control */}
-              <div className="rounded-2xl border-2 border-slate-200 p-4 bg-slate-50/60 space-y-2">
-                <span className="text-xs font-black uppercase tracking-wider text-teal-800 block">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
                   2. Gregorian Calendar (G.C.)
                 </span>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                    Date Picker
-                  </label>
                   <input
                     type="date"
                     value={gcDate}
                     onChange={(e) => setGcDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 bg-white p-2 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Shift Configuration */}
-              <div className="rounded-2xl border-2 border-slate-200 p-4 bg-slate-50/60 space-y-2">
-                <span className="text-xs font-black uppercase tracking-wider text-teal-800 block">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
                   3. Active Clinical Duty Shift (Shiftii Yaalaa)
                 </span>
                 <div className="grid grid-cols-3 gap-2">
@@ -392,72 +400,73 @@ export function Header(): React.ReactElement {
                     type="button"
                     onClick={() => {
                       setShiftName('Morning Shift (08:00–16:00)');
-                      setShiftIcon('☀️');
+                      setShiftType('morning');
                     }}
-                    className={`rounded-xl border p-2 text-center text-xs font-bold transition-all ${
-                      shiftName.includes('Morning')
-                        ? 'border-teal-500 bg-teal-100/70 text-teal-900 ring-2 ring-teal-400/40'
-                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
+                    className={`rounded-lg border p-2 text-center text-xs font-medium transition-colors cursor-pointer ${
+                      shiftType === 'morning'
+                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/50 text-teal-900 dark:text-teal-300 font-semibold'
+                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <span className="block text-base mb-0.5">☀️</span>
-                    Morning
+                    <Sun className="h-4 w-4 mx-auto mb-1 text-amber-500" />
+                    <span>Morning</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setShiftName('Afternoon Shift (16:00–23:00)');
-                      setShiftIcon('⛅');
+                      setShiftType('afternoon');
                     }}
-                    className={`rounded-xl border p-2 text-center text-xs font-bold transition-all ${
-                      shiftName.includes('Afternoon')
-                        ? 'border-teal-500 bg-teal-100/70 text-teal-900 ring-2 ring-teal-400/40'
-                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
+                    className={`rounded-lg border p-2 text-center text-xs font-medium transition-colors cursor-pointer ${
+                      shiftType === 'afternoon'
+                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/50 text-teal-900 dark:text-teal-300 font-semibold'
+                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <span className="block text-base mb-0.5">⛅</span>
-                    Afternoon
+                    <CloudSun className="h-4 w-4 mx-auto mb-1 text-sky-500" />
+                    <span>Afternoon</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setShiftName('Night Emergency (23:00–08:00)');
-                      setShiftIcon('🌙');
+                      setShiftType('night');
                     }}
-                    className={`rounded-xl border p-2 text-center text-xs font-bold transition-all ${
-                      shiftName.includes('Night')
-                        ? 'border-teal-500 bg-teal-100/70 text-teal-900 ring-2 ring-teal-400/40'
-                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
+                    className={`rounded-lg border p-2 text-center text-xs font-medium transition-colors cursor-pointer ${
+                      shiftType === 'night'
+                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/50 text-teal-900 dark:text-teal-300 font-semibold'
+                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <span className="block text-base mb-0.5">🌙</span>
-                    Night
+                    <Moon className="h-4 w-4 mx-auto mb-1 text-indigo-500" />
+                    <span>Night</span>
                   </button>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={handleResetToLive}
-                  className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
-                  🔄 Reset to Live
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span>Reset to Live</span>
                 </button>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setCalendarModalOpen(false)}
-                    className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                    className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="rounded-xl bg-teal-600 px-5 py-2 text-xs font-black text-white hover:bg-teal-700 shadow-md transition-all"
+                    className="rounded-lg bg-teal-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-teal-700 shadow-xs transition-colors cursor-pointer"
                   >
-                    Save & Apply (Mirkaneessi)
+                    Save & Apply
                   </button>
                 </div>
               </div>

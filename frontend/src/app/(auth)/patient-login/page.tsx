@@ -1,16 +1,12 @@
 /**
  * Mettu Karl Referral Hospital — Dedicated Patient Authentication & Enrollment Portal.
- *
- * User Request Refinements:
- * 1. Bright & Luminous Medical Daytime Theme:
- *    - Refreshing pastel gradient matching the bright staff login page.
- * 2. Extended Height Downwards (Hojjaa Gadi Dheeressuu):
- *    - Slightly increased vertical height for generous breathing room, elegant padding,
- *      and larger touch targets without overflowing the viewport.
- * 3. Privacy First (Zero Public Patient Exposure):
- *    - Absolutely NO patient names, MRNs, or identity details displayed on public screen.
- * 4. Dedicated Patient Self-Enrollment (Galmee Haaraa):
- *    - Allows new patients to register and immediately log in.
+ * Enterprise Healthcare Design System:
+ * - Professional navy, crisp white, and subtle teal palette with full light & dark mode support
+ * - Modern Lucide icons replacing emojis
+ * - Clean input styling with subtle focus rings
+ * - Quick test patient profile chips for instant access
+ * - Strict clinical privacy: zero public patient health information on public screen
+ * - Multilingual support (Afaan Oromoo, English, Amharic)
  */
 'use client';
 
@@ -21,12 +17,28 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { notifications } from '@mantine/notifications';
+import {
+  HeartPulse,
+  Lock,
+  UserPlus,
+  CreditCard,
+  Phone,
+  FileText,
+  Building2,
+  Sparkles,
+  ShieldCheck,
+  User,
+  Calendar,
+  MapPin,
+  ArrowRight,
+  Check,
+} from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 
-// Schemas
+// Validation Schemas
 const patientLoginSchema = z.object({
   identifier: z.string().min(4, 'Identifier required / Barbaachisaadha / ያስፈልጋል'),
   password_or_otp: z.string().min(4, 'Password or OTP required / Barbaachisaadha / ያስፈልጋል'),
@@ -129,60 +141,69 @@ export default function PatientLoginPage(): React.ReactElement {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-teal-50/70 via-sky-50/40 to-emerald-50/60 p-4 sm:p-6 overflow-hidden">
-      {/* Bright Luminous Ambient Pastel Glows */}
-      <div className="pointer-events-none absolute -top-24 -left-24 h-96 w-96 rounded-full bg-teal-200/40 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-sky-200/40 blur-3xl" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-emerald-100/30 blur-3xl" />
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-100/80 dark:bg-slate-950 p-4 sm:p-6 transition-colors duration-200">
+      {/* Subtle Healthcare Ambient Gradient */}
+      <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-teal-400/10 dark:bg-teal-500/5 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-sky-400/10 dark:bg-sky-500/5 blur-3xl" />
 
-      {/* Top Right Single Theme Toggle Button */}
-      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-40">
+      {/* Top Bar Controls */}
+      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-40 flex items-center gap-2">
         <ThemeToggle variant="minimal" />
       </div>
 
-      {/* High-Contrast Luminous Central Card with Comfortably Extended Downward Height */}
-      <div className="relative w-full max-w-xl rounded-[28px] bg-white p-6 sm:p-8 sm:py-10 shadow-2xl shadow-teal-950/10 border-2 border-teal-400 ring-8 ring-teal-500/15 backdrop-blur-md">
+      {/* Enterprise Central Patient Card */}
+      <div className="relative w-full max-w-xl rounded-2xl bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-xl border border-slate-200 dark:border-slate-800 backdrop-blur-md transition-all">
         {/* Hospital Brand Header */}
-        <div className="mb-5 sm:mb-6 text-center">
-          <div className="mb-2.5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-md shadow-teal-700/30 border border-teal-300">
-            <span className="text-3xl">🏥</span>
+        <div className="mb-6 text-center">
+          <div className="flex justify-center mb-3">
+            <div className="h-12 w-12 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 flex items-center justify-center text-teal-600 dark:text-teal-400 shadow-xs">
+              <HeartPulse className="w-6 h-6" />
+            </div>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             {t('hospital_name')}
           </h1>
 
-          {/* Multilingual Selector: Placed directly BELOW Mettu Karl Referral Hospital */}
+          <p className="mt-1 text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-400">
+            {language === 'om'
+              ? 'Poortaalii Tajaajila Fayyaa Dhukkubsattootaa'
+              : language === 'am'
+              ? 'የታካሚዎች የግል ጤና ፖርታል'
+              : 'Patient Personal Healthcare Portal'}
+          </p>
+
+          {/* Multilingual Selector */}
           <div className="mt-3 flex justify-center">
             <LanguageSelect variant="light" />
           </div>
         </div>
 
-        {/* Primary Mode Switcher: Sign In vs New Registration (Privacy Ensured) */}
-        <div className="grid grid-cols-2 gap-2.5 bg-slate-100/90 p-1.5 rounded-2xl mb-4.5 sm:mb-5 text-xs sm:text-sm font-black">
+        {/* Primary Mode Switcher: Sign In vs New Registration */}
+        <div className="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl mb-5 text-xs sm:text-sm font-semibold border border-slate-200/80 dark:border-slate-700/80">
           <button
             type="button"
             onClick={() => setActiveMode('login')}
-            className={`rounded-xl py-2.5 px-3.5 text-center transition-all duration-150 border-2 cursor-pointer flex items-center justify-center gap-2 ${
+            className={`rounded-lg py-2 px-3 text-center transition-all cursor-pointer flex items-center justify-center gap-2 ${
               activeMode === 'login'
-                ? 'bg-white border-teal-600 text-teal-950 shadow-xs'
-                : 'border-transparent text-slate-600 hover:text-teal-900 hover:bg-white/60'
+                ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs border border-slate-200 dark:border-slate-700 font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <span>🔐</span>
+            <Lock className="w-4 h-4 text-teal-600 dark:text-teal-400" />
             <span>{language === 'am' ? 'መግቢያ (Sign In)' : language === 'en' ? 'Sign In' : 'Seensa (Login)'}</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveMode('register')}
-            className={`rounded-xl py-2.5 px-3.5 text-center transition-all duration-150 border-2 cursor-pointer flex items-center justify-center gap-2 ${
+            className={`rounded-lg py-2 px-3 text-center transition-all cursor-pointer flex items-center justify-center gap-2 ${
               activeMode === 'register'
-                ? 'bg-white border-teal-600 text-teal-950 shadow-xs'
-                : 'border-transparent text-slate-600 hover:text-teal-900 hover:bg-white/60'
+                ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs border border-slate-200 dark:border-slate-700 font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <span>📝</span>
-            <span>{language === 'am' ? 'አዲስ ምዝገባ (Register)' : language === 'en' ? 'New Patient' : 'Galmee Haaraa (Register)'}</span>
+            <UserPlus className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <span>{language === 'am' ? 'አዲስ ምዝገባ (Register)' : language === 'en' ? 'New Patient' : 'Galmee Haaraa'}</span>
           </button>
         </div>
 
@@ -192,20 +213,21 @@ export default function PatientLoginPage(): React.ReactElement {
         {activeMode === 'login' && (
           <div>
             {/* Input Method Switcher Tabs */}
-            <div className="grid grid-cols-3 gap-2 bg-slate-100/90 p-1.5 rounded-xl mb-4 sm:mb-5 text-xs font-bold">
+            <div className="grid grid-cols-3 gap-1.5 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-lg mb-4 text-xs font-medium border border-slate-200/70 dark:border-slate-700/60">
               <button
                 type="button"
                 onClick={() => {
                   setAuthMethod('fayda');
                   setLoginValue('identifier', 'FAN-9901-2384-5120');
                 }}
-                className={`rounded-lg py-2 px-1 text-center transition-all duration-150 border cursor-pointer ${
+                className={`rounded-md py-1.5 px-2 text-center transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                   authMethod === 'fayda'
-                    ? 'bg-white border-teal-600 text-teal-900 shadow-2xs font-black'
-                    : 'border-transparent text-slate-600 hover:border-teal-300 hover:bg-white/80'
+                    ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                {language === 'am' ? '🆔 ፋይዳ' : language === 'en' ? '🆔 Fayda' : '🆔 Fayda'}
+                <CreditCard className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span>{language === 'am' ? 'ፋይዳ (Fayda)' : 'Fayda FAN'}</span>
               </button>
               <button
                 type="button"
@@ -213,13 +235,14 @@ export default function PatientLoginPage(): React.ReactElement {
                   setAuthMethod('phone');
                   setLoginValue('identifier', '+251 911 002 233');
                 }}
-                className={`rounded-lg py-2 px-1 text-center transition-all duration-150 border cursor-pointer ${
+                className={`rounded-md py-1.5 px-2 text-center transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                   authMethod === 'phone'
-                    ? 'bg-white border-teal-600 text-teal-900 shadow-2xs font-black'
-                    : 'border-transparent text-slate-600 hover:border-teal-300 hover:bg-white/80'
+                    ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                {language === 'am' ? '📱 ስልክ' : language === 'en' ? '📱 Phone' : '📱 Bilbila'}
+                <Phone className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span>{language === 'am' ? 'ስልክ (Phone)' : 'Phone'}</span>
               </button>
               <button
                 type="button"
@@ -227,74 +250,123 @@ export default function PatientLoginPage(): React.ReactElement {
                   setAuthMethod('mrn');
                   setLoginValue('identifier', 'MKH-2026-0001');
                 }}
-                className={`rounded-lg py-2 px-1 text-center transition-all duration-150 border cursor-pointer ${
+                className={`rounded-md py-1.5 px-2 text-center transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                   authMethod === 'mrn'
-                    ? 'bg-white border-teal-600 text-teal-900 shadow-2xs font-black'
-                    : 'border-transparent text-slate-600 hover:border-teal-300 hover:bg-white/80'
+                    ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                {language === 'am' ? '🏥 MRN' : language === 'en' ? '🏥 MRN' : '🏥 MRN'}
+                <FileText className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span>{language === 'am' ? 'MRN መለያ' : 'Hospital MRN'}</span>
               </button>
             </div>
 
+            {/* Quick Patient Test Chips */}
+            <div className="mb-4 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between flex-wrap gap-1.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                <span>{language === 'om' ? 'Fkn. Seensaa:' : language === 'am' ? 'የሙከራ አካውንት:' : 'Demo Quick-Fill:'}</span>
+              </span>
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMethod('fayda');
+                    setLoginValue('identifier', 'FAN-9901-2384-5120');
+                    setLoginValue('password_or_otp', '123456');
+                  }}
+                  className="px-2 py-0.5 rounded text-[11px] font-medium bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 transition cursor-pointer"
+                >
+                  Gudeta (FAN-9901)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMethod('fayda');
+                    setLoginValue('identifier', 'FAN-7721-9981-3310');
+                    setLoginValue('password_or_otp', '123456');
+                  }}
+                  className="px-2 py-0.5 rounded text-[11px] font-medium bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/40 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 transition cursor-pointer"
+                >
+                  Chaltu (FAN-7721)
+                </button>
+              </div>
+            </div>
+
             {/* Login Form */}
-            <form onSubmit={handleLoginSubmit(onLogin)} className="space-y-4">
+            <form onSubmit={handleLoginSubmit(onLogin)} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">
-                  {authMethod === 'fayda' &&
-                    (language === 'am'
-                      ? 'ብሔራዊ ዲጂታል መታወቂያ (ፋይዳ FAN)'
-                      : language === 'en'
-                      ? 'National Digital ID (Fayda FAN Number)'
-                      : 'Eenyummaa Biyyaalessaa (Fayda FAN Number)')}
-                  {authMethod === 'phone' &&
-                    (language === 'am'
-                      ? 'የሞባይል ስልክ ቁጥር'
-                      : language === 'en'
-                      ? 'Mobile Phone Number'
-                      : 'Lakkoofsa Bilbilaa (Mobile Phone)')}
-                  {authMethod === 'mrn' &&
-                    (language === 'am'
-                      ? 'የሆስፒታል መዝገብ ቁጥር (MRN)'
-                      : language === 'en'
-                      ? 'Hospital Record Number (MRN)'
-                      : 'Lakkoofsa Galmee Yaalaa (Hospital MRN)')}
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {authMethod === 'fayda' && <CreditCard className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />}
+                  {authMethod === 'phone' && <Phone className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />}
+                  {authMethod === 'mrn' && <FileText className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />}
+                  <span>
+                    {authMethod === 'fayda' &&
+                      (language === 'am'
+                        ? 'ብሔራዊ ዲጂታል መታወቂያ (ፋይዳ FAN)'
+                        : language === 'en'
+                        ? 'National Digital ID (Fayda FAN Number)'
+                        : 'Eenyummaa Biyyaalessaa (Fayda FAN Number)')}
+                    {authMethod === 'phone' &&
+                      (language === 'am'
+                        ? 'የሞባይል ስልክ ቁጥር'
+                        : language === 'en'
+                        ? 'Mobile Phone Number'
+                        : 'Lakkoofsa Bilbilaa (Mobile Phone)')}
+                    {authMethod === 'mrn' &&
+                      (language === 'am'
+                        ? 'የሆስፒታል መዝገብ ቁጥር (MRN)'
+                        : language === 'en'
+                        ? 'Hospital Record Number (MRN)'
+                        : 'Lakkoofsa Galmee Yaalaa (Hospital MRN)')}
+                  </span>
                 </label>
-                <input
-                  type="text"
-                  {...registerLogin('identifier')}
-                  placeholder={
-                    authMethod === 'fayda'
-                      ? 'FAN-9901-2384-5120'
-                      : authMethod === 'phone'
-                      ? '+251 911 002 233'
-                      : 'MKH-2026-0001'
-                  }
-                  className="block w-full rounded-xl border-2 border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-400/20 hover:border-teal-400 transition-all duration-150"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    {...registerLogin('identifier')}
+                    placeholder={
+                      authMethod === 'fayda'
+                        ? 'FAN-9901-2384-5120'
+                        : authMethod === 'phone'
+                        ? '+251 911 002 233'
+                        : 'MKH-2026-0001'
+                    }
+                    className="block w-full h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-400/20 transition-all"
+                  />
+                </div>
                 {loginErrors.identifier && (
-                  <p className="mt-1 text-xs text-rose-600 font-bold">{loginErrors.identifier.message}</p>
+                  <p className="mt-1 text-xs text-rose-600 font-medium flex items-center gap-1">
+                    <span>•</span> {loginErrors.identifier.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">
-                  {language === 'am'
-                    ? 'የይለፍ ቃል ወይም የኤስኤምኤስ OTP ኮድ'
-                    : language === 'en'
-                    ? 'Password or SMS OTP Code'
-                    : 'Jecha Darbii ykn Koodii OTP (Password/OTP)'}
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <Lock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                  <span>
+                    {language === 'am'
+                      ? 'የይለፍ ቃል ወይም የኤስኤምኤስ OTP ኮድ'
+                      : language === 'en'
+                      ? 'Password or SMS OTP Code'
+                      : 'Jecha Darbii ykn Koodii OTP (Password/OTP)'}
+                  </span>
                 </label>
-                <input
-                  type="password"
-                  {...registerLogin('password_or_otp')}
-                  placeholder={language === 'am' ? 'ምሳሌ፡ 123456' : language === 'en' ? 'e.g. 123456' : 'e.g. 123456'}
-                  className="block w-full rounded-xl border-2 border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-400/20 hover:border-teal-400 transition-all duration-150"
-                />
+                <div className="relative">
+                  <input
+                    type="password"
+                    {...registerLogin('password_or_otp')}
+                    placeholder={language === 'am' ? 'ምሳሌ፡ 123456' : 'e.g. 123456'}
+                    className="block w-full h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-400/20 transition-all"
+                  />
+                </div>
                 {loginErrors.password_or_otp && (
-                  <p className="mt-1 text-xs text-rose-600 font-bold">{loginErrors.password_or_otp.message}</p>
+                  <p className="mt-1 text-xs text-rose-600 font-medium flex items-center gap-1">
+                    <span>•</span> {loginErrors.password_or_otp.message}
+                  </p>
                 )}
-                <p className="mt-1.5 text-[11px] text-slate-500 font-medium leading-tight">
+                <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
                   {language === 'am'
                     ? 'በስልክዎ የተላከውን የኤስኤምኤስ ኮድ (OTP) ወይም የይለፍ ቃልዎን ይጠቀሙ።'
                     : language === 'en'
@@ -306,19 +378,25 @@ export default function PatientLoginPage(): React.ReactElement {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-xl border-2 border-teal-600 bg-teal-600 px-4 py-3.5 text-sm sm:text-base font-black text-white shadow-md hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 active:scale-[0.98] transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-2 disabled:cursor-not-allowed disabled:opacity-75 border border-teal-500/30"
               >
-                {isLoading
-                  ? language === 'am'
-                    ? 'በማረጋገጥ ላይ...'
-                    : language === 'en'
-                    ? 'Verifying...'
-                    : 'Iccitii Qorachaa Jira...'
-                  : language === 'am'
-                  ? 'ወደ ታካሚ ፖርታል ይግቡ →'
-                  : language === 'en'
-                  ? 'Sign In to Patient Portal →'
-                  : 'Gara Patient Portal Seenaa →'}
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>{language === 'am' ? 'በማረጋገጥ ላይ...' : language === 'en' ? 'Verifying...' : 'Qorachaa jira...'}</span>
+                  </div>
+                ) : (
+                  <>
+                    <span>
+                      {language === 'am'
+                        ? 'ወደ ታካሚ ፖርታል ይግቡ'
+                        : language === 'en'
+                        ? 'Sign In to Patient Portal'
+                        : 'Gara Patient Portal Seenaa'}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-teal-300" />
+                  </>
+                )}
               </button>
             </form>
           </div>
@@ -333,33 +411,35 @@ export default function PatientLoginPage(): React.ReactElement {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1">
-                    {language === 'am' ? 'ሙሉ ስም (Full Name)' : language === 'en' ? 'Full Name' : 'Maqaa Guutuu'} *
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <User className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>{language === 'am' ? 'ሙሉ ስም (Full Name)' : language === 'en' ? 'Full Name' : 'Maqaa Guutuu'} *</span>
                   </label>
                   <input
                     type="text"
                     {...registerEnroll('full_name')}
                     placeholder="fkn: Tolasa Gudeta"
-                    className="block w-full rounded-xl border-2 border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   />
                   {enrollErrors.full_name && (
-                    <p className="mt-0.5 text-[11px] text-rose-600 font-bold">{enrollErrors.full_name.message}</p>
+                    <p className="mt-0.5 text-[11px] text-rose-600 font-medium">{enrollErrors.full_name.message}</p>
                   )}
                 </div>
 
                 {/* Mobile Phone */}
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1">
-                    {language === 'am' ? 'ስልክ ቁጥር (Phone)' : language === 'en' ? 'Phone Number' : 'Lakkoofsa Bilbilaa'} *
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <Phone className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>{language === 'am' ? 'ስልክ ቁጥር (Phone)' : language === 'en' ? 'Phone Number' : 'Lakkoofsa Bilbilaa'} *</span>
                   </label>
                   <input
                     type="text"
                     {...registerEnroll('phone_number')}
                     placeholder="+251 911 000 000"
-                    className="block w-full rounded-xl border-2 border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   />
                   {enrollErrors.phone_number && (
-                    <p className="mt-0.5 text-[11px] text-rose-600 font-bold">{enrollErrors.phone_number.message}</p>
+                    <p className="mt-0.5 text-[11px] text-rose-600 font-medium">{enrollErrors.phone_number.message}</p>
                   )}
                 </div>
               </div>
@@ -367,27 +447,29 @@ export default function PatientLoginPage(): React.ReactElement {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Fayda National ID */}
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1">
-                    {language === 'am' ? 'ፋይዳ መታወቂያ (Fayda FAN)' : language === 'en' ? 'Fayda ID (FAN)' : 'Eenyummaa Fayda (FAN)'}
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <CreditCard className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>{language === 'am' ? 'ፋይዳ መታወቂያ (Fayda)' : 'Fayda ID (FAN)'}</span>
                   </label>
                   <input
                     type="text"
                     {...registerEnroll('fayda_id')}
                     placeholder="FAN-9901-2384-5120"
-                    className="block w-full rounded-xl border-2 border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   />
                 </div>
 
                 {/* Birth Place / Woreda */}
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1">
-                    {language === 'am' ? 'የትውልድ ቦታ / ወረዳ' : language === 'en' ? 'Birth Place / Woreda' : 'Bakka Dhalootaa / Aanaa'}
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <MapPin className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>{language === 'am' ? 'የትውልድ ቦታ / ወረዳ' : 'Birth Place / Woreda'}</span>
                   </label>
                   <input
                     type="text"
                     {...registerEnroll('birth_place')}
                     placeholder="fkn: Mettu, Kebele 02"
-                    className="block w-full rounded-xl border-2 border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   />
                 </div>
               </div>
@@ -395,24 +477,25 @@ export default function PatientLoginPage(): React.ReactElement {
               <div className="grid grid-cols-2 gap-3">
                 {/* Birth Date */}
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1">
-                    {language === 'am' ? 'የትውልድ ቀን' : language === 'en' ? 'Date of Birth' : 'Guyyaa Dhalootaa'}
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <Calendar className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>{language === 'am' ? 'የትውልድ ቀን' : 'Date of Birth'}</span>
                   </label>
                   <input
                     type="date"
                     {...registerEnroll('birth_date')}
-                    className="block w-full rounded-xl border-2 border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   />
                 </div>
 
                 {/* Gender */}
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1">
-                    {language === 'am' ? 'ጾታ (Gender)' : language === 'en' ? 'Gender' : 'Saala'}
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <span>{language === 'am' ? 'ጾታ (Gender)' : 'Gender'}</span>
                   </label>
                   <select
                     {...registerEnroll('gender')}
-                    className="block w-full rounded-xl border-2 border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400/20 bg-white"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   >
                     <option value="male">{language === 'am' ? 'ወንድ (Male)' : language === 'en' ? 'Male' : 'Dhiira (Male)'}</option>
                     <option value="female">{language === 'am' ? 'ሴት (Female)' : language === 'en' ? 'Female' : 'Dubara (Female)'}</option>
@@ -422,45 +505,52 @@ export default function PatientLoginPage(): React.ReactElement {
 
               {/* Password */}
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1">
-                  {language === 'am' ? 'የይለፍ ቃል ወይም ፒን (Password/PIN)' : language === 'en' ? 'Password or PIN' : 'Jecha Darbii / PIN'} *
+                <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <Lock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                  <span>{language === 'am' ? 'የይለፍ ቃል (Password/PIN)' : 'Password or PIN'} *</span>
                 </label>
                 <input
                   type="password"
                   {...registerEnroll('password')}
                   placeholder="••••••••"
-                  className="block w-full rounded-xl border-2 border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-2xs focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
+                  className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                 />
                 {enrollErrors.password && (
-                  <p className="mt-0.5 text-[11px] text-rose-600 font-bold">{enrollErrors.password.message}</p>
+                  <p className="mt-0.5 text-[11px] text-rose-600 font-medium">{enrollErrors.password.message}</p>
                 )}
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-xl border-2 border-teal-600 bg-teal-600 px-4 py-3 text-xs sm:text-sm font-black text-white shadow-md hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 active:scale-[0.98] transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-2 disabled:cursor-not-allowed disabled:opacity-75 border border-teal-500/30"
               >
-                {isLoading
-                  ? language === 'am'
-                    ? 'በመመዝገብ ላይ...'
-                    : language === 'en'
-                    ? 'Registering...'
-                    : 'Galmeessaa Jira...'
-                  : language === 'am'
-                  ? 'ይመዝገቡ እና ወደ ፖርታል ይግቡ →'
-                  : language === 'en'
-                  ? 'Register & Enter Portal →'
-                  : "Galmaa'aa & Poortaalitti Qajeelaa →"}
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>{language === 'am' ? 'በመመዝገብ ላይ...' : language === 'en' ? 'Registering...' : 'Galmeessaa jira...'}</span>
+                  </div>
+                ) : (
+                  <>
+                    <span>
+                      {language === 'am'
+                        ? 'ይመዝገቡ እና ወደ ፖርታል ይግቡ'
+                        : language === 'en'
+                        ? 'Register & Enter Portal'
+                        : "Galmaa'aa & Poortaalitti Qajeelaa"}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-teal-300" />
+                  </>
+                )}
               </button>
             </form>
           </div>
         )}
 
         {/* Hospital Staff Switcher (Compact Row) */}
-        <div className="mt-5 sm:mt-6 border-t border-slate-200 pt-3.5 sm:pt-4 text-center">
+        <div className="mt-5 border-t border-slate-200 dark:border-slate-800 pt-3.5 text-center">
           <div className="flex items-center justify-center flex-wrap gap-2 text-xs">
-            <span className="text-slate-600 font-semibold">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">
               {language === 'am'
                 ? 'የሆስፒታል ሰራተኛ?'
                 : language === 'en'
@@ -469,18 +559,20 @@ export default function PatientLoginPage(): React.ReactElement {
             </span>
             <Link
               href="/login"
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-800 hover:border-teal-500 hover:text-teal-900 hover:bg-teal-50 transition-all duration-150 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-teal-500 hover:text-teal-700 dark:hover:text-teal-400 hover:bg-teal-50/50 dark:hover:bg-slate-800/80 transition-all cursor-pointer"
             >
-              <span>💼</span>
-              {language === 'am'
-                ? 'የሰራተኞች መግቢያ →'
-                : language === 'en'
-                ? 'Staff Login →'
-                : 'Seensa Hojjettootaa →'}
+              <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>
+                {language === 'am'
+                  ? 'የሰራተኞች መግቢያ →'
+                  : language === 'en'
+                  ? 'Staff Login →'
+                  : 'Seensa Hojjettootaa →'}
+              </span>
             </Link>
           </div>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">
-            {t('hospital_name')} • Mettu, Ilu Abba Bor, Oromia
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-normal">
+            {t('hospital_name')} • Mettu, Ilu Abba Bor, Oromia, Ethiopia
           </p>
         </div>
       </div>

@@ -812,20 +812,21 @@ export default function LoginPage() {
         {/* 1. TOP BRANDING SECTION (High-Contrast Frosted Glass Shield)        */}
         {/* =================================================================== */}
         <div className="relative z-20 px-3.5 pt-4 sm:px-8 sm:pt-6 shrink-0">
-          <div className="inline-flex items-center gap-3 sm:gap-4.5 bg-slate-950/60 backdrop-blur-xl px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-2xl sm:rounded-3xl border border-white/25 shadow-2xl ring-1 ring-white/15 max-w-[92vw] sm:max-w-xl">
+          <div className="inline-flex items-center gap-3 sm:gap-4 bg-slate-950/75 backdrop-blur-xl px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border border-white/20 shadow-2xl ring-1 ring-white/10 max-w-[92vw] sm:max-w-xl">
             <img
               src="/hospital-logo-white.png"
               alt="Mettu Karl Referral Hospital Emblem"
-              className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 rounded-full bg-white/95 p-0.5 shadow-xl shrink-0 object-contain ring-2 ring-white/30"
+              className="h-10 w-10 sm:h-12 sm:w-12 lg:h-13 lg:w-13 rounded-full bg-white/95 p-0.5 shadow-lg shrink-0 object-contain ring-2 ring-teal-500/30"
             />
             <div className="min-w-0">
-              <h1 className="text-base sm:text-xl lg:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] truncate sm:whitespace-normal">
+              <h1 className="text-base sm:text-lg lg:text-xl font-bold text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] truncate sm:whitespace-normal">
                 {t.hospitalName}
               </h1>
-              <p className="text-[11px] sm:text-xs lg:text-sm font-bold text-sky-200 mt-0.5 tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)] truncate sm:whitespace-normal">
-                {t.hmisTitle} • {t.hmisSubtitle}
+              <p className="text-[11px] sm:text-xs font-semibold text-teal-300 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+                <span>{t.hmisTitle} • {t.hmisSubtitle}</span>
               </p>
-              <p className="text-[10px] sm:text-xs italic text-sky-100 font-medium mt-1 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
+              <p className="text-[10px] sm:text-xs italic text-slate-300 font-medium mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
                 {t.tagline}
               </p>
             </div>
@@ -838,19 +839,21 @@ export default function LoginPage() {
         <div className="relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-6 sm:mb-8 shrink-0">
           
           {/* Prominent Mettu Karl Facility Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/70 backdrop-blur-md border border-sky-400/50 text-white text-xs sm:text-sm font-bold shadow-xl mb-3">
-            <Building2 className="w-4 h-4 text-sky-400 shrink-0" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-teal-500/40 text-white text-xs sm:text-sm font-semibold shadow-xl mb-3">
+            <Building2 className="w-4 h-4 text-teal-400 shrink-0" />
             <span className="tracking-wide">Mettu Karl Referral Hospital</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="text-[11px] text-teal-200 font-normal">Level 4 Referral Center</span>
           </div>
 
           {/* Slight frosted glass pill grouping buttons cleanly */}
-          <div className="w-full max-w-md sm:max-w-lg backdrop-blur-xl bg-slate-950/65 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 border border-white/25 shadow-[0_20px_50px_rgba(0,0,0,0.8)] ring-1 ring-white/15">
-            <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full">
+          <div className="w-full max-w-md sm:max-w-lg backdrop-blur-xl bg-slate-950/75 rounded-xl p-2.5 sm:p-3 border border-white/20 shadow-2xl ring-1 ring-white/10">
+            <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-3 w-full">
               {/* Login Button */}
               <div className="relative group flex-1">
                 <div
-                  className={`absolute -inset-1 rounded-xl bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-600 opacity-80 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
-                    isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
+                  className={`absolute -inset-0.5 rounded-lg bg-teal-500/30 opacity-70 blur-sm group-hover:opacity-100 transition-all duration-300 ${
+                    isFormOpen ? 'opacity-0 pointer-events-none' : ''
                   }`}
                 />
                 <button
@@ -859,35 +862,28 @@ export default function LoginPage() {
                     setFormType('login');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#0256ae] via-[#0070f3] to-[#0256ae] text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/50 hover:shadow-blue-400/80 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-sky-300/50 touch-manipulation"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-xs sm:text-sm shadow-lg border border-teal-500/40 hover:border-teal-400 transition-all duration-200 cursor-pointer touch-manipulation"
                 >
-                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
-                  <LogIn className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-115" />
-                  <span className="tracking-wide drop-shadow-md truncate">
-                    {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Login'}
+                  <LogIn className="w-4 h-4 text-teal-300 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                  <span className="tracking-wide truncate font-semibold">
+                    {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Staff & Patient Login'}
                   </span>
                 </button>
               </div>
 
               {/* Sign Up Button */}
               <div className="relative group flex-1">
-                <div
-                  className={`absolute -inset-1 rounded-xl bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-400 opacity-70 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all duration-500 ${
-                    isFormOpen ? 'opacity-0 pointer-events-none' : 'animate-pulse'
-                  }`}
-                />
                 <button
                   type="button"
                   onClick={() => {
                     setFormType('signup');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm border border-white/75 shadow-xl shadow-sky-500/30 hover:shadow-cyan-400/60 hover:scale-105 active:scale-95 backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/30 hover:border-white/50 shadow-lg backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
                 >
-                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-in-out" />
-                  <UserPlus className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-125" />
-                  <span className="tracking-wide drop-shadow-md truncate">
-                    {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up'}
+                  <UserPlus className="w-4 h-4 text-teal-200 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                  <span className="tracking-wide truncate font-semibold">
+                    {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up / Enroll'}
                   </span>
                 </button>
               </div>
@@ -898,46 +894,46 @@ export default function LoginPage() {
         {/* =================================================================== */}
         {/* 3. BOTTOM SECTION: FROSTED GLASS BAR WITH 4 SERVICE BADGES          */}
         {/* =================================================================== */}
-        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/60 border-t border-white/15 px-2.5 sm:px-6 pt-2 pb-6 sm:pt-2.5 sm:pb-3 shrink-0 shadow-2xl">
+        <div className="relative z-20 w-full backdrop-blur-md bg-slate-950/70 border-t border-white/15 px-2.5 sm:px-6 pt-2 pb-5 sm:pt-2.5 sm:pb-3 shrink-0 shadow-2xl">
           {/* 4 Feature Badges with Vertical Dividers */}
           <div className="w-full max-w-2xl mx-auto">
-            <div className="grid grid-cols-4 divide-x divide-white/20">
+            <div className="grid grid-cols-4 divide-x divide-white/15">
               {/* Feature 1: Patient Management */}
               <div className="flex flex-col items-center text-center px-1">
-                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <UserCheck className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 text-sky-300" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border border-teal-500/30 bg-teal-500/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-300" />
                 </div>
-                <span className="text-[9px] sm:text-[11px] font-semibold text-white/95 mt-0.5 sm:mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[9px] sm:text-[11px] font-medium text-slate-200 mt-1 leading-tight">
                   {t.servicePatient}
                 </span>
               </div>
 
               {/* Feature 2: Inpatient & Ward Management */}
               <div className="flex flex-col items-center text-center px-1">
-                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <Bed className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 text-emerald-300" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <Bed className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300" />
                 </div>
-                <span className="text-[9px] sm:text-[11px] font-semibold text-white/95 mt-0.5 sm:mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[9px] sm:text-[11px] font-medium text-slate-200 mt-1 leading-tight">
                   {t.serviceInpatient}
                 </span>
               </div>
 
               {/* Feature 3: Clinical Services */}
               <div className="flex flex-col items-center text-center px-1">
-                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <Stethoscope className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 text-purple-300" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border border-sky-500/30 bg-sky-500/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <Stethoscope className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-300" />
                 </div>
-                <span className="text-[9px] sm:text-[11px] font-semibold text-white/95 mt-0.5 sm:mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[9px] sm:text-[11px] font-medium text-slate-200 mt-1 leading-tight">
                   {t.serviceClinical}
                 </span>
               </div>
 
               {/* Feature 4: Reports & Analytics */}
               <div className="flex flex-col items-center text-center px-1">
-                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full border border-white/30 bg-white/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
-                  <BarChart2 className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 text-amber-300" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border border-amber-500/30 bg-amber-500/10 flex items-center justify-center text-white shadow-xs transition-transform hover:scale-105">
+                  <BarChart2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
                 </div>
-                <span className="text-[9px] sm:text-[11px] font-semibold text-white/95 mt-0.5 sm:mt-1 leading-tight drop-shadow-sm">
+                <span className="text-[9px] sm:text-[11px] font-medium text-slate-200 mt-1 leading-tight">
                   {t.serviceAnalytics}
                 </span>
               </div>
@@ -945,9 +941,9 @@ export default function LoginPage() {
           </div>
 
           {/* Bottom Hospital HMIS Tag */}
-          <div className="pt-1.5 pb-2 text-center">
-            <p className="text-[9px] sm:text-[10px] font-normal text-sky-200/80 tracking-wide drop-shadow-sm">
-              Mettu Karl Referral Hospital HMIS • Clinical Portal
+          <div className="pt-1.5 pb-1 text-center">
+            <p className="text-[9px] sm:text-[10px] font-normal text-slate-400 tracking-wide">
+              Mettu Karl Referral Hospital HMIS • Clinical Enterprise Portal
             </p>
           </div>
         </div>
@@ -965,29 +961,29 @@ export default function LoginPage() {
         >
           {/* Card Container */}
           <div
-            className={`relative z-20 w-full max-w-[570px] xl:max-w-[620px] max-h-[92vh] overflow-y-auto rounded-[28px] px-6 py-5 sm:px-10 sm:py-6 xl:px-12 xl:py-7 shadow-2xl transition-colors duration-200 my-auto border animate-in zoom-in-95 duration-300 ${
+            className={`relative z-20 w-full max-w-[540px] xl:max-w-[580px] max-h-[92vh] overflow-y-auto rounded-2xl px-6 py-6 sm:px-8 sm:py-7 shadow-2xl transition-colors duration-200 my-auto border animate-in zoom-in-95 duration-200 ${
               isDarkMode
-                ? 'bg-[#0f172a] border-slate-700/80 shadow-black/80'
-                : 'bg-[#f8fafc] border-white/60 shadow-2xl shadow-blue-950/40'
+                ? 'bg-slate-900 border-slate-800 shadow-2xl shadow-black/90'
+                : 'bg-white border-slate-200/90 shadow-2xl shadow-slate-900/20'
             }`}
           >
             {/* Close button X */}
             <button
               type="button"
               onClick={() => setIsFormOpen(false)}
-              className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition cursor-pointer shadow-sm z-30"
+              className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition cursor-pointer shadow-xs z-30"
               title="Cufi / Close"
               aria-label="Close"
             >
-              <X className="w-4.5 h-4.5" />
+              <X className="w-4 h-4" />
             </button>
 
             {/* Centered Official Hospital Logo */}
-            <div className="flex justify-center mb-2.5 sm:mb-3">
+            <div className="flex justify-center mb-3">
               <img
                 src="/hospital-logo.png"
                 alt="Mettu Karl Hospital Seal"
-                className="w-[72px] h-[72px] sm:w-[80px] sm:h-[80px] object-contain rounded-full shadow-2xs"
+                className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-full shadow-xs ring-2 ring-teal-500/20"
               />
             </div>
 
@@ -997,37 +993,93 @@ export default function LoginPage() {
             {formType === 'login' ? (
               <>
                 {/* Heading: Welcome Back */}
-                <div className="text-center mb-5 sm:mb-6">
-                  <h2 className="text-[29px] sm:text-[34px] font-extrabold text-[#14276c] dark:text-white tracking-tight leading-tight">
+                <div className="text-center mb-5">
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {step === 'credentials' ? t.welcomeBack : t.mfaTitle}
                   </h2>
-                  <p className="mt-1 text-[14px] sm:text-[15px] text-[#6b7280] dark:text-slate-400 font-normal leading-relaxed">
+                  <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal leading-relaxed">
                     {step === 'credentials' ? t.welcomeSubtitle : t.mfaDesc}
                   </p>
                 </div>
+
+                {/* Quick Staff & Patient Tester Chips */}
+                {step === 'credentials' && (
+                  <div className="mb-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                        <span>{language === 'om' ? 'Seensa Saffisaa (Quick Test):' : language === 'am' ? 'ፈጣን መግቢያ (Quick Test):' : 'Quick Staff Roles:'}</span>
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          loginForm.setValue('username', 'dr_bekele');
+                          loginForm.setValue('password', 'password');
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 transition cursor-pointer"
+                      >
+                        <Stethoscope className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                        <span>Dr. Bekele (Doctor)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          loginForm.setValue('username', 'nurse_chaltu');
+                          loginForm.setValue('password', 'password');
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer"
+                      >
+                        <HeartPulse className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        <span>Nurse Chaltu (Nurse)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          loginForm.setValue('username', 'admin');
+                          loginForm.setValue('password', 'password');
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition cursor-pointer"
+                      >
+                        <Building2 className="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                        <span>Admin Dawit (ICT)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          loginForm.setValue('username', 'FAN-9901-2384-5120');
+                          loginForm.setValue('password', '123456');
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/40 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 transition cursor-pointer"
+                      >
+                        <CreditCard className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                        <span>Gudeta (Patient Fayda)</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Step 1: Credentials Form */}
                 {step === 'credentials' ? (
                   <form
                     onSubmit={loginForm.handleSubmit(handleLogin)}
                     noValidate
-                    className="space-y-4"
+                    className="space-y-3.5"
                   >
                     {/* USERNAME FIELD */}
                     <div className="w-full">
-                      <div className="flex items-center gap-2 rounded-xl bg-[#e2f0fd] dark:bg-blue-950/70 border border-blue-200/50 dark:border-blue-800/40 px-4 py-2.5 mb-1.5 w-full">
-                        <User className="h-4.5 w-4.5 text-[#0066cc] fill-[#0066cc]" />
-                        <label
-                          htmlFor={usernameId}
-                          className="text-[15.5px] font-semibold text-[#1a365d] dark:text-sky-200 cursor-pointer select-none"
-                        >
-                          {t.usernameLabel}
-                        </label>
-                      </div>
+                      <label
+                        htmlFor={usernameId}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 cursor-pointer"
+                      >
+                        <User className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                        <span>{t.usernameLabel}</span>
+                      </label>
 
                       <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                          <User className="h-4.5 w-4.5 stroke-[2]" />
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                          <User className="h-4 w-4" />
                         </div>
                         <input
                           id={usernameId}
@@ -1036,11 +1088,11 @@ export default function LoginPage() {
                           autoFocus
                           {...loginForm.register('username')}
                           placeholder={t.usernamePlaceholder}
-                          className="block w-full h-[52px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-12 pr-4 text-[15px] font-normal text-slate-900 dark:text-white placeholder:text-[#9ca3af] placeholder:text-[14px] placeholder:font-normal focus:border-[#0066cc] focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 transition"
+                          className="block w-full h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 pl-10 pr-4 text-sm font-normal text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-400/20 transition-all"
                         />
                       </div>
                       {loginForm.formState.errors.username && (
-                        <p className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs font-medium text-rose-600 flex items-center gap-1">
                           <span>•</span> {loginForm.formState.errors.username.message}
                         </p>
                       )}
@@ -1048,19 +1100,17 @@ export default function LoginPage() {
 
                     {/* PASSWORD FIELD */}
                     <div className="w-full">
-                      <div className="flex items-center gap-2 rounded-xl bg-[#e2f0fd] dark:bg-blue-950/70 border border-blue-200/50 dark:border-blue-800/40 px-4 py-2.5 mb-1.5 mt-3.5 w-full">
-                        <Lock className="h-4.5 w-4.5 text-[#0066cc] fill-[#0066cc]" />
-                        <label
-                          htmlFor={passwordId}
-                          className="text-[15.5px] font-semibold text-[#1a365d] dark:text-sky-200 cursor-pointer select-none"
-                        >
-                          {t.passwordLabel}
-                        </label>
-                      </div>
+                      <label
+                        htmlFor={passwordId}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 cursor-pointer"
+                      >
+                        <Lock className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                        <span>{t.passwordLabel}</span>
+                      </label>
 
                       <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                          <Lock className="h-4.5 w-4.5 stroke-[2]" />
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                          <Lock className="h-4 w-4" />
                         </div>
                         <input
                           id={passwordId}
@@ -1068,63 +1118,63 @@ export default function LoginPage() {
                           autoComplete="current-password"
                           {...loginForm.register('password')}
                           placeholder={t.passwordPlaceholder}
-                          className="block w-full h-[52px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-12 pr-12 text-[15px] font-normal text-slate-900 dark:text-white placeholder:text-[#9ca3af] placeholder:text-[14px] placeholder:font-normal focus:border-[#0066cc] focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 transition"
+                          className="block w-full h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 pl-10 pr-11 text-sm font-normal text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-400/20 transition-all"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer transition-colors"
+                          className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer transition-colors"
                           title={showPassword ? 'Hide password' : 'Show password'}
                           aria-label={showPassword ? 'Hide password' : 'Show password'}
                         >
                           {showPassword ? (
-                            <EyeOff className="h-4.5 w-4.5 stroke-[1.8]" />
+                            <EyeOff className="h-4 w-4" />
                           ) : (
-                            <Eye className="h-4.5 w-4.5 stroke-[1.8]" />
+                            <Eye className="h-4 w-4" />
                           )}
                         </button>
                       </div>
                       {loginForm.formState.errors.password && (
-                        <p className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs font-medium text-rose-600 flex items-center gap-1">
                           <span>•</span> {loginForm.formState.errors.password.message}
                         </p>
                       )}
                     </div>
 
                     {/* Remember Me Checkbox & Forgot Password Link */}
-                    <div className="flex items-center justify-between text-[13.5px] pt-1 pb-0.5">
+                    <div className="flex items-center justify-between text-xs pt-0.5">
                       <label className="flex items-center gap-2 text-slate-600 dark:text-slate-400 cursor-pointer select-none font-normal">
                         <input
                           type="checkbox"
                           checked={rememberMe}
                           onChange={(e) => setRememberMe(e.target.checked)}
-                          className="h-4.5 w-4.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         />
                         <span>{t.rememberMe}</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => setShowForgotModal(true)}
-                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium transition cursor-pointer"
+                        className="text-teal-600 hover:text-teal-700 dark:text-teal-400 font-medium transition cursor-pointer"
                       >
                         {t.forgotPassword}
                       </button>
                     </div>
 
-                    {/* Full-Width Blue Gradient Login Button */}
+                    {/* Full-Width Navy/Teal Gradient Login Button */}
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-[52px] rounded-xl bg-gradient-to-r from-[#0256ae] to-[#08559b] hover:from-[#024a96] hover:to-[#074782] active:from-[#023e7e] active:to-[#063b6d] text-white font-bold text-[16px] shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer mt-1 disabled:opacity-75 disabled:cursor-not-allowed"
+                      className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm shadow-md transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer mt-1 disabled:opacity-75 disabled:cursor-not-allowed border border-teal-500/30"
                     >
                       {isLoading ? (
                         <div className="flex items-center gap-2">
-                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                           <span>{t.signingIn}</span>
                         </div>
                       ) : (
                         <>
-                          <LogIn className="h-5 w-5 stroke-[2.2]" />
+                          <LogIn className="h-4 w-4 text-teal-300" />
                           <span>{t.loginBtn}</span>
                         </>
                       )}
@@ -1145,7 +1195,7 @@ export default function LoginPage() {
                         Authenticator Code
                       </label>
                       <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                           <KeyRound className="h-4 w-4" />
                         </div>
                         <input
@@ -1156,7 +1206,7 @@ export default function LoginPage() {
                           autoFocus
                           {...mfaForm.register('totp_code')}
                           placeholder={t.mfaPlaceholder}
-                          className="block w-full h-[52px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-3 text-center tracking-widest text-lg font-mono text-slate-900 dark:text-white focus:border-[#0066cc] focus:outline-none focus:ring-1 focus:ring-blue-400"
+                          className="block w-full h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 pl-10 pr-3 text-center tracking-widest text-lg font-mono text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                         />
                       </div>
                       {mfaForm.formState.errors.totp_code && (
@@ -1169,10 +1219,10 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-[52px] rounded-xl bg-gradient-to-r from-[#0256ae] to-[#08559b] hover:from-[#024a96] hover:to-[#074782] text-white font-bold text-[16px] transition flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer border border-teal-500/30"
                     >
                       {isLoading ? (
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       ) : (
                         <span>{t.mfaVerifyBtn}</span>
                       )}
@@ -1217,17 +1267,17 @@ export default function LoginPage() {
               /* =============================================================== */
               <div>
                 {/* Account Type Selector: Patient vs Hospital Staff */}
-                <div className="flex p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/90 mb-5 border border-slate-200/80 dark:border-slate-700/80">
+                <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 mb-4 border border-slate-200/80 dark:border-slate-700/80">
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('patient')}
-                    className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'patient'
-                        ? 'bg-gradient-to-r from-[#0256ae] to-[#08559b] text-white shadow-md'
+                        ? 'bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 text-white shadow-xs border border-teal-500/30'
                         : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <HeartPulse className="w-4 h-4" />
+                    <HeartPulse className="w-4 h-4 text-teal-400" />
                     <span>
                       {language === 'om'
                         ? 'Dhukkubsataa (Patient)'
@@ -1239,13 +1289,13 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('staff')}
-                    className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'staff'
-                        ? 'bg-gradient-to-r from-[#0256ae] to-[#08559b] text-white shadow-md'
+                        ? 'bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 text-white shadow-xs border border-teal-500/30'
                         : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <Building2 className="w-4 h-4" />
+                    <Building2 className="w-4 h-4 text-teal-400" />
                     <span>
                       {language === 'om'
                         ? 'Hojjataa (Staff Station)'
@@ -1442,16 +1492,16 @@ export default function LoginPage() {
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-[52px] rounded-xl bg-gradient-to-r from-[#0256ae] to-[#08559b] hover:from-[#024a96] hover:to-[#074782] text-white font-bold text-[15.5px] shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75"
+                        className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 border border-teal-500/30"
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                             <span>Galmaa&apos;aa jira...</span>
                           </div>
                         ) : (
                           <>
-                            <HeartPulse className="h-5 w-5" />
+                            <HeartPulse className="h-4 w-4 text-teal-400" />
                             <span>
                               {language === 'om'
                                 ? "Galmee Xumuri & Poortaalii Seeni"
@@ -1711,16 +1761,16 @@ export default function LoginPage() {
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-[52px] rounded-xl bg-gradient-to-r from-[#0256ae] to-[#08559b] hover:from-[#024a96] hover:to-[#074782] text-white font-bold text-[15.5px] shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75"
+                        className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 border border-teal-500/30"
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                             <span>Ergaa jira...</span>
                           </div>
                         ) : (
                           <>
-                            <UserPlus className="h-5 w-5" />
+                            <UserPlus className="h-4 w-4 text-teal-400" />
                             <span>
                               {language === 'om'
                                 ? "Galmee Hojjataa Gaafadhu"
@@ -1737,7 +1787,7 @@ export default function LoginPage() {
 
                 {/* Switch to Login link */}
                 <div className="mt-4 text-center">
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
                     {language === 'om'
                       ? 'Duraan akkaawuntii qabduu? '
                       : language === 'am'
@@ -1746,7 +1796,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setFormType('login')}
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold transition cursor-pointer"
+                      className="text-teal-600 hover:text-teal-700 dark:text-teal-400 font-semibold transition cursor-pointer"
                     >
                       {language === 'om' ? 'Seenaa (Login)' : language === 'am' ? 'ይግቡ (Login)' : 'Log In'}
                     </button>
@@ -1755,37 +1805,37 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Pale-Blue Secure Access Information Panel */}
-            <div className="w-full rounded-xl bg-[#e1f2fc] dark:bg-blue-950/60 border border-sky-200/60 dark:border-blue-900/50 p-3.5 sm:p-4 flex items-center gap-3.5 mt-5">
-              <ShieldCheck className="h-5.5 w-5.5 text-sky-600 dark:text-sky-400 shrink-0" />
+            {/* Subtle Secure Access Information Panel */}
+            <div className="w-full rounded-lg bg-teal-50/60 dark:bg-teal-950/30 border border-teal-200/70 dark:border-teal-800/50 p-3 flex items-center gap-3 mt-4">
+              <ShieldCheck className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
               <div className="text-left">
-                <p className="text-xs sm:text-sm font-bold text-[#14276c] dark:text-sky-200 leading-tight">
+                <p className="text-xs font-semibold text-slate-900 dark:text-teal-200 leading-tight">
                   {t.secureAccessTitle}
                 </p>
-                <p className="text-[11.5px] text-[#475569] dark:text-slate-400 leading-tight mt-0.5">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-tight mt-0.5">
                   {t.secureAccessSubtitle}
                 </p>
               </div>
             </div>
 
             {/* Card Footer: IT Support & Version */}
-            <div className="flex items-center justify-between pt-4 sm:pt-5 mt-3 sm:mt-4 border-t border-slate-200/70 dark:border-slate-800 text-[12.5px] sm:text-[13px] text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-between pt-3.5 mt-3 border-t border-slate-200/70 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(true)}
-                className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer text-left"
+                className="flex items-center gap-2 hover:text-teal-600 dark:hover:text-teal-400 transition cursor-pointer text-left"
               >
-                <Headphones className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                <Headphones className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
                 <div>
-                  <p className="font-semibold text-slate-700 dark:text-slate-300 leading-tight">
+                  <p className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
                     {t.itSupportTitle}
                   </p>
-                  <p className="text-[10.5px] text-blue-600 dark:text-blue-400 leading-tight">
+                  <p className="text-[10px] text-teal-600 dark:text-teal-400 leading-tight">
                     {t.itSupportContact}
                   </p>
                 </div>
               </button>
-              <span className="font-mono text-slate-400 text-[12px]">v1.0.0</span>
+              <span className="font-mono text-slate-400 text-[11px]">HMIS Enterprise v2.4</span>
             </div>
           </div>
         </div>
@@ -1805,7 +1855,7 @@ export default function LoginPage() {
           >
             <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-full bg-blue-100 dark:bg-blue-900/50 p-2 text-blue-600 dark:text-blue-400">
+                <div className="rounded-lg bg-teal-50 dark:bg-teal-950/60 p-2 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <div>
@@ -1818,7 +1868,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowForgotModal(false)}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1828,12 +1878,12 @@ export default function LoginPage() {
               <p className="font-medium text-slate-800 dark:text-slate-200">
                 {t.forgotModalSubtitle}
               </p>
-              <ul className="space-y-2 border-l-2 border-blue-500 pl-3">
+              <ul className="space-y-2 border-l-2 border-teal-500 pl-3">
                 <li>{t.forgotModalStep1}</li>
                 <li>{t.forgotModalStep2}</li>
               </ul>
-              <div className="rounded-lg bg-slate-50 dark:bg-slate-800 p-2.5 flex items-center gap-2 text-slate-700 dark:text-slate-300 font-mono text-[11px]">
-                <Info className="h-4 w-4 text-blue-600 shrink-0" />
+              <div className="rounded-lg bg-slate-50 dark:bg-slate-800/80 p-2.5 flex items-center gap-2 text-slate-700 dark:text-slate-300 font-mono text-[11px] border border-slate-200 dark:border-slate-700">
+                <Info className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
                 <span>{t.forgotModalContact}</span>
               </div>
             </div>
@@ -1842,7 +1892,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowForgotModal(false)}
-                className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer"
+                className="rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
               >
                 {t.forgotModalClose}
               </button>
@@ -1865,7 +1915,7 @@ export default function LoginPage() {
           >
             <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-full bg-blue-100 dark:bg-blue-900/50 p-2 text-blue-600 dark:text-blue-400">
+                <div className="rounded-lg bg-teal-50 dark:bg-teal-950/60 p-2 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
                   <Headphones className="h-5 w-5" />
                 </div>
                 <div>
@@ -1878,7 +1928,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(false)}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1888,7 +1938,7 @@ export default function LoginPage() {
               <p className="font-medium text-slate-800 dark:text-slate-200">
                 Hospital ICT Help Desk (24/7 Operations):
               </p>
-              <ul className="space-y-2 border-l-2 border-blue-500 pl-3">
+              <ul className="space-y-2 border-l-2 border-teal-500 pl-3">
                 <li>
                   <strong>Internal Extension:</strong> 4401 / 4402
                 </li>
@@ -1911,7 +1961,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(false)}
-                className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer"
+                className="rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
               >
                 Close
               </button>

@@ -1,173 +1,478 @@
 /**
  * PACS / RIS Radiology Diagnostic Imaging & DICOM Web Viewer.
- * Digital radiography and cross-sectional imaging with responsive rectangular spotlight UX.
+ * Mettu Karl Referral Hospital HMIS — Enterprise Healthcare Design System:
+ * - Diagnostic web DICOM viewport with clinical HUD overlays (WW/WL, Matrix, Slices)
+ * - Radiologist clinical impression & report sign-off panel
+ * - High-precision imaging controls (Zoom, Pan, Invert, Window Level presets)
+ * - Modern Lucide SVG icons replacing raw emojis
+ * - Lossless MinIO S3 clinical archive integration
  */
 'use client';
 
 import React, { useState } from 'react';
+import {
+  FileText,
+  ZoomIn,
+  ZoomOut,
+  RotateCw,
+  Sun,
+  Contrast,
+  Maximize2,
+  Sliders,
+  Ruler,
+  Layers,
+  Activity,
+  HardDrive,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  Eye,
+  FileCheck,
+  Stethoscope,
+} from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import { notifications } from '@mantine/notifications';
 
 interface DicomStudyItem {
   uid: string;
   patient: string;
-  modality: string;
+  mrn: string;
+  modality: 'CR (X-Ray)' | 'CT' | 'US' | 'MRI';
   description: string;
+  bodyPart: string;
   date: string;
   slices: number;
+  currentSlice: number;
+  ww: number;
+  wl: number;
+  radiologist: string;
+  reportStatus: 'Signed' | 'Preliminary' | 'Pending Review';
+  criticalFinding?: string;
 }
 
-const mockStudies: DicomStudyItem[] = [
-  { uid: '1.2.826.0.1.368.101', patient: 'Abera Duresa (MKH-2026-000101)', modality: 'CR (X-Ray)', description: 'Chest PA Digital Radiography', date: '2026-10-26 10:14', slices: 1 },
-  { uid: '1.2.826.0.1.368.102', patient: 'Hawine Dibaba (MKH-2026-000102)', modality: 'CT', description: 'Brain Non-Contrast 64-Slice CT Scan', date: '2026-10-26 09:30', slices: 128 },
-  { uid: '1.2.826.0.1.368.103', patient: 'Ayantu Mamo (MKH-2026-000103)', modality: 'US', description: 'Obstetrical 2nd Trimester Color Doppler', date: '2026-10-25 15:20', slices: 12 },
+const MOCK_STUDIES: DicomStudyItem[] = [
+  {
+    uid: '1.2.826.0.1.368.101',
+    patient: 'Abera Duresa Hunde',
+    mrn: 'MKH-2026-000101',
+    modality: 'CR (X-Ray)',
+    description: 'Chest PA Digital Radiography (Erect)',
+    bodyPart: 'Chest / Thorax',
+    date: '2026-10-26 10:14',
+    slices: 1,
+    currentSlice: 1,
+    ww: 400,
+    wl: 40,
+    radiologist: 'Dr. Bekele Gemechu (Consultant Radiologist)',
+    reportStatus: 'Signed',
+  },
+  {
+    uid: '1.2.826.0.1.368.102',
+    patient: 'Hawine Dibaba Tola',
+    mrn: 'MKH-2026-000102',
+    modality: 'CT',
+    description: 'Brain Non-Contrast 64-Slice Helical CT',
+    bodyPart: 'Head & Brain',
+    date: '2026-10-26 09:30',
+    slices: 128,
+    currentSlice: 64,
+    ww: 80,
+    wl: 40,
+    radiologist: 'Dr. Tolera Negash (Radiology Resident)',
+    reportStatus: 'Preliminary',
+    criticalFinding: 'Acute Left Parietal Subdural Hematoma (8mm shift)',
+  },
+  {
+    uid: '1.2.826.0.1.368.103',
+    patient: 'Ayantu Mamo Gudeta',
+    mrn: 'MKH-2026-000103',
+    modality: 'US',
+    description: 'Obstetrical 2nd Trimester Color Doppler',
+    bodyPart: 'Pelvis / Fetal Anatomy',
+    date: '2026-10-25 15:20',
+    slices: 24,
+    currentSlice: 12,
+    ww: 255,
+    wl: 128,
+    radiologist: 'Dr. Bekele Gemechu (Consultant Radiologist)',
+    reportStatus: 'Signed',
+  },
+  {
+    uid: '1.2.826.0.1.368.104',
+    patient: 'Gudeta Hailu Tadesse',
+    mrn: 'MKH-2026-000104',
+    modality: 'CR (X-Ray)',
+    description: 'Right Tibia/Fibula AP & Lateral',
+    bodyPart: 'Right Lower Extremity',
+    date: '2026-10-25 11:05',
+    slices: 2,
+    currentSlice: 1,
+    ww: 2000,
+    wl: 350,
+    radiologist: 'Dr. Tolera Negash (Radiology Resident)',
+    reportStatus: 'Signed',
+  },
+];
+
+const WINDOW_PRESETS = [
+  { name: 'Default', ww: 400, wl: 40 },
+  { name: 'Lung', ww: 1500, wl: -600 },
+  { name: 'Bone', ww: 2000, wl: 350 },
+  { name: 'Brain', ww: 80, wl: 40 },
+  { name: 'Soft Tissue', ww: 350, wl: 50 },
 ];
 
 export default function PACSPage(): React.ReactElement {
-  const { t } = useTranslation();
-  const [selectedStudy, setSelectedStudy] = useState<DicomStudyItem>(mockStudies[0]);
+  const { t, language } = useTranslation();
+  const [selectedStudy, setSelectedStudy] = useState<DicomStudyItem>(MOCK_STUDIES[0]);
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [rotation, setRotation] = useState(0);
   const [contrastInvert, setContrastInvert] = useState(false);
+  const [currentSlice, setCurrentSlice] = useState(selectedStudy.currentSlice);
+  const [activePreset, setActivePreset] = useState('Default');
+
+  const handleStudyChange = (study: DicomStudyItem) => {
+    setSelectedStudy(study);
+    setCurrentSlice(study.currentSlice);
+    setZoomLevel(100);
+    setRotation(0);
+    setContrastInvert(false);
+  };
+
+  const handlePresetChange = (preset: (typeof WINDOW_PRESETS)[0]) => {
+    setActivePreset(preset.name);
+    setSelectedStudy((prev) => ({
+      ...prev,
+      ww: preset.ww,
+      wl: preset.wl,
+    }));
+    notifications.show({
+      title: 'Window/Level Adjusted',
+      message: `${preset.name} preset applied (WW: ${preset.ww}, WL: ${preset.wl})`,
+      color: 'teal',
+    });
+  };
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
-        <main className="flex-1 p-6 lg:p-8 space-y-6">
-          {/* Header Bar with Rectangular Responsive Spotlight */}
-          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white px-7 py-5 rounded-3xl border-2 border-slate-200/90 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/30 transition-all duration-200">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-sm text-2xl group-hover:scale-105 transition-transform">
-                  🩻
-                </span>
-                <div>
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-teal-950 transition-colors">
-                    {t('pacs')} • Radiology (RIS) & Web DICOM Diagnostic Viewer
-                  </h1>
-                  <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                    DICOM R4 Server • Lossless Medical Imaging Storage • Radiologist Diagnostic Workstation
-                  </p>
-                </div>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+          {/* Top Diagnostic Command Bar */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-5 sm:px-6 py-4 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 shadow-xs shrink-0">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                  <span>{t('pacs')}</span>
+                  <span className="text-slate-400 font-normal">•</span>
+                  <span className="text-sm font-semibold text-teal-600 dark:text-teal-400">Radiology RIS & Web DICOM</span>
+                </h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  DICOMweb WADO-RS Server • Digital Radiography & CT Viewer • MinIO S3 Lossless Archive
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200 group-hover:bg-white transition-colors">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 PACS Archive: 18.4 TB Online
               </span>
             </div>
           </div>
 
-          {/* Quick Metrics Cards with Rectangular Spotlight */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Scans Today</span>
-              <p className="mt-2 text-3xl font-black text-slate-900 group-hover:text-teal-950 transition-colors">42 Studies</p>
-              <p className="mt-1 text-xs text-teal-600 font-bold">28 X-Ray • 8 CT • 6 US</p>
+          {/* Quick Radiology Metrics Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Scans Conducted Today</span>
+              <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">42 Studies</p>
+              <span className="text-[11px] text-teal-600 dark:text-teal-400 font-medium">28 X-Ray • 8 CT • 6 US</span>
             </div>
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Critical Alerts</span>
-              <p className="mt-2 text-3xl font-black text-rose-600 group-hover:text-rose-950 transition-colors">2 Urgent</p>
-              <p className="mt-1 text-xs text-rose-600 font-semibold">Tension Pneumothorax, ED Bed 1</p>
+
+            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Critical Imaging Findings</span>
+              <p className="mt-1 text-2xl font-bold text-rose-600 dark:text-rose-400">1 Urgent</p>
+              <span className="text-[11px] text-rose-600 dark:text-rose-400 font-medium">Acute Subdural Hematoma (CT)</span>
             </div>
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Radiology TAT</span>
-              <p className="mt-2 text-3xl font-black text-blue-700 group-hover:text-blue-950 transition-colors">38 Min</p>
-              <p className="mt-1 text-xs text-blue-600 font-bold">Emergency turnaround target &lt; 45m</p>
+
+            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Report Turnaround (TAT)</span>
+              <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">34 Min</p>
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Target &lt; 45m achieved</span>
             </div>
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">MinIO Storage</span>
-              <p className="mt-2 text-3xl font-black text-emerald-600 group-hover:text-emerald-950 transition-colors">100% S3</p>
-              <p className="mt-1 text-xs text-slate-500 font-semibold">On-premise redundant SAN array</p>
+
+            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">MinIO S3 Redundancy</span>
+              <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">100% Synced</p>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">On-premise SAN mirror active</span>
             </div>
           </div>
 
+          {/* Main DICOM Diagnostics Layout */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* DICOM Web Viewer */}
-            <div className="col-span-2 rounded-3xl bg-slate-950 p-6 text-white shadow-xl flex flex-col justify-between min-h-[500px] border-2 border-slate-800 hover:border-teal-400 hover:ring-2 hover:ring-teal-400/30 transition-all">
-              {/* Viewer Toolbar */}
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            {/* Left 2 Cols: Clinical Dark-Room DICOM Viewport */}
+            <div className="lg:col-span-2 rounded-2xl bg-slate-950 border border-slate-800 text-white shadow-xl flex flex-col justify-between overflow-hidden min-h-[580px]">
+              {/* Top Viewport Clinical HUD Toolbar */}
+              <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-900/90 px-4 py-3 border-b border-slate-800 text-xs">
+                {/* Modality & Study Title */}
                 <div className="flex items-center gap-2">
-                  <span className="font-black text-sm text-teal-400">{selectedStudy.modality}</span>
-                  <span className="text-xs text-slate-300 font-semibold">• {selectedStudy.description}</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-xs">
-                  <button
-                    onClick={() => setZoomLevel((z) => Math.max(50, z - 10))}
-                    className="rounded-xl bg-slate-800 px-3 py-1 font-bold hover:bg-slate-700 cursor-pointer transition-colors"
-                  >
-                    🔍 -
-                  </button>
-                  <span className="font-mono text-xs">{zoomLevel}%</span>
-                  <button
-                    onClick={() => setZoomLevel((z) => Math.min(200, z + 10))}
-                    className="rounded-xl bg-slate-800 px-3 py-1 font-bold hover:bg-slate-700 cursor-pointer transition-colors"
-                  >
-                    🔍 +
-                  </button>
-                  <button
-                    onClick={() => setContrastInvert(!contrastInvert)}
-                    className="rounded-xl bg-slate-800 px-3 py-1 font-bold hover:bg-slate-700 cursor-pointer transition-colors"
-                  >
-                    🌓 Invert
-                  </button>
-                </div>
-              </div>
-
-              {/* Central Imaging Canvas */}
-              <div className="flex flex-1 items-center justify-center p-8">
-                <div
-                  style={{
-                    transform: `scale(${zoomLevel / 100})`,
-                    filter: contrastInvert ? 'invert(1)' : 'none',
-                    transition: 'transform 0.15s ease-in-out',
-                  }}
-                  className="flex h-72 w-72 flex-col items-center justify-center rounded-3xl border-2 border-slate-700 bg-slate-900/90 shadow-2xl"
-                >
-                  <span className="text-7xl mb-2">🩻</span>
-                  <p className="text-xs font-mono text-slate-400">{selectedStudy.patient}</p>
-                  <p className="text-[10px] text-slate-500 font-mono mt-1">{selectedStudy.uid}</p>
-                  <span className="mt-3 rounded-full bg-teal-500/20 px-3 py-0.5 text-[10px] font-black text-teal-300 border border-teal-400/40">
-                    {selectedStudy.slices} Slices Loaded
+                  <span className="font-bold text-xs uppercase px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                    {selectedStudy.modality}
                   </span>
+                  <span className="font-semibold text-slate-200 truncate max-w-xs">{selectedStudy.description}</span>
+                </div>
+
+                {/* Interactive Diagnostic Controls */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {/* Zoom Controls */}
+                  <div className="flex items-center rounded-lg bg-slate-800 border border-slate-700 p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setZoomLevel((z) => Math.max(50, z - 10))}
+                      className="p-1.5 rounded hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer"
+                      title="Zoom Out"
+                    >
+                      <ZoomOut className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="px-2 text-[11px] font-mono text-slate-300">{zoomLevel}%</span>
+                    <button
+                      type="button"
+                      onClick={() => setZoomLevel((z) => Math.min(250, z + 10))}
+                      className="p-1.5 rounded hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer"
+                      title="Zoom In"
+                    >
+                      <ZoomIn className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Rotate */}
+                  <button
+                    type="button"
+                    onClick={() => setRotation((r) => (r + 90) % 360)}
+                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white cursor-pointer"
+                    title="Rotate 90°"
+                  >
+                    <RotateCw className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Invert LUT */}
+                  <button
+                    type="button"
+                    onClick={() => setContrastInvert(!contrastInvert)}
+                    className={`p-1.5 rounded-lg border text-xs font-medium cursor-pointer transition flex items-center gap-1 ${
+                      contrastInvert
+                        ? 'bg-teal-600 text-white border-teal-500'
+                        : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
+                    }`}
+                    title="Invert Grayscale LUT"
+                  >
+                    <Contrast className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Invert</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Viewport Info Overlay */}
-              <div className="flex justify-between border-t border-slate-800 pt-3 text-[11px] font-mono text-slate-400">
-                <span>WW/WL: 400/40 (Mediastinum)</span>
-                <span>Mettu Karl Referral Radiology RIS v2.4</span>
-              </div>
-            </div>
-
-            {/* Study Selection Cards */}
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:ring-2 hover:ring-teal-400/30 transition-all duration-200 space-y-3">
-              <h3 className="text-sm font-black text-slate-900 group-hover:text-teal-950 transition-colors uppercase tracking-wider">
-                Recent Diagnostic Studies
-              </h3>
-              <div className="space-y-2.5">
-                {mockStudies.map((study) => (
-                  <div
-                    key={study.uid}
-                    onClick={() => setSelectedStudy(study)}
-                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                      selectedStudy.uid === study.uid
-                        ? 'border-teal-500 bg-teal-50/80 shadow-sm ring-2 ring-teal-400/30'
-                        : 'border-slate-200 bg-slate-50/70 hover:border-teal-400 hover:bg-teal-50/40'
+              {/* Window Level Preset Pills */}
+              <div className="flex items-center gap-1.5 px-4 py-2 bg-slate-900/50 border-b border-slate-800/80 text-[11px] overflow-x-auto">
+                <span className="text-slate-400 font-medium mr-1 flex items-center gap-1">
+                  <Sliders className="w-3 h-3 text-teal-400" />
+                  <span>WW/WL Presets:</span>
+                </span>
+                {WINDOW_PRESETS.map((preset) => (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    onClick={() => handlePresetChange(preset)}
+                    className={`px-2 py-0.5 rounded text-[10.5px] font-medium transition cursor-pointer ${
+                      activePreset === preset.name
+                        ? 'bg-teal-500 text-slate-950 font-bold'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                   >
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="font-bold text-xs text-slate-900">{study.modality}</span>
-                      <span className="font-mono text-[10px] text-slate-400">{study.date}</span>
-                    </div>
-                    <p className="font-bold text-xs text-slate-800">{study.patient}</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">{study.description}</p>
-                  </div>
+                    {preset.name}
+                  </button>
                 ))}
+              </div>
+
+              {/* Central Imaging Canvas with HUD Corners */}
+              <div className="relative flex-1 flex items-center justify-center p-6 bg-slate-950 overflow-hidden select-none min-h-[360px]">
+                {/* HUD Overlay: Top-Left (Patient & Facility Info) */}
+                <div className="absolute top-4 left-4 font-mono text-[11px] text-teal-300/90 space-y-0.5 pointer-events-none drop-shadow-md">
+                  <p className="font-bold text-white text-xs">{selectedStudy.patient}</p>
+                  <p>MRN: {selectedStudy.mrn}</p>
+                  <p>DOB: 1985-04-12 (M)</p>
+                  <p className="text-[10px] text-slate-400">METTU KARL REFERRAL HOSPITAL</p>
+                </div>
+
+                {/* HUD Overlay: Top-Right (Acquisition Info) */}
+                <div className="absolute top-4 right-4 text-right font-mono text-[11px] text-teal-300/90 space-y-0.5 pointer-events-none drop-shadow-md">
+                  <p className="font-bold text-white text-xs">{selectedStudy.modality}</p>
+                  <p>{selectedStudy.bodyPart}</p>
+                  <p>{selectedStudy.date}</p>
+                  <p className="text-[10px] text-slate-400">Series 1 / Slices: {selectedStudy.slices}</p>
+                </div>
+
+                {/* HUD Overlay: Bottom-Left (Window Width / Level) */}
+                <div className="absolute bottom-4 left-4 font-mono text-[11px] text-slate-400 space-y-0.5 pointer-events-none">
+                  <p>WW: {selectedStudy.ww} / WL: {selectedStudy.wl}</p>
+                  <p>Zoom: {zoomLevel}% • Rot: {rotation}°</p>
+                  <p className="text-[10px] text-teal-400">LUT: {contrastInvert ? 'MONOCHROME1 (Inverted)' : 'MONOCHROME2'}</p>
+                </div>
+
+                {/* HUD Overlay: Bottom-Right (Matrix & Pixel Size) */}
+                <div className="absolute bottom-4 right-4 text-right font-mono text-[11px] text-slate-400 space-y-0.5 pointer-events-none">
+                  <p>Matrix: 512 x 512</p>
+                  <p>FOV: 350.0 mm</p>
+                  <p className="text-[10px] text-teal-400">Lossless 16-bit DICOM</p>
+                </div>
+
+                {/* The Medical Radiography Imaging Representation */}
+                <div
+                  style={{
+                    transform: `scale(${zoomLevel / 100}) rotate(${rotation}deg)`,
+                    filter: contrastInvert ? 'invert(1)' : 'none',
+                    transition: 'transform 0.15s ease-out',
+                  }}
+                  className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl relative w-80 h-80"
+                >
+                  {/* Subtle Grid crosshair */}
+                  <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 pointer-events-none opacity-15">
+                    <div className="border-r border-b border-teal-400" />
+                    <div className="border-b border-teal-400" />
+                    <div className="border-r border-teal-400" />
+                    <div />
+                  </div>
+
+                  <div className="w-20 h-20 rounded-full bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-3">
+                    <Activity className="w-10 h-10 animate-pulse" />
+                  </div>
+
+                  <span className="font-mono text-sm font-bold text-white tracking-wide">
+                    {selectedStudy.modality}
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono mt-1 text-center">
+                    {selectedStudy.description}
+                  </span>
+
+                  {selectedStudy.slices > 1 && (
+                    <div className="mt-4 px-3 py-1 rounded-full bg-teal-950/80 border border-teal-500/40 text-[11px] font-mono text-teal-300">
+                      Slice {currentSlice} of {selectedStudy.slices}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Bottom Multi-slice Scroller Slider (if study has slices) */}
+              {selectedStudy.slices > 1 && (
+                <div className="flex items-center gap-3 px-5 py-2.5 bg-slate-900 border-t border-slate-800 text-xs">
+                  <span className="text-slate-400 font-mono text-[11px]">Slice:</span>
+                  <input
+                    type="range"
+                    min={1}
+                    max={selectedStudy.slices}
+                    value={currentSlice}
+                    onChange={(e) => setCurrentSlice(Number(e.target.value))}
+                    className="flex-1 accent-teal-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                  />
+                  <span className="font-mono text-teal-300 text-xs w-16 text-right">
+                    {currentSlice} / {selectedStudy.slices}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Right 1 Col: Studies List & Radiologist Impression */}
+            <div className="space-y-4">
+              {/* Studies Roster */}
+              <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>Recent Diagnostic Studies</span>
+                  </h3>
+                  <span className="text-[11px] text-slate-400 font-mono">{MOCK_STUDIES.length} Records</span>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {MOCK_STUDIES.map((study) => (
+                    <div
+                      key={study.uid}
+                      onClick={() => handleStudyChange(study)}
+                      className={`p-3 rounded-lg border transition cursor-pointer ${
+                        selectedStudy.uid === study.uid
+                          ? 'border-teal-500 bg-teal-50/70 dark:bg-teal-950/40 dark:border-teal-700 shadow-xs ring-1 ring-teal-400/30'
+                          : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-slate-800 font-bold">
+                            {study.modality}
+                          </span>
+                          <span>{study.patient}</span>
+                        </span>
+                        <span className="font-mono text-[10px] text-slate-400">{study.date.split(' ')[1]}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium truncate">{study.description}</p>
+                      {study.criticalFinding && (
+                        <div className="mt-1 flex items-center gap-1 text-[10.5px] text-rose-600 dark:text-rose-400 font-semibold">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{study.criticalFinding}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Radiologist Formal Impression & Sign-off Panel */}
+              <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs space-y-3">
+                <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <FileCheck className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>Radiology Impression</span>
+                  </h3>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                      selectedStudy.reportStatus === 'Signed'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                        : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                    }`}
+                  >
+                    {selectedStudy.reportStatus}
+                  </span>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase">Consultant:</span>
+                    <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5 flex items-center gap-1">
+                      <Stethoscope className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                      <span>{selectedStudy.radiologist}</span>
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase">Clinical Finding:</span>
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed mt-0.5 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800 font-mono text-[11.5px]">
+                      {selectedStudy.criticalFinding
+                        ? `CRITICAL ALERT: ${selectedStudy.criticalFinding}. Notified attending ED physician immediately via HMIS telemetry push.`
+                        : `Digital examination demonstrates clear bilateral lung fields, normal cardiothoracic ratio (<0.50). No active consolidation, effusion, or pneumothorax identified.`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100 dark:border-slate-800">
+                  <span>HL7 DiagnosticReport R4</span>
+                  <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">Verified Electronic Signature</span>
+                </div>
               </div>
             </div>
           </div>

@@ -1,19 +1,45 @@
 /**
- * FHIR R4 Patient Management Workstation.
- * Implements HL7 FHIR R4 Patient standard specifications, national Fayda ID linkage,
- * biometric verification, and clinical registry management.
- *
- * Enhanced with responsive rectangular spotlight cursor hover effects across all cards,
- * search controls, action buttons, and table rows.
+ * FHIR R4 Patient Management Workstation — Mettu Karl Referral Hospital HMIS.
+ * Enterprise Healthcare Design System:
+ * - HL7 FHIR R4 Master Patient Index (MPI) standard compliance
+ * - National Fayda Digital ID & biometric FIN linkage
+ * - Professional high-density data table & card view with full dark mode support
+ * - Modern Lucide icons replacing raw emojis
+ * - Role-based clinical data protection & privacy masking
  */
 'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import {
+  Users,
+  UserPlus,
+  Bed,
+  AlertTriangle,
+  CreditCard,
+  Search,
+  Table as TableIcon,
+  LayoutGrid,
+  X,
+  ShieldAlert,
+  FileCode,
+  HeartPulse,
+  Phone,
+  MapPin,
+  Calendar,
+  Check,
+  TrendingUp,
+  Stethoscope,
+  Filter,
+  Copy,
+  Activity,
+  ShieldCheck,
+} from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
+import { notifications } from '@mantine/notifications';
 
 interface PatientRecord {
   id: number;
@@ -128,7 +154,7 @@ const INITIAL_PATIENTS: PatientRecord[] = [
 ];
 
 export default function PatientsFHIRPage(): React.ReactElement {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
@@ -139,6 +165,7 @@ export default function PatientsFHIRPage(): React.ReactElement {
   const [selectedPatientForFHIR, setSelectedPatientForFHIR] = useState<PatientRecord | null>(null);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  const [copiedFHIR, setCopiedFHIR] = useState(false);
 
   // New patient registration form state
   const [formData, setFormData] = useState({
@@ -203,6 +230,11 @@ export default function PatientsFHIRPage(): React.ReactElement {
 
     setPatients([newRec, ...patients]);
     setIsRegisterOpen(false);
+    notifications.show({
+      title: language === 'om' ? 'Galmeen Milkaa\'eera' : 'Patient Registered',
+      message: `${newRec.name} (${newRec.mrn}) FHIR R4 profile created.`,
+      color: 'teal',
+    });
     setFormData({
       firstName: '',
       lastName: '',
@@ -310,48 +342,63 @@ export default function PatientsFHIRPage(): React.ReactElement {
     };
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedFHIR(true);
+    setTimeout(() => setCopiedFHIR(false), 2000);
+    notifications.show({
+      title: 'Copied',
+      message: 'FHIR JSON copied to clipboard.',
+      color: 'teal',
+    });
+  };
+
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
-        <main className="flex-1 p-6 lg:p-8 space-y-6">
-          {/* Header & Badges (Responsive Rectangular Hover Spotlight) */}
-          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white px-7 py-5 rounded-3xl border-2 border-slate-200/90 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/30 hover:shadow-md transition-all duration-200">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-sm text-2xl group-hover:scale-105 group-hover:bg-teal-700 transition-all">
-                  👥
-                </span>
-                <div>
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-teal-950 transition-colors">
-                    {t('patients')} • FHIR R4 Master Patient Index
-                  </h1>
-                  <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                    HL7 FHIR Release 4 Standardized Medical Records • National Fayda Biometric Linkage • Barcode MPI
-                  </p>
-                </div>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+          {/* Header & Badges */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-5 sm:px-6 py-4 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 shadow-xs shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                  <span>{t('patients')}</span>
+                  <span className="text-slate-400 font-normal">•</span>
+                  <span className="text-sm font-semibold text-teal-600 dark:text-teal-400">FHIR R4 Master Index</span>
+                </h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  HL7 FHIR Release 4 Medical Registry • Fayda Biometric Linkage • Master Patient Index
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200 group-hover:bg-white transition-colors">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                FHIR R4 Server: Online
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                FHIR R4 Online
               </span>
+
               {!isAdmin ? (
                 <button
                   type="button"
                   onClick={() => setIsRegisterOpen(true)}
-                  className="flex items-center gap-2 rounded-2xl bg-teal-600 px-5 py-2.5 text-xs font-black text-white shadow-sm hover:bg-teal-700 hover:ring-2 hover:ring-teal-400/50 hover:shadow-md transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 active:bg-teal-800 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer"
                 >
-                  <span>➕</span> Galmee Haaraa (Register Patient)
+                  <UserPlus className="w-4 h-4" />
+                  <span>{language === 'om' ? 'Galmee Haaraa' : language === 'am' ? 'አዲስ ታካሚ ምዝገባ' : 'Register Patient'}</span>
                 </button>
               ) : (
                 <Link
                   href="/analytics"
-                  className="flex items-center gap-2 rounded-2xl bg-teal-700 px-4 py-2.5 text-xs font-black text-white shadow-sm hover:bg-teal-800 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-all"
                 >
-                  <span>📈</span> Executive BI Analytics →
+                  <TrendingUp className="w-4 h-4 text-teal-400" />
+                  <span>BI Analytics →</span>
                 </Link>
               )}
             </div>
@@ -359,438 +406,427 @@ export default function PatientsFHIRPage(): React.ReactElement {
 
           {/* ADMIN CLINICAL PRIVACY / CONFIDENTIALITY BANNER */}
           {isAdmin && (
-            <div className="rounded-3xl border-2 border-amber-500/80 bg-gradient-to-r from-amber-50 via-white to-amber-50 p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-400 text-2xl">
-                  🔒
+            <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/30 p-4 sm:p-5 shadow-xs">
+              <div className="flex items-start gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                  <ShieldAlert className="w-5 h-5" />
                 </div>
-                <div className="space-y-1.5 flex-1">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/50 bg-amber-100 px-3 py-0.5 text-[11px] font-black uppercase tracking-wider text-amber-900">
-                    Nageenya Odeeffannoo & Iccitii Yaalaa (Clinical Data Confidentiality)
+                <div className="space-y-1 flex-1">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-200">
+                    <span>Clinical Data Confidentiality Active (MOH Health Data Policy)</span>
                   </div>
-                  <h3 className="text-base font-black text-slate-900">
-                    Iccitiin Yaalaa fi Ragaan Kiliinikaa Dhukkubsattootaa Dhorkameera
-                  </h3>
-                  <p className="text-xs text-slate-600 leading-relaxed max-w-4xl">
-                    Imaammata eegumsa iccitii dhukkubsattootaa fi seera MoH tti, ragaan yaalaa (Allergies, qorannoo, qoricha, fi teessoon qabatamaa) ogeessota yaalaa (Doctor / Nurse) qofaaf ifa ta'a. Gaheen Bulchiinsaa (Admin) lakkoofsa boroo fi raawwii waliigalaa qofa ilaaluuf heeyyama qaba.
+                  <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                    Under Ethiopian MoH clinical privacy guidelines, sensitive diagnostic, medication, and allergy details are restricted to verified clinical practitioners (Doctor/Nurse). Administrative accounts retain aggregate BI and workload oversight.
                   </p>
-                  <div className="pt-2 flex items-center gap-3">
-                    <Link
-                      href="/analytics"
-                      className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2 text-xs font-black text-white shadow-xs hover:bg-teal-800 transition-all cursor-pointer"
-                    >
-                      <span>📈</span> Gara Executive BI Analytics tti Deemaa →
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Quick Stats 4 Cards (with Universal Rectangular Spotlight Hover) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
+          {/* Precision Situational Awareness KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {/* Total Registered */}
+            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-700">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-teal-800 transition-colors">
-                  Total Registered
-                </p>
-                <span className="p-2 rounded-xl bg-slate-50 text-slate-600 group-hover:bg-white group-hover:text-teal-700 group-hover:ring-1 group-hover:ring-teal-400/40 transition-all text-sm">
-                  👥
-                </span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Registered</span>
+                <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60">
+                  <Users className="w-4 h-4" />
+                </div>
               </div>
-              <p className="mt-3 text-3xl font-black text-slate-900 group-hover:text-teal-950 transition-colors">
-                14,892
-              </p>
-              <p className="mt-1 text-xs text-teal-600 font-bold group-hover:text-teal-800">
-                ↑ 38 new registered today
-              </p>
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">14,892</p>
+              <div className="mt-1 flex items-center gap-1.5 text-xs text-teal-600 dark:text-teal-400 font-medium">
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>+38 new registered today</span>
+              </div>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
+            {/* Active Inpatients */}
+            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-700">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-blue-800 transition-colors">
-                  Active Inpatients
-                </p>
-                <span className="p-2 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-white group-hover:text-blue-700 group-hover:ring-1 group-hover:ring-blue-400/40 transition-all text-sm">
-                  🛏️
-                </span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Active Inpatients</span>
+                <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200/60 dark:border-sky-800/60">
+                  <Bed className="w-4 h-4" />
+                </div>
               </div>
-              <p className="mt-3 text-3xl font-black text-blue-600 group-hover:text-blue-950 transition-colors">
-                340
-              </p>
-              <p className="mt-1 text-xs text-slate-500 font-semibold group-hover:text-blue-800">
-                85% Bed Occupancy (BOR)
-              </p>
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">340</p>
+              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                85% Bed Occupancy Rate (BOR)
+              </div>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
+            {/* Emergency & Triage */}
+            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-700">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-rose-800 transition-colors">
-                  Emergency & Triage
-                </p>
-                <span className="p-2 rounded-xl bg-rose-50 text-rose-600 group-hover:bg-white group-hover:text-rose-700 group-hover:ring-1 group-hover:ring-rose-400/40 transition-all text-sm">
-                  🚨
-                </span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Emergency & Triage</span>
+                <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
               </div>
-              <p className="mt-3 text-3xl font-black text-rose-600 group-hover:text-rose-950 transition-colors">
-                24
-              </p>
-              <p className="mt-1 text-xs text-rose-600 font-bold group-hover:text-rose-700">
+              <p className="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400">24</p>
+              <div className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
                 3 Immediate (Red Resuscitation)
-              </p>
+              </div>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
+            {/* Fayda FIN Verified */}
+            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-700">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-emerald-800 transition-colors">
-                  Fayda FIN Verified
-                </p>
-                <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-white group-hover:text-emerald-700 group-hover:ring-1 group-hover:ring-emerald-400/40 transition-all text-sm">
-                  🆔
-                </span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Fayda FIN Linkage</span>
+                <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60">
+                  <CreditCard className="w-4 h-4" />
+                </div>
               </div>
-              <p className="mt-3 text-3xl font-black text-emerald-600 group-hover:text-emerald-950 transition-colors">
-                92.4%
-              </p>
-              <p className="mt-1 text-xs text-slate-500 font-semibold group-hover:text-emerald-800">
-                Zero duplicate MRNs
-              </p>
+              <p className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">92.4%</p>
+              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Zero duplicate MRNs across hospital
+              </div>
             </div>
           </div>
 
-          {/* Search Bar on LEFT + Filters + View Switcher */}
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            {/* Search Bar on LEFT and Filters directly next to it */}
+          {/* Search Bar + Filters + View Switcher */}
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 min-w-0">
-              {/* COMPACT & SHORTENED SEARCH BAR (Gara Bitaatti / Left Side Position) */}
+              {/* Search Bar */}
               <div className="relative w-full sm:w-80 md:w-96 shrink-0">
-                <div className="flex h-12 items-center rounded-2xl border-[3px] border-teal-600 bg-white px-4 shadow-sm hover:border-teal-700 focus-within:border-teal-700 focus-within:ring-4 focus-within:ring-teal-400/30 transition-all duration-150">
-                  <span className="text-base text-teal-800 mr-2.5 shrink-0">🔍</span>
+                <div className="relative">
+                  <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
-                    placeholder={t('search')}
+                    placeholder={language === 'om' ? 'Barbaadi (Maqaa, MRN, Fayda, Bilbila)...' : language === 'am' ? 'ፈልግ (ስም፣ MRN፣ ፋይዳ፣ ስልክ)...' : 'Search name, MRN, Fayda FAN, phone...'}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-transparent text-sm sm:text-base font-extrabold text-slate-950 placeholder-slate-400 focus:outline-none tracking-wide"
+                    className="w-full h-10 pl-10 pr-16 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   />
                   {searchTerm && (
                     <button
                       type="button"
                       onClick={() => setSearchTerm('')}
-                      className="ml-1 text-slate-400 hover:text-slate-700 text-sm font-bold px-2 py-0.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
+                      className="absolute right-10 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs px-1.5 py-0.5 rounded cursor-pointer"
                     >
                       ✕
                     </button>
                   )}
-                  <span className="ml-2 rounded-xl bg-teal-100/90 border-2 border-teal-300 px-2.5 py-0.5 text-xs font-black text-teal-900 shrink-0">
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                     {filteredPatients.length}
                   </span>
                 </div>
               </div>
 
-              {/* Gender and Admission Status Filters */}
+              {/* Filters */}
               <div className="flex items-center gap-2 overflow-x-auto">
                 <select
                   value={selectedGender}
                   onChange={(e) => setSelectedGender(e.target.value)}
-                  className="rounded-2xl border-2 border-slate-200/90 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:border-teal-500 hover:bg-teal-50/50 hover:ring-2 hover:ring-teal-400/30 transition-all cursor-pointer focus:outline-none"
+                  className="h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 text-xs font-medium text-slate-700 dark:text-slate-200 focus:border-teal-600 focus:outline-none cursor-pointer"
                 >
-                  <option value="all">Koorniyaa: Hunda (Gender: All)</option>
-                  <option value="male">Dhiira (Male)</option>
-                  <option value="female">Dhalaa (Female)</option>
+                  <option value="all">{language === 'om' ? 'Koorniyaa: Hunda' : language === 'am' ? 'ጾታ፡ ሁሉም' : 'Gender: All'}</option>
+                  <option value="male">{language === 'om' ? 'Dhiira (Male)' : 'Male'}</option>
+                  <option value="female">{language === 'om' ? 'Dhalaa (Female)' : 'Female'}</option>
                 </select>
 
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="rounded-2xl border-2 border-slate-200/90 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:border-teal-500 hover:bg-teal-50/50 hover:ring-2 hover:ring-teal-400/30 transition-all cursor-pointer focus:outline-none"
+                  className="h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 text-xs font-medium text-slate-700 dark:text-slate-200 focus:border-teal-600 focus:outline-none cursor-pointer"
                 >
-                  <option value="all">Haala Yaalaa: Hunda (All Statuses)</option>
-                  <option value="Inpatient">Ciisanii Jiran (Inpatient)</option>
-                  <option value="Outpatient">Deddeebi'anii Yaalaman (Outpatient)</option>
-                  <option value="Emergency">Kutaa Hatattamaa (Emergency)</option>
+                  <option value="all">{language === 'om' ? 'Haala Yaalaa: Hunda' : language === 'am' ? 'ሁኔታ፡ ሁሉም' : 'Status: All'}</option>
+                  <option value="Inpatient">Inpatient (Ciisee)</option>
+                  <option value="Outpatient">Outpatient (Deddeebi&apos;ee)</option>
+                  <option value="Emergency">Emergency (Hatattama)</option>
                 </select>
               </div>
             </div>
 
             {/* View Switcher: Table vs Cards */}
-            <div className="flex items-center gap-1.5 rounded-2xl bg-slate-200/70 p-1 text-xs font-bold text-slate-700 shrink-0">
+            <div className="flex items-center gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 text-xs shrink-0 border border-slate-200 dark:border-slate-700">
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
-                className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium transition-all cursor-pointer ${
                   viewMode === 'table'
-                    ? 'bg-teal-700 text-white shadow-xs font-black ring-2 ring-teal-400/40'
-                    : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 hover:ring-1 hover:ring-teal-400/40'
+                    ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <span>📋</span> Gabatee (Table)
+                <TableIcon className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Gabatee' : 'Table'}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('cards')}
-                className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium transition-all cursor-pointer ${
                   viewMode === 'cards'
-                    ? 'bg-teal-700 text-white shadow-xs font-black ring-2 ring-teal-400/40'
-                    : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 hover:ring-1 hover:ring-teal-400/40'
+                    ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <span>🗂️</span> Kaardii (Cards)
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Kaardii' : 'Cards'}</span>
               </button>
             </div>
           </div>
 
-          {/* VIEW MODE 1: INTERACTIVE TABLE (Floating Card-Rows with Rectangular Responsive Spotlight) */}
+          {/* VIEW MODE 1: DATA TABLE */}
           {viewMode === 'table' ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-600 border-separate border-spacing-y-2.5">
-                <thead>
-                  <tr className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-                    <th className="px-5 py-2">MRN & FHIR ID</th>
-                    <th className="px-5 py-2">Dhukkubsataa (Patient Name)</th>
-                    <th className="px-5 py-2">Umurii / Saala</th>
-                    <th className="px-5 py-2">Fayda National ID</th>
-                    <th className="px-5 py-2">Dhiiga / Allergy</th>
-                    <th className="px-5 py-2">Iddoo (Ward/Bed)</th>
-                    <th className="px-5 py-2">Haala (Status)</th>
-                    <th className="px-5 py-2 text-right">Tarkaanfii (Actions)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredPatients.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="group transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-lg"
-                    >
-                      <td className="px-5 py-4 bg-white rounded-l-2xl border-y-2 border-l-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                        <span className="font-mono font-black text-teal-800 bg-teal-50 px-2.5 py-1 rounded-xl border border-teal-200 group-hover:bg-white group-hover:border-teal-400 transition-colors">
-                          {p.mrn}
-                        </span>
-                        <span className="block font-mono text-[10px] text-slate-400 mt-1">{p.fhirId}</span>
-                      </td>
-
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                        <p className="font-black text-slate-900 group-hover:text-teal-950 transition-colors text-sm">
-                          {isAdmin ? `${p.name.split(' ')[0]} ${p.name.split(' ')[1]?.[0] || ''}. [🔒 Iccitiin Eegame]` : p.name}
-                        </p>
-                        <p className="text-[11px] font-semibold text-slate-500 group-hover:text-teal-800 transition-colors">
-                          {isAdmin ? 'Odeeffannoo Kiliinikaa Dhorkame' : p.localName}
-                        </p>
-                        <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                          {isAdmin ? '+251 9** *** ***' : p.phone}
-                        </p>
-                      </td>
-
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                        <span className="font-black text-slate-800">{p.age} yrs</span>
-                        <span className="ml-1 text-slate-500 capitalize">({p.gender})</span>
-                        <span className="block text-[10px] text-slate-400">{p.birthDate}</span>
-                      </td>
-
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                        <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200 group-hover:bg-white transition-colors">
-                          <span>✓</span> {isAdmin ? `FAN-****-****-${p.faydaId.slice(-4)}` : p.faydaId}
-                        </span>
-                        <span className="block text-[10px] text-slate-400 mt-1">{p.woreda}</span>
-                      </td>
-
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                        <span className="rounded-lg bg-rose-50 px-2 py-0.5 font-black text-rose-700 border border-rose-200">
-                          {p.bloodGroup}
-                        </span>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {isAdmin ? (
-                            <span className="rounded text-[10px] px-1.5 py-0.5 font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                              🔒 Iccitii Yaalaa (Clinician Only)
-                            </span>
-                          ) : (
-                            p.allergies.map((allergy, i) => (
-                              <span
-                                key={i}
-                                className={`rounded text-[10px] px-1.5 py-0.5 font-bold ${
-                                  allergy === 'None known'
-                                    ? 'bg-slate-100 text-slate-600'
-                                    : 'bg-amber-100 text-amber-800 border border-amber-300'
-                                }`}
-                              >
-                                {allergy}
-                              </span>
-                            ))
-                          )}
-                        </div>
-                      </td>
-
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                        <p className="font-bold text-slate-800">
-                          {isAdmin ? 'Kutaa Ciisichaa (Protected)' : p.wardBed || 'Outpatient Clinic'}
-                        </p>
-                        <p className="text-[10px] text-slate-400">Reg: {p.registeredAt}</p>
-                      </td>
-
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                        <span
-                          className={`rounded-full px-3 py-1 text-[10px] font-black ${
-                            p.status === 'Inpatient'
-                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                              : p.status === 'Emergency'
-                              ? 'bg-rose-100 text-rose-800 border border-rose-200 animate-pulse'
-                              : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                          }`}
-                        >
-                          {p.status}
-                        </span>
-                      </td>
-
-                      <td className="px-5 py-4 bg-white rounded-r-2xl border-y-2 border-r-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all text-right">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedPatientForFHIR(p)}
-                          className="rounded-xl bg-teal-600 px-3.5 py-1.5 text-xs font-black text-white hover:bg-teal-700 hover:ring-2 hover:ring-teal-400/40 transition-all cursor-pointer shadow-xs"
-                        >
-                          FHIR JSON
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredPatients.length === 0 && (
+            <div className="overflow-hidden rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     <tr>
-                      <td colSpan={8} className="py-12 text-center text-slate-400 font-semibold bg-white rounded-2xl border-2 border-slate-200">
-                        Dhukkubsataan barbaaddan hin argamne. (No matching patient records found).
-                      </td>
+                      <th className="px-4 py-3">MRN & FHIR ID</th>
+                      <th className="px-4 py-3">{language === 'om' ? 'Dhukkubsataa' : 'Patient Name'}</th>
+                      <th className="px-4 py-3">{language === 'om' ? 'Umurii / Saala' : 'Age / Gender'}</th>
+                      <th className="px-4 py-3">Fayda ID (FAN)</th>
+                      <th className="px-4 py-3">{language === 'om' ? 'Dhiiga / Allergy' : 'Blood / Allergy'}</th>
+                      <th className="px-4 py-3">{language === 'om' ? 'Kutaa (Ward/Bed)' : 'Location'}</th>
+                      <th className="px-4 py-3">{language === 'om' ? 'Haala (Status)' : 'Status'}</th>
+                      <th className="px-4 py-3 text-right">FHIR Action</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                    {filteredPatients.map((p) => (
+                      <tr
+                        key={p.id}
+                        className="hover:bg-teal-50/40 dark:hover:bg-slate-800/40 transition-colors"
+                      >
+                        <td className="px-4 py-3.5">
+                          <span className="font-mono font-bold text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded border border-teal-200 dark:border-teal-800">
+                            {p.mrn}
+                          </span>
+                          <span className="block font-mono text-[10px] text-slate-400 mt-1">{p.fhirId}</span>
+                        </td>
+
+                        <td className="px-4 py-3.5">
+                          <p className="font-semibold text-slate-900 dark:text-white text-sm">
+                            {isAdmin ? `${p.name.split(' ')[0]} ${p.name.split(' ')[1]?.[0] || ''}. [Protected]` : p.name}
+                          </p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            {isAdmin ? 'Protected Clinical Identity' : p.localName}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                            {isAdmin ? '+251 9** *** ***' : p.phone}
+                          </p>
+                        </td>
+
+                        <td className="px-4 py-3.5">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">{p.age} yrs</span>
+                          <span className="ml-1 text-slate-500 capitalize">({p.gender})</span>
+                          <span className="block text-[10px] text-slate-400">{p.birthDate}</span>
+                        </td>
+
+                        <td className="px-4 py-3.5">
+                          <span className="inline-flex items-center gap-1 font-mono text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            <span>{isAdmin ? `FAN-****-****-${p.faydaId.slice(-4)}` : p.faydaId}</span>
+                          </span>
+                          <span className="block text-[10px] text-slate-400 mt-1">{p.woreda}</span>
+                        </td>
+
+                        <td className="px-4 py-3.5">
+                          <span className="rounded px-1.5 py-0.5 font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-[11px]">
+                            {p.bloodGroup}
+                          </span>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {isAdmin ? (
+                              <span className="rounded text-[10px] px-1.5 py-0.5 font-medium bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                Protected
+                              </span>
+                            ) : (
+                              p.allergies.map((allergy, i) => (
+                                <span
+                                  key={i}
+                                  className={`rounded text-[10px] px-1.5 py-0.5 font-medium ${
+                                    allergy === 'None known'
+                                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                      : 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                                  }`}
+                                >
+                                  {allergy}
+                                </span>
+                              ))
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-3.5">
+                          <p className="font-medium text-slate-800 dark:text-slate-200">
+                            {isAdmin ? 'Confidential Location' : p.wardBed || 'Outpatient Clinic'}
+                          </p>
+                          <p className="text-[10px] text-slate-400">Reg: {p.registeredAt}</p>
+                        </td>
+
+                        <td className="px-4 py-3.5">
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                              p.status === 'Inpatient'
+                                ? 'bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
+                                : p.status === 'Emergency'
+                                ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 animate-pulse'
+                                : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            }`}
+                          >
+                            {p.status}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPatientForFHIR(p)}
+                            className="inline-flex items-center gap-1 rounded-md bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/60 px-2.5 py-1 text-xs font-semibold text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 transition cursor-pointer"
+                          >
+                            <FileCode className="w-3.5 h-3.5" />
+                            <span>FHIR</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredPatients.length === 0 && (
+                      <tr>
+                        <td colSpan={8} className="py-10 text-center text-slate-400">
+                          {language === 'om'
+                            ? 'Dhukkubsataan barbaaddan hin argamne.'
+                            : 'No matching patient records found.'}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ) : (
-            /* VIEW MODE 2: CLINICAL PATIENT CARDS (Matching Dashboard Rectangular Spotlight) */
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            /* VIEW MODE 2: CLINICAL CARDS */
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {filteredPatients.map((p) => (
                 <div
                   key={p.id}
-                  className="group relative flex flex-col justify-between rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-xl transition-all duration-200 ease-in-out cursor-pointer transform hover:-translate-y-1"
+                  className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-teal-400/60 dark:hover:border-teal-600/60 transition-all flex flex-col justify-between"
                 >
                   <div>
-                    {/* Top Patient Header */}
+                    {/* Card Top */}
                     <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-50 border border-teal-200 text-teal-800 font-black text-lg group-hover:scale-105 group-hover:bg-white group-hover:border-teal-400 transition-all">
-                          {p.gender === 'male' ? '👨' : '👩'}
-                        </span>
-                        <div>
-                          <h3 className="text-base font-black text-slate-900 group-hover:text-teal-950 transition-colors leading-tight">
-                            {p.name}
-                          </h3>
-                          <p className="text-xs font-semibold text-slate-500 group-hover:text-teal-800 transition-colors">
-                            {p.localName}
-                          </p>
-                        </div>
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+                          {p.name}
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          {p.localName}
+                        </p>
                       </div>
                       <span
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-black shrink-0 ${
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold shrink-0 ${
                           p.status === 'Inpatient'
-                            ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                            ? 'bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
                             : p.status === 'Emergency'
-                            ? 'bg-rose-100 text-rose-800 border border-rose-200 animate-pulse'
-                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 animate-pulse'
+                            : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                         }`}
                       >
                         {p.status}
                       </span>
                     </div>
 
-                    {/* MRN & Fayda Pills with individual rectangular hover */}
-                    <div className="grid grid-cols-2 gap-2 my-3">
-                      <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-2 group-hover:bg-white group-hover:border-teal-300 transition-all">
-                        <span className="block text-[10px] uppercase font-bold text-slate-400">MRN Index</span>
-                        <span className="font-mono text-xs font-black text-teal-800">{p.mrn}</span>
+                    {/* MRN & Fayda Row */}
+                    <div className="grid grid-cols-2 gap-2 my-2.5">
+                      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2">
+                        <span className="block text-[10px] uppercase font-medium text-slate-400">MRN Index</span>
+                        <span className="font-mono text-xs font-bold text-teal-700 dark:text-teal-400">{p.mrn}</span>
                       </div>
-                      <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-2 group-hover:bg-white group-hover:border-emerald-300 transition-all">
-                        <span className="block text-[10px] uppercase font-bold text-slate-400">Fayda National ID</span>
-                        <span className="font-mono text-xs font-bold text-emerald-800 truncate block">✓ {p.faydaId}</span>
+                      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2">
+                        <span className="block text-[10px] uppercase font-medium text-slate-400">Fayda FIN</span>
+                        <span className="font-mono text-xs font-medium text-emerald-700 dark:text-emerald-400 truncate block">✓ {p.faydaId}</span>
                       </div>
                     </div>
 
-                    {/* Clinical Demographics */}
-                    <div className="space-y-1.5 text-xs text-slate-600 border-t border-slate-100 pt-3 group-hover:border-teal-200/60 transition-colors">
+                    {/* Demographics */}
+                    <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800 pt-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-400 font-semibold">Age / Gender:</span>
-                        <span className="font-bold text-slate-800">{p.age} yrs • {p.gender.toUpperCase()}</span>
+                        <span className="text-slate-400">Age / Gender:</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-200">{p.age} yrs • {p.gender.toUpperCase()}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-400 font-semibold">Location / Ward:</span>
-                        <span className="font-bold text-slate-800 truncate ml-2">{p.wardBed}</span>
+                        <span className="text-slate-400">Location:</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-200 truncate ml-2">{p.wardBed}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-400 font-semibold">Blood / Allergies:</span>
-                        <span className="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                        <span className="text-slate-400">Blood / Allergy:</span>
+                        <span className="font-semibold text-rose-700 dark:text-rose-400">
                           {p.bloodGroup} • {p.allergies.join(', ')}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Card Footer Actions */}
-                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 group-hover:border-teal-200/60 pt-3 transition-colors">
+                  {/* Footer */}
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3">
                     <span className="text-[11px] text-slate-400 font-mono">Reg: {p.registeredAt}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedPatientForFHIR(p)}
-                      className="rounded-xl bg-teal-600 px-3.5 py-1.5 text-xs font-black text-white hover:bg-teal-700 hover:ring-2 hover:ring-teal-400/40 transition-all shadow-xs cursor-pointer"
+                      className="inline-flex items-center gap-1 rounded-md bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/60 px-3 py-1.5 text-xs font-semibold text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 transition cursor-pointer"
                     >
-                      HL7 FHIR JSON →
+                      <FileCode className="w-3.5 h-3.5" />
+                      <span>HL7 FHIR JSON</span>
                     </button>
                   </div>
                 </div>
               ))}
-
-              {filteredPatients.length === 0 && (
-                <div className="col-span-full py-12 text-center text-sm font-semibold text-slate-400 bg-white rounded-3xl border border-slate-200">
-                  Dhukkubsataan barbaaddan hin argamne. (No matching patient records found).
-                </div>
-              )}
             </div>
           )}
 
           {/* FHIR R4 JSON Viewer Modal */}
           {selectedPatientForFHIR && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-              <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-3xl bg-white shadow-2xl border-2 border-teal-500">
-                <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">🩺</span>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+              <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
+                      <Stethoscope className="w-5 h-5" />
+                    </div>
                     <div>
-                      <h2 className="text-base font-black text-slate-900">
+                      <h2 className="text-base font-bold text-slate-900 dark:text-white">
                         HL7 FHIR R4 Patient Resource
                       </h2>
-                      <p className="text-xs text-slate-500 font-mono">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                         {selectedPatientForFHIR.mrn} • {selectedPatientForFHIR.fhirId}
                       </p>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPatientForFHIR(null)}
-                    className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-                  >
-                    ✕
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(JSON.stringify(generateFHIRResource(selectedPatientForFHIR), null, 2))}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 cursor-pointer"
+                    >
+                      {copiedFHIR ? <Check className="w-3.5 h-3.5 text-teal-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedFHIR ? 'Copied' : 'Copy JSON'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPatientForFHIR(null)}
+                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex-1 overflow-auto p-6">
-                  <pre className="rounded-2xl bg-slate-900 p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
+
+                <div className="flex-1 overflow-auto p-5">
+                  <pre className="rounded-xl bg-slate-950 p-4 font-mono text-xs text-emerald-400 overflow-x-auto border border-slate-800">
                     {JSON.stringify(generateFHIRResource(selectedPatientForFHIR), null, 2)}
                   </pre>
                 </div>
-                <div className="flex items-center justify-between border-t border-slate-200 px-6 py-3 bg-slate-50 rounded-b-3xl">
-                  <span className="text-xs text-slate-500">
-                    Compliant with HL7 FHIR Release 4 & Ethiopian eHealth Standards
+
+                <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 px-6 py-3 bg-slate-50 dark:bg-slate-950 rounded-b-2xl">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    HL7 FHIR R4 & Ethiopian Digital Health Blueprint Compliant
                   </span>
                   <button
                     type="button"
                     onClick={() => setSelectedPatientForFHIR(null)}
-                    className="rounded-xl bg-slate-800 px-4 py-1.5 text-xs font-bold text-white hover:bg-slate-900 cursor-pointer"
+                    className="rounded-lg bg-slate-800 dark:bg-slate-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-slate-900 cursor-pointer"
                   >
-                    Cufi (Close)
+                    Close
                   </button>
                 </div>
               </div>
@@ -799,29 +835,35 @@ export default function PatientsFHIRPage(): React.ReactElement {
 
           {/* Register Patient Modal */}
           {isRegisterOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-              <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-3xl bg-white shadow-2xl border-2 border-teal-500">
-                <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-                  <div>
-                    <h2 className="text-base font-black text-slate-900">
-                      Galmee Dhukkubsataa Haaraa (Register New Patient)
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                      Creates official MRN, binds Fayda National ID, and instantiates FHIR R4 resource.
-                    </p>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+              <div className="flex max-h-[92vh] w-full max-w-2xl flex-col rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
+                      <UserPlus className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                        {language === 'om' ? 'Galmee Dhukkubsataa Haaraa' : language === 'am' ? 'አዲስ ታካሚ ምዝገባ' : 'Register New Patient'}
+                      </h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Generates hospital MRN, binds national Fayda FIN, and creates FHIR R4 resource.
+                      </p>
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsRegisterOpen(false)}
-                    className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors cursor-pointer"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
                   >
-                    ✕
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
+
                 <form onSubmit={handleRegister} className="flex-1 overflow-y-auto p-6 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         First Name (Maqaa) *
                       </label>
                       <input
@@ -830,12 +872,12 @@ export default function PatientsFHIRPage(): React.ReactElement {
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                         placeholder="e.g. Tolera"
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Last / Grandfather Name *
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Last / Father Name *
                       </label>
                       <input
                         type="text"
@@ -843,13 +885,13 @@ export default function PatientsFHIRPage(): React.ReactElement {
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                         placeholder="e.g. Gemechu"
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                       Local Name (Afaan Oromoo / Amharic)
                     </label>
                     <input
@@ -857,45 +899,45 @@ export default function PatientsFHIRPage(): React.ReactElement {
                       value={formData.localName}
                       onChange={(e) => setFormData({ ...formData, localName: e.target.value })}
                       placeholder="e.g. Toleeraa Gammachuu (ቶሌራ ገመቹ)"
-                      className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                      className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Saala (Gender)
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Gender (Saala)
                       </label>
                       <select
                         value={formData.gender}
                         onChange={(e) =>
                           setFormData({ ...formData, gender: e.target.value as 'male' | 'female' })
                         }
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
                       >
                         <option value="male">Dhiira (Male)</option>
                         <option value="female">Dhalaa (Female)</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Guyyaa Dhalootaa (DOB)
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Date of Birth (DOB)
                       </label>
                       <input
                         type="date"
                         value={formData.birthDate}
                         onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Gosa Dhiigaa (Blood Group)
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Blood Group (Gosa Dhiigaa)
                       </label>
                       <select
                         value={formData.bloodGroup}
                         onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
                       >
                         {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
                           <option key={bg} value={bg}>
@@ -906,20 +948,20 @@ export default function PatientsFHIRPage(): React.ReactElement {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Lakkoofsa Bilbilaa (Phone)
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Phone Number (Lakkoofsa Bilbilaa)
                       </label>
                       <input
                         type="text"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         Fayda National ID (FIN)
                       </label>
                       <input
@@ -927,26 +969,26 @@ export default function PatientsFHIRPage(): React.ReactElement {
                         value={formData.faydaId}
                         onChange={(e) => setFormData({ ...formData, faydaId: e.target.value })}
                         placeholder="e.g. FAN-9901-2384-5120"
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Woreda / Iddoo Jireenyaa
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Woreda / Residence
                       </label>
                       <input
                         type="text"
                         value={formData.woreda}
                         onChange={(e) => setFormData({ ...formData, woreda: e.target.value })}
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Haala Tajaajilaa (Admission Status)
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Admission Status
                       </label>
                       <select
                         value={formData.status}
@@ -956,9 +998,9 @@ export default function PatientsFHIRPage(): React.ReactElement {
                             status: e.target.value as PatientRecord['status'],
                           })
                         }
-                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
                       >
-                        <option value="Outpatient">Outpatient (Deddeebi'ee)</option>
+                        <option value="Outpatient">Outpatient (Deddeebi&apos;ee)</option>
                         <option value="Inpatient">Inpatient (Ciisee)</option>
                         <option value="Emergency">Emergency (Hatattama)</option>
                       </select>
@@ -966,31 +1008,31 @@ export default function PatientsFHIRPage(): React.ReactElement {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                      Allergies (Qorichaa fi Nyaata Wal-hin-simalle)
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                      Allergies & Known Contraindications
                     </label>
                     <input
                       type="text"
                       value={formData.allergies}
                       onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
                       placeholder="e.g. Penicillin, Aspirin (or None known)"
-                      className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                      className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
                     />
                   </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+                  <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-200 dark:border-slate-800">
                     <button
                       type="button"
                       onClick={() => setIsRegisterOpen(false)}
-                      className="rounded-xl border border-slate-300 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                      className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                     >
-                      Haqi (Cancel)
+                      {language === 'om' ? 'Haqi (Cancel)' : 'Cancel'}
                     </button>
                     <button
                       type="submit"
-                      className="rounded-xl bg-teal-600 px-5 py-2 text-xs font-bold text-white hover:bg-teal-700 shadow-md cursor-pointer"
+                      className="rounded-lg bg-teal-600 hover:bg-teal-700 px-4 py-2 text-xs font-semibold text-white shadow-xs cursor-pointer"
                     >
-                      Galmeessi (Save & Create FHIR Record)
+                      {language === 'om' ? 'Galmeessi' : 'Save & Create FHIR Record'}
                     </button>
                   </div>
                 </form>
