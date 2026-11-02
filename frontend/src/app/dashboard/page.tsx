@@ -1,11 +1,14 @@
 /**
  * Mettu Karl Referral Hospital — Clinical Executive Command Dashboard.
  *
- * Full Multilingual Localization:
- * - Default Language: English ('en')
- * - Complete Tri-Lingual Support across English ('en'), Afaan Oromoo ('om'), and Amharic ('am')
- * - All 27 Workstations, Category Tabs, Situational Awareness tiles, Greeting bar,
- *   Role Scope notices, and Emergency Action Hub dynamically translate on selection.
+ * Enterprise Healthcare Design System:
+ * - Professional Navy, Slate, and Subtle Healthcare Teal palette
+ * - Modern Lucide SVG iconography (replacing consumer emojis)
+ * - Restrained corner radii (rounded-xl cards, rounded-lg controls, rounded-md badges)
+ * - Clear clinical visual hierarchy and balanced information density
+ * - Complete Tri-Lingual Support: English ('en', default), Afaan Oromoo ('om'), Amharic ('am')
+ * - Real-time RBAC Workstation filtering across 27 specialized hospital departments
+ * - Situational Awareness vitals: Bed BOR, START Triage, Blood/Oxygen, Power/Solar Grid
  */
 'use client';
 
@@ -18,6 +21,50 @@ import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
 import type { UserRole } from '@/types';
+import {
+  Users,
+  Ticket,
+  AlertOctagon,
+  Droplets,
+  Ambulance,
+  Activity,
+  Pill,
+  Scan,
+  Syringe,
+  Video,
+  UtensilsCrossed,
+  HeartHandshake,
+  CreditCard,
+  FileSpreadsheet,
+  Briefcase,
+  Microscope,
+  Flame,
+  PackageCheck,
+  Archive,
+  Fingerprint,
+  Scale,
+  ShieldAlert,
+  BadgeCheck,
+  ClipboardCheck,
+  Zap,
+  TrendingUp,
+  GraduationCap,
+  Search,
+  Clock,
+  ShieldCheck,
+  Stethoscope,
+  Wrench,
+  AlertTriangle,
+  HeartPulse,
+  UserPlus,
+  ArrowRight,
+  BedDouble,
+  Siren,
+  X,
+  Radio,
+  Building2,
+  Sparkles,
+} from 'lucide-react';
 
 interface LocalizedText {
   en: string;
@@ -30,7 +77,9 @@ interface Workstation {
   title: LocalizedText;
   subtitle: LocalizedText;
   href: string;
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
+  iconBg: string;
+  iconColor: string;
   badge?: LocalizedText;
   badgeColor?: string;
   category: 'emergency' | 'clinical' | 'operations' | 'governance';
@@ -40,7 +89,7 @@ interface Workstation {
 const ROLE_DESCRIPTIONS: Record<string, Record<Language, { title: string; desc: string }>> = {
   admin: {
     en: {
-      title: 'Executive Oversight & Contact Hub',
+      title: 'Executive Oversight & Clinical Operations',
       desc: 'Universal oversight across Doctors, Nurses, Pharmacy, Inpatients, and Finance.',
     },
     om: {
@@ -162,73 +211,73 @@ const SITUATIONAL_I18N: Record<Language, {
   powerSwitch: string;
 }> = {
   en: {
-    sectionTitle: 'Situational Awareness',
-    sensorBadge: 'Live Sensors',
+    sectionTitle: 'Situational Awareness & Clinical Vitals',
+    sensorBadge: 'Telemetry Live',
     bedTitle: 'Bed Capacity (BOR)',
     bedOccupancy: '85% Occupied',
     bedTotal: '/ 400 Total',
     bedAvail: '60 Available',
     bedIcu: 'ICU: 4 Free',
-    edTitle: 'Emergency Triage',
+    edTitle: 'Emergency Triage (START)',
     edBadge: '63 in ED',
     edSub: '3 Resuscitations active',
-    o2Title: 'Blood & Oxygen',
+    o2Title: 'Critical Supply Reserves',
     o2Badge: 'Stable',
-    o2Pipeline: 'O₂ Pipeline',
-    o2LowStock: 'O-Neg (Low)',
+    o2Pipeline: 'Central O₂ Pipeline',
+    o2LowStock: 'O-Neg (Low Reserve)',
     o2Days: '14 Days Supply',
-    o2Total: '124 Units Total',
-    powerTitle: 'Power & Grid',
+    o2Total: '124 Units Blood Total',
+    powerTitle: 'Power Grid & Microgrid',
     powerBadge: '100% Online',
     powerSolar: 'EEU Grid + 120kW Solar',
     powerGen: 'Dual 500kVA (94% Ready)',
-    powerSwitch: 'Auto-switch: <10s',
+    powerSwitch: 'ATS Auto-switch: <10s',
   },
   om: {
-    sectionTitle: 'Haala Yeroo Ammaa',
-    sensorBadge: 'Kallattiin',
-    bedTitle: 'Dandeettii Siree',
+    sectionTitle: 'Haala Yeroo Ammaa & Mallattoo Yaalaa',
+    sensorBadge: 'Kallattiin (Live)',
+    bedTitle: 'Dandeettii Siree (BOR)',
     bedOccupancy: '85% Qabameera',
     bedTotal: '/ 400 Waliigala',
     bedAvail: '60 Duwwaa',
     bedIcu: 'ICU: 4 Duwwaa',
-    edTitle: 'Triage Hatattamaa',
+    edTitle: 'Triage Hatattamaa (START)',
     edBadge: '63 Kutaa Tasaatti',
     edSub: '3 Lubbuu Baraaruu',
-    o2Title: 'Dhiiga & Oksijiinii',
+    o2Title: 'Kuusaa Oksijiinii & Dhiigaa',
     o2Badge: "Tasgabbaa'aa",
     o2Pipeline: 'Ujummoo Oksijiinii',
     o2LowStock: 'O-Neg (Hanqina)',
     o2Days: 'Guyyaa 14 Oksijiinii',
-    o2Total: '124 Yuunitii',
-    powerTitle: 'Ibsaa & Humna',
+    o2Total: '124 Yuunitii Dhiigaa',
+    powerTitle: 'Ibsaa & Humna Elektiriikii',
     powerBadge: '100% Hojjira',
     powerSolar: 'EEU + 120kW Soolaarii',
     powerGen: 'Jenereetara 500kVA',
-    powerSwitch: 'Ofumaan jijjiirama: <10s',
+    powerSwitch: 'ATS jijjiirama: <10s',
   },
   am: {
-    sectionTitle: 'ወቅታዊ ሁኔታ',
-    sensorBadge: 'ቀጥታ',
-    bedTitle: 'የአልጋ ሁኔታ',
+    sectionTitle: 'ወቅታዊ ሁኔታና ክሊኒካል መረጃዎች',
+    sensorBadge: 'ቀጥታ ስርጭት',
+    bedTitle: 'የአልጋ ሁኔታ (BOR)',
     bedOccupancy: '85% የተያዘ',
     bedTotal: '/ 400 ጠቅላላ',
     bedAvail: '60 ክፍት',
     bedIcu: 'አይሲዩ: 4 ክፍት',
-    edTitle: 'የድንገተኛ ትሪያጅ',
+    edTitle: 'የድንገተኛ ትሪያጅ (START)',
     edBadge: '63 ድንገተኛ ክፍል',
     edSub: '3 ከፍተኛ ህክምና',
-    o2Title: 'ደም እና ኦክስጅን',
+    o2Title: 'የኦክስጅንና ደም ክምችት',
     o2Badge: 'የተረጋጋ',
-    o2Pipeline: 'የኦክስጅን መስመር',
-    o2LowStock: 'ኦ-ኔጌቲቭ (አናሳ)',
+    o2Pipeline: 'የኦክስጅን ዋና መስመር',
+    o2LowStock: 'ኦ-ኔጌቲቭ (አናሳ ክምችት)',
     o2Days: 'የ14 ቀናት ክምችት',
-    o2Total: '124 ጠቅላላ',
-    powerTitle: 'የመብራት ኃይል',
+    o2Total: '124 ጠቅላላ የደም ዩኒት',
+    powerTitle: 'የመብራት ኃይልና ሶላር',
     powerBadge: '100% በስራ ላይ',
     powerSolar: 'መብራት + 120kW ሶላር',
     powerGen: '500kVA ጀነሬተር',
-    powerSwitch: 'ራስ-ሰር: <10 ሰከንድ',
+    powerSwitch: 'ራስ-ሰር መቀየሪያ: <10 ሰከንድ',
   },
 };
 
@@ -246,15 +295,15 @@ const GREETING_I18N: Record<Language, {
 }> = {
   en: {
     shift: 'Morning Duty (08:00 - 16:00)',
-    catchment: 'Catchment: 2.5M',
+    catchment: 'Catchment: 2.5M Population',
     emergencyAction: 'Emergency 907',
     rolePrefix: 'Role: ',
-    systemAdmin: 'System Admin',
+    systemAdmin: 'System Administrator',
     scopedCount: 'Workstations: ',
-    executiveActive: 'Executive Active',
-    rbacActive: 'Active',
-    openWorkstation: 'Open',
-    noFound: 'No workstations found matching',
+    executiveActive: 'Executive Access Active',
+    rbacActive: 'RBAC Active',
+    openWorkstation: 'Open Workstation',
+    noFound: 'No hospital workstations found matching',
   },
   om: {
     shift: 'Hojii Ganamaa (08:00 - 16:00)',
@@ -298,19 +347,19 @@ const EMERGENCY_MODAL_I18N: Record<Language, {
   clear: string;
 }> = {
   en: {
-    title: 'Emergency Rapid Action Hub',
+    title: 'Emergency Rapid Action Console',
     codeBlue: 'CODE BLUE',
-    codeBlueDesc: 'Cardiac Arrest Resuscitation',
+    codeBlueDesc: 'Cardiac Arrest Resuscitation Alert',
     mci: 'MASS CASUALTY (MCI)',
-    mciDesc: 'START Disaster Protocol',
+    mciDesc: 'START Disaster Protocol Activation',
     ems: '907 Ambulance',
-    emsDesc: 'Dispatch Vehicle',
+    emsDesc: 'Immediate Vehicle Fleet Dispatch',
     fastIntake: 'Fast Intake',
-    fastIntakeDesc: 'Register Walk-in Patient',
-    close: 'Close',
+    fastIntakeDesc: 'Rapid Walk-in Patient Registration',
+    close: 'Close Console',
     activeCodeBlue: 'Active CODE BLUE: Resuscitation Team Dispatched',
     activeCodeBlueDesc: 'Crash Cart #2 en route to ED Acute Resuscitation Bed 01',
-    clear: 'Clear',
+    clear: 'Resolve Alert',
   },
   om: {
     title: 'Wiirtuu Tarkaanfii Hatattamaa',
@@ -389,7 +438,7 @@ export default function DashboardPage(): React.ReactElement {
     return () => clearInterval(interval);
   }, [lang]);
 
-  // All 27 Hospital Workstations with Tri-Lingual Titles, Subtitles, and Badges
+  // All 27 Hospital Workstations with Standardized Lucide Icons & Tri-Lingual Support
   const workstations: Workstation[] = useMemo(
     () => [
       // 1. Emergency & Critical Care
@@ -406,13 +455,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የተኝቶና የተመላላሽ ታካሚዎች መዝገብ',
         },
         href: '/patients',
-        icon: '👥',
+        icon: Users,
+        iconBg: 'bg-blue-50 dark:bg-blue-950/40',
+        iconColor: 'text-blue-700 dark:text-blue-400',
         badge: {
           en: '340 Inpatients',
           om: 'Dhukkubsattoota 340',
           am: '340 ተኝቶ ታካሚዎች',
         },
-        badgeColor: 'bg-teal-50 text-teal-800 border-teal-300',
+        badgeColor: 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/80',
         category: 'emergency',
         allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'],
       },
@@ -429,13 +480,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የተመላላሽ ታካሚዎች መጠበቂያ',
         },
         href: '/queue',
-        icon: '🎫',
+        icon: Ticket,
+        iconBg: 'bg-amber-50 dark:bg-amber-950/40',
+        iconColor: 'text-amber-700 dark:text-amber-400',
         badge: {
           en: '18 Waiting',
           om: '18 Eegaa Jiru',
           am: '18 በመጠባበቅ ላይ',
         },
-        badgeColor: 'bg-amber-50 text-amber-800 border-amber-300',
+        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/80',
         category: 'emergency',
         allowedRoles: ['doctor', 'nurse', 'receptionist', 'super_admin'],
       },
@@ -452,13 +505,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የከፍተኛ አደጋ መቆጣጠሪያ',
         },
         href: '/mci',
-        icon: '🚨',
+        icon: AlertOctagon,
+        iconBg: 'bg-rose-50 dark:bg-rose-950/40',
+        iconColor: 'text-rose-700 dark:text-rose-400',
         badge: {
           en: '3 Red Active',
           om: '3 Sadarkaa Diimaa',
           am: '3 ቀይ ደረጃ',
         },
-        badgeColor: 'bg-rose-50 text-rose-800 border-rose-300',
+        badgeColor: 'bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/80',
         category: 'emergency',
         allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'],
       },
@@ -475,13 +530,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የደም ክምችትና ምርመራ',
         },
         href: '/blood-bank',
-        icon: '🩸',
+        icon: Droplets,
+        iconBg: 'bg-rose-50 dark:bg-rose-950/40',
+        iconColor: 'text-rose-700 dark:text-rose-400',
         badge: {
           en: 'O- Low Stock',
           om: 'O- Hanqina Qaba',
           am: 'ኦ-ኔጌቲቭ አናሳ ነው',
         },
-        badgeColor: 'bg-rose-50 text-rose-800 border-rose-300',
+        badgeColor: 'bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/80',
         category: 'emergency',
         allowedRoles: ['doctor', 'nurse', 'technician', 'super_admin'],
       },
@@ -498,13 +555,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የአምቡላንስና ድንገተኛ ስምሪት',
         },
         href: '/ems',
-        icon: '🚑',
+        icon: Ambulance,
+        iconBg: 'bg-emerald-50 dark:bg-emerald-950/40',
+        iconColor: 'text-emerald-700 dark:text-emerald-400',
         badge: {
           en: '4 Ready',
           om: '4 Qophiidha',
           am: '4 ዝግጁ ናቸው',
         },
-        badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+        badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/80',
         category: 'emergency',
         allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'],
       },
@@ -521,13 +580,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የቀጥታ የህመምተኛ ክትትል',
         },
         href: '/iomt',
-        icon: '📡',
+        icon: Activity,
+        iconBg: 'bg-sky-50 dark:bg-sky-950/40',
+        iconColor: 'text-sky-700 dark:text-sky-400',
         badge: {
           en: '18 Live Beds',
           om: 'Sireewwan 18 Live',
           am: '18 አልጋዎች በቀጥታ',
         },
-        badgeColor: 'bg-blue-50 text-blue-800 border-blue-300',
+        badgeColor: 'bg-sky-50 text-sky-700 border-sky-200/80 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800/80',
         category: 'emergency',
         allowedRoles: ['doctor', 'nurse', 'technician', 'super_admin'],
       },
@@ -546,13 +607,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የመድኃኒት አደልደልና ክምችት',
         },
         href: '/pharmacy',
-        icon: '💊',
+        icon: Pill,
+        iconBg: 'bg-teal-50 dark:bg-teal-950/40',
+        iconColor: 'text-teal-700 dark:text-teal-400',
         badge: {
           en: '98% Stocked',
           om: '98% Guutuudha',
           am: '98% የተሟላ',
         },
-        badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+        badgeColor: 'bg-teal-50 text-teal-700 border-teal-200/80 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/80',
         category: 'clinical',
         allowedRoles: ['pharmacist', 'doctor', 'super_admin'],
       },
@@ -569,13 +632,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የሲቲ ስካን እና ኤክስሬይ ምርመራ',
         },
         href: '/pacs',
-        icon: '🩻',
+        icon: Scan,
+        iconBg: 'bg-indigo-50 dark:bg-indigo-950/40',
+        iconColor: 'text-indigo-700 dark:text-indigo-400',
         badge: {
           en: '12 Scans Ready',
           om: '12 Suuraan Qophiidha',
           am: '12 ምርመራዎች ዝግጁ',
         },
-        badgeColor: 'bg-blue-50 text-blue-800 border-blue-300',
+        badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800/80',
         category: 'clinical',
         allowedRoles: ['doctor', 'technician', 'super_admin'],
       },
@@ -592,13 +657,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የቀዶ ህክምና እና ማምከኛ ክፍል',
         },
         href: '/ot',
-        icon: '🔪',
+        icon: Syringe,
+        iconBg: 'bg-purple-50 dark:bg-purple-950/40',
+        iconColor: 'text-purple-700 dark:text-purple-400',
         badge: {
           en: '3 In Surgery',
           om: '3 Baqaqsarratti',
           am: '3 ቀዶ ጥገና ላይ',
         },
-        badgeColor: 'bg-purple-50 text-purple-800 border-purple-300',
+        badgeColor: 'bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/80',
         category: 'clinical',
         allowedRoles: ['doctor', 'nurse', 'super_admin'],
       },
@@ -615,13 +682,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የሩቅ የህክምና ምክክር',
         },
         href: '/telemed',
-        icon: '🩺',
+        icon: Video,
+        iconBg: 'bg-teal-50 dark:bg-teal-950/40',
+        iconColor: 'text-teal-700 dark:text-teal-400',
         badge: {
           en: 'Online',
           om: 'Toora Irra Jira',
           am: 'በመስመር ላይ',
         },
-        badgeColor: 'bg-teal-50 text-teal-800 border-teal-300',
+        badgeColor: 'bg-teal-50 text-teal-700 border-teal-200/80 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/80',
         category: 'clinical',
         allowedRoles: ['doctor', 'super_admin'],
       },
@@ -638,13 +707,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የተመጣጠነ ምግብ ዝግጅት',
         },
         href: '/dietary',
-        icon: '🍲',
+        icon: UtensilsCrossed,
+        iconBg: 'bg-amber-50 dark:bg-amber-950/40',
+        iconColor: 'text-amber-700 dark:text-amber-400',
         badge: {
           en: '340 Meals',
           om: 'Soorata 340',
           am: '340 ምግቦች',
         },
-        badgeColor: 'bg-amber-50 text-amber-800 border-amber-300',
+        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/80',
         category: 'clinical',
         allowedRoles: ['nurse', 'admin', 'super_admin'],
       },
@@ -661,13 +732,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የደንበኞች አገልግሎትና እንክብካቤ',
         },
         href: '/crm',
-        icon: '🤝',
+        icon: HeartHandshake,
+        iconBg: 'bg-slate-100 dark:bg-slate-800',
+        iconColor: 'text-slate-700 dark:text-slate-300',
         badge: {
           en: '4 Feedback',
           om: 'Yaada 4',
           am: '4 አስተያየቶች',
         },
-        badgeColor: 'bg-slate-100 text-slate-800 border-slate-300',
+        badgeColor: 'bg-slate-100 text-slate-700 border-slate-200/80 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
         category: 'clinical',
         allowedRoles: ['admin', 'insurance_officer', 'super_admin'],
       },
@@ -686,13 +759,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የቴሌብር ክፍያና የዕለት ገቢ',
         },
         href: '/billing',
-        icon: '💳',
+        icon: CreditCard,
+        iconBg: 'bg-emerald-50 dark:bg-emerald-950/40',
+        iconColor: 'text-emerald-700 dark:text-emerald-400',
         badge: {
           en: 'ETB 84.5K Today',
           om: 'ETB 84.5K Har\'a',
           am: 'ETB 84.5K ዛሬ',
         },
-        badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+        badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/80',
         category: 'operations',
         allowedRoles: ['billing', 'insurance_officer', 'admin', 'super_admin'],
       },
@@ -709,13 +784,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የሆስፒታል በጀትና ወጪ ቁጥጥር',
         },
         href: '/accounting',
-        icon: '📑',
+        icon: FileSpreadsheet,
+        iconBg: 'bg-blue-50 dark:bg-blue-950/40',
+        iconColor: 'text-blue-700 dark:text-blue-400',
         badge: {
           en: 'Reconciled',
           om: 'Walsimsiifameera',
           am: 'የተመሳከረ',
         },
-        badgeColor: 'bg-blue-50 text-blue-800 border-blue-300',
+        badgeColor: 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/80',
         category: 'operations',
         allowedRoles: ['billing', 'admin', 'super_admin'],
       },
@@ -732,13 +809,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የሰራተኞች የስራ ሰዓትና ደመወዝ',
         },
         href: '/hrm',
-        icon: '👔',
+        icon: Briefcase,
+        iconBg: 'bg-teal-50 dark:bg-teal-950/40',
+        iconColor: 'text-teal-700 dark:text-teal-400',
         badge: {
           en: '482 Staff',
           om: 'Hojjetoota 482',
           am: '482 ሰራተኞች',
         },
-        badgeColor: 'bg-teal-50 text-teal-800 border-teal-300',
+        badgeColor: 'bg-teal-50 text-teal-700 border-teal-200/80 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/80',
         category: 'operations',
         allowedRoles: ['admin', 'super_admin'],
       },
@@ -755,13 +834,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'ጥገናና የጥራት ማረጋገጫ',
         },
         href: '/assets',
-        icon: '🔬',
+        icon: Microscope,
+        iconBg: 'bg-emerald-50 dark:bg-emerald-950/40',
+        iconColor: 'text-emerald-700 dark:text-emerald-400',
         badge: {
           en: '99.2% Uptime',
           om: '99.2% Hojiirra',
           am: '99.2% በስራ ላይ',
         },
-        badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+        badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/80',
         category: 'operations',
         allowedRoles: ['technician', 'admin', 'super_admin'],
       },
@@ -778,13 +859,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የአደገኛ ቆሻሻ ማቃጠያ',
         },
         href: '/waste',
-        icon: '☣️',
+        icon: Flame,
+        iconBg: 'bg-amber-50 dark:bg-amber-950/40',
+        iconColor: 'text-amber-700 dark:text-amber-400',
         badge: {
           en: 'Incinerator 850°C',
           om: 'Gubaatii 850°C',
           am: 'ማቃጠያ 850°C',
         },
-        badgeColor: 'bg-amber-50 text-amber-800 border-amber-300',
+        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/80',
         category: 'operations',
         allowedRoles: ['technician', 'admin', 'super_admin'],
       },
@@ -801,13 +884,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የመድኃኒትና እቃዎች ጨረታ',
         },
         href: '/procurement',
-        icon: '📦',
+        icon: PackageCheck,
+        iconBg: 'bg-slate-100 dark:bg-slate-800',
+        iconColor: 'text-slate-700 dark:text-slate-300',
         badge: {
           en: '3 Active Tenders',
           om: 'Caalbaasii 3',
           am: '3 ንቁ ጨረታዎች',
         },
-        badgeColor: 'bg-slate-100 text-slate-800 border-slate-300',
+        badgeColor: 'bg-slate-100 text-slate-700 border-slate-200/80 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
         category: 'operations',
         allowedRoles: ['admin', 'pharmacist', 'super_admin'],
       },
@@ -824,13 +909,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የማቀዝቀዣ ክፍል ቁጥጥር',
         },
         href: '/mortuary',
-        icon: '⚰️',
+        icon: Archive,
+        iconBg: 'bg-slate-100 dark:bg-slate-800',
+        iconColor: 'text-slate-700 dark:text-slate-300',
         badge: {
           en: '-4.2°C Cold',
           om: '-4.2°C Qabbana',
           am: '-4.2°C ቅዝቃዜ',
         },
-        badgeColor: 'bg-slate-100 text-slate-800 border-slate-300',
+        badgeColor: 'bg-slate-100 text-slate-700 border-slate-200/80 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
         category: 'operations',
         allowedRoles: ['doctor', 'admin', 'super_admin'],
       },
@@ -849,13 +936,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የብሔራዊ መታወቂያ ማረጋገጫ',
         },
         href: '/fayda',
-        icon: '🆔',
+        icon: Fingerprint,
+        iconBg: 'bg-emerald-50 dark:bg-emerald-950/40',
+        iconColor: 'text-emerald-700 dark:text-emerald-400',
         badge: {
           en: 'NIDP Verified',
           om: 'Mirkanaa\'eera',
           am: 'የተረጋገጠ',
         },
-        badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+        badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/80',
         category: 'governance',
         allowedRoles: ['insurance_officer', 'admin', 'receptionist', 'super_admin'],
       },
@@ -872,13 +961,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የመድኃኒት ተፅዕኖ ክትትል',
         },
         href: '/efda',
-        icon: '⚖️',
+        icon: Scale,
+        iconBg: 'bg-blue-50 dark:bg-blue-950/40',
+        iconColor: 'text-blue-700 dark:text-blue-400',
         badge: {
           en: 'MoH Compliant',
           om: 'Qajeelfama MoH',
           am: 'የጤና ሚኒስቴር ህግ',
         },
-        badgeColor: 'bg-blue-50 text-blue-800 border-blue-300',
+        badgeColor: 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/80',
         category: 'governance',
         allowedRoles: ['pharmacist', 'admin', 'super_admin'],
       },
@@ -895,13 +986,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የተላላፊ በሽታዎች ቁጥጥር',
         },
         href: '/infection',
-        icon: '🧫',
+        icon: ShieldAlert,
+        iconBg: 'bg-emerald-50 dark:bg-emerald-950/40',
+        iconColor: 'text-emerald-700 dark:text-emerald-400',
         badge: {
           en: 'Zero Outbreaks',
           om: 'Dhibeen Hin Jiru',
           am: 'ዜሮ ወረርሽኝ',
         },
-        badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+        badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/80',
         category: 'governance',
         allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'],
       },
@@ -918,13 +1011,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የመድን ክፍያ ጥያቄዎች',
         },
         href: '/insurance',
-        icon: '🧾',
+        icon: BadgeCheck,
+        iconBg: 'bg-teal-50 dark:bg-teal-950/40',
+        iconColor: 'text-teal-700 dark:text-teal-400',
         badge: {
           en: '98% Approved',
           om: '98% Mirkanaa\'e',
           am: '98% የፀደቀ',
         },
-        badgeColor: 'bg-teal-50 text-teal-800 border-teal-300',
+        badgeColor: 'bg-teal-50 text-teal-700 border-teal-200/80 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/80',
         category: 'governance',
         allowedRoles: ['insurance_officer', 'admin', 'billing', 'super_admin'],
       },
@@ -941,13 +1036,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የኢትዮጵያ ሆስፒታሎች የጥራት ደረጃ',
         },
         href: '/audit',
-        icon: '📋',
+        icon: ClipboardCheck,
+        iconBg: 'bg-purple-50 dark:bg-purple-950/40',
+        iconColor: 'text-purple-700 dark:text-purple-400',
         badge: {
           en: 'Level 4 (91.5%)',
           om: 'Sadarkaa 4 (91.5%)',
           am: 'ደረጃ 4 (91.5%)',
         },
-        badgeColor: 'bg-purple-50 text-purple-800 border-purple-300',
+        badgeColor: 'bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/80',
         category: 'governance',
         allowedRoles: ['admin', 'doctor', 'super_admin'],
       },
@@ -964,13 +1061,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'ዋና መብራት፣ ጀነሬተርና የፀሐይ ኃይል',
         },
         href: '/power',
-        icon: '⚡',
+        icon: Zap,
+        iconBg: 'bg-emerald-50 dark:bg-emerald-950/40',
+        iconColor: 'text-emerald-700 dark:text-emerald-400',
         badge: {
           en: '100% Online',
           om: '100% Hojjira',
           am: '100% በስራ ላይ',
         },
-        badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+        badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/80',
         category: 'governance',
         allowedRoles: ['technician', 'admin', 'super_admin'],
       },
@@ -987,13 +1086,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የክሊኒካልና ፋይናንስ ቁልፍ መረጃዎች',
         },
         href: '/analytics',
-        icon: '📈',
+        icon: TrendingUp,
+        iconBg: 'bg-blue-50 dark:bg-blue-950/40',
+        iconColor: 'text-blue-700 dark:text-blue-400',
         badge: {
           en: 'Real-time KPIs',
           om: 'KPIs Yeroo Ammaa',
           am: 'የቀጥታ መረጃዎች',
         },
-        badgeColor: 'bg-blue-50 text-blue-800 border-blue-300',
+        badgeColor: 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/80',
         category: 'governance',
         allowedRoles: ['admin', 'doctor', 'super_admin'],
       },
@@ -1010,13 +1111,15 @@ export default function DashboardPage(): React.ReactElement {
           am: 'የመቱ ዩኒቨርሲቲ የህክምና ምርምር',
         },
         href: '/academic',
-        icon: '🎓',
+        icon: GraduationCap,
+        iconBg: 'bg-indigo-50 dark:bg-indigo-950/40',
+        iconColor: 'text-indigo-700 dark:text-indigo-400',
         badge: {
           en: '6 Trials Active',
           om: 'Qorannoo 6 Hojiirra',
           am: '6 ንቁ ምርምሮች',
         },
-        badgeColor: 'bg-indigo-50 text-indigo-800 border-indigo-300',
+        badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800/80',
         category: 'governance',
         allowedRoles: ['doctor', 'admin', 'super_admin'],
       },
@@ -1067,8 +1170,11 @@ export default function DashboardPage(): React.ReactElement {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#070e1e]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-9 w-9 animate-spin rounded-full border-3 border-teal-600 border-t-transparent" />
+          <span className="text-xs font-medium text-slate-500">Mettu Karl HMIS...</span>
+        </div>
       </div>
     );
   }
@@ -1085,78 +1191,87 @@ export default function DashboardPage(): React.ReactElement {
   const emr = EMERGENCY_MODAL_I18N[lang] || EMERGENCY_MODAL_I18N['en'];
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+    <div className="flex min-h-screen bg-slate-50/70 dark:bg-[#070e1e] text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
 
-        <main className="flex-1 p-5 sm:p-7 lg:p-8 space-y-6 max-w-[1720px] mx-auto w-full">
-          {/* Top Context & Greeting Bar — Clean, Streamlined Simplicity */}
-          <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between bg-white px-6 py-4 rounded-2xl border border-slate-200/90 shadow-2xs">
+        <main className="flex-1 p-4 sm:p-6 lg:p-7 space-y-6 max-w-[1720px] mx-auto w-full">
+          {/* SECTION 1: TOP HOSPITAL CONTEXT & SHIFT IDENTITY BANNER */}
+          <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-[#0f172a] px-5 py-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
             <div className="flex items-center gap-3.5 min-w-0">
-              <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60 shrink-0">
+                <Building2 className="h-5 w-5" />
+              </div>
               <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate">
-                  {t('welcome_back')},{' '}
-                  <span className="text-teal-700">
-                    {user?.username === 'admin'
-                      ? grt.systemAdmin
-                      : user?.username === 'nurse_chaltu'
-                      ? 'Nurse Chaltu'
-                      : 'Dr. Bekele Tadesse'}
+                <div className="flex items-center gap-2">
+                  <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight truncate">
+                    {t('welcome_back')},{' '}
+                    <span className="text-teal-700 dark:text-teal-400">
+                      {user?.username === 'admin'
+                        ? grt.systemAdmin
+                        : user?.username === 'nurse_chaltu'
+                        ? 'Nurse Chaltu'
+                        : 'Dr. Bekele Tadesse'}
+                    </span>
+                  </h1>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-800/70 shrink-0">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Operational</span>
                   </span>
-                </h1>
-                <p className="text-xs text-slate-500 truncate mt-0.5">
-                  {t('hospital_name')} • <span className="text-slate-700 font-semibold">{grt.shift}</span> • {grt.catchment}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                  {t('hospital_name')} • <span className="text-slate-700 dark:text-slate-300 font-medium">{grt.shift}</span> • {grt.catchment}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 shrink-0">
-              <span className="hidden md:inline-block font-mono text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                {currentDateTime}
-              </span>
+            <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+              <div className="hidden md:flex items-center gap-1.5 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                <Clock className="h-3.5 w-3.5 text-slate-400" />
+                <span>{currentDateTime}</span>
+              </div>
               <button
                 type="button"
                 onClick={() => setEmergencyModalOpen(true)}
-                className="flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-black text-white shadow-xs hover:bg-rose-700 active:scale-95 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-1.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
               >
-                <span>🚨</span>
+                <AlertCircleIcon className="h-4 w-4" />
                 <span>{grt.emergencyAction}</span>
               </button>
             </div>
           </div>
 
-          {/* RBAC SCOPE STRIP — Compact & Uncluttered Simplicity */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white px-5 py-3 shadow-2xs">
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="text-lg shrink-0">
-                {user?.role === 'admin'
-                  ? '🏛️'
-                  : user?.role === 'doctor'
-                  ? '🩺'
-                  : user?.role === 'nurse'
-                  ? '💉'
-                  : user?.role === 'pharmacist'
-                  ? '💊'
-                  : user?.role === 'insurance_officer'
-                  ? '🧾'
-                  : user?.role === 'technician'
-                  ? '🔧'
-                  : '🏥'}
-              </span>
+          {/* SECTION 2: ROLE-BASED ACCESS CONTROL (RBAC) SCOPE BAR */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] px-5 py-2.5 shadow-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 shrink-0">
+                {user?.role === 'admin' || user?.role === 'super_admin' ? (
+                  <ShieldCheck className="h-4 w-4" />
+                ) : user?.role === 'doctor' ? (
+                  <Stethoscope className="h-4 w-4" />
+                ) : user?.role === 'nurse' ? (
+                  <Activity className="h-4 w-4" />
+                ) : user?.role === 'pharmacist' ? (
+                  <Pill className="h-4 w-4" />
+                ) : user?.role === 'technician' ? (
+                  <Wrench className="h-4 w-4" />
+                ) : (
+                  <ShieldCheck className="h-4 w-4" />
+                )}
+              </div>
               <div className="text-xs truncate">
-                <span className="font-black text-teal-900 uppercase">
+                <span className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px]">
                   {grt.rolePrefix}{user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR'}
                 </span>
-                <span className="text-slate-400 mx-1.5">•</span>
-                <span className="text-slate-600 font-medium">{roleInfo.title}</span>
-                <span className="text-slate-400 mx-1.5">•</span>
-                <span className="text-slate-500 font-bold">{grt.scopedCount}{displayedWorkstations.length}</span>
+                <span className="text-slate-300 dark:text-slate-700 mx-2">|</span>
+                <span className="text-slate-600 dark:text-slate-300 font-normal">{roleInfo.title}</span>
+                <span className="text-slate-300 dark:text-slate-700 mx-2">|</span>
+                <span className="text-slate-500 dark:text-slate-400 font-medium">{grt.scopedCount}<strong>{displayedWorkstations.length}</strong></span>
               </div>
             </div>
 
-            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-lg shrink-0 self-end sm:self-auto flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/70 px-2.5 py-0.5 rounded-md shrink-0 self-end sm:self-auto flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               {user?.role === 'admin' || user?.role === 'super_admin' ? grt.executiveActive : grt.rbacActive}
             </span>
@@ -1167,155 +1282,173 @@ export default function DashboardPage(): React.ReactElement {
             <AdminOversightHub />
           )}
 
-          {/* SECTION 1: 3-SECOND CLINICAL VITAL SIGNS — Clean Modern Cards */}
+          {/* SECTION 3: SITUATIONAL AWARENESS (4 PRECISION CLINICAL CARDS) */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                <span>📊</span> {sit.sectionTitle}
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <Activity className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                <span>{sit.sectionTitle}</span>
               </h2>
-              <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-lg border border-teal-200">
-                {sit.sensorBadge}
+              <span className="text-[11px] font-medium text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-0.5 rounded-md border border-teal-200/80 dark:border-teal-800/80 flex items-center gap-1">
+                <Radio className="h-3 w-3 text-teal-600 animate-pulse" />
+                <span>{sit.sensorBadge}</span>
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              {/* Tile 1: Bed Capacity */}
-              <div className="group rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-xs transition-all duration-150 cursor-default">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                  <span className="uppercase tracking-wider">{sit.bedTitle}</span>
-                  <span className="rounded-md bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-800 border border-teal-200">
+              {/* Tile 1: Bed Capacity (BOR) */}
+              <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4 shadow-xs hover:border-teal-500/80 transition-colors">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200 uppercase text-[11px] tracking-wider">
+                    <BedDouble className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>{sit.bedTitle}</span>
+                  </span>
+                  <span className="rounded-md bg-teal-50 dark:bg-teal-950/50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 dark:text-teal-300 border border-teal-200/70 dark:border-teal-800/70">
                     {sit.bedOccupancy}
                   </span>
                 </div>
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-slate-900 group-hover:text-teal-900 transition-colors">340</span>
-                  <span className="text-xs font-semibold text-slate-400">{sit.bedTotal}</span>
+                  <span className="text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-white">340</span>
+                  <span className="text-xs font-medium text-slate-400">{sit.bedTotal}</span>
                 </div>
-                <div className="mt-2.5 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full rounded-full bg-teal-600 transition-all" style={{ width: '85%' }} />
+                <div className="mt-2.5 h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                  <div className="h-full rounded-full bg-teal-600 dark:bg-teal-500 transition-all duration-300" style={{ width: '85%' }} />
                 </div>
-                <div className="mt-2.5 flex items-center justify-between text-xs font-medium text-slate-500">
-                  <span>{sit.bedAvail}</span>
-                  <span className="text-teal-700 font-bold">{sit.bedIcu}</span>
+                <div className="mt-2.5 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <span className="font-medium text-slate-600 dark:text-slate-300">{sit.bedAvail}</span>
+                  <span className="text-teal-700 dark:text-teal-400 font-semibold">{sit.bedIcu}</span>
                 </div>
               </div>
 
-              {/* Tile 2: START Emergency Triage */}
-              <div className="group rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-xs transition-all duration-150 cursor-default">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                  <span className="uppercase tracking-wider">{sit.edTitle}</span>
-                  <span className="rounded-md bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700 border border-rose-200">
+              {/* Tile 2: Emergency Triage (START Protocol) */}
+              <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4 shadow-xs hover:border-teal-500/80 transition-colors">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200 uppercase text-[11px] tracking-wider">
+                    <Siren className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                    <span>{sit.edTitle}</span>
+                  </span>
+                  <span className="rounded-md bg-rose-50 dark:bg-rose-950/50 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:text-rose-300 border border-rose-200/70 dark:border-rose-800/70">
                     {sit.edBadge}
                   </span>
                 </div>
                 <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
-                  <div className="rounded-lg bg-rose-50 py-1.5 border border-rose-200">
-                    <span className="block text-sm font-black text-rose-700">3</span>
-                    <span className="text-[10px] font-bold text-rose-800 uppercase">Red</span>
+                  <div className="rounded-lg bg-rose-50/80 dark:bg-rose-950/30 py-1.5 border border-rose-200/70 dark:border-rose-900/50">
+                    <span className="block text-sm font-bold font-mono text-rose-700 dark:text-rose-400">3</span>
+                    <span className="text-[10px] font-semibold text-rose-800 dark:text-rose-300 uppercase">Red</span>
                   </div>
-                  <div className="rounded-lg bg-amber-50 py-1.5 border border-amber-200">
-                    <span className="block text-sm font-black text-amber-700">12</span>
-                    <span className="text-[10px] font-bold text-amber-800 uppercase">Yel</span>
+                  <div className="rounded-lg bg-amber-50/80 dark:bg-amber-950/30 py-1.5 border border-amber-200/70 dark:border-amber-900/50">
+                    <span className="block text-sm font-bold font-mono text-amber-700 dark:text-amber-400">12</span>
+                    <span className="text-[10px] font-semibold text-amber-800 dark:text-amber-300 uppercase">Yel</span>
                   </div>
-                  <div className="rounded-lg bg-emerald-50 py-1.5 border border-emerald-200">
-                    <span className="block text-sm font-black text-emerald-700">48</span>
-                    <span className="text-[10px] font-bold text-emerald-800 uppercase">Grn</span>
+                  <div className="rounded-lg bg-emerald-50/80 dark:bg-emerald-950/30 py-1.5 border border-emerald-200/70 dark:border-emerald-900/50">
+                    <span className="block text-sm font-bold font-mono text-emerald-700 dark:text-emerald-400">48</span>
+                    <span className="text-[10px] font-semibold text-emerald-800 dark:text-emerald-300 uppercase">Grn</span>
                   </div>
-                  <div className="rounded-lg bg-slate-100 py-1.5 border border-slate-200">
-                    <span className="block text-sm font-black text-slate-600">0</span>
-                    <span className="text-[10px] font-bold text-slate-600 uppercase">Blk</span>
+                  <div className="rounded-lg bg-slate-100/80 dark:bg-slate-800/80 py-1.5 border border-slate-200/70 dark:border-slate-700">
+                    <span className="block text-sm font-bold font-mono text-slate-600 dark:text-slate-300">0</span>
+                    <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 uppercase">Blk</span>
                   </div>
                 </div>
-                <p className="mt-2.5 text-center text-[11px] font-medium text-slate-500">
+                <p className="mt-2.5 text-center text-[11px] font-medium text-slate-500 dark:text-slate-400">
                   {sit.edSub}
                 </p>
               </div>
 
-              {/* Tile 3: Blood & Oxygen Supply */}
-              <div className="group rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-xs transition-all duration-150 cursor-default">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                  <span className="uppercase tracking-wider">{sit.o2Title}</span>
-                  <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700 border border-blue-200">
+              {/* Tile 3: Critical Supply Reserves */}
+              <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4 shadow-xs hover:border-teal-500/80 transition-colors">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200 uppercase text-[11px] tracking-wider">
+                    <Droplets className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+                    <span>{sit.o2Title}</span>
+                  </span>
+                  <span className="rounded-md bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/70">
                     {sit.o2Badge}
                   </span>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
                   <div>
-                    <span className="text-2xl font-black text-slate-900 group-hover:text-teal-900 transition-colors">4.8</span>
-                    <span className="text-xs font-bold text-slate-400 ml-1">Bar</span>
-                    <p className="text-xs text-slate-500 mt-0.5">{sit.o2Pipeline}</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-bold font-mono text-slate-900 dark:text-white">4.8</span>
+                      <span className="text-xs font-medium text-slate-400">Bar</span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{sit.o2Pipeline}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-black text-rose-600">6</span>
-                    <span className="text-xs font-bold text-slate-400 ml-1">Units</span>
-                    <p className="text-xs font-bold text-rose-600 mt-0.5">{sit.o2LowStock}</p>
+                    <div className="flex items-baseline justify-end gap-1">
+                      <span className="text-2xl font-bold font-mono text-rose-600 dark:text-rose-400">6</span>
+                      <span className="text-xs font-medium text-slate-400">Units</span>
+                    </div>
+                    <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-0.5">{sit.o2LowStock}</p>
                   </div>
                 </div>
-                <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-slate-500">
+                <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-2 text-xs text-slate-500 dark:text-slate-400">
                   <span>{sit.o2Days}</span>
-                  <span className="font-bold text-slate-700">{sit.o2Total}</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">{sit.o2Total}</span>
                 </div>
               </div>
 
-              {/* Tile 4: Power Grid & Resilience */}
-              <div className="group rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-xs transition-all duration-150 cursor-default">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                  <span className="uppercase tracking-wider">{sit.powerTitle}</span>
-                  <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200">
+              {/* Tile 4: Facility Power & Grid Resilience */}
+              <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4 shadow-xs hover:border-teal-500/80 transition-colors">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200 uppercase text-[11px] tracking-wider">
+                    <Zap className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>{sit.powerTitle}</span>
+                  </span>
+                  <span className="rounded-md bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/70">
                     {sit.powerBadge}
                   </span>
                 </div>
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-lg font-black text-emerald-600">{sit.powerSolar}</span>
+                  <span className="text-base font-bold text-emerald-700 dark:text-emerald-400">{sit.powerSolar}</span>
                 </div>
-                <div className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600">
+                <div className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  {sit.powerGen}
+                  <span>{sit.powerGen}</span>
                 </div>
-                <p className="mt-1 text-[11px] text-slate-400">{sit.powerSwitch}</p>
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500 font-mono">{sit.powerSwitch}</p>
               </div>
             </div>
           </div>
 
-          {/* SECTION 2: WORKSTATION DIRECTORY — Clean, Spacious Simplicity */}
+          {/* SECTION 4: WORKSTATION DIRECTORY — SEARCH, FILTER & 27 TILES */}
           <div className="space-y-4">
             {/* Filter Toolbar: Modern Minimalist Search Bar & Category Pills */}
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between">
               {/* Sleek Search Bar */}
               <div className="relative w-full sm:w-80 md:w-96 shrink-0">
-                <div className="flex h-11 items-center rounded-xl border border-slate-300 bg-white px-3.5 shadow-2xs focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-100 transition-all duration-150">
-                  <span className="text-sm text-slate-400 mr-2 shrink-0">🔍</span>
+                <div className="flex h-10 items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0f172a] px-3 shadow-xs focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-100 dark:focus-within:ring-teal-900/30 transition-all duration-150">
+                  <Search className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
                   <input
                     type="text"
                     placeholder={t('search')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-transparent text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="ml-1 text-slate-400 hover:text-slate-700 text-xs font-bold px-1.5 py-0.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
+                      className="ml-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     >
-                      ✕
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   )}
-                  <span className="ml-2 rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600 shrink-0">
+                  <span className="ml-2 rounded-md bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 shrink-0">
                     {displayedWorkstations.length}
                   </span>
                 </div>
               </div>
 
               {/* Minimalist Category Tabs */}
-              <div className="flex items-center gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 text-xs font-bold text-slate-600">
+              <div className="flex items-center gap-1 overflow-x-auto rounded-lg bg-slate-100 dark:bg-slate-800/80 p-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 <button
                   type="button"
                   onClick={() => setActiveTab('all')}
-                  className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`rounded-md px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'all'
-                      ? 'bg-teal-700 text-white shadow-2xs font-black'
-                      : 'hover:text-slate-900 hover:bg-white/60'
+                      ? 'bg-teal-700 text-white shadow-xs font-semibold'
+                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
                   }`}
                 >
                   {t('all_tab')} ({workstations.length})
@@ -1323,56 +1456,61 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('emergency')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'emergency'
-                      ? 'bg-rose-700 text-white shadow-2xs font-black'
-                      : 'hover:text-slate-900 hover:bg-white/60'
+                      ? 'bg-rose-700 text-white shadow-xs font-semibold'
+                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
                   }`}
                 >
-                  <span>🚨</span> {t('emergency_triage')}
+                  <AlertOctagon className="h-3.5 w-3.5" />
+                  <span>{t('emergency_triage')}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('clinical')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'clinical'
-                      ? 'bg-teal-700 text-white shadow-2xs font-black'
-                      : 'hover:text-slate-900 hover:bg-white/60'
+                      ? 'bg-teal-700 text-white shadow-xs font-semibold'
+                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
                   }`}
                 >
-                  <span>🩺</span> {t('clinical_care')}
+                  <Stethoscope className="h-3.5 w-3.5" />
+                  <span>{t('clinical_care')}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('operations')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'operations'
-                      ? 'bg-blue-700 text-white shadow-2xs font-black'
-                      : 'hover:text-slate-900 hover:bg-white/60'
+                      ? 'bg-blue-700 text-white shadow-xs font-semibold'
+                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
                   }`}
                 >
-                  <span>💼</span> {t('operations_erp')}
+                  <Briefcase className="h-3.5 w-3.5" />
+                  <span>{t('operations_erp')}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('governance')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'governance'
-                      ? 'bg-purple-700 text-white shadow-2xs font-black'
-                      : 'hover:text-slate-900 hover:bg-white/60'
+                      ? 'bg-purple-700 text-white shadow-xs font-semibold'
+                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
                   }`}
                 >
-                  <span>⚖️</span> {t('regulations_governance')}
+                  <Scale className="h-3.5 w-3.5" />
+                  <span>{t('regulations_governance')}</span>
                 </button>
               </div>
             </div>
 
-            {/* 3. WORKSTATIONS GRID — Ultra-Simple, Modern & Airy */}
+            {/* 3. WORKSTATIONS GRID — Restrained, Clean & Highly Structured */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {displayedWorkstations.map((item) => {
                 const titleText = item.title[lang] || item.title.en;
                 const subtitleText = item.subtitle[lang] || item.subtitle.en;
                 const badgeText = item.badge ? item.badge[lang] || item.badge.en : null;
+                const IconComponent = item.icon;
 
                 return (
                   <Link
@@ -1381,39 +1519,39 @@ export default function DashboardPage(): React.ReactElement {
                     prefetch={true}
                     onMouseEnter={() => router.prefetch(item.href)}
                     onFocus={() => router.prefetch(item.href)}
-                    className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-teal-500 hover:shadow-md hover:bg-teal-50/20 transition-all duration-150 ease-in-out cursor-pointer active:scale-[0.98] min-h-[125px]"
+                    className="group relative flex flex-col justify-between rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4.5 shadow-xs hover:border-teal-500/80 dark:hover:border-teal-500/80 hover:shadow-md transition-all duration-150 ease-in-out cursor-pointer active:scale-[0.99] min-h-[135px]"
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-2.5">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 border border-slate-200/80 text-xl group-hover:scale-105 group-hover:bg-white group-hover:border-teal-300 transition-all">
-                          {item.icon}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${item.iconBg} ${item.iconColor} border border-slate-200/50 dark:border-slate-700/50 group-hover:scale-105 transition-transform`}>
+                          <IconComponent className="h-4.5 w-4.5" />
                         </div>
                         {badgeText && (
                           <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 transition-colors ${item.badgeColor}`}
+                            className={`text-[10px] font-medium px-2 py-0.5 rounded-md border shrink-0 transition-colors ${item.badgeColor}`}
                           >
                             {badgeText}
                           </span>
                         )}
                       </div>
-                      <h3 className="text-sm font-black text-slate-900 group-hover:text-teal-950 transition-colors leading-snug">
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors leading-snug">
                         {titleText}
                       </h3>
-                      <p className="text-xs text-slate-500 mt-1 truncate group-hover:text-teal-800 transition-colors">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
                         {subtitleText}
                       </p>
                     </div>
 
-                    <div className="mt-3.5 flex items-center justify-between text-xs font-bold text-slate-400 group-hover:text-teal-700 border-t border-slate-100 pt-2 transition-colors">
-                      <span className="group-hover:underline">{grt.openWorkstation}</span>
-                      <span className="text-sm group-hover:translate-x-1 transition-transform">→</span>
+                    <div className="mt-3.5 flex items-center justify-between text-xs font-medium text-slate-400 dark:text-slate-500 group-hover:text-teal-600 dark:group-hover:text-teal-400 border-t border-slate-100 dark:border-slate-800/80 pt-2 transition-colors">
+                      <span className="group-hover:underline underline-offset-2">{grt.openWorkstation}</span>
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </Link>
                 );
               })}
 
               {displayedWorkstations.length === 0 && (
-                <div className="col-span-full py-12 text-center text-sm font-semibold text-slate-400 bg-white rounded-3xl border border-slate-200">
+                <div className="col-span-full py-12 text-center text-sm font-medium text-slate-400 bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800">
                   {grt.noFound} &quot;{searchQuery}&quot;.
                 </div>
               )}
@@ -1422,39 +1560,39 @@ export default function DashboardPage(): React.ReactElement {
 
           {/* EMERGENCY PROTOCOL MODAL */}
           {emergencyModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-xs p-4">
-              <div className="flex w-full max-w-lg flex-col rounded-3xl bg-white shadow-2xl border-2 border-rose-300 overflow-hidden">
-                <div className="flex items-center justify-between border-b border-rose-100 bg-rose-50 px-6 py-5">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl animate-pulse">🚨</span>
-                    <h2 className="text-sm font-black text-rose-900 uppercase tracking-wide">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+              <div className="flex w-full max-w-lg flex-col rounded-xl bg-white dark:bg-[#0f172a] shadow-xl border border-rose-200 dark:border-rose-900/60 overflow-hidden">
+                <div className="flex items-center justify-between border-b border-rose-100 dark:border-rose-900/40 bg-rose-50/70 dark:bg-rose-950/40 px-5 py-4">
+                  <div className="flex items-center gap-2.5">
+                    <AlertTriangle className="h-5 w-5 text-rose-600 dark:text-rose-400 animate-pulse" />
+                    <h2 className="text-sm font-bold text-rose-900 dark:text-rose-200 uppercase tracking-wider">
                       {emr.title}
                     </h2>
                   </div>
                   <button
                     type="button"
                     onClick={() => setEmergencyModalOpen(false)}
-                    className="rounded-full p-2 text-rose-400 hover:bg-rose-100 hover:text-rose-700 cursor-pointer"
+                    className="rounded-lg p-1 text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 hover:text-rose-700 cursor-pointer"
                   >
-                    ✕
+                    <X className="h-4 w-4" />
                   </button>
                 </div>
 
-                <div className="p-6 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="p-5 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
                       onClick={() => {
                         setActiveCodeBlue(true);
                         setEmergencyModalOpen(false);
                       }}
-                      className="flex flex-col items-center justify-center rounded-2xl border-2 border-blue-600 bg-blue-50/70 p-5 text-center hover:bg-blue-600 hover:text-white transition-all cursor-pointer group hover:shadow-lg hover:ring-2 hover:ring-blue-400/40"
+                      className="flex flex-col items-center justify-center rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/30 p-4 text-center hover:bg-blue-600 hover:text-white transition-all cursor-pointer group"
                     >
-                      <span className="text-3xl mb-1.5 group-hover:scale-110 transition-transform">💙</span>
-                      <span className="text-xs font-black text-blue-900 group-hover:text-white">
+                      <HeartPulse className="h-7 w-7 text-blue-600 dark:text-blue-400 mb-2 group-hover:text-white transition-transform group-hover:scale-110" />
+                      <span className="text-xs font-bold text-blue-900 dark:text-blue-200 group-hover:text-white">
                         {emr.codeBlue}
                       </span>
-                      <span className="text-[11px] text-blue-700 group-hover:text-blue-100 mt-0.5">
+                      <span className="text-[11px] text-blue-700 dark:text-blue-400 group-hover:text-blue-100 mt-0.5">
                         {emr.codeBlueDesc}
                       </span>
                     </button>
@@ -1462,13 +1600,13 @@ export default function DashboardPage(): React.ReactElement {
                     <Link
                       href="/mci"
                       onClick={() => setEmergencyModalOpen(false)}
-                      className="flex flex-col items-center justify-center rounded-2xl border-2 border-rose-600 bg-rose-50/70 p-5 text-center hover:bg-rose-600 hover:text-white transition-all group hover:shadow-lg hover:ring-2 hover:ring-rose-400/40"
+                      className="flex flex-col items-center justify-center rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 p-4 text-center hover:bg-rose-600 hover:text-white transition-all group"
                     >
-                      <span className="text-3xl mb-1.5 group-hover:scale-110 transition-transform">🆘</span>
-                      <span className="text-xs font-black text-rose-900 group-hover:text-white">
+                      <AlertOctagon className="h-7 w-7 text-rose-600 dark:text-rose-400 mb-2 group-hover:text-white transition-transform group-hover:scale-110" />
+                      <span className="text-xs font-bold text-rose-900 dark:text-rose-200 group-hover:text-white">
                         {emr.mci}
                       </span>
-                      <span className="text-[11px] text-rose-700 group-hover:text-rose-100 mt-0.5">
+                      <span className="text-[11px] text-rose-700 dark:text-rose-400 group-hover:text-rose-100 mt-0.5">
                         {emr.mciDesc}
                       </span>
                     </Link>
@@ -1476,13 +1614,13 @@ export default function DashboardPage(): React.ReactElement {
                     <Link
                       href="/ems"
                       onClick={() => setEmergencyModalOpen(false)}
-                      className="flex flex-col items-center justify-center rounded-2xl border-2 border-slate-200 bg-slate-50 p-5 text-center hover:bg-slate-800 hover:text-white transition-all group hover:shadow-lg hover:ring-2 hover:ring-slate-400/40"
+                      className="flex flex-col items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 p-4 text-center hover:bg-slate-800 hover:text-white transition-all group"
                     >
-                      <span className="text-3xl mb-1.5 group-hover:scale-110 transition-transform">🚑</span>
-                      <span className="text-xs font-bold text-slate-800 group-hover:text-white">
+                      <Ambulance className="h-7 w-7 text-slate-700 dark:text-slate-300 mb-2 group-hover:text-white transition-transform group-hover:scale-110" />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-white">
                         {emr.ems}
                       </span>
-                      <span className="text-[11px] text-slate-500 group-hover:text-slate-200 mt-0.5">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 group-hover:text-slate-200 mt-0.5">
                         {emr.emsDesc}
                       </span>
                     </Link>
@@ -1490,24 +1628,24 @@ export default function DashboardPage(): React.ReactElement {
                     <Link
                       href="/patients"
                       onClick={() => setEmergencyModalOpen(false)}
-                      className="flex flex-col items-center justify-center rounded-2xl border-2 border-slate-200 bg-slate-50 p-5 text-center hover:bg-teal-700 hover:text-white transition-all group hover:shadow-lg hover:ring-2 hover:ring-teal-400/40"
+                      className="flex flex-col items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 p-4 text-center hover:bg-teal-700 hover:text-white transition-all group"
                     >
-                      <span className="text-3xl mb-1.5 group-hover:scale-110 transition-transform">👥</span>
-                      <span className="text-xs font-bold text-slate-800 group-hover:text-white">
+                      <UserPlus className="h-7 w-7 text-teal-600 dark:text-teal-400 mb-2 group-hover:text-white transition-transform group-hover:scale-110" />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-white">
                         {emr.fastIntake}
                       </span>
-                      <span className="text-[11px] text-slate-500 group-hover:text-teal-100 mt-0.5">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 group-hover:text-teal-100 mt-0.5">
                         {emr.fastIntakeDesc}
                       </span>
                     </Link>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end border-t border-slate-100 bg-slate-50 px-6 py-4">
+                <div className="flex items-center justify-end border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 px-5 py-3">
                   <button
                     type="button"
                     onClick={() => setEmergencyModalOpen(false)}
-                    className="rounded-xl border border-slate-300 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                    className="rounded-lg border border-slate-300 dark:border-slate-700 px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     {emr.close}
                   </button>
@@ -1518,10 +1656,10 @@ export default function DashboardPage(): React.ReactElement {
 
           {/* ACTIVE CODE BLUE BANNER (IF TRIGGERED) */}
           {activeCodeBlue && (
-            <div className="fixed bottom-6 right-6 z-50 flex items-center gap-4 rounded-3xl bg-blue-900 p-5 text-white shadow-2xl border border-blue-400 animate-bounce">
-              <span className="text-3xl">💙</span>
+            <div className="fixed bottom-6 right-6 z-50 flex items-center gap-4 rounded-xl bg-blue-900 p-4 text-white shadow-xl border border-blue-400">
+              <HeartPulse className="h-6 w-6 text-blue-200 animate-pulse shrink-0" />
               <div>
-                <p className="text-xs font-black uppercase tracking-wider">
+                <p className="text-xs font-bold uppercase tracking-wider">
                   {emr.activeCodeBlue}
                 </p>
                 <p className="text-xs text-blue-200 mt-0.5">
@@ -1531,7 +1669,7 @@ export default function DashboardPage(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setActiveCodeBlue(false)}
-                className="ml-3 rounded-xl bg-blue-800 px-4 py-1.5 text-xs font-bold text-white hover:bg-blue-700 cursor-pointer"
+                className="ml-3 rounded-lg bg-blue-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 cursor-pointer shrink-0"
               >
                 {emr.clear}
               </button>
@@ -1540,5 +1678,13 @@ export default function DashboardPage(): React.ReactElement {
         </main>
       </div>
     </div>
+  );
+}
+
+function AlertCircleIcon({ className }: { className?: string }): React.ReactElement {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
   );
 }

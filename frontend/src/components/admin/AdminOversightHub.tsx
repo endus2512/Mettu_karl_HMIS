@@ -14,6 +14,27 @@ import { notifications } from '@mantine/notifications';
 import { useTranslation, Language } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 import { addNotification } from '@/lib/notifications';
+import {
+  Building2,
+  Megaphone,
+  ChevronUp,
+  ChevronDown,
+  Search,
+  Stethoscope,
+  Activity,
+  Pill,
+  Syringe,
+  Scan,
+  CreditCard,
+  PhoneCall,
+  Eye,
+  X,
+  Smartphone,
+  Radio,
+  Send,
+  AlertTriangle,
+  User,
+} from 'lucide-react';
 
 interface LocalizedText {
   en: string;
@@ -893,42 +914,42 @@ export function AdminOversightHub(): React.ReactElement {
   };
 
   return (
-    <section className="rounded-3xl border-2 border-teal-500/80 bg-gradient-to-br from-white via-teal-50/20 to-slate-50 p-6 sm:p-8 shadow-lg space-y-6">
+    <section className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-5 sm:p-6 shadow-xs space-y-5">
       {/* 1. Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-teal-200/80 pb-6">
-        <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teal-600 text-white font-black text-2xl shadow-md">
-            🏛️
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60 shadow-xs">
+            <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/50 bg-teal-100/70 px-3 py-0.5 text-xs font-black uppercase tracking-wider text-teal-950 mb-1">
-              {txt.badge}
+            <div className="inline-flex items-center gap-1.5 rounded-md border border-teal-500/30 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300 mb-1">
+              <span>{txt.badge}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               {txt.title}
             </h2>
-            <p className="text-xs font-medium text-slate-600 mt-0.5">
+            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">
               {txt.subtitle}
             </p>
           </div>
         </div>
 
         {/* Action Buttons: Broadcast & Simplicity Collapse/Expand */}
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setBroadcastModalOpen(true)}
-            className="flex items-center gap-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 text-xs font-black shadow-md transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-2 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           >
-            <span>📢</span>
+            <Megaphone className="h-4 w-4" />
             <span>{txt.broadcastBtn}</span>
           </button>
           <button
             type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="flex items-center gap-1.5 rounded-2xl border border-teal-300 bg-white hover:bg-teal-50 text-teal-800 px-3.5 py-2.5 text-xs font-bold shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 text-xs font-medium shadow-xs transition-colors cursor-pointer"
           >
-            <span>{isCollapsed ? '▼' : '▲'}</span>
+            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
             <span>{isCollapsed ? (lang === 'om' ? 'Kutaalee Agarsiisi' : lang === 'am' ? 'ዘርጋ' : 'Expand') : (lang === 'om' ? 'Simplicity (Dhadhahi)' : lang === 'am' ? 'አሳጥር' : 'Minimize')}</span>
           </button>
         </div>
@@ -937,213 +958,215 @@ export function AdminOversightHub(): React.ReactElement {
       {!isCollapsed && (
         <>
           {/* 2. Direct 1-Click Department Inspection Jump Tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <Link
-          href="/patients"
-          className="group flex flex-col p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-500 hover:bg-teal-50/50 transition-all shadow-2xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl">👨‍⚕️</span>
-            <span className="text-[10px] font-black bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">48 Active</span>
-          </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">{txt.tabDoctor}</span>
-          <span className="text-[11px] text-slate-500">OPD & Clinical</span>
-        </Link>
-
-        <Link
-          href="/iomt"
-          className="group flex flex-col p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-500 hover:bg-teal-50/50 transition-all shadow-2xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl">👩‍⚕️</span>
-            <span className="text-[10px] font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">124 Shifts</span>
-          </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">{txt.tabNurse}</span>
-          <span className="text-[11px] text-slate-500">ICU Telemetry</span>
-        </Link>
-
-        <Link
-          href="/pharmacy"
-          className="group flex flex-col p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-500 hover:bg-teal-50/50 transition-all shadow-2xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl">💊</span>
-            <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">98% FEFO</span>
-          </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">{txt.tabPharmacy}</span>
-          <span className="text-[11px] text-slate-500">FEFO Stock</span>
-        </Link>
-
-        <Link
-          href="/ot"
-          className="group flex flex-col p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-500 hover:bg-teal-50/50 transition-all shadow-2xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl">🔪</span>
-            <span className="text-[10px] font-black bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">3 In Surgery</span>
-          </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">OT Surgery</span>
-          <span className="text-[11px] text-slate-500">Surgical Suites</span>
-        </Link>
-
-        <Link
-          href="/pacs"
-          className="group flex flex-col p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-500 hover:bg-teal-50/50 transition-all shadow-2xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl">🩻</span>
-            <span className="text-[10px] font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">12 Scans</span>
-          </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">PACS / X-Ray</span>
-          <span className="text-[11px] text-slate-500">Radiology Suite</span>
-        </Link>
-
-        <Link
-          href="/billing"
-          className="group flex flex-col p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-500 hover:bg-teal-50/50 transition-all shadow-2xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl">💳</span>
-            <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">84.5K Today</span>
-          </div>
-          <span className="text-xs font-black text-slate-900 group-hover:text-teal-900">Telebirr & POS</span>
-          <span className="text-[11px] text-slate-500">Revenue & CBHI</span>
-        </Link>
-      </div>
-
-      {/* 3. Search Bar & Role Filter Tabs */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 pt-2">
-        {/* Role Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200">
-          {[
-            { key: 'all', label: txt.tabAll, count: HOSPITAL_ROSTER.length },
-            { key: 'doctor', label: txt.tabDoctor, count: HOSPITAL_ROSTER.filter((r) => r.role === 'doctor').length },
-            { key: 'nurse', label: txt.tabNurse, count: HOSPITAL_ROSTER.filter((r) => r.role === 'nurse').length },
-            { key: 'pharmacist', label: txt.tabPharmacy, count: HOSPITAL_ROSTER.filter((r) => r.role === 'pharmacist').length },
-            { key: 'technician', label: txt.tabTechnician, count: HOSPITAL_ROSTER.filter((r) => r.role === 'technician').length },
-            { key: 'patient', label: txt.tabPatient, count: HOSPITAL_ROSTER.filter((r) => r.role === 'patient').length },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setRoleFilter(tab.key as any)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                roleFilter === tab.key
-                  ? 'bg-teal-700 text-white shadow-xs'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-white/60'
-              }`}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <Link
+              href="/patients"
+              className="group flex flex-col p-3 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-teal-500/80 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-xs"
             >
-              {tab.label} <span className="opacity-75">({tab.count})</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Live Search Bar */}
-        <div className="relative min-w-[280px]">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={txt.searchPlaceholder}
-            className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-2xl border-2 border-slate-200 focus:border-teal-500 focus:outline-none bg-white shadow-2xs"
-          />
-        </div>
-      </div>
-
-      {/* 4. Live Roster Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredRoster.map((person) => {
-          const roleTitle = person.roleTitle[lang] || person.roleTitle.en;
-          const statusText = person.statusText[lang] || person.statusText.en;
-          const dept = person.dept[lang] || person.dept.en;
-          const location = person.location[lang] || person.location.en;
-          const workstationName = person.workstationName[lang] || person.workstationName.en;
-
-          return (
-            <div
-              key={person.id}
-              className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 hover:shadow-md transition-all"
-            >
-              {/* Top Person Info */}
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 border border-teal-200 text-2xl">
-                      {person.avatar}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-slate-900 leading-tight">
-                        {person.name}
-                      </h3>
-                      <p className="text-[11px] font-bold text-teal-800">{roleTitle}</p>
-                      <span className="font-mono text-[10px] text-slate-400">{person.code}</span>
-                    </div>
-                  </div>
-
-                  {/* Status Badge */}
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border ${person.statusColor} shrink-0`}>
-                    {statusText}
-                  </span>
-                </div>
-
-                {/* Department & Location Details */}
-                <div className="space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px] text-slate-600">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">{txt.labelDept}</span>
-                    <span className="font-bold text-slate-800">{dept}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">{txt.labelLocation}</span>
-                    <span className="font-semibold text-slate-700">{location}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">{txt.labelPhone}</span>
-                    <span className="font-mono font-bold text-teal-700">{person.phone}</span>
-                  </div>
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <Stethoscope className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+                <span className="text-[10px] font-semibold bg-teal-50 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-md border border-teal-200/60 dark:border-teal-800/60">48 Active</span>
               </div>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400">{txt.tabDoctor}</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">OPD & Clinical</span>
+            </Link>
 
-              {/* Bottom Actions: Contact & Inspect Workstation */}
-              <div className="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
+            <Link
+              href="/iomt"
+              className="group flex flex-col p-3 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-teal-500/80 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-xs"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <Activity className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" />
+                <span className="text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-md border border-blue-200/60 dark:border-blue-800/60">124 Shifts</span>
+              </div>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400">{txt.tabNurse}</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">ICU Telemetry</span>
+            </Link>
+
+            <Link
+              href="/pharmacy"
+              className="group flex flex-col p-3 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-teal-500/80 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-xs"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <Pill className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">98% FEFO</span>
+              </div>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400">{txt.tabPharmacy}</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">FEFO Stock</span>
+            </Link>
+
+            <Link
+              href="/ot"
+              className="group flex flex-col p-3 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-teal-500/80 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-xs"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <Syringe className="h-4.5 w-4.5 text-purple-600 dark:text-purple-400" />
+                <span className="text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-300 px-2 py-0.5 rounded-md border border-purple-200/60 dark:border-purple-800/60">3 In Surgery</span>
+              </div>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400">OT Surgery</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">Surgical Suites</span>
+            </Link>
+
+            <Link
+              href="/pacs"
+              className="group flex flex-col p-3 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-teal-500/80 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-xs"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <Scan className="h-4.5 w-4.5 text-indigo-600 dark:text-indigo-400" />
+                <span className="text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-800 dark:text-indigo-300 px-2 py-0.5 rounded-md border border-indigo-200/60 dark:border-indigo-800/60">12 Scans</span>
+              </div>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400">PACS / X-Ray</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">Radiology Suite</span>
+            </Link>
+
+            <Link
+              href="/billing"
+              className="group flex flex-col p-3 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-teal-500/80 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-xs"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <CreditCard className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">84.5K Today</span>
+              </div>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400">Telebirr & POS</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">Revenue & CBHI</span>
+            </Link>
+          </div>
+
+          {/* 3. Search Bar & Role Filter Tabs */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-1">
+            {/* Role Tabs */}
+            <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700">
+              {[
+                { key: 'all', label: txt.tabAll, count: HOSPITAL_ROSTER.length },
+                { key: 'doctor', label: txt.tabDoctor, count: HOSPITAL_ROSTER.filter((r) => r.role === 'doctor').length },
+                { key: 'nurse', label: txt.tabNurse, count: HOSPITAL_ROSTER.filter((r) => r.role === 'nurse').length },
+                { key: 'pharmacist', label: txt.tabPharmacy, count: HOSPITAL_ROSTER.filter((r) => r.role === 'pharmacist').length },
+                { key: 'technician', label: txt.tabTechnician, count: HOSPITAL_ROSTER.filter((r) => r.role === 'technician').length },
+                { key: 'patient', label: txt.tabPatient, count: HOSPITAL_ROSTER.filter((r) => r.role === 'patient').length },
+              ].map((tab) => (
                 <button
+                  key={tab.key}
                   type="button"
-                  onClick={() => handleOpenContact(person)}
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white py-2 text-xs font-black shadow-xs transition-all cursor-pointer"
+                  onClick={() => setRoleFilter(tab.key as any)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    roleFilter === tab.key
+                      ? 'bg-teal-700 text-white shadow-xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
+                  }`}
                 >
-                  <span>📞</span>
-                  <span>{txt.contactBtn}</span>
+                  {tab.label} <span className="opacity-75">({tab.count})</span>
                 </button>
-
-                <Link
-                  href={person.workstationUrl}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:border-teal-500 bg-slate-50 hover:bg-teal-50 text-slate-700 hover:text-teal-900 text-xs font-bold transition-all"
-                  title={`${txt.inspectBtn}: ${workstationName}`}
-                >
-                  <span>👁️</span>
-                  <span>{txt.inspectBtn}</span>
-                </Link>
-              </div>
+              ))}
             </div>
-          );
-        })}
-      </div>
-      </>
+
+            {/* Live Search Bar */}
+            <div className="relative min-w-[260px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={txt.searchPlaceholder}
+                className="w-full pl-8.5 pr-4 py-1.5 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-700 focus:border-teal-500 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
+              />
+            </div>
+          </div>
+
+          {/* 4. Live Roster Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredRoster.map((person) => {
+              const roleTitle = person.roleTitle[lang] || person.roleTitle.en;
+              const statusText = person.statusText[lang] || person.statusText.en;
+              const dept = person.dept[lang] || person.dept.en;
+              const location = person.location[lang] || person.location.en;
+              const workstationName = person.workstationName[lang] || person.workstationName.en;
+
+              return (
+                <div
+                  key={person.id}
+                  className="flex flex-col justify-between p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500/80 hover:shadow-sm transition-all"
+                >
+                  {/* Top Person Info */}
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-200/60 dark:border-teal-800/60 text-teal-700 dark:text-teal-400">
+                          <User className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white leading-tight">
+                            {person.name}
+                          </h3>
+                          <p className="text-[11px] font-medium text-teal-700 dark:text-teal-400">{roleTitle}</p>
+                          <span className="font-mono text-[10px] text-slate-400">{person.code}</span>
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium border ${person.statusColor} shrink-0`}>
+                        {statusText.replace(/[^\w\s()\-–+]/g, '').trim()}
+                      </span>
+                    </div>
+
+                    {/* Department & Location Details */}
+                    <div className="space-y-1 bg-slate-50/80 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">{txt.labelDept}</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-200">{dept}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">{txt.labelLocation}</span>
+                        <span className="font-normal text-slate-600 dark:text-slate-400">{location}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">{txt.labelPhone}</span>
+                        <span className="font-mono font-medium text-teal-700 dark:text-teal-400">{person.phone}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Actions: Contact & Inspect Workstation */}
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800 mt-3">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenContact(person)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-1.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                    >
+                      <PhoneCall className="h-3.5 w-3.5" />
+                      <span>{txt.contactBtn}</span>
+                    </button>
+
+                    <Link
+                      href={person.workstationUrl}
+                      className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-teal-500 bg-slate-50 dark:bg-slate-800 hover:bg-teal-50 text-slate-700 dark:text-slate-300 hover:text-teal-900 text-xs font-medium transition-colors"
+                      title={`${txt.inspectBtn}: ${workstationName}`}
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                      <span>{txt.inspectBtn}</span>
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {/* 5. QUICK DIRECT CONTACT MODAL */}
       {contactModalOpen && selectedRecipient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border-2 border-teal-500 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+          <div className="w-full max-w-lg rounded-xl bg-white dark:bg-[#0f172a] p-5 sm:p-6 shadow-xl border border-teal-500/40 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-3">
-                <span className="text-3xl">{selectedRecipient.avatar}</span>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-200/60 text-teal-700 dark:text-teal-400">
+                  <User className="h-5 w-5" />
+                </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900">
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                     {txt.contactModalTitle} {selectedRecipient.name}
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {selectedRecipient.roleTitle[lang] || selectedRecipient.roleTitle.en} • {selectedRecipient.phone}
                   </p>
                 </div>
@@ -1151,38 +1174,38 @@ export function AdminOversightHub(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setContactModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 font-black text-lg p-1 cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 cursor-pointer rounded-md"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Channel Switcher: SMS or In-System Alert */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">{txt.channelLabel}</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{txt.channelLabel}</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setMessageChannel('sms')}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-black cursor-pointer transition-all ${
+                  className={`inline-flex items-center justify-center gap-2 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition-colors ${
                     messageChannel === 'sms'
                       ? 'bg-teal-700 text-white border-teal-700 shadow-xs'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <span>📱</span>
+                  <Smartphone className="h-4 w-4" />
                   <span>{txt.channelSms}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setMessageChannel('system')}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-black cursor-pointer transition-all ${
+                  className={`inline-flex items-center justify-center gap-2 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition-colors ${
                     messageChannel === 'system'
                       ? 'bg-teal-700 text-white border-teal-700 shadow-xs'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <span>🚨</span>
+                  <Radio className="h-4 w-4" />
                   <span>{txt.channelSystem}</span>
                 </button>
               </div>
@@ -1190,15 +1213,15 @@ export function AdminOversightHub(): React.ReactElement {
 
             {/* Template Selector Pills */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">{txt.templateLabel}</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{txt.templateLabel}</label>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => setMessageTemplate('code_blue')}
-                  className={`p-2.5 rounded-xl border text-left font-bold cursor-pointer transition-all ${
+                  className={`p-2.5 rounded-lg border text-left font-medium cursor-pointer transition-colors ${
                     messageTemplate === 'code_blue'
-                      ? 'bg-rose-50 border-rose-400 text-rose-900'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                      ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-400 text-rose-900 dark:text-rose-200'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   {txt.tmplCodeBlue}
@@ -1206,10 +1229,10 @@ export function AdminOversightHub(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setMessageTemplate('urgent_rx')}
-                  className={`p-2.5 rounded-xl border text-left font-bold cursor-pointer transition-all ${
+                  className={`p-2.5 rounded-lg border text-left font-medium cursor-pointer transition-colors ${
                     messageTemplate === 'urgent_rx'
-                      ? 'bg-purple-50 border-purple-400 text-purple-900'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                      ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-400 text-purple-900 dark:text-purple-200'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   {txt.tmplUrgentRx}
@@ -1217,10 +1240,10 @@ export function AdminOversightHub(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setMessageTemplate('directive')}
-                  className={`p-2.5 rounded-xl border text-left font-bold cursor-pointer transition-all ${
+                  className={`p-2.5 rounded-lg border text-left font-medium cursor-pointer transition-colors ${
                     messageTemplate === 'directive'
-                      ? 'bg-teal-50 border-teal-400 text-teal-900'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                      ? 'bg-teal-50 dark:bg-teal-950/40 border-teal-400 text-teal-900 dark:text-teal-200'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   {txt.tmplDirective}
@@ -1228,10 +1251,10 @@ export function AdminOversightHub(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setMessageTemplate('custom')}
-                  className={`p-2.5 rounded-xl border text-left font-bold cursor-pointer transition-all ${
+                  className={`p-2.5 rounded-lg border text-left font-medium cursor-pointer transition-colors ${
                     messageTemplate === 'custom'
-                      ? 'bg-amber-50 border-amber-400 text-amber-900'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 text-amber-900 dark:text-amber-200'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   {txt.tmplCustom}
@@ -1241,7 +1264,7 @@ export function AdminOversightHub(): React.ReactElement {
 
             {/* Message Preview or Input Box */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 {messageTemplate === 'custom' ? txt.msgInputLabel : txt.msgPreviewLabel}
               </label>
               {messageTemplate === 'custom' ? (
@@ -1250,38 +1273,38 @@ export function AdminOversightHub(): React.ReactElement {
                   value={customMessage}
                   onChange={(e) => setCustomMessage(e.target.value)}
                   placeholder={`${selectedRecipient.name}: ...`}
-                  className="w-full p-3 rounded-2xl border-2 border-slate-200 focus:border-teal-500 focus:outline-none text-xs text-slate-800"
+                  className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 focus:border-teal-500 focus:outline-none text-xs text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900"
                 />
               ) : (
-                <div className="p-3 rounded-2xl border border-teal-200 bg-teal-50/70 text-xs font-semibold text-slate-800">
+                <div className="p-2.5 rounded-lg border border-teal-200/80 dark:border-teal-800/80 bg-teal-50/60 dark:bg-teal-950/30 text-xs font-normal text-slate-800 dark:text-slate-200 leading-relaxed">
                   {messageTemplate === 'code_blue' &&
                     (lang === 'om'
-                      ? `🚨 WAAMICHA TASAA: ${selectedRecipient.name}, bakka jirtan ${selectedRecipient.location.om} tti waamicha hatattamaa qabdu! - Bulchiinsa Hospitaala Meettuu Kaarli`
+                      ? `WAAMICHA TASAA: ${selectedRecipient.name}, bakka jirtan ${selectedRecipient.location.om} tti waamicha hatattamaa qabdu! - Bulchiinsa Hospitaala Meettuu Kaarli`
                       : lang === 'am'
-                      ? `🚨 የአደጋ ጊዜ ጥሪ: ${selectedRecipient.name}፣ ባሉበት ${selectedRecipient.location.am} አስቸኳይ ህክምና ይፈለጋል! - መቱ ካርል ሆስፒታል አስተዳደር`
-                      : `🚨 CODE BLUE ALERT: ${selectedRecipient.name}, urgent clinical response required at ${selectedRecipient.location.en}! - Mettu Karl Administration`)}
+                      ? `የአደጋ ጊዜ ጥሪ: ${selectedRecipient.name}፣ ባሉበት ${selectedRecipient.location.am} አስቸኳይ ህክምና ይፈለጋል! - መቱ ካርል ሆስፒታል አስተዳደር`
+                      : `CODE BLUE ALERT: ${selectedRecipient.name}, urgent clinical response required at ${selectedRecipient.location.en}! - Mettu Karl Administration`)}
                   {messageTemplate === 'urgent_rx' &&
                     (lang === 'om'
-                      ? `💊 QORICHA HATATTAMAA: Qoricha dhukkubsataa qorachuun barbaachisaadha. Kutaa Faarmaasiitti dhiyaadhaa! - Bulchiinsa Hospitaalaa`
+                      ? `QORICHA HATATTAMAA: Qoricha dhukkubsataa qorachuun barbaachisaadha. Kutaa Faarmaasiitti dhiyaadhaa! - Bulchiinsa Hospitaalaa`
                       : lang === 'am'
-                      ? `💊 አስቸኳይ መድኃኒት: የታካሚ መድኃኒት ማረጋገጫ ያስፈልጋል። እባክዎ ፋርማሲ ያግኙ! - የሆስፒታል አስተዳደር`
-                      : `💊 URGENT PHARMACY CLEARANCE: Immediate medication verification required. Please report to pharmacy! - Hospital Administration`)}
+                      ? `አስቸኳይ መድኃኒት: የታካሚ መድኃኒት ማረጋገጫ ያስፈልጋል። እባክዎ ፋርማሲ ያግኙ! - የሆስፒታል አስተዳደር`
+                      : `URGENT PHARMACY CLEARANCE: Immediate medication verification required. Please report to pharmacy! - Hospital Administration`)}
                   {messageTemplate === 'directive' &&
                     (lang === 'om'
-                      ? `📋 QAJEELFAMA BULCHIINSAA: Hojjetoota hospitaalaa hundaaf: Qulqullina yaalaa EHSTG eeguun dirqama. - Waajjira Daarektaraa`
+                      ? `QAJEELFAMA BULCHIINSAA: Hojjetoota hospitaalaa hundaaf: Qulqullina yaalaa EHSTG eeguun dirqama. - Waajjira Daarektaraa`
                       : lang === 'am'
-                      ? `📋 የአስተዳደር መመሪያ: ለሁሉም ሰራተኞች: የEHSTG የህክምና ጥራት ደረጃን መጠበቅ ግዴታ ነው። - የሆስፒታል ዋና ዳይሬክተር`
-                      : `📋 ADMINISTRATIVE DIRECTIVE: Hospital Staff Notice: Strict adherence to EHSTG clinical quality standards is mandatory. - CEO Office`)}
+                      ? `የአስተዳደር መመሪያ: ለሁሉም ሰራተኞች: የEHSTG የህክምና ጥራት ደረጃን መጠበቅ ግዴታ ነው። - የሆስፒታል ዋና ዳይሬክተር`
+                      : `ADMINISTRATIVE DIRECTIVE: Hospital Staff Notice: Strict adherence to EHSTG clinical quality standards is mandatory. - CEO Office`)}
                 </div>
               )}
             </div>
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setContactModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                className="px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium cursor-pointer"
               >
                 {txt.cancelBtn}
               </button>
@@ -1289,16 +1312,16 @@ export function AdminOversightHub(): React.ReactElement {
                 type="button"
                 onClick={handleSendMessage}
                 disabled={isSending}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isSending ? (
                   <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     <span>{txt.sendingText}</span>
                   </>
                 ) : (
                   <>
-                    <span>📤</span>
+                    <Send className="h-3.5 w-3.5" />
                     <span>{txt.sendBtn}</span>
                   </>
                 )}
@@ -1311,15 +1334,17 @@ export function AdminOversightHub(): React.ReactElement {
       {/* 6. HOSPITAL-WIDE EXECUTIVE BROADCAST MODAL */}
       {broadcastModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border-2 border-amber-500 space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">📢</span>
+          <div className="w-full max-w-lg rounded-xl bg-white dark:bg-[#0f172a] p-5 sm:p-6 shadow-xl border border-amber-500/40 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60">
+                  <Megaphone className="h-4.5 w-4.5" />
+                </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900">
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                     {txt.broadcastModalTitle}
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Ethio Telecom SMS Gateway & In-App Hospital Alert
                   </p>
                 </div>
@@ -1327,16 +1352,16 @@ export function AdminOversightHub(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setBroadcastModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 font-black text-lg p-1 cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 cursor-pointer rounded-md"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Target Select */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">{txt.broadcastTargetLabel}</label>
-              <div className="grid grid-cols-3 gap-2 text-xs font-bold">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{txt.broadcastTargetLabel}</label>
+              <div className="grid grid-cols-3 gap-1.5 text-xs font-medium">
                 {[
                   { key: 'all', label: txt.tabAll },
                   { key: 'doctors', label: txt.tabDoctor },
@@ -1348,10 +1373,10 @@ export function AdminOversightHub(): React.ReactElement {
                     key={target.key}
                     type="button"
                     onClick={() => setBroadcastTarget(target.key as any)}
-                    className={`py-2 px-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`py-1.5 px-2.5 rounded-lg border cursor-pointer transition-colors ${
                       broadcastTarget === target.key
-                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
-                        : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs font-semibold'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     {target.label}
@@ -1362,22 +1387,22 @@ export function AdminOversightHub(): React.ReactElement {
 
             {/* Broadcast Message Input */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-slate-700">{txt.broadcastMsgLabel}</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{txt.broadcastMsgLabel}</label>
               <textarea
-                rows={4}
+                rows={3}
                 value={broadcastMessage}
                 onChange={(e) => setBroadcastMessage(e.target.value)}
                 placeholder={txt.broadcastPlaceholder}
-                className="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:outline-none text-xs text-slate-800"
+                className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 focus:border-amber-500 focus:outline-none text-xs text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900"
               />
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setBroadcastModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                className="px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium cursor-pointer"
               >
                 {txt.cancelBtn}
               </button>
@@ -1385,16 +1410,16 @@ export function AdminOversightHub(): React.ReactElement {
                 type="button"
                 onClick={handleSendBroadcast}
                 disabled={isBroadcasting}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isBroadcasting ? (
                   <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     <span>{txt.sendingText}</span>
                   </>
                 ) : (
                   <>
-                    <span>📢</span>
+                    <Send className="h-3.5 w-3.5" />
                     <span>{txt.broadcastSendBtn}</span>
                   </>
                 )}
