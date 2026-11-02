@@ -766,7 +766,7 @@ export default function PatientPortalPage(): React.ReactElement {
         {/* =========================================================================
             2. MAIN WORKSPACE (RIGHT SIDE: WIDE & BREATHABLE)
             ========================================================================= */}
-        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden bg-gradient-to-b from-teal-50/40 via-slate-50 to-slate-100/80 pb-20 lg:pb-0">
+        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden bg-gradient-to-b from-teal-50/40 via-slate-50 to-slate-100/80 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100 pb-20 lg:pb-0">
           {/* Main Top Header Bar - Solid Black with White Text and Integrated Calendar & Shift Cockpit */}
           <header className="sticky top-0 z-20 border-b border-slate-800 bg-black text-white px-3 sm:px-6 py-3 shadow-xl flex items-center justify-between gap-2.5 select-none w-full">
             {/* Header Left: Hamburger for mobile + Active Workstation Title */}

@@ -1,13 +1,28 @@
 /**
  * Patient CRM, CSAT Feedback & Grievance SLA Ticketing Workstation.
- * Patient advocacy with responsive rectangular spotlight UX.
+ * Patient advocacy, ombudsman investigation & satisfaction quality metrics.
+ * Enterprise Healthcare Standard (Epic/Cerner/NHS).
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import {
+  HeartHandshake,
+  Smile,
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  Building2,
+  Search,
+  Check,
+  FileText,
+  Sparkles,
+  Star,
+  Users
+} from 'lucide-react';
 
 interface GrievanceItem {
   id: string;
@@ -29,6 +44,7 @@ const initialTickets: GrievanceItem[] = [
 export default function CRMPage(): React.ReactElement {
   const { t } = useTranslation();
   const [tickets, setTickets] = useState<GrievanceItem[]>(initialTickets);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const resolveTicket = (ticketId: string) => {
     setTickets((prev) =>
@@ -36,131 +52,183 @@ export default function CRMPage(): React.ReactElement {
     );
   };
 
+  const criticalCount = useMemo(() => tickets.filter((t) => t.priority === 'critical' && t.status !== 'resolved').length, [tickets]);
+  const resolvedCount = useMemo(() => tickets.filter((t) => t.status === 'resolved').length, [tickets]);
+
+  const filteredTickets = useMemo(() => {
+    if (!searchTerm) return tickets;
+    const q = searchTerm.toLowerCase();
+    return tickets.filter(
+      (t) =>
+        t.patient.toLowerCase().includes(q) ||
+        t.id.toLowerCase().includes(q) ||
+        t.category.toLowerCase().includes(q) ||
+        t.dept.toLowerCase().includes(q)
+    );
+  }, [tickets, searchTerm]);
+
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
-        <main className="flex-1 p-6 lg:p-8 space-y-6">
-          {/* Header Bar with Rectangular Responsive Spotlight */}
-          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white px-7 py-5 rounded-3xl border-2 border-slate-200/90 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/30 transition-all duration-200">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-sm text-2xl group-hover:scale-105 transition-transform">
-                  🤝
-                </span>
-                <div>
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-teal-950 transition-colors">
-                    {t('patient_crm')} • Patient Experience & Grievance SLA Desk
-                  </h1>
-                  <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                    Patient CSAT Voice • Automated SLA Timers • Grievance Investigation & Ombudsman Resolution
-                  </p>
-                </div>
+        <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+          {/* Header Action Bar */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-6 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400">
+                <HeartHandshake className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  {t('patient_crm')} • Patient Experience & Grievance SLA Desk
+                </h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Patient CSAT Voice • Automated SLA Timers • Grievance Investigation & Ombudsman Resolution
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200 group-hover:bg-white transition-colors">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                Hospital CSAT: 4.7 / 5.0 ★
+
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+                <Star className="h-3.5 w-3.5 fill-emerald-500 text-emerald-500" />
+                Hospital CSAT: 4.7 / 5.0
               </span>
             </div>
           </div>
 
-          {/* Quick Metrics Cards with Rectangular Spotlight */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Grievances</span>
-              <p className="mt-2 text-3xl font-black text-slate-900 group-hover:text-teal-950 transition-colors">18 Tickets</p>
-              <p className="mt-1 text-xs text-teal-600 font-bold">This Month • Quality Assurance</p>
+          {/* Quick Metrics KPI Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Grievances</span>
+                <span className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400">
+                  <FileText className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{tickets.length} Tickets</p>
+              <p className="mt-2 text-xs text-teal-600 dark:text-teal-400 font-medium">Quality assurance oversight</p>
             </div>
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-rose-500 hover:bg-rose-50/70 hover:ring-2 hover:ring-rose-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-rose-700">Critical (4h SLA)</span>
-              <p className="mt-2 text-3xl font-black text-rose-600 group-hover:text-rose-950 transition-colors">1 Active</p>
-              <p className="mt-1 text-xs text-rose-600 font-semibold">Emergency care delay ticket</p>
+
+            <div className="rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">Critical (4h SLA)</span>
+                <span className="p-2 rounded-lg bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400">
+                  <AlertTriangle className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-rose-700 dark:text-rose-300">{criticalCount} Active</p>
+              <p className="mt-2 text-xs text-rose-600 dark:text-rose-400 font-medium">Emergency care delay prioritization</p>
             </div>
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-700">Resolution Rate</span>
-              <p className="mt-2 text-3xl font-black text-emerald-600 group-hover:text-emerald-950 transition-colors">92.4%</p>
-              <p className="mt-1 text-xs text-slate-500 font-semibold">Target &gt; 90% SLA met</p>
+
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Resolution Rate</span>
+                <span className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">92.4%</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Target &gt; 90% SLA met on time</p>
             </div>
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Avg Resolution TAT</span>
-              <p className="mt-2 text-3xl font-black text-blue-700 group-hover:text-blue-950 transition-colors">18 Hours</p>
-              <p className="mt-1 text-xs text-blue-600 font-bold">Fast-track mediation</p>
+
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Avg Resolution TAT</span>
+                <span className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
+                  <Clock className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-blue-600 dark:text-blue-400">18 Hours</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Fast-track mediation protocol</p>
             </div>
           </div>
 
-          {/* Grievance Tickets (Floating Card-Rows Table) */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600 border-separate border-spacing-y-2.5">
-              <thead>
-                <tr className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-                  <th className="px-5 py-2">Ticket ID</th>
-                  <th className="px-5 py-2">Patient Name</th>
-                  <th className="px-5 py-2">Category</th>
-                  <th className="px-5 py-2">Department</th>
-                  <th className="px-5 py-2">Grievance Summary</th>
-                  <th className="px-5 py-2">SLA Window</th>
-                  <th className="px-5 py-2">Status</th>
-                  <th className="px-5 py-2 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tickets.map((t) => (
-                  <tr
-                    key={t.id}
-                    className="group transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-lg"
-                  >
-                    <td className="px-5 py-4 bg-white rounded-l-2xl border-y-2 border-l-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-mono font-black text-teal-800">
-                      {t.id}
-                    </td>
-                    <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-black text-slate-900 text-sm">
-                      {t.patient}
-                    </td>
-                    <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-bold text-slate-700">
-                      {t.category}
-                    </td>
-                    <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all text-slate-600 font-semibold">
-                      {t.dept}
-                    </td>
-                    <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all text-slate-500 max-w-xs truncate">
-                      {t.details}
-                    </td>
-                    <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-bold text-slate-700 font-mono">
-                      {t.slaDue}
-                    </td>
-                    <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                      {t.status === 'resolved' && (
-                        <span className="rounded-full bg-emerald-100 border border-emerald-300 px-3 py-1 text-[10px] font-black text-emerald-800">
-                          Resolved
-                        </span>
-                      )}
-                      {t.status === 'under_investigation' && (
-                        <span className="rounded-full bg-blue-100 border border-blue-300 px-3 py-1 text-[10px] font-black text-blue-800">
-                          Investigating
-                        </span>
-                      )}
-                      {t.status === 'submitted' && (
-                        <span className="rounded-full bg-rose-100 border border-rose-300 px-3 py-1 text-[10px] font-black text-rose-800 animate-pulse">
-                          Pending
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 bg-white rounded-r-2xl border-y-2 border-r-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all text-right">
-                      {t.status !== 'resolved' && (
-                        <button
-                          onClick={() => resolveTicket(t.id)}
-                          className="rounded-xl bg-teal-600 px-3.5 py-1.5 text-xs font-black text-white hover:bg-teal-700 hover:ring-2 hover:ring-teal-400/40 transition-all cursor-pointer shadow-xs"
-                        >
-                          Resolve SLA
-                        </button>
-                      )}
-                    </td>
+          {/* Grievance Tickets Table */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <HeartHandshake className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  Grievance & Experience SLA Escalation Roster
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Track patient feedback, triage priority & Ombudsman investigation
+                </p>
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Filter patient, ticket, dept..."
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                <thead className="bg-slate-50 dark:bg-slate-800/60 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="px-5 py-3">Ticket ID</th>
+                    <th className="px-5 py-3">Patient Name</th>
+                    <th className="px-5 py-3">Category</th>
+                    <th className="px-5 py-3">Department</th>
+                    <th className="px-5 py-3">Grievance Summary</th>
+                    <th className="px-5 py-3">SLA Window</th>
+                    <th className="px-5 py-3">Status</th>
+                    <th className="px-5 py-3 text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                  {filteredTickets.map((t) => (
+                    <tr key={t.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="px-5 py-3.5 font-mono text-teal-700 dark:text-teal-400 font-bold">{t.id}</td>
+                      <td className="px-5 py-3.5 font-bold text-slate-900 dark:text-white text-sm">{t.patient}</td>
+                      <td className="px-5 py-3.5 font-semibold text-slate-800 dark:text-slate-200">{t.category}</td>
+                      <td className="px-5 py-3.5 text-slate-600 dark:text-slate-300">{t.dept}</td>
+                      <td className="px-5 py-3.5 text-slate-500 dark:text-slate-400 max-w-xs truncate">{t.details}</td>
+                      <td className="px-5 py-3.5 font-mono text-slate-700 dark:text-slate-300 font-semibold">{t.slaDue}</td>
+                      <td className="px-5 py-3.5">
+                        {t.status === 'resolved' && (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Resolved
+                          </span>
+                        )}
+                        {t.status === 'under_investigation' && (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:text-blue-400">
+                            <Clock className="h-3 w-3" />
+                            Investigating
+                          </span>
+                        )}
+                        {t.status === 'submitted' && (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 px-2 py-0.5 text-[10px] font-bold text-rose-700 dark:text-rose-400 animate-pulse">
+                            <AlertTriangle className="h-3 w-3" />
+                            Pending
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        {t.status !== 'resolved' && (
+                          <button
+                            type="button"
+                            onClick={() => resolveTicket(t.id)}
+                            className="inline-flex items-center gap-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-2.5 py-1 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                          >
+                            <Check className="h-3 w-3" />
+                            Resolve SLA
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </main>
       </div>

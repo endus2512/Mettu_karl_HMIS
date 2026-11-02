@@ -1,13 +1,27 @@
 /**
  * Hospital Supply Chain, Public Tenders & Vendor Bids Workstation.
- * Public procurement with responsive rectangular spotlight UX.
+ * Ethiopian Public Procurement & Property Administration (FPPA) compliance.
+ * Enterprise Healthcare Standard (Epic/Cerner/NHS).
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import {
+  ShoppingBag,
+  FileText,
+  CheckCircle2,
+  Clock,
+  Building2,
+  Search,
+  Plus,
+  TrendingUp,
+  Users,
+  Award,
+  Filter
+} from 'lucide-react';
 
 interface TenderItem {
   id: string;
@@ -28,110 +42,142 @@ const initialTenders: TenderItem[] = [
 export default function ProcurementPage(): React.ReactElement {
   const { t } = useTranslation();
   const [tenders] = useState<TenderItem[]>(initialTenders);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredTenders = useMemo(() => {
+    if (!searchTerm) return tenders;
+    const q = searchTerm.toLowerCase();
+    return tenders.filter(
+      (t) =>
+        t.title.toLowerCase().includes(q) ||
+        t.id.toLowerCase().includes(q) ||
+        t.category.toLowerCase().includes(q)
+    );
+  }, [tenders, searchTerm]);
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
-        <main className="flex-1 p-6 lg:p-8 space-y-6">
-          {/* Header Bar with Rectangular Responsive Spotlight */}
-          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white px-7 py-5 rounded-3xl border-2 border-slate-200/90 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/30 transition-all duration-200">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-sm text-2xl group-hover:scale-105 transition-transform">
-                  📦
-                </span>
-                <div>
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-teal-950 transition-colors">
-                    {t('procurement_tenders')} • Public Procurement & Vendor Tenders
-                  </h1>
-                  <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                    Ethiopian Public Procurement & Property Administration (FPPA) • Competitive Bidding • Scoring Matrix
-                  </p>
-                </div>
+        <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+          {/* Header Action Bar */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-6 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400">
+                <ShoppingBag className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  {t('procurement_tenders')} • Public Procurement & Vendor Tenders
+                </h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Ethiopian Public Procurement & Property Administration (FPPA) • Competitive Bidding • Scoring Matrix
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
+
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-2xl bg-teal-600 px-5 py-2.5 text-xs font-black text-white shadow-sm hover:bg-teal-700 hover:ring-2 hover:ring-teal-400/50 hover:shadow-md transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold px-4 py-2 text-xs shadow-xs transition-colors cursor-pointer"
               >
-                <span>➕</span> Publish New Tender Notice
+                <Plus className="h-4 w-4" />
+                Publish Tender Notice
               </button>
             </div>
           </div>
 
-          {/* Quick Metrics Cards with Rectangular Spotlight */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-teal-800 transition-colors">Active Public Tenders</p>
-              <p className="mt-2 text-3xl font-black text-teal-800 group-hover:text-teal-950 transition-colors">6 Notices</p>
-              <p className="mt-1 text-xs text-teal-600 font-semibold">Open for certified supplier bidding</p>
+          {/* Quick Metrics KPI Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Public Tenders</span>
+                <span className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400">
+                  <FileText className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-teal-700 dark:text-teal-400">{tenders.length} Notices</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Open for certified supplier bidding</p>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-emerald-500 hover:bg-emerald-50/70 hover:ring-2 hover:ring-emerald-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">Total Tender Value</p>
-              <p className="mt-2 text-3xl font-black text-emerald-600 group-hover:text-emerald-950 transition-colors">7.45M ETB</p>
-              <p className="mt-1 text-xs text-slate-400 font-semibold">Annual hospital procurement allocation</p>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Tender Value</span>
+                <span className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+                  <TrendingUp className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono">7.45M ETB</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Annual hospital procurement budget</p>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-blue-500 hover:bg-blue-50/70 hover:ring-2 hover:ring-blue-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Registered Suppliers</p>
-              <p className="mt-2 text-3xl font-black text-blue-600 group-hover:text-blue-950 transition-colors">38 Vendors</p>
-              <p className="mt-1 text-xs text-blue-600 font-semibold">Vetted TIN, EFDA License & Compliance</p>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Registered Suppliers</span>
+                <span className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
+                  <Users className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">38 Vendors</p>
+              <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 font-medium">Vetted TIN & EFDA license verified</p>
             </div>
           </div>
 
-          {/* Tenders Table (Floating Card-Rows) */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
-              Active Procurement Notices & Bidding Portals
-            </h3>
+          {/* Tenders Table */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  Active Procurement Notices & Bidding Portals
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Competitive tender advertisements, submission deadlines & bid opening logs
+                </p>
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Filter tender ref, title..."
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-600 border-separate border-spacing-y-2.5">
-                <thead>
-                  <tr className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-                    <th className="px-5 py-2">Tender Ref #</th>
-                    <th className="px-5 py-2">Contract Notice Title</th>
-                    <th className="px-5 py-2">Category</th>
-                    <th className="px-5 py-2">Estimated Budget</th>
-                    <th className="px-5 py-2">Deadline</th>
-                    <th className="px-5 py-2">Bids</th>
-                    <th className="px-5 py-2 text-right">Status</th>
+              <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                <thead className="bg-slate-50 dark:bg-slate-800/60 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="px-5 py-3">Tender Ref #</th>
+                    <th className="px-5 py-3">Contract Notice Title</th>
+                    <th className="px-5 py-3">Category</th>
+                    <th className="px-5 py-3">Estimated Budget</th>
+                    <th className="px-5 py-3">Deadline</th>
+                    <th className="px-5 py-3">Bids</th>
+                    <th className="px-5 py-3 text-right">Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {tenders.map((tender) => (
-                    <tr
-                      key={tender.id}
-                      className="group transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-lg"
-                    >
-                      <td className="px-5 py-4 bg-white rounded-l-2xl border-y-2 border-l-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-mono font-black text-teal-800">
-                        {tender.id}
-                      </td>
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-black text-slate-900 text-sm max-w-sm">
-                        {tender.title}
-                      </td>
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-bold text-slate-700">
-                        {tender.category}
-                      </td>
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-mono font-bold text-slate-900">
-                        {tender.budgetETB}
-                      </td>
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-mono font-bold text-slate-500">
-                        {tender.deadline}
-                      </td>
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-bold text-slate-800">
-                        {tender.bidsCount} Offers
-                      </td>
-                      <td className="px-5 py-4 bg-white rounded-r-2xl border-y-2 border-r-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all text-right">
-                        <span className={`rounded-full px-3 py-1 text-[10px] font-black ${
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                  {filteredTenders.map((tender) => (
+                    <tr key={tender.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="px-5 py-3.5 font-mono text-teal-700 dark:text-teal-400 font-bold">{tender.id}</td>
+                      <td className="px-5 py-3.5 font-bold text-slate-900 dark:text-white text-sm max-w-sm">{tender.title}</td>
+                      <td className="px-5 py-3.5 font-semibold text-slate-700 dark:text-slate-300">{tender.category}</td>
+                      <td className="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-white">{tender.budgetETB}</td>
+                      <td className="px-5 py-3.5 font-mono text-slate-500 dark:text-slate-400">{tender.deadline}</td>
+                      <td className="px-5 py-3.5 text-slate-800 dark:text-slate-200 font-semibold">{tender.bidsCount} Offers</td>
+                      <td className="px-5 py-3.5 text-right">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${
                           tender.status === 'awarded'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
                             : tender.status === 'in_evaluation'
-                            ? 'bg-blue-100 text-blue-800 border border-blue-300'
-                            : 'bg-amber-100 text-amber-800 border border-amber-300'
+                            ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
+                            : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
                         }`}>
                           {tender.status.toUpperCase()}
                         </span>

@@ -290,23 +290,23 @@ export default function ClinicalAuditPage(): React.ReactElement {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
-        <main className="flex-1 p-6 lg:p-8 space-y-6">
+        <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           {/* Header Bar with Workstation Branding */}
-          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white px-7 py-5 rounded-3xl border-2 border-slate-200/90 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/30 transition-all duration-200">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-6 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
             <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-sm text-2xl group-hover:scale-105 transition-transform">
-                  🛡️
-                </span>
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
                 <div>
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-teal-950 transition-colors">
+                  <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                     Mettu Karl HIS • Eegumsa Iccitii Yaalaa & Qulqullina EHSTG
                   </h1>
-                  <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Zero-Trust Clinical Security Sentinel • Anti-Impersonation Guard • Tamper-Evident Audit Trails
                   </p>
                 </div>
@@ -314,14 +314,14 @@ export default function ClinicalAuditPage(): React.ReactElement {
             </div>
 
             {/* TAB SWITCHER: SECURITY SENTINEL vs EHSTG CLINICAL QUALITY */}
-            <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 type="button"
                 onClick={() => setActiveTab('security')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
                   activeTab === 'security'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <ShieldCheck className="w-4 h-4" />
@@ -330,10 +330,10 @@ export default function ClinicalAuditPage(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setActiveTab('ehstg')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
                   activeTab === 'ehstg'
-                    ? 'bg-teal-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                    ? 'bg-teal-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <FileText className="w-4 h-4" />
@@ -370,54 +370,54 @@ export default function ClinicalAuditPage(): React.ReactElement {
               )}
 
               {/* 4 Security Sentinel KPI Cards */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
-                <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-5 shadow-xs hover:border-blue-500 hover:bg-blue-50/60 transition-all">
-                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                  <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     <span>Audit Events Har'aa</span>
                     <Activity className="w-4 h-4 text-blue-500" />
                   </div>
-                  <p className="mt-2 text-3xl font-black text-blue-700">1,482</p>
-                  <p className="mt-1 text-xs text-slate-500 font-semibold">
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-blue-700 dark:text-blue-400 font-mono">1,482</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     100% Immutable (Dachaafamaa Hin Danda&apos;amne)
                   </p>
                 </div>
 
-                <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-5 shadow-xs hover:border-rose-500 hover:bg-rose-50/60 transition-all">
-                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-rose-600">
+                <div className="rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 p-5 shadow-xs">
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">
                     <span>Soba Doktoraa Dhaabame</span>
                     <ShieldAlert className="w-4 h-4 text-rose-600" />
                   </div>
-                  <p className="mt-2 text-3xl font-black text-rose-600">4 Intercepted</p>
-                  <p className="mt-1 text-xs text-rose-700 font-semibold">
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-rose-700 dark:text-rose-300">4 Intercepted</p>
+                  <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
                     HTTP 403 Forbidden (Ittifameera)
                   </p>
                 </div>
 
-                <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-5 shadow-xs hover:border-amber-500 hover:bg-amber-50/60 transition-all">
-                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-amber-700">
+                <div className="rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 p-5 shadow-xs">
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
                     <span>Break-Glass Overrides</span>
                     <Zap className="w-4 h-4 text-amber-600" />
                   </div>
-                  <p className="mt-2 text-3xl font-black text-amber-700">2 Audited</p>
-                  <p className="mt-1 text-xs text-amber-700 font-semibold">
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-amber-700 dark:text-amber-300">2 Audited</p>
+                  <p className="mt-1 text-xs text-amber-600 dark:text-amber-400 font-medium">
                     Taatee Balaa Tasaa (ICU & Trauma)
                   </p>
                 </div>
 
-                <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-5 shadow-xs hover:border-emerald-500 hover:bg-emerald-50/60 transition-all">
-                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-emerald-700">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                  <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                     <span>Privacy Masking FHIR</span>
                     <EyeOff className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <p className="mt-2 text-3xl font-black text-emerald-600">100% Active</p>
-                  <p className="mt-1 text-xs text-emerald-700 font-semibold">
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">100% Active</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Bulchiinsaaf Ragaan Yaalaa Dhorkameera
                   </p>
                 </div>
               </div>
 
               {/* Zero-Trust 4-Gate Architectural Defense System */}
-              <div className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-xs space-y-4">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
                   <div>
                     <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
@@ -579,70 +579,70 @@ export default function ClinicalAuditPage(): React.ReactElement {
           {/* ======================================================================= */}
           {activeTab === 'ehstg' && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Quick Metrics Cards with Rectangular Spotlight */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
-                <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Overall EHSTG Score</span>
-                  <p className="mt-2 text-3xl font-black text-emerald-600 group-hover:text-emerald-950 transition-colors">
+              {/* Quick Metrics KPI Cards */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Overall EHSTG Score</span>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono">
                     {avgScore}%
                   </p>
-                  <p className="mt-1 text-xs text-teal-600 font-bold">Highest tier referral hospital</p>
+                  <p className="mt-1 text-xs text-teal-600 dark:text-teal-400 font-medium">Highest tier referral hospital</p>
                 </div>
 
-                <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Chapters Audited</span>
-                  <p className="mt-2 text-3xl font-black text-slate-900 group-hover:text-teal-950 transition-colors">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Chapters Audited</span>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                     4 Chapters
                   </p>
-                  <p className="mt-1 text-xs text-slate-500 font-semibold">Q3 National MoH cycle</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Q3 National MoH cycle</p>
                 </div>
 
-                <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-amber-500 hover:bg-amber-50/70 hover:ring-2 hover:ring-amber-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-amber-700">Open CAPA Actions</span>
-                  <p className="mt-2 text-3xl font-black text-amber-700 group-hover:text-amber-950 transition-colors">
+                <div className="rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 p-5 shadow-xs">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Open CAPA Actions</span>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-amber-700 dark:text-amber-300">
                     1 Active
                   </p>
-                  <p className="mt-1 text-xs text-amber-600 font-semibold">OT surgical safety sign-out</p>
+                  <p className="mt-1 text-xs text-amber-600 dark:text-amber-400 font-medium">OT surgical safety sign-out</p>
                 </div>
 
-                <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Mortality Audit Rate</span>
-                  <p className="mt-2 text-3xl font-black text-blue-700 group-hover:text-blue-950 transition-colors">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Mortality Audit Rate</span>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-blue-600 dark:text-blue-400 font-mono">
                     100%
                   </p>
-                  <p className="mt-1 text-xs text-blue-600 font-bold">Within 72h of occurrence</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Within 72h of occurrence</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {/* EHSTG Quality Audit Chapters */}
                 <div className="space-y-3">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     EHSTG National Clinical Quality Standards
                   </h3>
                   <div className="space-y-3">
                     {audits.map((a) => (
                       <div
                         key={a.id}
-                        className="group rounded-3xl border-2 border-slate-200/90 bg-white p-5 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/30 hover:shadow-md transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5"
+                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-teal-500/50 transition-colors"
                       >
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                          <span className="font-black text-slate-900 text-sm group-hover:text-teal-950 transition-colors">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                          <span className="font-bold text-slate-900 dark:text-white text-sm">
                             {a.chapter}
                           </span>
                           <span
-                            className={`font-mono text-xs font-black px-2.5 py-0.5 rounded-xl border ${
+                            className={`font-mono text-xs font-bold px-2.5 py-0.5 rounded-lg border ${
                               a.score >= 85
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                                : 'bg-amber-50 text-amber-800 border-amber-300'
+                                ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
                             }`}
                           >
                             {a.score}%
                           </span>
                         </div>
-                        <div className="mt-3 flex items-center justify-between text-xs font-semibold text-slate-600">
+                        <div className="mt-3 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-medium">
                           <span>
-                            Department: <span className="font-bold text-slate-800">{a.dept}</span>
+                            Department: <strong className="text-slate-800 dark:text-slate-200">{a.dept}</strong>
                           </span>
                           <span className="font-mono text-slate-400">{a.date}</span>
                         </div>
@@ -653,45 +653,49 @@ export default function ClinicalAuditPage(): React.ReactElement {
 
                 {/* Corrective and Preventive Actions (CAPA) */}
                 <div className="space-y-3">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Corrective and Preventive Actions (CAPA Tracker)
                   </h3>
                   <div className="space-y-3">
                     {capas.map((capa) => (
                       <div
                         key={capa.id}
-                        className="group rounded-3xl border-2 border-slate-200/90 bg-white p-5 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/30 hover:shadow-md transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5"
+                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-teal-500/50 transition-colors"
                       >
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                          <span className="font-mono text-xs font-bold text-teal-800">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                          <span className="font-mono text-xs font-bold text-teal-700 dark:text-teal-400">
                             {capa.auditRef}
                           </span>
                           {capa.resolved ? (
-                            <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 text-[10px] font-black">
+                            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 text-[10px] font-bold">
+                              <CheckCircle2 className="h-3 w-3" />
                               RESOLVED
                             </span>
                           ) : (
-                            <span className="rounded-full bg-rose-100 text-rose-800 border border-rose-300 px-2.5 py-0.5 text-[10px] font-black animate-pulse">
+                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 px-2 py-0.5 text-[10px] font-bold animate-pulse">
+                              <AlertTriangle className="h-3 w-3" />
                               ACTION PENDING
                             </span>
                           )}
                         </div>
-                        <div className="mt-3 space-y-1 text-xs font-semibold">
-                          <p className="text-rose-700 font-bold">Issue: {capa.issue}</p>
-                          <p className="text-slate-800">Action: {capa.action}</p>
-                          <div className="mt-2 flex items-center justify-between pt-2 border-t border-slate-100 text-[11px]">
-                            <span className="text-slate-500">
-                              Lead: <span className="font-bold text-slate-700">{capa.assignee}</span>
+                        <div className="mt-3 space-y-1.5 text-xs">
+                          <p className="text-rose-700 dark:text-rose-400 font-semibold">Issue: {capa.issue}</p>
+                          <p className="text-slate-700 dark:text-slate-300">Action: {capa.action}</p>
+                          <div className="mt-2.5 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px]">
+                            <span className="text-slate-500 dark:text-slate-400">
+                              Lead: <strong className="text-slate-800 dark:text-slate-200">{capa.assignee}</strong>
                             </span>
                             {!capa.resolved ? (
                               <button
+                                type="button"
                                 onClick={() => resolveCAPA(capa.id)}
-                                className="rounded-xl bg-teal-600 px-3 py-1 text-xs font-black text-white hover:bg-teal-700 hover:ring-2 hover:ring-teal-400/40 transition-all cursor-pointer shadow-xs"
+                                className="inline-flex items-center gap-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-2.5 py-1 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
                               >
+                                <CheckCircle2 className="h-3 w-3" />
                                 Mark Remediated
                               </button>
                             ) : (
-                              <span className="text-emerald-700 font-black">✓ Verified</span>
+                              <span className="text-emerald-600 dark:text-emerald-400 font-bold">Verified</span>
                             )}
                           </div>
                         </div>

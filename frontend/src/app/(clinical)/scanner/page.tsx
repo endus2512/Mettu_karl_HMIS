@@ -13,6 +13,7 @@ import { useTranslation } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
+import { Scan, QrCode, Search, ShieldCheck } from 'lucide-react';
 
 interface ScannedResult {
   matched: boolean;
@@ -355,35 +356,35 @@ export default function BarcodeScannerPage(): React.ReactElement {
       moduleName="Barcode & QR Scanner"
       category="clinical"
     >
-      <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
         <Sidebar />
         <div className="flex flex-1 flex-col min-w-0">
           <Header />
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
-            <div className="max-w-7xl mx-auto space-y-6 pb-12">
-              {/* Soft Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl bg-white/90 p-6 border border-teal-100 shadow-sm backdrop-blur-md">
+          <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+            <div className="space-y-6 pb-12">
+              {/* Header Action Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white dark:bg-slate-900 px-6 py-5 border border-slate-200 dark:border-slate-800 shadow-xs">
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-500 text-white text-2xl shadow-md shadow-teal-600/20 ring-4 ring-teal-500/10">
-                    📷
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400">
+                    <QrCode className="h-6 w-6" />
                   </div>
                   <div>
                     <div className="flex items-center flex-wrap gap-2">
-                      <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                         {dict.pageTitle}
                       </h1>
-                      <span className="rounded-full bg-teal-50 border border-teal-300 px-3 py-0.5 text-[11px] font-bold text-teal-800">
+                      <span className="rounded-md bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800 px-2 py-0.5 text-[10px] font-bold text-teal-800 dark:text-teal-300">
                         {dict.pageBadge}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       {dict.pageSubtitle}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="rounded-2xl border border-teal-200 bg-teal-50/70 px-4 py-2 text-xs font-bold text-teal-900 flex items-center gap-2 shadow-2xs">
+                  <div className="rounded-xl border border-teal-200 dark:border-teal-800/60 bg-teal-50 dark:bg-teal-950/40 px-3 py-1.5 text-xs font-semibold text-teal-800 dark:text-teal-300 flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span>{dict.usbReady}</span>
                   </div>

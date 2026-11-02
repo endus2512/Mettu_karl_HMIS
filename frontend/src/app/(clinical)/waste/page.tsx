@@ -1,13 +1,26 @@
 /**
  * Medical Waste Segregation & Incinerator Management Workstation.
- * Biohazard disposal with responsive rectangular spotlight UX.
+ * WHO 4-color segregation, dual-chamber pyrolysis (850°C/1100°C) & environmental emissions.
+ * Enterprise Healthcare Standard (Epic/Cerner/NHS).
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import {
+  Flame,
+  Trash2,
+  Thermometer,
+  Activity,
+  CheckCircle2,
+  Clock,
+  ShieldCheck,
+  AlertTriangle,
+  Layers,
+  Search
+} from 'lucide-react';
 
 interface WasteBatch {
   id: string;
@@ -28,112 +41,155 @@ const initialBatches: WasteBatch[] = [
 export default function WastePage(): React.ReactElement {
   const { t } = useTranslation();
   const [batches] = useState<WasteBatch[]>(initialBatches);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const totalKg = useMemo(() => batches.reduce((acc, b) => acc + b.weightKg, 0), [batches]);
+
+  const filteredBatches = useMemo(() => {
+    if (!searchTerm) return batches;
+    const q = searchTerm.toLowerCase();
+    return batches.filter(
+      (b) =>
+        b.id.toLowerCase().includes(q) ||
+        b.categoryLabel.toLowerCase().includes(q) ||
+        b.origin.toLowerCase().includes(q)
+    );
+  }, [batches, searchTerm]);
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
-        <main className="flex-1 p-6 lg:p-8 space-y-6">
-          {/* Header Bar with Rectangular Responsive Spotlight */}
-          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white px-7 py-5 rounded-3xl border-2 border-slate-200/90 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/30 transition-all duration-200">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-600 text-white shadow-sm text-2xl group-hover:scale-105 transition-transform">
-                  ☣️
-                </span>
-                <div>
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-teal-950 transition-colors">
-                    {t('waste_management')} • Medical Waste & Dual-Chamber Incinerator
-                  </h1>
-                  <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                    WHO 4-Color Coded Segregation • High-Temperature Pyrolysis (850°C / 1100°C) • Ash Disposal Logging
-                  </p>
-                </div>
+        <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+          {/* Header Action Bar */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-6 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
+                <Trash2 className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  {t('waste_management')} • Medical Waste & Dual-Chamber Incinerator
+                </h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  WHO 4-Color Coded Segregation • High-Temperature Pyrolysis (850°C / 1100°C) • Ash Disposal Logging
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200 group-hover:bg-white transition-colors">
+
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <ShieldCheck className="h-3.5 w-3.5" />
                 Scrubber Filtration: 99.4% Emission Safe
               </span>
             </div>
           </div>
 
-          {/* Incinerator Real-Time Telemetry Cards with Rectangular Spotlight */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-rose-500 hover:bg-rose-50/70 hover:ring-2 hover:ring-rose-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-rose-700">Primary Chamber</span>
-              <p className="mt-2 text-3xl font-black text-rose-600 group-hover:text-rose-950 transition-colors">865°C</p>
-              <p className="mt-1 text-xs text-slate-400 font-semibold">Pyrolysis Zone (Min 850°C standard)</p>
+          {/* Incinerator Real-Time Telemetry Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">Primary Chamber</span>
+                <span className="p-2 rounded-lg bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400">
+                  <Flame className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-rose-700 dark:text-rose-300">865°C</p>
+              <p className="mt-2 text-xs text-rose-600 dark:text-rose-400 font-medium">Pyrolysis zone (&gt; 850°C standard)</p>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-amber-500 hover:bg-amber-50/70 hover:ring-2 hover:ring-amber-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-700">Secondary Chamber</span>
-              <p className="mt-2 text-3xl font-black text-amber-600 group-hover:text-amber-950 transition-colors">1120°C</p>
-              <p className="mt-1 text-xs text-slate-400 font-semibold">Complete gas combustion (Min 1100°C)</p>
+            <div className="rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Secondary Chamber</span>
+                <span className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
+                  <Thermometer className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-amber-700 dark:text-amber-300">1,120°C</p>
+              <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium">Complete gas destruction (&gt; 1100°C)</p>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-blue-500 hover:bg-blue-50/70 hover:ring-2 hover:ring-blue-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-700">Burn Cycle Active</span>
-              <p className="mt-2 text-3xl font-black text-blue-700 group-hover:text-blue-950 transition-colors">75 / 90 min</p>
-              <p className="mt-1 text-xs text-blue-600 font-semibold">Batch INC-20261026-A</p>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Burn Cycle Active</span>
+                <span className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
+                  <Clock className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">75 / 90 min</p>
+              <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 font-medium">Batch INC-20261026-A</p>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Treated Today</span>
-              <p className="mt-2 text-3xl font-black text-emerald-600 group-hover:text-emerald-950 transition-colors">109.7 Kg</p>
-              <p className="mt-1 text-xs text-emerald-600 font-bold">Safely neutralized & ash consigned</p>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Treated Today</span>
+                <span className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">{totalKg.toFixed(1)} Kg</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-medium">Safely neutralized & ash consigned</p>
             </div>
           </div>
 
-          {/* Waste Batches (Floating Card-Rows Table) */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
-              WHO Biomedical Waste Segregation Batches
-            </h3>
+          {/* Waste Batches Table */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  WHO Biomedical Waste Segregation Batches
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Point-of-generation origin tracking & color-coded stream classification
+                </p>
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Filter batch ID, category..."
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-600 border-separate border-spacing-y-2.5">
-                <thead>
-                  <tr className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-                    <th className="px-5 py-2">Batch Tracking ID</th>
-                    <th className="px-5 py-2">WHO Color Category</th>
-                    <th className="px-5 py-2">Hospital Source / Ward</th>
-                    <th className="px-5 py-2">Weight (Kg)</th>
-                    <th className="px-5 py-2 text-right">Log Time</th>
+              <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                <thead className="bg-slate-50 dark:bg-slate-800/60 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="px-5 py-3">Batch ID</th>
+                    <th className="px-5 py-3">WHO Category Stream</th>
+                    <th className="px-5 py-3">Department Origin</th>
+                    <th className="px-5 py-3">Net Weight</th>
+                    <th className="px-5 py-3 text-right">Intake Time</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {batches.map((b) => (
-                    <tr
-                      key={b.id}
-                      className="group transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-lg"
-                    >
-                      <td className="px-5 py-4 bg-white rounded-l-2xl border-y-2 border-l-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-mono font-black text-teal-800">
-                        {b.id}
-                      </td>
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                        <span className={`rounded-xl px-3 py-1 font-bold text-xs ${
-                          b.category === 'yellow_infectious'
-                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                            : b.category === 'red_sharps'
-                            ? 'bg-rose-100 text-rose-900 border border-rose-300'
-                            : b.category === 'brown_pharmaceutical'
-                            ? 'bg-amber-50 text-amber-950 border border-amber-200'
-                            : 'bg-slate-100 text-slate-800 border border-slate-300'
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                  {filteredBatches.map((batch) => (
+                    <tr key={batch.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="px-5 py-3.5 font-mono text-teal-700 dark:text-teal-400 font-bold">{batch.id}</td>
+                      <td className="px-5 py-3.5">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                          batch.category === 'yellow_infectious'
+                            ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
+                            : batch.category === 'red_sharps'
+                            ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-900 dark:text-rose-200 border border-rose-300 dark:border-rose-700'
+                            : batch.category === 'brown_pharmaceutical'
+                            ? 'bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-700'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                         }`}>
-                          {b.categoryLabel}
+                          {batch.categoryLabel}
                         </span>
                       </td>
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-bold text-slate-800">
-                        {b.origin}
-                      </td>
-                      <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-black text-slate-900 text-sm">
-                        {b.weightKg} Kg
-                      </td>
-                      <td className="px-5 py-4 bg-white rounded-r-2xl border-y-2 border-r-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all text-right font-mono text-slate-500 font-bold">
-                        {b.time}
-                      </td>
+                      <td className="px-5 py-3.5 font-bold text-slate-900 dark:text-white">{batch.origin}</td>
+                      <td className="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-white">{batch.weightKg} kg</td>
+                      <td className="px-5 py-3.5 text-right font-mono text-slate-500 dark:text-slate-400 text-[11px]">{batch.time}</td>
                     </tr>
                   ))}
                 </tbody>

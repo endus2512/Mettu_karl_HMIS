@@ -1,13 +1,29 @@
 /**
  * Mass Casualty Incident (MCI) & START Disaster Triage Workstation.
- * Disaster trauma intake with responsive rectangular spotlight UX.
+ * Simple Triage and Rapid Treatment (START), Surge Capacity & Trauma Intake.
+ * Enterprise Healthcare Standard (Epic/Cerner/NHS).
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import {
+  Siren,
+  AlertTriangle,
+  Activity,
+  HeartPulse,
+  CheckCircle2,
+  Clock,
+  Plus,
+  Search,
+  ShieldAlert,
+  Flame,
+  Layers,
+  Sparkles,
+  Building2
+} from 'lucide-react';
 
 interface CasualtyItem {
   tag: string;
@@ -21,10 +37,10 @@ interface CasualtyItem {
 }
 
 const initialCasualties: CasualtyItem[] = [
-  { tag: 'MCI-RED-001', category: 'red_immediate', respiratoryRate: 36, pulse: true, commands: true, bay: 'Trauma Resus Bay 1', injury: 'Severe blunt chest trauma, flail segment', time: '12:04' },
-  { tag: 'MCI-RED-002', category: 'red_immediate', respiratoryRate: 24, pulse: false, commands: false, bay: 'Trauma Resus Bay 2', injury: 'Massive pelvic fracture with hemorrhagic shock', time: '12:08' },
+  { tag: 'MCI-RED-001', category: 'red_immediate', respiratoryRate: 36, pulse: true, commands: true, bay: 'Trauma Resuscitation Bay 1', injury: 'Severe blunt chest trauma, flail chest segment', time: '12:04' },
+  { tag: 'MCI-RED-002', category: 'red_immediate', respiratoryRate: 24, pulse: false, commands: false, bay: 'Trauma Resuscitation Bay 2', injury: 'Massive pelvic fracture with hemorrhagic shock', time: '12:08' },
   { tag: 'MCI-YEL-003', category: 'yellow_delayed', respiratoryRate: 20, pulse: true, commands: true, bay: 'OPD Surge Holding Bay A', injury: 'Open tibia-fibula fracture, distal pulses intact', time: '12:12' },
-  { tag: 'MCI-GRN-004', category: 'green_minor', respiratoryRate: 18, pulse: true, commands: true, bay: 'Outpatient Corridor Ward', injury: 'Walking wounded, superficial facial lacerations', time: '12:15' },
+  { tag: 'MCI-GRN-004', category: 'green_minor', respiratoryRate: 18, pulse: true, commands: true, bay: 'Outpatient Corridor Staging', injury: 'Walking wounded, superficial facial & extremity lacerations', time: '12:15' },
 ];
 
 export default function MCIPage(): React.ReactElement {
@@ -35,6 +51,7 @@ export default function MCIPage(): React.ReactElement {
   const [rr, setRr] = useState(34);
   const [hasPulse, setHasPulse] = useState(true);
   const [followsCommands, setFollowsCommands] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const previewCategory = () => {
     if (!isBreathing) return 'black_deceased';
@@ -52,127 +69,156 @@ export default function MCIPage(): React.ReactElement {
       respiratoryRate: rr,
       pulse: hasPulse,
       commands: followsCommands,
-      bay: cat === 'red_immediate' ? 'Trauma Resus' : cat === 'yellow_delayed' ? 'Surge Bay A' : 'Minor Holding',
-      injury: 'Rapid disaster intake assessment',
-      time: 'Now',
+      bay: cat === 'red_immediate' ? 'Trauma Resus Bay' : cat === 'yellow_delayed' ? 'OPD Surge Holding Bay' : 'Walking Wounded Zone',
+      injury: 'Rapid disaster intake triage assessment',
+      time: 'Just now',
     };
     setCasualties([newTag, ...casualties]);
   };
 
-  const redCount = casualties.filter((c) => c.category === 'red_immediate').length;
-  const yellowCount = casualties.filter((c) => c.category === 'yellow_delayed').length;
-  const greenCount = casualties.filter((c) => c.category === 'green_minor').length;
-  const blackCount = casualties.filter((c) => c.category === 'black_deceased').length;
+  const redCount = useMemo(() => casualties.filter((c) => c.category === 'red_immediate').length, [casualties]);
+  const yellowCount = useMemo(() => casualties.filter((c) => c.category === 'yellow_delayed').length, [casualties]);
+  const greenCount = useMemo(() => casualties.filter((c) => c.category === 'green_minor').length, [casualties]);
+  const blackCount = useMemo(() => casualties.filter((c) => c.category === 'black_deceased').length, [casualties]);
+
+  const filteredCasualties = useMemo(() => {
+    if (!searchTerm) return casualties;
+    const q = searchTerm.toLowerCase();
+    return casualties.filter(
+      (c) =>
+        c.tag.toLowerCase().includes(q) ||
+        c.injury.toLowerCase().includes(q) ||
+        c.bay.toLowerCase().includes(q)
+    );
+  }, [casualties, searchTerm]);
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
-        <main className="flex-1 p-6 lg:p-8 space-y-6">
-          {/* Header Bar with Rectangular Responsive Spotlight */}
-          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white px-7 py-5 rounded-3xl border-2 border-slate-200/90 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/30 transition-all duration-200">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-sm text-2xl group-hover:scale-105 transition-transform">
-                  🚨
-                </span>
-                <div>
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-teal-950 transition-colors">
-                    {t('mci_disaster_triage')} • START Mass Casualty Incident Protocol
-                  </h1>
-                  <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                    Simple Triage and Rapid Treatment (START) • Surge Capacity Mobilization • Disaster Tag Allocation
-                  </p>
-                </div>
+        <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+          {/* Header Action Bar */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-6 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400">
+                <Siren className="h-6 w-6 animate-pulse" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  {t('mci_disaster_triage')} • START Mass Casualty Incident Protocol
+                </h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Simple Triage and Rapid Treatment (START) • Surge Capacity Mobilization • Disaster Tag Allocation
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 animate-pulse">
+
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3.5 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 animate-pulse">
                 <span className="h-2 w-2 rounded-full bg-rose-600" />
+                <ShieldAlert className="h-3.5 w-3.5" />
                 MCI Command Post: ACTIVE
               </span>
             </div>
           </div>
 
-          {/* Quick Metrics Cards with Rectangular Spotlight (START 4 Tiers) */}
+          {/* START 4-Tier Rapid Metrics Cards */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-rose-500 hover:bg-rose-50/70 hover:ring-2 hover:ring-rose-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-black uppercase text-rose-700">RED (Immediate)</span>
+            <div className="rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">RED (Immediate)</span>
                 <span className="h-2.5 w-2.5 rounded-full bg-rose-600 animate-ping" />
               </div>
-              <p className="mt-2 text-3xl font-black text-rose-700 group-hover:text-rose-950 transition-colors">{redCount} Patients</p>
-              <p className="mt-1 text-xs text-rose-600 font-bold">Immediate airway, breathing, shock</p>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-rose-700 dark:text-rose-300">{redCount} Patients</p>
+              <p className="mt-2 text-xs text-rose-600 dark:text-rose-400 font-medium">Critical airway, breathing, shock</p>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-amber-500 hover:bg-amber-50/70 hover:ring-2 hover:ring-amber-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-black uppercase text-amber-700">YELLOW (Delayed)</span>
-              <p className="mt-2 text-3xl font-black text-amber-700 group-hover:text-amber-950 transition-colors">{yellowCount} Patients</p>
-              <p className="mt-1 text-xs text-amber-600 font-semibold">Serious injuries, vitals stable</p>
+            <div className="rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">YELLOW (Delayed)</span>
+                <span className="h-2 w-2 rounded-full bg-amber-500" />
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-amber-700 dark:text-amber-300">{yellowCount} Patients</p>
+              <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium">Serious injury, hemodynamically stable</p>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-teal-500 hover:bg-teal-50/70 hover:ring-2 hover:ring-teal-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-black uppercase text-teal-700">GREEN (Minor)</span>
-              <p className="mt-2 text-3xl font-black text-teal-700 group-hover:text-teal-950 transition-colors">{greenCount} Patients</p>
-              <p className="mt-1 text-xs text-teal-600 font-semibold">Walking wounded, secondary bay</p>
+            <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-950/20 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">GREEN (Minor)</span>
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300">{greenCount} Patients</p>
+              <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium">Walking wounded, secondary holding</p>
             </div>
 
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-6 shadow-xs hover:border-slate-400 hover:bg-slate-100/70 hover:ring-2 hover:ring-slate-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1">
-              <span className="text-xs font-black uppercase text-slate-500">BLACK (Expectant)</span>
-              <p className="mt-2 text-3xl font-black text-slate-700 group-hover:text-slate-950 transition-colors">{blackCount} Deceased</p>
-              <p className="mt-1 text-xs text-slate-400 font-semibold">Non-salvageable / mortuary bay</p>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">BLACK (Expectant)</span>
+                <span className="h-2 w-2 rounded-full bg-slate-500" />
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-slate-700 dark:text-slate-300">{blackCount} Deceased</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Non-salvageable, mortuary bay transfer</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Casualty List (Floating Card-Rows Table) */}
-            <div className="col-span-2 space-y-3">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
-                Disaster Casualty Registry & Holding Bays
-              </h3>
+            {/* Casualty List Table (2 cols) */}
+            <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
+              <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    Disaster Casualty Registry & Holding Bays
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Real-time START disaster tag tracking and emergency theater routing
+                  </p>
+                </div>
+
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Filter casualty tag or bay..."
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-600 border-separate border-spacing-y-2.5">
-                  <thead>
-                    <tr className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-                      <th className="px-5 py-2">START Tag #</th>
-                      <th className="px-5 py-2">Triage Category</th>
-                      <th className="px-5 py-2">Injury Summary</th>
-                      <th className="px-5 py-2">Assigned Surge Bay</th>
-                      <th className="px-5 py-2 text-right">Intake Time</th>
+                <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                  <thead className="bg-slate-50 dark:bg-slate-800/60 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="px-5 py-3">START Tag #</th>
+                      <th className="px-5 py-3">Triage Category</th>
+                      <th className="px-5 py-3">Injury Assessment</th>
+                      <th className="px-5 py-3">Assigned Surge Bay</th>
+                      <th className="px-5 py-3 text-right">Intake Time</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {casualties.map((c) => (
-                      <tr
-                        key={c.tag}
-                        className="group transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-lg"
-                      >
-                        <td className="px-5 py-4 bg-white rounded-l-2xl border-y-2 border-l-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-mono font-black text-teal-800">
-                          {c.tag}
-                        </td>
-                        <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all">
-                          <span className={`rounded-xl px-3 py-1 font-black text-xs ${
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                    {filteredCasualties.map((c) => (
+                      <tr key={c.tag} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                        <td className="px-5 py-3.5 font-mono text-teal-700 dark:text-teal-400 font-bold">{c.tag}</td>
+                        <td className="px-5 py-3.5">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${
                             c.category === 'red_immediate'
-                              ? 'bg-rose-100 text-rose-800 border border-rose-300 animate-pulse'
+                              ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 animate-pulse'
                               : c.category === 'yellow_delayed'
-                              ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                              ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
                               : c.category === 'green_minor'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                              : 'bg-slate-200 text-slate-800 border border-slate-400'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
                           }`}>
                             {c.category.replace('_', ' ').toUpperCase()}
                           </span>
                         </td>
-                        <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-black text-slate-900 text-sm">
-                          {c.injury}
-                        </td>
-                        <td className="px-5 py-4 bg-white border-y-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all font-bold text-slate-700">
-                          {c.bay}
-                        </td>
-                        <td className="px-5 py-4 bg-white rounded-r-2xl border-y-2 border-r-2 border-slate-200/90 group-hover:border-teal-500 group-hover:bg-teal-50/70 transition-all text-right font-mono text-slate-500 font-bold">
-                          {c.time}
-                        </td>
+                        <td className="px-5 py-3.5 font-semibold text-slate-900 dark:text-white max-w-xs">{c.injury}</td>
+                        <td className="px-5 py-3.5 text-slate-600 dark:text-slate-300">{c.bay}</td>
+                        <td className="px-5 py-3.5 text-right font-mono text-slate-400 text-[11px]">{c.time}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -181,59 +227,73 @@ export default function MCIPage(): React.ReactElement {
             </div>
 
             {/* Rapid START Algorithm Calculator */}
-            <div className="group rounded-3xl border-2 border-slate-200/90 bg-white p-7 shadow-xs hover:border-teal-500 hover:ring-2 hover:ring-teal-400/30 transition-all duration-200 space-y-4">
-              <h3 className="text-sm font-black text-slate-900 group-hover:text-teal-950 transition-colors uppercase tracking-wider">
-                Rapid START Tagging
-              </h3>
-              <div className="space-y-3 text-xs font-semibold">
-                <label className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
+                  <HeartPulse className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Rapid START Tagging
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Clinical Protocol 30-2-Can Do</p>
+                </div>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isAmbulatory}
                     onChange={(e) => setIsAmbulatory(e.target.checked)}
-                    className="h-4 w-4 rounded text-teal-600"
+                    className="h-4 w-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300"
                   />
-                  <span>Can Patient Walk? (Ambulatory)</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">Can Patient Walk? (Ambulatory)</span>
                 </label>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Respiratory Rate (/min)
                   </label>
                   <input
                     type="number"
                     value={rr}
                     onChange={(e) => setRr(Number(e.target.value))}
-                    className="w-full rounded-xl border-2 border-slate-200 p-2 text-xs font-mono font-bold"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:border-teal-500 focus:outline-none"
                   />
+                  <span className="text-[10px] text-slate-400 mt-1 block">&gt; 30/min triggers IMMEDIATE RED tag</span>
                 </div>
 
-                <label className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={hasPulse}
                     onChange={(e) => setHasPulse(e.target.checked)}
-                    className="h-4 w-4 rounded text-teal-600"
+                    className="h-4 w-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300"
                   />
-                  <span>Radial Pulse Present / Cap Refill &lt; 2s</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">Radial Pulse Present / Cap Refill &lt; 2s</span>
                 </label>
 
-                <label className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={followsCommands}
                     onChange={(e) => setFollowsCommands(e.target.checked)}
-                    className="h-4 w-4 rounded text-teal-600"
+                    className="h-4 w-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300"
                   />
-                  <span>Obeys Simple Commands</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">Obeys Simple Commands</span>
                 </label>
 
-                <button
-                  onClick={handleQuickTag}
-                  className="w-full mt-2 rounded-2xl bg-rose-600 py-3 text-xs font-black text-white shadow-sm hover:bg-rose-700 hover:ring-2 hover:ring-rose-400/50 hover:shadow-md transition-all cursor-pointer"
-                >
-                  Generate & Assign START Disaster Tag
-                </button>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleQuickTag}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 shadow-xs transition-colors cursor-pointer text-xs"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Assign START Disaster Tag
+                  </button>
+                </div>
               </div>
             </div>
           </div>

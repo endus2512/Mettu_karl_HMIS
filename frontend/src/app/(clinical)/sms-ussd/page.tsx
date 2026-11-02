@@ -13,6 +13,7 @@ import { useTranslation } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
+import { Smartphone, MessageSquare, Send, Radio } from 'lucide-react';
 
 interface SMSLog {
   id: number;
@@ -518,73 +519,73 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
       moduleName="SMS & USSD Gateway"
       category="administrative"
     >
-      <div className="flex min-h-screen bg-[#f8fafc] text-slate-800">
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
         <Sidebar />
         <div className="flex flex-1 flex-col min-w-0">
           <Header />
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
-            <div className="max-w-7xl mx-auto space-y-6 pb-12">
-              {/* Soft Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl bg-white/90 p-6 border border-teal-100 shadow-sm backdrop-blur-md">
+          <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+            <div className="space-y-6 pb-12">
+              {/* Header Action Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white dark:bg-slate-900 px-6 py-5 border border-slate-200 dark:border-slate-800 shadow-xs">
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white text-2xl shadow-md shadow-emerald-600/20 ring-4 ring-emerald-500/10">
-                    📱
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400">
+                    <Smartphone className="h-6 w-6" />
                   </div>
                   <div>
                     <div className="flex items-center flex-wrap gap-2">
-                      <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                         {dict.pageTitle}
                       </h1>
-                      <span className="rounded-full bg-emerald-50 border border-emerald-300 px-3 py-0.5 text-[11px] font-bold text-emerald-800">
+                      <span className="rounded-md bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
                         Ethio Telecom Live SMS
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       {dict.pageSubtitle}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="rounded-2xl border border-teal-200 bg-teal-50/70 px-4 py-2 text-xs font-bold text-teal-900 shadow-2xs">
+                  <div className="rounded-xl border border-teal-200 dark:border-teal-800/60 bg-teal-50 dark:bg-teal-950/40 px-3.5 py-1.5 text-xs font-semibold text-teal-800 dark:text-teal-300">
                     {dict.shortcode}
                   </div>
                 </div>
               </div>
 
-              {/* Soft Stat Cards */}
+              {/* Quick Stat Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="rounded-3xl border border-emerald-100 bg-white/90 p-5 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                  <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     {dict.stat1Label}
                   </span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-3xl font-black text-slate-900">1,480</span>
-                    <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                    <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white font-mono">1,480</span>
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-md">
                       {dict.stat1Badge}
                     </span>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-teal-100 bg-white/90 p-5 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                  <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     {dict.stat2Label}
                   </span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-3xl font-black text-slate-900">824</span>
-                    <span className="text-xs font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full">
+                    <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white font-mono">824</span>
+                    <span className="text-[10px] font-bold text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800 px-2 py-0.5 rounded-md">
                       {dict.stat2Badge}
                     </span>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-sky-100 bg-white/90 p-5 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                  <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     {dict.stat3Label}
                   </span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-3xl font-black text-slate-900">0.15 ETB</span>
-                    <span className="text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded-full">
+                    <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white font-mono">0.15 ETB</span>
+                    <span className="text-[10px] font-bold text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 px-2 py-0.5 rounded-md">
                       {dict.stat3Badge}
                     </span>
                   </div>
