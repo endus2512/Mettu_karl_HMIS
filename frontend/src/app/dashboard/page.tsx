@@ -185,6 +185,62 @@ const ROLE_DESCRIPTIONS: Record<string, Record<Language, { title: string; desc: 
       desc: 'ለሁሉም 27 የሆስፒታል ክፍሎች ሙሉ መዳረሻ ተሰጥቷል።',
     },
   },
+  receptionist: {
+    en: {
+      title: 'Patient Intake & OPD Queue Desk',
+      desc: 'Master patient registration, Fayda eKYC verification, and queue routing active.',
+    },
+    om: {
+      title: 'Galmee Dhukkubsattootaa & Triage OPD',
+      desc: 'Galmee dhukkubsattootaa, Fayda ID mirkaneessuu fi dabareen eeguu qophiidha.',
+    },
+    am: {
+      title: 'የታካሚዎች ምዝገባ እና የተመላላሽ ሰልፍ',
+      desc: 'የታካሚዎች ምዝገባ፣ የፋይዳ ዲጂታል መታወቂያና የተራ ጥሪ ዝግጁ ነው።',
+    },
+  },
+  lab_technician: {
+    en: {
+      title: 'Clinical Diagnostics & Laboratory Station',
+      desc: 'Pathology worklist, specimen barcode scanning, and analyzer interfacing active.',
+    },
+    om: {
+      title: 'Laabooratorii & Qorannoo Dhiigaa',
+      desc: 'Qorannoo dhiigaa, barcode qorannoo fi buaa laabooratorii qophiidha.',
+    },
+    am: {
+      title: 'ክሊኒካል ላቦራቶሪና የምርመራ ማዕከል',
+      desc: 'የላቦራቶሪ ምርመራ፣ የባርኮድ ቁጥጥርና የውጤት ምዝገባ ክፍት ነው።',
+    },
+  },
+  billing: {
+    en: {
+      title: 'Cashier & Revenue Accounting Terminal',
+      desc: 'Multi-channel payment reconciliation (Telebirr, CBE) and patient billing active.',
+    },
+    om: {
+      title: 'Kaffaltii & Qabeenya Faayinaansii',
+      desc: 'Kaffaltii Telebirr, Baankii Daldala Itoophiyaa fi herrega qophiidha.',
+    },
+    am: {
+      title: 'የክፍያና የፋይናንስ አስተዳደር ዴስክ',
+      desc: 'የቴሌብርና የኢትዮጵያ ንግድ ባንክ ክፍያዎችና የታካሚዎች ሂሳብ ዝግጁ ነው።',
+    },
+  },
+  auditor: {
+    en: {
+      title: 'Clinical Audit & EHSTG Quality Sentinel',
+      desc: 'Zero-trust access log reviews, prescription audit, and healthcare quality compliance active.',
+    },
+    om: {
+      title: "To'annoo Qulqullinaa & Audit Sentinel",
+      desc: "To'annoo seeraa, qulqullina yaalaa EHSTG fi mirkaneessa sirnaa.",
+    },
+    am: {
+      title: 'የጥራት ኦዲት እና የዜሮ-ትረስት ሴንቲኔል',
+      desc: 'የሲስተም ኦዲት፣ የታካሚዎች መረጃ ጥበቃና የጥራት ደረጃዎች ክትትል ዝግጁ ነው።',
+    },
+  },
 };
 
 const SITUATIONAL_I18N: Record<Language, {

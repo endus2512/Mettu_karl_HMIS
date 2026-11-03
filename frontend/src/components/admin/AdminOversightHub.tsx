@@ -84,12 +84,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251911456789',
     status: 'surgery',
     statusText: {
-      en: '🔪 In Surgery',
-      om: '🔪 Baqaqsarratti',
-      am: '🔪 ቀዶ ጥገና ላይ',
+      en: 'In Surgery',
+      om: 'Baqaqsarratti',
+      am: 'ቀዶ ጥገና ላይ',
     },
     statusColor: 'bg-purple-100 text-purple-900 border-purple-300',
-    avatar: '👨‍⚕️',
+    avatar: 'DOC',
     workstationUrl: '/ot',
     workstationName: {
       en: 'OT Surgery & CSSD',
@@ -120,12 +120,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251912345678',
     status: 'consulting',
     statusText: {
-      en: '🩺 In OPD Consultation',
-      om: '🩺 Yaalurratti (OPD)',
-      am: '🩺 ታካሚዎችን እያየ ነው',
+      en: 'In OPD Consultation',
+      om: 'Yaalurratti (OPD)',
+      am: 'ታካሚዎችን እያየ ነው',
     },
     statusColor: 'bg-teal-100 text-teal-900 border-teal-300',
-    avatar: '👩‍⚕️',
+    avatar: 'NUR',
     workstationUrl: '/patients',
     workstationName: {
       en: 'Patients & OPD Care',
@@ -156,12 +156,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251913456789',
     status: 'critical',
     statusText: {
-      en: '🚨 MCI Active (Critical Resus)',
-      om: '🚨 Balaa Tasaa (MCI Active)',
-      am: '🚨 ከፍተኛ አደጋ ህክምና ላይ',
+      en: 'MCI Active (Critical Resus)',
+      om: 'Balaa Tasaa (MCI Active)',
+      am: 'ከፍተኛ አደጋ ህክምና ላይ',
     },
     statusColor: 'bg-rose-100 text-rose-900 border-rose-300',
-    avatar: '👨‍⚕️',
+    avatar: 'DOC',
     workstationUrl: '/mci',
     workstationName: {
       en: 'MCI & Trauma Triage',
@@ -192,12 +192,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251914567890',
     status: 'available',
     statusText: {
-      en: '🟢 Ready for Scans',
-      om: '🟢 Qophii (Scans Ready)',
-      am: '🟢 ለምርመራ ዝግጁ',
+      en: 'Ready for Scans',
+      om: 'Qophii (Scans Ready)',
+      am: 'ለምርመራ ዝግጁ',
     },
     statusColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-    avatar: '👨‍⚕️',
+    avatar: 'DOC',
     workstationUrl: '/pacs',
     workstationName: {
       en: 'PACS Radiology',
@@ -230,12 +230,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251915678901',
     status: 'icu_bedside',
     statusText: {
-      en: '📡 ICU Bedside (Telemetry Live)',
-      om: '📡 ICU Bedside (Telemetry)',
-      am: '📡 አይሲዩ ክትትል ላይ',
+      en: 'ICU Bedside (Telemetry Live)',
+      om: 'ICU Bedside (Telemetry)',
+      am: 'አይሲዩ ክትትል ላይ',
     },
     statusColor: 'bg-blue-100 text-blue-900 border-blue-300',
-    avatar: '👩‍⚕️',
+    avatar: 'NUR',
     workstationUrl: '/iomt',
     workstationName: {
       en: 'IoMT ICU Telemetry',
@@ -266,12 +266,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251916789012',
     status: 'rounds',
     statusText: {
-      en: '🎫 OPD Queue (18 Waiting)',
-      om: '🎫 Dabaree OPD (18 Eegaa)',
-      am: '🎫 የተመላላሽ ተራ (18 በመጠባበቅ)',
+      en: 'OPD Queue (18 Waiting)',
+      om: 'Dabaree OPD (18 Eegaa)',
+      am: 'የተመላላሽ ተራ (18 በመጠባበቅ)',
     },
     statusColor: 'bg-amber-100 text-amber-900 border-amber-300',
-    avatar: '👩‍⚕️',
+    avatar: 'NUR',
     workstationUrl: '/queue',
     workstationName: {
       en: 'Queue & Token TV',
@@ -302,12 +302,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251917890123',
     status: 'available',
     statusText: {
-      en: '🟢 Pre-Op Prepared',
-      om: '🟢 Qophii (Pre-Op Ready)',
-      am: '🟢 ለቀዶ ጥገና ዝግጁ',
+      en: 'Pre-Op Prepared',
+      om: 'Qophii (Pre-Op Ready)',
+      am: 'ለቀዶ ጥገና ዝግጁ',
     },
     statusColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-    avatar: '👩‍⚕️',
+    avatar: 'NUR',
     workstationUrl: '/ot',
     workstationName: {
       en: 'OT Surgery & CSSD',
@@ -340,12 +340,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251918901234',
     status: 'dispensing',
     statusText: {
-      en: '💊 Dispensing Active',
-      om: '💊 Qoricha Raabsaa',
-      am: '💊 መድኃኒት በመስጠት ላይ',
+      en: 'Dispensing Active',
+      om: 'Qoricha Raabsaa',
+      am: 'መድኃኒት በመስጠት ላይ',
     },
     statusColor: 'bg-teal-100 text-teal-900 border-teal-300',
-    avatar: '💊',
+    avatar: 'PT',
     workstationUrl: '/pharmacy',
     workstationName: {
       en: 'Pharmacy & FEFO Stock',
@@ -376,12 +376,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251919012345',
     status: 'available',
     statusText: {
-      en: '⚖️ EFDA Compliant (98%)',
-      om: '⚖️ EFDA Mirkanaa\'e (98%)',
-      am: '⚖️ የEFDA ህግ የተሟላ (98%)',
+      en: 'EFDA Compliant (98%)',
+      om: "EFDA Mirkanaa'e (98%)",
+      am: 'የEFDA ህግ የተሟላ (98%)',
     },
     statusColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-    avatar: '💊',
+    avatar: 'PHM',
     workstationUrl: '/efda',
     workstationName: {
       en: 'EFDA Drug Safety & Vault',
@@ -414,12 +414,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251920123456',
     status: 'available',
     statusText: {
-      en: '⚡ Grid & O2 Online (100%)',
-      om: '⚡ Humna & O2 Qophii (100%)',
-      am: '⚡ መብራትና ኦክስጅን 100% ዝግጁ',
+      en: 'Grid & O2 Online (100%)',
+      om: 'Humna & O2 Qophii (100%)',
+      am: 'መብራትና ኦክስጅን 100% ዝግጁ',
     },
     statusColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-    avatar: '🔬',
+    avatar: 'TCH',
     workstationUrl: '/assets',
     workstationName: {
       en: 'Biomedical Assets & PPM',
@@ -452,12 +452,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251921345678',
     status: 'inpatient',
     statusText: {
-      en: '🛌 Post-Op Day 2 Stable',
-      om: '🛌 Guyyaa 2ffaa Baqaqsaa Booda',
-      am: '🛌 ከቀዶ ጥገና በኋላ 2ኛ ቀን',
+      en: 'Post-Op Day 2 Stable',
+      om: 'Guyyaa 2ffaa Baqaqsaa Booda',
+      am: 'ከቀዶ ጥገና በኋላ 2ኛ ቀን',
     },
     statusColor: 'bg-slate-100 text-slate-800 border-slate-300',
-    avatar: '👤',
+    avatar: 'PAT',
     workstationUrl: '/patients',
     workstationName: {
       en: 'Patient Clinical File (FHIR)',
@@ -488,12 +488,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251922456789',
     status: 'inpatient',
     statusText: {
-      en: '👶 Healthy Delivery',
-      om: '👶 Daa\'imti Nagaan Dhalatteetti',
-      am: '👶 ጤናማ ልጅ ተወልዷል',
+      en: 'Healthy Delivery',
+      om: "Daa'imti Nagaan Dhalatteetti",
+      am: 'ጤናማ ልጅ ተወልዷል',
     },
     statusColor: 'bg-pink-100 text-pink-900 border-pink-300',
-    avatar: '👤',
+    avatar: 'PAT',
     workstationUrl: '/patient-portal',
     workstationName: {
       en: 'Patient Portal Record',
@@ -524,12 +524,12 @@ const HOSPITAL_ROSTER: HospitalPerson[] = [
     phone: '+251923567890',
     status: 'critical',
     statusText: {
-      en: '🚨 Critical (SpO2 91%)',
-      om: '🚨 Yaaddoo Ol\'aanaa (SpO2 91%)',
-      am: '🚨 ከፍተኛ ክትትል (SpO2 91%)',
+      en: 'Critical (SpO2 91%)',
+      om: "Yaaddoo Ol'aanaa (SpO2 91%)",
+      am: 'ከፍተኛ ክትትል (SpO2 91%)',
     },
     statusColor: 'bg-rose-100 text-rose-900 border-rose-300',
-    avatar: '👤',
+    avatar: 'PAT',
     workstationUrl: '/iomt',
     workstationName: {
       en: 'Live ICU Telemetry',
@@ -587,12 +587,12 @@ const OVERSIGHT_I18N: Record<Language, {
     title: 'Staff, Pharmacy & Patient Command',
     subtitle: 'Universal monitoring and direct SMS / Alert contact across all departments.',
     broadcastBtn: 'Broadcast Announcement',
-    tabAll: '👥 All',
-    tabDoctor: '👨‍⚕️ Doctors',
-    tabNurse: '👩‍⚕️ Nurses',
-    tabPharmacy: '💊 Pharmacy',
-    tabTechnician: '🔬 Technicians',
-    tabPatient: '🛌 Patients',
+    tabAll: 'All',
+    tabDoctor: 'Doctors',
+    tabNurse: 'Nurses',
+    tabPharmacy: 'Pharmacy',
+    tabTechnician: 'Technicians',
+    tabPatient: 'Patients',
     searchPlaceholder: 'Search name, code, ward, phone...',
     labelDept: 'Dept:',
     labelLocation: 'Location:',
@@ -604,10 +604,10 @@ const OVERSIGHT_I18N: Record<Language, {
     channelSms: 'SMS (Ethio Telecom)',
     channelSystem: 'System Alert',
     templateLabel: 'Quick Template:',
-    tmplCodeBlue: '🚨 Emergency (Code Blue)',
-    tmplUrgentRx: '💊 Urgent Pharmacy Clearance',
-    tmplDirective: '📋 Administrative Directive',
-    tmplCustom: '✏️ Custom Message',
+    tmplCodeBlue: 'Emergency (Code Blue)',
+    tmplUrgentRx: 'Urgent Pharmacy Clearance',
+    tmplDirective: 'Administrative Directive',
+    tmplCustom: 'Custom Message',
     msgInputLabel: 'Message:',
     msgPreviewLabel: 'Preview:',
     sendBtn: 'Send Message',
@@ -622,7 +622,7 @@ const OVERSIGHT_I18N: Record<Language, {
     emptyMsgErrorDesc: 'Please write a message before sending.',
     sendSuccessTitle: 'Message Dispatched!',
     sendSuccessMsg: 'Sent via SMS and System Alert.',
-    broadcastSuccessTitle: 'Broadcast Dispatched! 📢',
+    broadcastSuccessTitle: 'Broadcast Dispatched!',
     broadcastSuccessMsg: 'Administrative announcement dispatched to all recipients.',
   },
   om: {
@@ -630,12 +630,12 @@ const OVERSIGHT_I18N: Record<Language, {
     title: "Wiirtuu To'annoo Ogeeyyii fi Dhukkubsattootaa",
     subtitle: "To'annoo fi quunnamtii kallattii ogeeyyii fi dhukkubsattoota hospitaalaa.",
     broadcastBtn: 'Ergaa Waliigalaa (Broadcast)',
-    tabAll: '👥 Hunda',
-    tabDoctor: '👨‍⚕️ Doktoorota',
-    tabNurse: '👩‍⚕️ Narsitoota',
-    tabPharmacy: '💊 Faarmaasii',
-    tabTechnician: '🔬 Ogeeyyii Meeshaa',
-    tabPatient: '🛌 Dhukkubsattoota',
+    tabAll: 'Hunda',
+    tabDoctor: 'Doktoorota',
+    tabNurse: 'Narsitoota',
+    tabPharmacy: 'Faarmaasii',
+    tabTechnician: 'Ogeeyyii Meeshaa',
+    tabPatient: 'Dhukkubsattoota',
     searchPlaceholder: 'Barbaadi maqaa, koodii, kutaa...',
     labelDept: 'Kutaa:',
     labelLocation: 'Iddoo:',
@@ -647,10 +647,10 @@ const OVERSIGHT_I18N: Record<Language, {
     channelSms: 'SMS (Ethio Telecom)',
     channelSystem: 'System Alert',
     templateLabel: 'Gosa Ergaa:',
-    tmplCodeBlue: '🚨 Waamicha Tasaa (Code Blue)',
-    tmplUrgentRx: '💊 Qoricha Hatattamaa',
-    tmplDirective: '📋 Qajeelfama Bulchiinsaa',
-    tmplCustom: '✏️ Ergaa Dhuunfaa',
+    tmplCodeBlue: 'Waamicha Tasaa (Code Blue)',
+    tmplUrgentRx: 'Qoricha Hatattamaa',
+    tmplDirective: 'Qajeelfama Bulchiinsaa',
+    tmplCustom: 'Ergaa Dhuunfaa',
     msgInputLabel: 'Ergaa:',
     msgPreviewLabel: 'Ilaallata:',
     sendBtn: 'Amma Ergi',
@@ -665,7 +665,7 @@ const OVERSIGHT_I18N: Record<Language, {
     emptyMsgErrorDesc: 'Maaloo ergaa keessan barreessaa.',
     sendSuccessTitle: "Ergaan Ergameera!",
     sendSuccessMsg: 'Ergaan karaa SMS fi System Alert ergameera.',
-    broadcastSuccessTitle: 'Ergaan Daddarfeera! 📢',
+    broadcastSuccessTitle: 'Ergaan Daddarfeera!',
     broadcastSuccessMsg: 'Ergaan bulchiinsaa garee filatameef kallattiin ergameera.',
   },
   am: {
@@ -673,12 +673,12 @@ const OVERSIGHT_I18N: Record<Language, {
     title: 'የሰራተኞችና ታካሚዎች ቁጥጥር',
     subtitle: 'የሆስፒታል ሰራተኞችና ታካሚዎች የቀጥታ ቁጥጥርና ግንኙነት።',
     broadcastBtn: 'አጠቃላይ መልዕክት (Broadcast)',
-    tabAll: '👥 ሁሉም',
-    tabDoctor: '👨‍⚕️ ዶክተሮች',
-    tabNurse: '👩‍⚕️ ነርሶች',
-    tabPharmacy: '💊 ፋርማሲ',
-    tabTechnician: '🔬 ቴክኒሻኖች',
-    tabPatient: '🛌 ታካሚዎች',
+    tabAll: 'ሁሉም',
+    tabDoctor: 'ዶክተሮች',
+    tabNurse: 'ነርሶች',
+    tabPharmacy: 'ፋርማሲ',
+    tabTechnician: 'ቴክኒሻኖች',
+    tabPatient: 'ታካሚዎች',
     searchPlaceholder: 'ፈልግ ስም፣ መለያ፣ ክፍል...',
     labelDept: 'ክፍል:',
     labelLocation: 'ቦታ:',
@@ -690,10 +690,10 @@ const OVERSIGHT_I18N: Record<Language, {
     channelSms: 'ኤስኤምኤስ (ኢትዮ ቴሌኮም)',
     channelSystem: 'የሲስተም ማንቂያ (Alert)',
     templateLabel: 'የመልዕክት አብነቶች:',
-    tmplCodeBlue: '🚨 የአደጋ ጊዜ ጥሪ (Code Blue)',
-    tmplUrgentRx: '💊 አስቸኳይ መድኃኒት',
-    tmplDirective: '📋 የአስተዳደር መመሪያ',
-    tmplCustom: '✏️ የራስዎ መልዕክት',
+    tmplCodeBlue: 'የአደጋ ጊዜ ጥሪ (Code Blue)',
+    tmplUrgentRx: 'አስቸኳይ መድኃኒት',
+    tmplDirective: 'የአስተዳደር መመሪያ',
+    tmplCustom: 'የራስዎ መልዕክት',
     msgInputLabel: 'መልዕክት:',
     msgPreviewLabel: 'ቅድመ-ዕይታ:',
     sendBtn: 'አሁን ላክ',
@@ -708,7 +708,7 @@ const OVERSIGHT_I18N: Record<Language, {
     emptyMsgErrorDesc: 'እባክዎ ከመላክዎ በፊት መልዕክት ይጻፉ።',
     sendSuccessTitle: 'መልዕክቱ ተልኳል!',
     sendSuccessMsg: 'መልዕክቱ በኤስኤምኤስ እና በሲስተም ተልኳል።',
-    broadcastSuccessTitle: 'አጠቃላይ መልዕክት ተሰራጭቷል! 📢',
+    broadcastSuccessTitle: 'አጠቃላይ መልዕክት ተሰራጭቷል!',
     broadcastSuccessMsg: 'የአስተዳደር መግለጫው ለሁሉም ሰራተኞች ደርሷል።',
   },
 };
@@ -768,24 +768,24 @@ export function AdminOversightHub(): React.ReactElement {
     if (messageTemplate === 'code_blue') {
       finalMsg =
         lang === 'om'
-          ? `🚨 WAAMICHA TASAA: ${selectedRecipient.name}, bakka jirtan ${selectedRecipient.location.om} tti waamicha hatattamaa qabdu! - Bulchiinsa Hospitaala Meettuu Kaarli`
+          ? `WAAMICHA TASAA: ${selectedRecipient.name}, bakka jirtan ${selectedRecipient.location.om} tti waamicha hatattamaa qabdu! - Bulchiinsa Hospitaala Meettuu Kaarli`
           : lang === 'am'
-          ? `🚨 የአደጋ ጊዜ ጥሪ: ${selectedRecipient.name}፣ ባሉበት ${selectedRecipient.location.am} አስቸኳይ ህክምና ይፈለጋል! - መቱ ካርል ሆስፒታል አስተዳደር`
-          : `🚨 CODE BLUE ALERT: ${selectedRecipient.name}, urgent clinical response required at ${selectedRecipient.location.en}! - Mettu Karl Administration`;
+          ? `የአደጋ ጊዜ ጥሪ: ${selectedRecipient.name}፣ ባሉበት ${selectedRecipient.location.am} አስቸኳይ ህክምና ይፈለጋል! - መቱ ካርል ሆስፒታል አስተዳደር`
+          : `CODE BLUE ALERT: ${selectedRecipient.name}, urgent clinical response required at ${selectedRecipient.location.en}! - Mettu Karl Administration`;
     } else if (messageTemplate === 'urgent_rx') {
       finalMsg =
         lang === 'om'
-          ? `💊 QORICHA HATATTAMAA: Qoricha dhukkubsataa qorachuun barbaachisaadha. Kutaa Faarmaasiitti dhiyaadhaa! - Bulchiinsa Hospitaalaa`
+          ? `QORICHA HATATTAMAA: Qoricha dhukkubsataa qorachuun barbaachisaadha. Kutaa Faarmaasiitti dhiyaadhaa! - Bulchiinsa Hospitaalaa`
           : lang === 'am'
-          ? `💊 አስቸኳይ መድኃኒት: የታካሚ መድኃኒት ማረጋገጫ ያስፈልጋል። እባክዎ ፋርማሲ ያግኙ! - የሆስፒታል አስተዳደር`
-          : `💊 URGENT PHARMACY CLEARANCE: Immediate medication verification required. Please report to pharmacy! - Hospital Administration`;
+          ? `አስቸኳይ መድኃኒት: የታካሚ መድኃኒት ማረጋገጫ ያስፈልጋል። እባክዎ ፋርማሲ ያግኙ! - የሆስፒታል አስተዳደር`
+          : `URGENT PHARMACY CLEARANCE: Immediate medication verification required. Please report to pharmacy! - Hospital Administration`;
     } else if (messageTemplate === 'directive') {
       finalMsg =
         lang === 'om'
-          ? `📋 QAJEELFAMA BULCHIINSAA: Hojjetoota hospitaalaa hundaaf: Qulqullina yaalaa EHSTG eeguun dirqama. - Waajjira Daarektaraa`
+          ? `QAJEELFAMA BULCHIINSAA: Hojjetoota hospitaalaa hundaaf: Qulqullina yaalaa EHSTG eeguun dirqama. - Waajjira Daarektaraa`
           : lang === 'am'
-          ? `📋 የአስተዳደር መመሪያ: ለሁሉም ሰራተኞች: የEHSTG የህክምና ጥራት ደረጃን መጠበቅ ግዴታ ነው። - የሆስፒታል ዋና ዳይሬክተር`
-          : `📋 ADMINISTRATIVE DIRECTIVE: Hospital Staff Notice: Strict adherence to EHSTG clinical quality standards is mandatory. - CEO Office`;
+          ? `የአስተዳደር መመሪያ: ለሁሉም ሰራተኞች: የEHSTG የህክምና ጥራት ደረጃን መጠበቅ ግዴታ ነው። - የሆስፒታል ዋና ዳይሬክተር`
+          : `ADMINISTRATIVE DIRECTIVE: Hospital Staff Notice: Strict adherence to EHSTG clinical quality standards is mandatory. - CEO Office`;
     }
 
     if (!finalMsg) {
@@ -807,9 +807,9 @@ export function AdminOversightHub(): React.ReactElement {
         recipientId: selectedRecipient.id,
         recipientName: selectedRecipient.name,
         title: {
-          en: messageTemplate === 'code_blue' ? '🚨 CODE BLUE: Trauma Resuscitation' : messageTemplate === 'urgent_rx' ? '💊 Urgent Medication Order' : '📋 Direct Administrative Alert',
-          om: messageTemplate === 'code_blue' ? '🚨 WAAMICHA TASAA (Code Blue)' : messageTemplate === 'urgent_rx' ? '💊 Qoricha Hatattamaa' : '📋 Ergaa Kallattii Bulchiinsaa',
-          am: messageTemplate === 'code_blue' ? '🚨 የአደጋ ጊዜ ጥሪ (Code Blue)' : messageTemplate === 'urgent_rx' ? '💊 አስቸኳይ መድኃኒት' : '📋 የቀጥታ አስተዳደር ጥሪ',
+          en: messageTemplate === 'code_blue' ? 'CODE BLUE: Trauma Resuscitation' : messageTemplate === 'urgent_rx' ? 'Urgent Medication Order' : 'Direct Administrative Alert',
+          om: messageTemplate === 'code_blue' ? 'WAAMICHA TASAA (Code Blue)' : messageTemplate === 'urgent_rx' ? 'Qoricha Hatattamaa' : 'Ergaa Kallattii Bulchiinsaa',
+          am: messageTemplate === 'code_blue' ? 'የአደጋ ጊዜ ጥሪ (Code Blue)' : messageTemplate === 'urgent_rx' ? 'አስቸኳይ መድኃኒት' : 'የቀጥታ አስተዳደር ጥሪ',
         },
         message: {
           en: finalMsg,
@@ -879,9 +879,9 @@ export function AdminOversightHub(): React.ReactElement {
         senderRole: 'admin',
         recipientRole: targetRole,
         title: {
-          en: `📢 Broadcast Announcement (${broadcastTarget.toUpperCase()})`,
-          om: `📢 Ergaa Labsii Bulchiinsaa (${broadcastTarget.toUpperCase()})`,
-          am: `📢 የአስተዳደር ይፋዊ መግለጫ (${broadcastTarget.toUpperCase()})`,
+          en: `Broadcast Announcement (${broadcastTarget.toUpperCase()})`,
+          om: `Ergaa Labsii Bulchiinsaa (${broadcastTarget.toUpperCase()})`,
+          am: `የአስተዳደር ይፋዊ መግለጫ (${broadcastTarget.toUpperCase()})`,
         },
         message: {
           en: broadcastMessage.trim(),
@@ -895,7 +895,7 @@ export function AdminOversightHub(): React.ReactElement {
       await apiClient
         .post('/api/v1/sms/send', {
           phone_number: '+251911000000',
-          custom_message: `📢 [BROADCAST - ${broadcastTarget.toUpperCase()}]: ${broadcastMessage.trim()} - Mettu Karl Referral Hospital Administration`,
+          custom_message: `[BROADCAST - ${broadcastTarget.toUpperCase()}]: ${broadcastMessage.trim()} - Mettu Karl Referral Hospital Administration`,
           language: lang,
         })
         .catch(() => {});

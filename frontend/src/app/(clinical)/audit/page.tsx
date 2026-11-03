@@ -17,6 +17,7 @@ import {
   UserX,
   EyeOff,
   CheckCircle2,
+  Check,
   Terminal,
   RefreshCw,
   KeyRound,
@@ -253,7 +254,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
 
       setSecurityEvents((prev) => [newIncident, ...prev]);
       setSimulationToast(
-        '🚨 YAALII SOBA DOKTORAA BATTALATTI DHORKAMEERA! Systemichi yeruma sana soba qabee galmee dachaafamaa hin danda\'amne (immutable audit log) irratti galmeesse.'
+        'SECURITY ALERT: YAALII SOBA DOKTORAA BATTALATTI DHORKAMEERA! Systemichi yeruma sana soba qabee galmee dachaafamaa hin danda\'amne (immutable audit log) irratti galmeesse.'
       );
     } catch {
       // Offline fallback simulation
@@ -282,7 +283,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
 
       setSecurityEvents((prev) => [newIncident, ...prev]);
       setSimulationToast(
-        '🚨 YAALII SOBA DOKTORAA BATTALATTI DHORKAMEERA! Systemichi yeruma sana soba qabee galmee dachaafamaa hin danda\'amne (immutable audit log) irratti galmeesse.'
+        'SECURITY ALERT: YAALII SOBA DOKTORAA BATTALATTI DHORKAMEERA! Systemichi yeruma sana soba qabee galmee dachaafamaa hin danda\'amne (immutable audit log) irratti galmeesse.'
       );
     } finally {
       setIsSimulating(false);
@@ -364,7 +365,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                     onClick={() => setSimulationToast(null)}
                     className="text-rose-500 hover:text-rose-700 text-xs font-bold px-2 py-1 rounded-lg hover:bg-rose-100 cursor-pointer"
                   >
-                    ✕ Cufi
+                    Cufi
                   </button>
                 </div>
               )}
@@ -441,7 +442,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                     ) : (
                       <ShieldAlert className="w-4 h-4" />
                     )}
-                    <span>🧪 Yaalii Soba Doktoraa Qori (Simulate Intercept)</span>
+                    <span>Yaalii Soba Doktoraa Qori (Simulate Intercept)</span>
                   </button>
                 </div>
 
@@ -564,7 +565,10 @@ export default function ClinicalAuditPage(): React.ReactElement {
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                             {evt.enforcementAction}
                           </span>
-                          <span className="text-slate-400 font-mono text-[10px]">Audit Log Verified ✓</span>
+                          <span className="text-slate-400 font-mono text-[10px] inline-flex items-center gap-1">
+                            <Check className="h-3 w-3 text-emerald-500" />
+                            <span>Audit Log Verified</span>
+                          </span>
                         </div>
                       </div>
                     </div>

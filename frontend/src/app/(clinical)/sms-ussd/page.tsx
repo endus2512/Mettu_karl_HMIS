@@ -13,7 +13,7 @@ import { useTranslation } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
-import { Smartphone, MessageSquare, Send, Radio } from 'lucide-react';
+import { Smartphone, MessageSquare, Send, Radio, Mail, FileText } from 'lucide-react';
 
 interface SMSLog {
   id: number;
@@ -38,17 +38,17 @@ const SMS_DICT = {
     stat3Badge: "Bulk MoH Rate",
     consoleTitle: "Konsolii Ergaa SMS Erguu (SMS Dispatcher)",
     scenarios: "1-Click Shaakala Salphaa (Scenarios):",
-    scenarioQueue: "🎫 Waamicha OPD",
-    scenarioRx: "💊 Qoricha Faarmaasii",
-    scenarioBill: "🧾 Nagahee Telebirr",
-    scenarioApt: "📅 Beellama Yaalaa",
+    scenarioQueue: "Waamicha OPD",
+    scenarioRx: "Qoricha Faarmaasii",
+    scenarioBill: "Nagahee Telebirr",
+    scenarioApt: "Beellama Yaalaa",
     phoneLabel: "Lakkoofsa Bilbila Dhukkubsataa (Phone Number) *",
     templateLabel: "Gosa Ergaa (Template) *",
-    tplQueue: "🎫 Waamicha Dabaree OPD (Queue Alert)",
-    tplApt: "📅 Beellama Yaalaa (Appointment Reminder)",
-    tplRx: "💊 Qorichi Qophaa'eera (Prescription Ready)",
-    tplBill: "🧾 Nagahee Kaffaltii Telebirr (Payment Receipt)",
-    tplLab: "🔬 Bu'aa Laaboraatorii (Lab Ready)",
+    tplQueue: "Waamicha Dabaree OPD (Queue Alert)",
+    tplApt: "Beellama Yaalaa (Appointment Reminder)",
+    tplRx: "Qorichi Qophaa'eera (Prescription Ready)",
+    tplBill: "Nagahee Kaffaltii Telebirr (Payment Receipt)",
+    tplLab: "Bu'aa Laaboraatorii (Lab Ready)",
     paramSection: "Odeeffannoo Ergaa Keessaa (Parameters)",
     tokenLabel: "Token Lakk.",
     roomLabel: "Kutaa (Room)",
@@ -66,7 +66,7 @@ const SMS_DICT = {
     ussdTitle: "USSD *907# Simulator",
     ussdBadge: "Feature Phone (Bilbila Duudaa)",
     ussdNotice: "*907# bilbilaa, ykn lakkoofsa cuqaasaa dabaree, qoricha fi kaffaltii to'adhaa.",
-    ussdDialBtn: "📞 Dial *907# (Jalqabi)",
+    ussdDialBtn: "Dial *907# (Jalqabi)",
     ussdEndBtn: "Cufi (End)",
     ussdSendBtn: "Send",
     logTitle: "Galmee Ergaawwan SMS Ergamanii (Live SMS Audit Trail)",
@@ -93,17 +93,17 @@ const SMS_DICT = {
     stat3Badge: "የጤና ሚኒስቴር ተመን",
     consoleTitle: "የኤስኤምኤስ መልዕክት መላኪያ ኮንሶል (SMS Dispatcher)",
     scenarios: "በአንድ ጠቅታ የሙከራ ሁኔታዎች (Scenarios):",
-    scenarioQueue: "🎫 የኦፒዲ ተራ ጥሪ",
-    scenarioRx: "💊 የፋርማሲ መድኃኒት",
-    scenarioBill: "🧾 የቴሌብር ደረሰኝ",
-    scenarioApt: "📅 የቀጠሮ ማስታወሻ",
+    scenarioQueue: "የኦፒዲ ተራ ጥሪ",
+    scenarioRx: "የፋርማሲ መድኃኒት",
+    scenarioBill: "የቴሌብር ደረሰኝ",
+    scenarioApt: "የቀጠሮ ማስታወሻ",
     phoneLabel: "የታካሚ ስልክ ቁጥር *",
     templateLabel: "የመልዕክት ዓይነት (Template) *",
-    tplQueue: "🎫 የኦፒዲ ተራ ቁጥር ጥሪ (Queue Alert)",
-    tplApt: "📅 የቀጠሮ ማስታወሻ (Appointment Reminder)",
-    tplRx: "💊 የታዘዘው መድኃኒት ተዘጋጅቷል (Prescription Ready)",
-    tplBill: "🧾 የቴሌብር ክፍያ ደረሰኝ (Payment Receipt)",
-    tplLab: "🔬 የላቦራቶሪ ምርመራ ውጤት (Lab Ready)",
+    tplQueue: "የኦፒዲ ተራ ቁጥር ጥሪ (Queue Alert)",
+    tplApt: "የቀጠሮ ማስታወሻ (Appointment Reminder)",
+    tplRx: "የታዘዘው መድኃኒት ተዘጋጅቷል (Prescription Ready)",
+    tplBill: "የቴሌብር ክፍያ ደረሰኝ (Payment Receipt)",
+    tplLab: "የላቦራቶሪ ምርመራ ውጤት (Lab Ready)",
     paramSection: "የመልዕክት መለኪያዎች (Parameters)",
     tokenLabel: "የተራ ቁጥር",
     roomLabel: "የሕክምና ክፍል",
@@ -121,7 +121,7 @@ const SMS_DICT = {
     ussdTitle: "የዩኤስኤስዲ *907# ሲሙሌተር",
     ussdBadge: "ተራ ስልክ (ፊቸር ፎን)",
     ussdNotice: "*907# በመደወል ወይም ቁጥሮችን በመጫን አገልግሎቶችን ይከታተሉ።",
-    ussdDialBtn: "📞 ይደውሉ *907# (ጀምር)",
+    ussdDialBtn: "ይደውሉ *907# (ጀምር)",
     ussdEndBtn: "ዝጋ (End)",
     ussdSendBtn: "ላክ",
     logTitle: "የተላኩ ኤስኤምኤስ እና ዩኤስኤስዲ መዝገብ (Audit Trail)",
@@ -148,17 +148,17 @@ const SMS_DICT = {
     stat3Badge: "Bulk MoH Rate",
     consoleTitle: "SMS Message Dispatcher Console",
     scenarios: "1-Click Test Scenarios:",
-    scenarioQueue: "🎫 OPD Queue Call",
-    scenarioRx: "💊 Pharmacy Pickup",
-    scenarioBill: "🧾 Telebirr Receipt",
-    scenarioApt: "📅 Appointment Reminder",
+    scenarioQueue: "OPD Queue Call",
+    scenarioRx: "Pharmacy Pickup",
+    scenarioBill: "Telebirr Receipt",
+    scenarioApt: "Appointment Reminder",
     phoneLabel: "Patient Phone Number *",
     templateLabel: "Message Template *",
-    tplQueue: "🎫 OPD Queue Call Alert",
-    tplApt: "📅 Clinical Appointment Reminder",
-    tplRx: "💊 Pharmacy Prescription Ready",
-    tplBill: "🧾 Telebirr Payment Receipt",
-    tplLab: "🔬 Laboratory Results Ready",
+    tplQueue: "OPD Queue Call Alert",
+    tplApt: "Clinical Appointment Reminder",
+    tplRx: "Pharmacy Prescription Ready",
+    tplBill: "Telebirr Payment Receipt",
+    tplLab: "Laboratory Results Ready",
     paramSection: "Message Parameters",
     tokenLabel: "Token Number",
     roomLabel: "Clinic Room",
@@ -176,7 +176,7 @@ const SMS_DICT = {
     ussdTitle: "USSD *907# Simulator",
     ussdBadge: "Feature Phone (Nokia Style)",
     ussdNotice: "Dial *907# or press numbers to check tokens, prescriptions, and bills.",
-    ussdDialBtn: "📞 Dial *907# (Start)",
+    ussdDialBtn: "Dial *907# (Start)",
     ussdEndBtn: "End Call",
     ussdSendBtn: "Send",
     logTitle: "Dispatched Message Log (Audit Trail)",
@@ -598,7 +598,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                 <div className="lg:col-span-7 rounded-[28px] border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs space-y-5">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">✉️</span>
+                      <Mail className="h-5 w-5 text-teal-400" />
                       <h2 className="text-base sm:text-lg font-black text-slate-900">
                         {dict.consoleTitle}
                       </h2>
@@ -770,14 +770,14 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                     {/* Reactive Live Message Balloon Preview */}
                     <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-1.5">
                       <div className="flex items-center justify-between text-[11px] font-bold text-slate-500">
-                        <span>📱 {dict.previewTitle}</span>
+                        <span className="inline-flex items-center gap-1.5"><Smartphone className="h-4 w-4 text-teal-400" /> {dict.previewTitle}</span>
                         <span>{previewMessage.length} {dict.charUnit} / 1 {dict.smsPartUnit}</span>
                       </div>
                       <div className="rounded-xl bg-white border border-slate-200 p-3 text-xs font-medium text-slate-800 shadow-2xs leading-relaxed">
                         {previewMessage}
                       </div>
                       <p className="text-[10px] text-teal-800 font-semibold">
-                        💡 {dict.previewNotice}
+                        {dict.previewNotice}
                       </p>
                     </div>
 
@@ -787,7 +787,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                       disabled={isSending}
                       className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-teal-700 py-3.5 px-6 text-sm font-bold text-white shadow-md hover:from-emerald-500 hover:to-teal-600 active:scale-[0.99] transition cursor-pointer disabled:opacity-60"
                     >
-                      <span>🚀</span>
+                      <Send className="h-4 w-4 inline mr-1" />
                       <span>{isSending ? dict.sendingBtn : dict.sendBtn}</span>
                     </button>
                   </form>
@@ -797,7 +797,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                 <div className="lg:col-span-5 rounded-[28px] border border-slate-700/80 bg-gradient-to-b from-slate-900 via-slate-950 to-black p-5 sm:p-6 shadow-xl text-white space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">📟</span>
+                      <Radio className="h-5 w-5 text-teal-400" />
                       <div>
                         <h3 className="text-sm font-black text-white">{dict.ussdTitle}</h3>
                         <span className="text-[10px] text-teal-400 font-mono font-bold">{dict.ussdBadge}</span>
@@ -914,7 +914,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">📜</span>
+                    <FileText className="h-4 w-4 text-teal-400" />
                     <h3 className="text-base font-black text-slate-900">
                       {dict.logTitle}
                     </h3>

@@ -17,6 +17,7 @@ import { useTranslation } from '@/lib/i18n';
 import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
+import { GlobalPatientSearch } from '@/components/common/GlobalPatientSearch';
 import {
   Calendar,
   Sun,
@@ -185,6 +186,30 @@ export function Header(): React.ReactElement {
           name: 'Gemechu Desta (Biomed)',
           dept: 'Biomedical & Infrastructure',
         };
+      case 'lab_technician':
+        return {
+          initials: 'AY',
+          name: 'Ayantu Yilma (Lab Scientist)',
+          dept: 'Pathology & Diagnostic Laboratory',
+        };
+      case 'receptionist':
+        return {
+          initials: 'KA',
+          name: 'Kumsa Alemu (Intake)',
+          dept: 'OPD Admissions & Patient Triage',
+        };
+      case 'billing':
+        return {
+          initials: 'TW',
+          name: 'Tigist Worku (Cashier)',
+          dept: 'Revenue & Patient Accounts',
+        };
+      case 'auditor':
+        return {
+          initials: 'DL',
+          name: 'Dr. Dereje Lemma (Quality)',
+          dept: 'EHSTG Clinical Governance & Audit',
+        };
       default:
         return {
           initials: user?.username ? user.username.slice(0, 2).toUpperCase() : 'HP',
@@ -226,6 +251,11 @@ export function Header(): React.ReactElement {
             {roleLabel} <span className="hidden sm:inline text-slate-400">• {profile.dept}</span>
           </p>
         </div>
+      </div>
+
+      {/* CENTER: GLOBAL PATIENT & COMMAND SPOTLIGHT SEARCH (Ctrl+K) */}
+      <div className="hidden md:flex items-center mx-2 lg:mx-4">
+        <GlobalPatientSearch />
       </div>
 
       {/* RIGHT: UNIFIED COMMAND COCKPIT (Calendar -> Shift -> Scanner -> SMS -> Languages -> Logout) */}

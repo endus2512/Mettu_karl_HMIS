@@ -72,9 +72,9 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
     timestamp: new Date(Date.now() - 1000 * 60 * 12).toISOString(), // 12 mins ago
     read: false,
     title: {
-      en: '🚨 CODE BLUE: Urgent Trauma Resuscitation',
-      om: '🚨 KOODII CUQULIISA: Yaala Tasaa Hatattamaa',
-      am: '🚨 ኮድ ብሉ: አስቸኳይ የአደጋ ጊዜ ህክምና',
+      en: 'CODE BLUE: Urgent Trauma Resuscitation',
+      om: 'KOODII CUQULIISA: Yaala Tasaa Hatattamaa',
+      am: 'ኮድ ብሉ: አስቸኳይ የአደጋ ጊዜ ህክምና',
     },
     message: {
       en: 'Urgent resuscitation required at Emergency Bay 2. Crash cart #2 and anesthesia team dispatched.',
@@ -94,9 +94,9 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
     timestamp: new Date(Date.now() - 1000 * 60 * 35).toISOString(), // 35 mins ago
     read: false,
     title: {
-      en: '💊 Urgent Medication Clearance (Inpatient)',
-      om: '💊 Qoricha Hatattamaa (Kutaa Ciisichaa)',
-      am: '💊 አስቸኳይ የመድኃኒት አቅርቦት (ተኝቶ ታካሚ)',
+      en: 'Urgent Medication Clearance (Inpatient)',
+      om: 'Qoricha Hatattamaa (Kutaa Ciisichaa)',
+      am: 'አስቸኳይ የመድኃኒት አቅርቦት (ተኝቶ ታካሚ)',
     },
     message: {
       en: 'Immediate Ceftriaxone & IV Fluid clearance needed for Bed 8 (Surgical Inpatient Ward).',
@@ -114,21 +114,21 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
     timestamp: new Date(Date.now() - 1000 * 60 * 75).toISOString(), // 1h 15m ago
     read: true,
     title: {
-      en: '📋 Executive Directive: EHSTG Quality Standards',
-      om: '📋 Qajeelfama Bulchiinsaa: Istaandaardii EHSTG',
-      am: '📋 የአስተዳደር መመሪያ: የEHSTG ጥራት ደረጃ',
+      en: 'Executive Directive: EHSTG Quality Standards',
+      om: 'Qajeelfama Bulchiinsaa: Istaandaardii EHSTG',
+      am: 'የአስተዳደር መመሪያ: የEHSTG ጥራት ደረጃ',
     },
     message: {
       en: 'All duty clinicians: Please ensure all OPD and Inpatient vitals are synced to FHIR R4 before shift change.',
-      om: 'Ogeeyyii hundaaf: Xumura shiftii dura mallattooleen dhukkubsattootaa FHIR irratti galmaa\'uu qaba.',
+      om: "Ogeeyyii hundaaf: Xumura shiftii dura mallattooleen dhukkubsattootaa FHIR irratti galmaa'uu qaba.",
       am: 'ለህክምና ሰራተኞች በሙሉ: የስራ ሰዓት ከማለቁ በፊት የታካሚዎች መረጃ በሲስተሙ መመዝገቡን ያረጋግጡ።',
     },
     reaction: {
       type: 'acknowledged',
       label: {
-        en: '👍 Acknowledged & Complied',
-        om: '👍 Hubadheera, Hojiirra Ooleera',
-        am: '👍 ተረድቻለሁ፣ ተፈፅሟል',
+        en: 'Acknowledged & Complied',
+        om: 'Hubadheera, Hojiirra Ooleera',
+        am: 'ተረድቻለሁ፣ ተፈፅሟል',
       },
       responderName: 'Dr. Bekele Tadesse',
       responderRole: 'doctor',
@@ -147,9 +147,9 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
     timestamp: new Date(Date.now() - 1000 * 60 * 20).toISOString(), // 20 mins ago
     read: false,
     title: {
-      en: '🏥 Pharmacy Dispensing Notice',
-      om: '🏥 Beeksisa Kenniinsa Qorichaa',
-      am: '🏥 የመድኃኒት መውሰጃ ማሳወቂያ',
+      en: 'Pharmacy Dispensing Notice',
+      om: 'Beeksisa Kenniinsa Qorichaa',
+      am: 'የመድኃኒት መውሰጃ ማሳወቂያ',
     },
     message: {
       en: 'Dear Tolosa, your prescribed discharge medications are prepared and ready at Pharmacy Counter 1.',

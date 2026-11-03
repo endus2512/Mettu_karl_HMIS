@@ -28,6 +28,38 @@ import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import apiClient from '@/lib/api';
+import {
+  Ticket,
+  FileText,
+  Pill,
+  CreditCard,
+  Video,
+  Building2,
+  Calendar,
+  Sun,
+  Moon,
+  CloudSun,
+  LogOut,
+  Phone,
+  QrCode,
+  Bell,
+  Check,
+  CheckCircle2,
+  X,
+  AlertTriangle,
+  Fingerprint,
+  ShieldCheck,
+  MapPin,
+  Tv,
+  Compass,
+  Mic,
+  MicOff,
+  VideoOff,
+  PhoneOff,
+  Clock,
+  User,
+  HeartPulse,
+} from 'lucide-react';
 
 // Interface types
 interface PatientProfile {
@@ -126,7 +158,7 @@ export default function PatientPortalPage(): React.ReactElement {
   // Calendar & Shift State for Header
   const [calendarDate, setCalendarDate] = useState('Tikimt 17, 2019 E.C. • Oct 27, 2026 G.C.');
   const [shiftName, setShiftName] = useState('Morning Shift (08:00–16:00)');
-  const [shiftIcon, setShiftIcon] = useState('☀️');
+  const [shiftIcon, setShiftIcon] = useState<'morning' | 'afternoon' | 'night'>('morning');
 
   useEffect(() => {
     try {
@@ -462,7 +494,7 @@ export default function PatientPortalPage(): React.ReactElement {
           {/* Sidebar Top: Hospital Brand */}
           <div className="h-18 flex items-center gap-3 border-b border-slate-800 px-4 py-3 bg-slate-900/90 shrink-0">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-md shadow-teal-950/40 border border-teal-400 text-xl shrink-0">
-              🏥
+              
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="text-xs sm:text-sm font-black text-white leading-tight truncate">
@@ -516,7 +548,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="text-base">🎫</span>
+                <Ticket className="h-4 w-4 text-teal-300 shrink-0" />
                 <span className="truncate text-xs sm:text-sm text-white">{t('queue_tracking')}</span>
               </div>
               {queueStatus?.has_active_token && (
@@ -539,7 +571,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="text-base">📋</span>
+                <FileText className="h-4 w-4 text-teal-300 shrink-0" />
                 <span className="truncate text-xs sm:text-sm text-white">{t('medical_history')}</span>
               </div>
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
@@ -560,7 +592,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="text-base">💊</span>
+                <Pill className="h-4 w-4 text-teal-300 shrink-0" />
                 <span className="truncate text-xs sm:text-sm text-white">{t('my_prescriptions')}</span>
               </div>
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
@@ -581,7 +613,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="text-base">💳</span>
+                <CreditCard className="h-4 w-4 text-teal-300 shrink-0" />
                 <span className="truncate text-xs sm:text-sm text-white">{t('billing_telebirr')}</span>
               </div>
               {invoices.some((i) => i.status.includes('PENDING')) && (
@@ -602,7 +634,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="text-base">🩺</span>
+                <Video className="h-4 w-4 text-teal-300 shrink-0" />
                 <span className="truncate text-xs sm:text-sm text-white">{t('telemedicine_tab')}</span>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600 shrink-0">
@@ -614,8 +646,9 @@ export default function PatientPortalPage(): React.ReactElement {
           {/* Sidebar Footer: Helpline */}
           <div className="p-3.5 border-t border-slate-800 bg-slate-900/80 shrink-0">
             <div className="rounded-xl border border-slate-800 bg-slate-950 p-2.5 text-center">
-              <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                📞 {language === 'am' ? 'የእርዳታ መስመር' : language === 'en' ? 'Help Desk' : 'Deeggarsa'}
+              <span className="inline-flex items-center justify-center gap-1 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                <Phone className="h-3 w-3 text-teal-400" />
+                <span>{language === 'am' ? 'የእርዳታ መስመር' : language === 'en' ? 'Help Desk' : 'Deeggarsa'}</span>
               </span>
               <span className="text-xs font-black text-teal-400 font-mono">907 / 047-111-2233</span>
             </div>
@@ -639,15 +672,16 @@ export default function PatientPortalPage(): React.ReactElement {
           {/* Drawer Top Header with Close Button */}
           <div className="h-16 flex items-center justify-between border-b border-slate-800 px-4 bg-slate-900/95 shrink-0">
             <div className="flex items-center gap-2.5">
-              <span className="text-xl">🏥</span>
+              <span className="text-xl"></span>
               <span className="text-xs font-black text-white">{t('patient_portal')}</span>
             </div>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer"
+              aria-label="Close"
             >
-              ✕
+              <X className="h-4 w-4" />
             </button>
           </div>
 
@@ -680,7 +714,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <span>🎫</span>
+                <Ticket className="h-4 w-4 text-teal-400" />
                 <span className="text-xs font-bold">{t('queue_tracking')}</span>
               </div>
               {queueStatus?.has_active_token && (
@@ -698,7 +732,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <span>📋</span>
+                <FileText className="h-4 w-4 text-teal-400" />
                 <span className="text-xs font-bold">{t('medical_history')}</span>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
@@ -714,7 +748,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <span>💊</span>
+                <Pill className="h-4 w-4 text-teal-400" />
                 <span className="text-xs font-bold">{t('my_prescriptions')}</span>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
@@ -730,7 +764,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <span>💳</span>
+                <CreditCard className="h-4 w-4 text-teal-400" />
                 <span className="text-xs font-bold">{t('billing_telebirr')}</span>
               </div>
               {invoices.some((i) => i.status.includes('PENDING')) && (
@@ -746,7 +780,7 @@ export default function PatientPortalPage(): React.ReactElement {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <span>🩺</span>
+                <Video className="h-4 w-4 text-teal-400" />
                 <span className="text-xs font-bold">{t('telemedicine_tab')}</span>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300">Live</span>
@@ -757,7 +791,7 @@ export default function PatientPortalPage(): React.ReactElement {
           <div className="p-3.5 border-t border-slate-800 bg-slate-900/80 shrink-0">
             <div className="rounded-xl border border-slate-800 bg-slate-950 p-2 text-center">
               <span className="block text-[10px] uppercase font-bold text-slate-400">
-                📞 907 / 047-111-2233
+                <Phone className="h-3.5 w-3.5 text-teal-400 inline mr-1" /> 907 / 047-111-2233
               </span>
             </div>
           </div>
@@ -784,11 +818,11 @@ export default function PatientPortalPage(): React.ReactElement {
               </button>
 
               <span className="text-xl sm:text-2xl drop-shadow-sm shrink-0">
-                {activeTab === 'queue' && '🎫'}
-                {activeTab === 'history' && '📋'}
-                {activeTab === 'prescriptions' && '💊'}
-                {activeTab === 'billing' && '💳'}
-                {activeTab === 'telemed' && '🩺'}
+                {activeTab === 'queue' && <Ticket className='h-5 w-5 text-teal-500 shrink-0' />}
+                {activeTab === 'history' && <FileText className='h-5 w-5 text-teal-500 shrink-0' />}
+                {activeTab === 'prescriptions' && <Pill className='h-5 w-5 text-teal-500 shrink-0' />}
+                {activeTab === 'billing' && <CreditCard className='h-5 w-5 text-teal-500 shrink-0' />}
+                {activeTab === 'telemed' && <Video className='h-5 w-5 text-teal-500 shrink-0' />}
               </span>
               <div className="min-w-0">
                 <h1 className="text-sm sm:text-base font-black text-white tracking-tight leading-tight truncate">
@@ -808,7 +842,7 @@ export default function PatientPortalPage(): React.ReactElement {
             <div className="hidden lg:flex items-center gap-2 mx-auto shrink-0">
               {/* 1. Calendar (Kalandarii) */}
               <div className="flex items-center gap-1.5 rounded-xl bg-slate-900 border border-slate-700/80 px-2.5 py-1 text-xs font-bold text-white shadow-xs">
-                <span className="text-teal-400 text-sm">📅</span>
+                <Calendar className="h-4 w-4 text-teal-400 shrink-0" />
                 <span className="text-white font-bold tracking-tight">{calendarDate}</span>
               </div>
 
@@ -847,7 +881,7 @@ export default function PatientPortalPage(): React.ReactElement {
                 title="Bahuu (Sign out)"
                 className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xl border-2 border-rose-400 bg-rose-600 px-2.5 sm:px-3.5 py-1.5 text-xs sm:text-sm font-black text-white hover:bg-rose-500 hover:border-rose-300 active:scale-90 active:bg-rose-700 transition-all duration-75 cursor-pointer shadow-md select-none touch-manipulation shrink-0"
               >
-                <span className="text-sm">🚪</span>
+                <LogOut className="h-4 w-4 text-rose-400 shrink-0" />
                 <span className="hidden sm:inline">{t('logout')}</span>
               </button>
             </div>
@@ -859,7 +893,7 @@ export default function PatientPortalPage(): React.ReactElement {
               {/* Fayda ID Card */}
               <div className="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 dark:hover:bg-slate-700 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150 select-none">
                 <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  🆔 {t('fayda_id')}
+                  <Fingerprint className="h-3.5 w-3.5 text-emerald-400 inline mr-1" /> {t('fayda_id')}
                 </span>
                 <span className="text-xs font-mono font-bold text-teal-800 dark:text-teal-300">
                   {profile?.fayda_id || 'FAN-9901-2384-5120'}
@@ -869,7 +903,7 @@ export default function PatientPortalPage(): React.ReactElement {
               {/* CBHI Subsidy */}
               <div className="rounded-2xl border-2 border-emerald-200 dark:border-emerald-700/60 bg-emerald-50/70 dark:bg-emerald-950/40 p-3 shadow-xs hover:border-emerald-500 hover:ring-2 hover:ring-emerald-400/30 transition-all duration-150 select-none">
                 <span className="block text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
-                  🛡️ {t('cbhi_insurance')}
+                  <ShieldCheck className="h-3.5 w-3.5 text-teal-400 inline mr-1" /> {t('cbhi_insurance')}
                 </span>
                 <span className="text-xs font-black text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 mt-0.5">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -880,7 +914,7 @@ export default function PatientPortalPage(): React.ReactElement {
               {/* Allergies Warning */}
               <div className="rounded-2xl border-2 border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 p-3 shadow-xs hover:border-amber-500 hover:ring-2 hover:ring-amber-400/30 transition-all duration-150 select-none">
                 <span className="block text-[10px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1">
-                  ⚠️ {t('allergies')}
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400 inline mr-1" /> {t('allergies')}
                 </span>
                 <span className="text-xs font-black text-rose-700 dark:text-rose-400 mt-0.5 block">
                   {profile?.allergies.join(', ') || 'Penicillin, Sulfa'}
@@ -890,7 +924,7 @@ export default function PatientPortalPage(): React.ReactElement {
               {/* Woreda Location */}
               <div className="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 dark:hover:bg-slate-700 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150 select-none">
                 <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  📍 {t('residence')}
+                  <MapPin className="h-3.5 w-3.5 text-sky-400 inline mr-1" /> {t('residence')}
                 </span>
                 <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate block mt-0.5">
                   {profile?.woreda || 'Mettu Town, Kebele 02'}
@@ -913,7 +947,7 @@ export default function PatientPortalPage(): React.ReactElement {
                 {/* Non-Smartphone USSD & SMS Info Strip */}
                 <div className="rounded-2xl border-2 border-emerald-300 dark:border-emerald-700/60 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50/70 dark:from-emerald-950/40 dark:via-slate-900/90 dark:to-emerald-950/30 p-3.5 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs mb-6">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xl">📱</span>
+                    <QrCode className="h-5 w-5 text-teal-400" />
                     <div>
                       <span className="font-black text-emerald-950 dark:text-emerald-200 block">
                         Bilbila Duudaa (Feature Phone) qabduu? Interneetii malee hordofaa!
@@ -935,7 +969,7 @@ export default function PatientPortalPage(): React.ReactElement {
                     <div className="rounded-3xl border-2 border-amber-300 dark:border-amber-700/60 bg-gradient-to-r from-amber-50/90 via-white to-amber-50/80 dark:from-amber-950/40 dark:via-slate-900/90 dark:to-amber-950/30 p-5 sm:p-6 shadow-sm hover:border-amber-500 hover:ring-4 hover:ring-amber-400/20 transition-all duration-150 flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 border-2 border-amber-400 dark:border-amber-600 text-2xl text-amber-700 dark:text-amber-300">
-                          🔔
+                          
                         </div>
                         <div>
                           <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-900/50 border border-amber-300 dark:border-amber-700 px-3 py-0.5 text-[11px] font-black text-amber-900 dark:text-amber-200 mb-1">
@@ -965,7 +999,7 @@ export default function PatientPortalPage(): React.ReactElement {
                         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                           <div>
                             <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                              <span>📺</span> {t('queue_tracking')} (Live Screen)
+                              <Tv className="h-4 w-4 text-teal-400 inline mr-1.5" /> {t('queue_tracking')} (Live Screen)
                             </h3>
                             <p className="text-xs text-slate-500">{t('hospital_name')} • OPD Block B</p>
                           </div>
@@ -1020,7 +1054,7 @@ export default function PatientPortalPage(): React.ReactElement {
                       {/* Clinic Directions with Responsive Rectangle Form */}
                       <div className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150 space-y-4">
                         <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                          <span>🗺️</span> Qajeelfama Kutaa Yaalaa
+                          <Compass className="h-4 w-4 text-teal-400 inline mr-1.5" /> Qajeelfama Kutaa Yaalaa
                         </h3>
                         <div className="space-y-3 text-xs text-slate-700">
                           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
@@ -1038,7 +1072,7 @@ export default function PatientPortalPage(): React.ReactElement {
                         </div>
 
                         <div className="rounded-2xl border-2 border-teal-200 bg-teal-50/80 p-3.5 text-xs text-teal-900">
-                          📞 <span className="font-bold">Deeggarsa Barbaadduu?</span> Bakka simannaatti (Triage Desk) deemaa ykn bilbila 907 irratti deeggarsa gaafadhaa.
+                          <Phone className="h-4 w-4 text-teal-400 inline mr-1.5" /> <span className="font-bold">Deeggarsa Barbaadduu?</span> Bakka simannaatti (Triage Desk) deemaa ykn bilbila 907 irratti deeggarsa gaafadhaa.
                         </div>
                       </div>
                     </div>
@@ -1074,7 +1108,10 @@ export default function PatientPortalPage(): React.ReactElement {
                               <h3 className="text-lg font-black text-slate-900">{enc.clinician}</h3>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="text-xs font-mono font-medium text-slate-500">📅 {enc.date}</span>
+                              <span className="inline-flex items-center gap-1 text-xs font-mono font-medium text-slate-500">
+                                <Calendar className="h-3.5 w-3.5 text-teal-500" />
+                                <span>{enc.date}</span>
+                              </span>
                               <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-0.5 text-[11px] font-bold">
                                 {enc.status}
                               </span>
@@ -1139,7 +1176,7 @@ export default function PatientPortalPage(): React.ReactElement {
                         </p>
                       </div>
                       <span className="rounded-xl border-2 border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
-                        ✓ FEFO Dispensed
+                        FEFO Dispensed
                       </span>
                     </div>
 
@@ -1170,7 +1207,7 @@ export default function PatientPortalPage(): React.ReactElement {
                               >
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-xl">💊</span>
+                                    <Pill className="h-5 w-5 text-teal-400" />
                                     <h4 className="text-sm font-black text-slate-900">{item.drug_name}</h4>
                                   </div>
                                   <p className="text-xs text-teal-800 font-bold">
@@ -1184,7 +1221,7 @@ export default function PatientPortalPage(): React.ReactElement {
                                 <div className="shrink-0">
                                   {item.is_dispensed ? (
                                     <span className="rounded-xl border-2 border-emerald-300 bg-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-900 flex items-center gap-1.5">
-                                      <span>✓</span> {t('dispensed')}
+                                      <Check className="h-3.5 w-3.5 text-emerald-400 inline mr-1" /> {t('dispensed')}
                                     </span>
                                   ) : (
                                     <span className="rounded-xl border-2 border-amber-300 bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-900">
@@ -1213,7 +1250,7 @@ export default function PatientPortalPage(): React.ReactElement {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="rounded-xl border-2 border-teal-300 bg-teal-50 px-3 py-1.5 text-xs font-black text-teal-900">
-                          📱 Telebirr Ready
+                          Telebirr Ready
                         </span>
                       </div>
                     </div>
@@ -1325,7 +1362,7 @@ export default function PatientPortalPage(): React.ReactElement {
                               }}
                               className="w-full rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 py-3 text-xs font-black text-white shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all duration-150 cursor-pointer"
                             >
-                              <span>📹</span> {t('join_video_call')} →
+                              <Video className="h-4 w-4 inline mr-1" /> {t('join_video_call')} →
                             </button>
                           )}
                         </div>
@@ -1346,15 +1383,16 @@ export default function PatientPortalPage(): React.ReactElement {
             <div className="w-full max-w-md rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-5 text-slate-900">
               <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">📱</span>
+                  <QrCode className="h-6 w-6 text-teal-400" />
                   <h3 className="text-lg font-black text-slate-900">Telebirr Instant Payment</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setPayModalOpen(false)}
                   className="rounded-lg p-1 text-slate-400 hover:text-slate-700"
+                  aria-label="Close"
                 >
-                  ✕
+                  <X className="h-4 w-4" />
                 </button>
               </div>
 
@@ -1413,8 +1451,8 @@ export default function PatientPortalPage(): React.ReactElement {
 
               {paymentStep === 'success' && (
                 <div className="py-4 text-center space-y-4">
-                  <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-3xl border-2 border-emerald-500">
-                    ✓
+                  <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 text-3xl border-2 border-emerald-500">
+                    <Check className="h-8 w-8 text-emerald-600" />
                   </div>
                   <div>
                     <h4 className="text-lg font-black text-slate-900">{language === 'am' ? 'ክፍያው ተጠናቋል!' : language === 'en' ? 'Payment Successful!' : 'Kaffaltiin Milkaa\'eera!'}</h4>
@@ -1444,7 +1482,7 @@ export default function PatientPortalPage(): React.ReactElement {
             <div className="w-full max-w-3xl rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-4 text-slate-900">
               <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">🩺</span>
+                  <Video className="h-6 w-6 text-teal-400" />
                   <div>
                     <h3 className="text-base font-black text-slate-900">
                       {t('telemedicine_tab')} (Live Consult)
@@ -1458,8 +1496,9 @@ export default function PatientPortalPage(): React.ReactElement {
                   type="button"
                   onClick={() => setTelemedModalOpen(false)}
                   className="rounded-lg p-1 text-slate-400 hover:text-slate-700"
+                  aria-label="Close"
                 >
-                  ✕
+                  <X className="h-4 w-4" />
                 </button>
               </div>
 
@@ -1467,13 +1506,13 @@ export default function PatientPortalPage(): React.ReactElement {
               <div className="relative aspect-video w-full rounded-2xl bg-slate-900 border-2 border-slate-300 overflow-hidden flex items-center justify-center text-white">
                 {camOff ? (
                   <div className="text-center text-slate-400">
-                    <span className="text-4xl block mb-2">📷</span>
+                    <Video className="h-12 w-12 text-teal-400 mx-auto mb-2" />
                     <p className="text-xs">Kaameraan Cufameera (Camera Off)</p>
                   </div>
                 ) : (
                   <div className="text-center">
                     <div className="h-24 w-24 mx-auto rounded-full bg-teal-500/30 border-2 border-teal-400 flex items-center justify-center text-3xl mb-3 animate-pulse">
-                      👨‍⚕️
+                      
                     </div>
                     <p className="text-sm font-bold text-white">{activeMeeting?.clinician_name}</p>
                     <p className="text-xs text-emerald-300 font-semibold">Audio/Video Connected • Encrypted WebRTC</p>
@@ -1483,10 +1522,10 @@ export default function PatientPortalPage(): React.ReactElement {
                 {/* Self View Floating Box */}
                 <div className="absolute bottom-4 right-4 h-28 w-40 rounded-xl bg-slate-800/95 border-2 border-slate-600 p-2 flex flex-col justify-between shadow-lg">
                   <span className="text-[10px] text-teal-300 font-bold">Dhukkubsataa (You)</span>
-                  <div className="text-center text-xs text-slate-300">👤 {profile?.full_name}</div>
+                  <div className="text-center text-xs text-slate-300">{profile?.full_name}</div>
                   <div className="flex justify-end gap-1 text-[10px]">
-                    {micMuted && <span className="text-rose-400">🔇</span>}
-                    {camOff && <span className="text-rose-400">🚫</span>}
+                    {micMuted && <MicOff className="h-3.5 w-3.5 text-rose-400 inline ml-1" />}
+                    {camOff && <VideoOff className="h-3.5 w-3.5 text-rose-400 inline ml-1" />}
                   </div>
                 </div>
               </div>
@@ -1501,7 +1540,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   }`}
                   title={micMuted ? 'Unmute' : 'Mute'}
                 >
-                  {micMuted ? '🔇' : '🎙️'}
+                  {micMuted ? <MicOff className='h-4 w-4' /> : <Mic className='h-4 w-4' />}
                 </button>
 
                 <button
@@ -1512,7 +1551,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   }`}
                   title={camOff ? 'Turn Cam On' : 'Turn Cam Off'}
                 >
-                  {camOff ? '🚫' : '📹'}
+                  {camOff ? <VideoOff className='h-4 w-4' /> : <Video className='h-4 w-4' />}
                 </button>
 
                 <button
@@ -1520,7 +1559,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   onClick={() => setTelemedModalOpen(false)}
                   className="rounded-xl border-2 border-rose-600 bg-rose-600 hover:bg-rose-700 px-6 py-3 text-xs font-black text-white shadow-md active:scale-95 transition-all cursor-pointer"
                 >
-                  {language === 'am' ? 'ውይይት ጨርስ ❌' : language === 'en' ? 'End Call ❌' : 'Yaala Xumuri (End Call) ❌'}
+                  {language === 'am' ? 'ውይይት ጨርስ' : language === 'en' ? 'End Call' : 'Yaala Xumuri (End Call)'}
                 </button>
               </div>
             </div>
@@ -1535,7 +1574,7 @@ export default function PatientPortalPage(): React.ReactElement {
               activeTab === 'queue' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
             }`}
           >
-            <span className="text-base">🎫</span>
+            <Ticket className="h-4 w-4 text-teal-300 shrink-0" />
             <span>{language === 'am' ? 'ተራ' : language === 'en' ? 'Queue' : 'Dabaree'}</span>
           </button>
           <button
@@ -1545,7 +1584,7 @@ export default function PatientPortalPage(): React.ReactElement {
               activeTab === 'history' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
             }`}
           >
-            <span className="text-base">📋</span>
+            <FileText className="h-4 w-4 text-teal-300 shrink-0" />
             <span>{language === 'am' ? 'ታሪክ' : language === 'en' ? 'History' : 'Seenaa'}</span>
           </button>
           <button
@@ -1555,7 +1594,7 @@ export default function PatientPortalPage(): React.ReactElement {
               activeTab === 'prescriptions' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
             }`}
           >
-            <span className="text-base">💊</span>
+            <Pill className="h-4 w-4 text-teal-300 shrink-0" />
             <span>{language === 'am' ? 'መድኃኒት' : language === 'en' ? 'Rx' : 'Qoricha'}</span>
           </button>
           <button
@@ -1565,7 +1604,7 @@ export default function PatientPortalPage(): React.ReactElement {
               activeTab === 'billing' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
             }`}
           >
-            <span className="text-base">💳</span>
+            <CreditCard className="h-4 w-4 text-teal-300 shrink-0" />
             <span>{language === 'am' ? 'ክፍያ' : language === 'en' ? 'Pay' : 'Kaffaltii'}</span>
           </button>
           <button
@@ -1575,7 +1614,7 @@ export default function PatientPortalPage(): React.ReactElement {
               activeTab === 'telemed' ? 'text-teal-400 bg-slate-800' : 'text-slate-400 hover:text-white'
             }`}
           >
-            <span className="text-base">🩺</span>
+            <Video className="h-4 w-4 text-teal-300 shrink-0" />
             <span>{language === 'am' ? 'ቴሌሜድ' : language === 'en' ? 'Telemed' : 'Telemed'}</span>
           </button>
         </div>

@@ -13,7 +13,7 @@ import { useTranslation } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
-import { Scan, QrCode, Search, ShieldCheck } from 'lucide-react';
+import { Scan, QrCode, Search, ShieldCheck, Package, FileText, Tag, Pill, User, CreditCard } from 'lucide-react';
 
 interface ScannedResult {
   matched: boolean;
@@ -32,7 +32,7 @@ const SCANNER_DICT = {
     usbReady: "USB Hardware Wedge Ready",
     viewfinderTitle: "Iddoo Iskaanarii (Scanner Viewfinder)",
     cameraScanBtn: "Iskaani (Scan)",
-    cameraOn: "🎥 Kaameraan Banaadha",
+    cameraOn: "Kaameraan Banaadha",
     cameraOff: "Cufameera",
     targetPrompt: "Koodii Barcode / QR fuullee maashinaatti qabaa",
     targetScanning: "Koodii Qorachaa Jira...",
@@ -54,17 +54,17 @@ const SCANNER_DICT = {
     invoiceNum: "Lakk. Nagahee",
     amountPaid: "Kan Kaffalame",
     paymentStatus: "Haala Kaffaltii",
-    dispenseBtn: "💊 Qoricha Kenni (Dispense & Decrement Stock) →",
-    triageBtn: "👤 Gara Triage tti Qajeelchi (Admit to Triage) →",
-    verifyInvoiceBtn: "🧾 Nagahee Mirkaneessi (Verify Telebirr Receipt) →",
+    dispenseBtn: "Qoricha Kenni (Dispense & Decrement Stock) →",
+    triageBtn: "Gara Triage tti Qajeelchi (Admit to Triage) →",
+    verifyInvoiceBtn: "Nagahee Mirkaneessi (Verify Telebirr Receipt) →",
     labelGenTitle: "Mata-duree Barcode / QR Maxxansi (Print Label)",
     genTypeLabel: "Gosa Iskaanii",
-    genTypePatient: "👤 Waraqaa Harkaa Dhukkubsataa (Patient)",
-    genTypeMedicine: "💊 Qoricha Faarmaasii (Medicine)",
-    genTypeInvoice: "🧾 Nagahee Kaffaltii (Invoice)",
+    genTypePatient: "Waraqaa Harkaa Dhukkubsataa (Patient)",
+    genTypeMedicine: "Qoricha Faarmaasii (Medicine)",
+    genTypeInvoice: "Nagahee Kaffaltii (Invoice)",
     genIdLabel: "Koodii Addaa (ID)",
     genBtn: "Uumi (Generate)",
-    printBtn: "🖨️ Maxxansi (Print)",
+    printBtn: "Maxxansi (Print)",
     toastScanTitle: "Koodiin Iskaanii Ta'eera!",
     toastDispenseTitle: "Qorichi Kenfameera! (Dispensed)",
     toastDispenseMsg: "Kuusaa irraa 1 hir'ateera. Kuusaa hafe: {stock}",
@@ -79,7 +79,7 @@ const SCANNER_DICT = {
     usbReady: "የዩኤስቢ ስካነር: ዝግጁ ነው",
     viewfinderTitle: "የስካነር ካሜራ (Scanner Viewfinder)",
     cameraScanBtn: "ስካን አድርግ (Scan)",
-    cameraOn: "🎥 ካሜራ ክፍት ነው",
+    cameraOn: "ካሜራ ክፍት ነው",
     cameraOff: "ተዘግቷል",
     targetPrompt: "የባርኮድ ወይም ኪውአር ኮድ ወደ ካሜራው ያቅርቡ",
     targetScanning: "ኮዱን በመቃኘት ላይ...",
@@ -101,17 +101,17 @@ const SCANNER_DICT = {
     invoiceNum: "ደረሰኝ ቁጥር",
     amountPaid: "የተከፈለ መጠን",
     paymentStatus: "የክፍያ ሁኔታ",
-    dispenseBtn: "💊 መድኃኒቱን ስጥ (ከክምችት 1 ቀንሱ) →",
-    triageBtn: "👤 ወደ ትሪያጅ አስገባ (Admit to Triage) →",
-    verifyInvoiceBtn: "🧾 የቴሌብር ደረሰኝ አረጋግጥ →",
+    dispenseBtn: "መድኃኒቱን ስጥ (ከክምችት 1 ቀንሱ) →",
+    triageBtn: "ወደ ትሪያጅ አስገባ (Admit to Triage) →",
+    verifyInvoiceBtn: "የቴሌብር ደረሰኝ አረጋግጥ →",
     labelGenTitle: "የባርኮድ / ኪውአር ምልክት አትም (Print Label)",
     genTypeLabel: "የስካን ዓይነት",
-    genTypePatient: "👤 የታካሚ የእጅ ማሰሪያ (Patient)",
-    genTypeMedicine: "💊 የፋርማሲ መድኃኒት (Medicine)",
-    genTypeInvoice: "🧾 የክፍያ ደረሰኝ (Invoice)",
+    genTypePatient: "የታካሚ የእጅ ማሰሪያ (Patient)",
+    genTypeMedicine: "የፋርማሲ መድኃኒት (Medicine)",
+    genTypeInvoice: "የክፍያ ደረሰኝ (Invoice)",
     genIdLabel: "ልዩ መለያ (ID)",
     genBtn: "አመንጭ (Generate)",
-    printBtn: "🖨️ አትም (Print)",
+    printBtn: "አትም (Print)",
     toastScanTitle: "ኮዱ በተሳካ ሁኔታ ተቃኝቷል!",
     toastDispenseTitle: "መድኃኒቱ ተሰጥቷል! (Dispensed)",
     toastDispenseMsg: "ከክምችት 1 ቀንሷል። የቀረው ክምችት፡ {stock}",
@@ -126,7 +126,7 @@ const SCANNER_DICT = {
     usbReady: "USB Hardware Wedge Ready",
     viewfinderTitle: "Optical Scanner Viewfinder",
     cameraScanBtn: "Scan Code",
-    cameraOn: "🎥 Camera Active",
+    cameraOn: "Camera Active",
     cameraOff: "Disabled",
     targetPrompt: "Point barcode or QR code towards the lens",
     targetScanning: "Decoding barcode string...",
@@ -148,17 +148,17 @@ const SCANNER_DICT = {
     invoiceNum: "Invoice #",
     amountPaid: "Amount Paid",
     paymentStatus: "Payment Status",
-    dispenseBtn: "💊 Dispense Medication (-1 stock decrement) →",
-    triageBtn: "👤 Route to Emergency Triage →",
-    verifyInvoiceBtn: "🧾 Verify Telebirr Cashier Invoice →",
+    dispenseBtn: "Dispense Medication (-1 stock decrement) →",
+    triageBtn: "Route to Emergency Triage →",
+    verifyInvoiceBtn: "Verify Telebirr Cashier Invoice →",
     labelGenTitle: "Printable Barcode / QR Code Label Generator",
     genTypeLabel: "Entity Category",
-    genTypePatient: "👤 Patient Wristband",
-    genTypeMedicine: "💊 Pharmacy Medication",
-    genTypeInvoice: "🧾 Billing Invoice Receipt",
+    genTypePatient: "Patient Wristband",
+    genTypeMedicine: "Pharmacy Medication",
+    genTypeInvoice: "Billing Invoice Receipt",
     genIdLabel: "Identifier Code (ID)",
     genBtn: "Generate Payload",
-    printBtn: "🖨️ Print Label",
+    printBtn: "Print Label",
     toastScanTitle: "Barcode Scanned Successfully!",
     toastDispenseTitle: "Medication Dispensed!",
     toastDispenseMsg: "Stock decremented by 1 unit. Remaining balance: {stock}",
@@ -397,7 +397,7 @@ export default function BarcodeScannerPage(): React.ReactElement {
                 <div className="lg:col-span-6 rounded-[28px] border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">🔍</span>
+                      <Search className="h-5 w-5 text-teal-400" />
                       <h2 className="text-base sm:text-lg font-black text-slate-900">
                         {dict.viewfinderTitle}
                       </h2>
@@ -425,7 +425,7 @@ export default function BarcodeScannerPage(): React.ReactElement {
                     )}
 
                     <div className="relative text-center space-y-2 z-10 select-none">
-                      <span className="text-4xl block animate-bounce">📦</span>
+                      <Package className="h-10 w-10 text-teal-400 mx-auto mb-2 animate-pulse" />
                       <p className="text-xs font-mono font-bold text-teal-300">
                         {isScanning ? dict.targetScanning : dict.targetPrompt}
                       </p>
@@ -466,34 +466,46 @@ export default function BarcodeScannerPage(): React.ReactElement {
                       <button
                         type="button"
                         onClick={() => void resolveBarcode('MED-AMX-625')}
-                        className="rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 text-left hover:border-teal-400 hover:bg-teal-50/40 transition cursor-pointer"
+                        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-2.5 text-left hover:border-teal-400 hover:bg-teal-50/40 dark:hover:bg-teal-950/30 transition cursor-pointer"
                       >
-                        <span className="block text-[11px] font-bold text-teal-900">💊 Amoxicillin</span>
-                        <span className="text-[10px] text-slate-500 font-mono">MED-AMX-625</span>
+                        <span className="flex items-center gap-1.5 text-[11px] font-bold text-teal-900 dark:text-teal-300">
+                          <Pill className="h-3.5 w-3.5 text-teal-600 shrink-0" />
+                          <span>Amoxicillin</span>
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">MED-AMX-625</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => void resolveBarcode('MED-AML-005')}
-                        className="rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 text-left hover:border-teal-400 hover:bg-teal-50/40 transition cursor-pointer"
+                        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-2.5 text-left hover:border-teal-400 hover:bg-teal-50/40 dark:hover:bg-teal-950/30 transition cursor-pointer"
                       >
-                        <span className="block text-[11px] font-bold text-teal-900">💊 Amlodipine</span>
-                        <span className="text-[10px] text-slate-500 font-mono">MED-AML-005</span>
+                        <span className="flex items-center gap-1.5 text-[11px] font-bold text-teal-900 dark:text-teal-300">
+                          <Pill className="h-3.5 w-3.5 text-teal-600 shrink-0" />
+                          <span>Amlodipine</span>
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">MED-AML-005</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => void resolveBarcode('MKH-PAT:MKH-2026-0001')}
-                        className="rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 text-left hover:border-teal-400 hover:bg-teal-50/40 transition cursor-pointer"
+                        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-2.5 text-left hover:border-teal-400 hover:bg-teal-50/40 dark:hover:bg-teal-950/30 transition cursor-pointer"
                       >
-                        <span className="block text-[11px] font-bold text-indigo-900">👤 Gudeta (MRN)</span>
-                        <span className="text-[10px] text-slate-500 font-mono">MKH-PAT:0001</span>
+                        <span className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-900 dark:text-indigo-300">
+                          <User className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                          <span>Gudeta (MRN)</span>
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">MKH-PAT:0001</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => void resolveBarcode('MKH-INV:INV-2026-MKH-0192')}
-                        className="rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 text-left hover:border-teal-400 hover:bg-teal-50/40 transition cursor-pointer"
+                        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-2.5 text-left hover:border-teal-400 hover:bg-teal-50/40 dark:hover:bg-teal-950/30 transition cursor-pointer"
                       >
-                        <span className="block text-[11px] font-bold text-emerald-900">🧾 Invoice Receipt</span>
-                        <span className="text-[10px] text-slate-500 font-mono">INV-0192</span>
+                        <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-900 dark:text-emerald-300">
+                          <CreditCard className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                          <span>Invoice Receipt</span>
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">INV-0192</span>
                       </button>
                     </div>
                   </div>
@@ -503,7 +515,7 @@ export default function BarcodeScannerPage(): React.ReactElement {
                 <div className="lg:col-span-6 rounded-[28px] border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">📋</span>
+                      <FileText className="h-5 w-5 text-teal-400" />
                       <h2 className="text-base sm:text-lg font-black text-slate-900">
                         {dict.resultTitle}
                       </h2>
@@ -529,7 +541,7 @@ export default function BarcodeScannerPage(): React.ReactElement {
                             {activeResult.barcode}
                           </span>
                           <span className="text-[11px] font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
-                            ✓ {dict.matched}
+                            {dict.matched}
                           </span>
                         </div>
                         <h3 className="text-sm sm:text-base font-black text-slate-900">
@@ -682,7 +694,7 @@ export default function BarcodeScannerPage(): React.ReactElement {
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">🏷️</span>
+                    <Tag className="h-5 w-5 text-teal-400" />
                     <h3 className="text-base font-black text-slate-900">
                       {dict.labelGenTitle}
                     </h3>

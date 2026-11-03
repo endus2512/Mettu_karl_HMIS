@@ -6,11 +6,11 @@
  *   - The login form is initially hidden as requested.
  *   - The screen showcases the full hospital building image and hospital branding.
  *   - Centered on the hospital building image are interactive, animated action buttons:
- *     1. [ 🔐 Seeni (Login) ] — animated gradient shimmer, hover scale, pulse glow.
- *     2. [ 📝 Galmaa'i (Sign Up) ] — frosted glass border, hover glow, animated shimmer.
+ *     1. [ Seeni (Login) ] — animated gradient shimmer, hover scale, pulse glow.
+ *     2. [ Galmaa'i (Sign Up) ] — frosted glass border, hover glow, animated shimmer.
  * - On Click:
  *   - Clicking Login or Sign Up smoothly brings up the page form modal with backdrop blur.
- *   - A close button [ ✕ ] (or Escape key / backdrop click) closes the form and returns to the animated hero view.
+ *   - A close button (or Escape key / backdrop click) closes the form and returns to the animated hero view.
  *   - Supports switching seamlessly between Login and Sign Up.
  * - Branding & Aesthetics:
  *   - Official logo, title, and tagline in header.

@@ -501,9 +501,9 @@ export default function PatientsFHIRPage(): React.ReactElement {
                     <button
                       type="button"
                       onClick={() => setSearchTerm('')}
-                      className="absolute right-10 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs px-1.5 py-0.5 rounded cursor-pointer"
+                      className="absolute right-10 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1 rounded cursor-pointer"
                     >
-                      ✕
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   )}
                   <span className="absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
@@ -734,7 +734,10 @@ export default function PatientsFHIRPage(): React.ReactElement {
                       </div>
                       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2">
                         <span className="block text-[10px] uppercase font-medium text-slate-400">Fayda FIN</span>
-                        <span className="font-mono text-xs font-medium text-emerald-700 dark:text-emerald-400 truncate block">✓ {p.faydaId}</span>
+                        <span className="font-mono text-xs font-medium text-emerald-700 dark:text-emerald-400 truncate flex items-center gap-1">
+                          <Check className="h-3 w-3 shrink-0" />
+                          <span>{p.faydaId}</span>
+                        </span>
                       </div>
                     </div>
 
