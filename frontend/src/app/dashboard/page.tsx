@@ -1264,11 +1264,18 @@ export default function DashboardPage(): React.ReactElement {
                   <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight truncate">
                     {t('welcome_back')},{' '}
                     <span className="text-teal-700 dark:text-teal-400">
-                      {user?.username === 'admin'
-                        ? grt.systemAdmin
-                        : user?.username === 'nurse_chaltu'
-                        ? 'Nurse Chaltu'
-                        : 'Dr. Bekele Tadesse'}
+                      {user?.fullName ||
+                        (user?.username === 'admin' || user?.role === 'admin' || user?.role === 'super_admin'
+                          ? grt.systemAdmin
+                          : user?.username === 'nurse_chaltu' || user?.role === 'nurse'
+                          ? 'Nurse Chaltu'
+                          : user?.role === 'pharmacist'
+                          ? 'Pharmacist Tolera'
+                          : user?.role === 'technician'
+                          ? 'Lab Tech Gemechu'
+                          : user?.role === 'billing' || user?.role === 'insurance_officer'
+                          ? 'Billing Officer Fatuma'
+                          : 'Dr. Bekele Tadesse')}
                     </span>
                   </h1>
                   <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-800/70 shrink-0">

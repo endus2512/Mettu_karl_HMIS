@@ -57,6 +57,9 @@ import {
   CreditCard,
   Calendar,
   ShieldAlert,
+  Pill,
+  Microscope,
+  Receipt,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, type Language } from '@/lib/i18n';
@@ -1037,6 +1040,39 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
+                          loginForm.setValue('username', 'pharm_tolera');
+                          loginForm.setValue('password', 'password');
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer"
+                      >
+                        <Pill className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                        <span>Tolera (Pharmacy)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          loginForm.setValue('username', 'lab_gemechu');
+                          loginForm.setValue('password', 'password');
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 transition cursor-pointer"
+                      >
+                        <Microscope className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                        <span>Gemechu (Lab Tech)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          loginForm.setValue('username', 'billing_clerk');
+                          loginForm.setValue('password', 'password');
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 transition cursor-pointer"
+                      >
+                        <Receipt className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                        <span>Fatuma (Billing)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
                           loginForm.setValue('username', 'admin');
                           loginForm.setValue('password', 'password');
                         }}
@@ -1161,11 +1197,11 @@ export default function LoginPage() {
                       </button>
                     </div>
 
-                    {/* Full-Width Navy/Teal Gradient Login Button */}
+                    {/* Full-Width Solid Healthcare Navy / Teal Login Button */}
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm shadow-md transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer mt-1 disabled:opacity-75 disabled:cursor-not-allowed border border-teal-500/30"
+                      className="w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer mt-1 disabled:opacity-75 disabled:cursor-not-allowed border border-slate-700/60 dark:border-teal-400/40"
                     >
                       {isLoading ? (
                         <div className="flex items-center gap-2">
@@ -1219,7 +1255,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer border border-teal-500/30"
+                      className="w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-700/60 dark:border-teal-400/40"
                     >
                       {isLoading ? (
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -1492,7 +1528,7 @@ export default function LoginPage() {
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 border border-teal-500/30"
+                        className="w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 border border-slate-700/60 dark:border-teal-400/40"
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
@@ -1761,7 +1797,7 @@ export default function LoginPage() {
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-11 rounded-lg bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 border border-teal-500/30"
+                        className="w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 border border-slate-700/60 dark:border-teal-400/40"
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
