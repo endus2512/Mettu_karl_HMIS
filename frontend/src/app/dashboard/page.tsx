@@ -64,6 +64,9 @@ import {
   Radio,
   Building2,
   Sparkles,
+  Check,
+  MoreHorizontal,
+  AlertCircle,
 } from 'lucide-react';
 
 interface LocalizedText {
@@ -1246,95 +1249,499 @@ export default function DashboardPage(): React.ReactElement {
   const grt = GREETING_I18N[lang] || GREETING_I18N['en'];
   const emr = EMERGENCY_MODAL_I18N[lang] || EMERGENCY_MODAL_I18N['en'];
 
+  const profileName =
+    user?.fullName ||
+    (user?.username === 'admin'
+      ? 'Spencer Dawit (Executive)'
+      : user?.username === 'nurse_chaltu'
+      ? 'Nurse Chaltu'
+      : user?.role === 'pharmacist'
+      ? 'Pharmacist Tolera'
+      : user?.role === 'technician'
+      ? 'Lab Tech Gemechu'
+      : user?.role === 'billing' || user?.role === 'insurance_officer'
+      ? 'Billing Officer Fatuma'
+      : 'Dr. Bekele Tadesse');
+
   return (
-    <div className="flex min-h-screen bg-slate-50/70 dark:bg-[#070e1e] text-slate-800 dark:text-slate-100">
+    <div className="flex min-h-screen bg-[#0b0f17] text-slate-100">
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-7 space-y-6 max-w-[1720px] mx-auto w-full">
-          {/* SECTION 1: TOP HOSPITAL CONTEXT & SHIFT IDENTITY BANNER */}
-          <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-[#0f172a] px-5 py-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60 shrink-0">
-                <Building2 className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight truncate">
-                    {t('welcome_back')},{' '}
-                    <span className="text-teal-700 dark:text-teal-400">
-                      {user?.fullName ||
-                        (user?.username === 'admin' || user?.role === 'admin' || user?.role === 'super_admin'
-                          ? grt.systemAdmin
-                          : user?.username === 'nurse_chaltu' || user?.role === 'nurse'
-                          ? 'Nurse Chaltu'
-                          : user?.role === 'pharmacist'
-                          ? 'Pharmacist Tolera'
-                          : user?.role === 'technician'
-                          ? 'Lab Tech Gemechu'
-                          : user?.role === 'billing' || user?.role === 'insurance_officer'
-                          ? 'Billing Officer Fatuma'
-                          : 'Dr. Bekele Tadesse')}
-                    </span>
-                  </h1>
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-800/70 shrink-0">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Operational</span>
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                  {t('hospital_name')} • <span className="text-slate-700 dark:text-slate-300 font-medium">{grt.shift}</span> • {grt.catchment}
-                </p>
+          {/* ================================================================= */}
+          {/* 1. TOP GREETING & OPERATIONAL STATUS (MATCHING UPLOADED IMAGE)   */}
+          {/* ================================================================= */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 pb-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+                Good morning, <span className="text-slate-100">{profileName}</span>
+              </h1>
+              {/* Green Operational Pill Badge directly beside name */}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#102419] text-[#34d399] border border-[#059669]/40 shadow-xs">
+                <span className="h-2 w-2 rounded-full bg-[#10b981] animate-pulse" />
+                <span>System Operational</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
-              <div className="hidden md:flex items-center gap-1.5 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
-                <Clock className="h-3.5 w-3.5 text-slate-400" />
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <div className="hidden md:flex items-center gap-1.5 text-xs font-mono font-medium text-slate-400 bg-[#131824] px-3 py-1.5 rounded-xl border border-[#222b3d]">
+                <Clock className="h-3.5 w-3.5 text-amber-400" />
                 <span>{currentDateTime}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setEmergencyModalOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-1.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 active:bg-rose-700 text-white px-3.5 py-1.5 text-xs font-bold shadow-md shadow-rose-900/30 transition-all cursor-pointer"
               >
-                <AlertCircleIcon className="h-4 w-4" />
+                <AlertTriangle className="h-3.5 w-3.5" />
                 <span>{grt.emergencyAction}</span>
               </button>
             </div>
           </div>
 
-          {/* SECTION 2: ROLE-BASED ACCESS CONTROL (RBAC) SCOPE BAR */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] px-5 py-2.5 shadow-xs">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 shrink-0">
-                {user?.role === 'admin' || user?.role === 'super_admin' ? (
-                  <ShieldCheck className="h-4 w-4" />
-                ) : user?.role === 'doctor' ? (
-                  <Stethoscope className="h-4 w-4" />
-                ) : user?.role === 'nurse' ? (
-                  <Activity className="h-4 w-4" />
-                ) : user?.role === 'pharmacist' ? (
-                  <Pill className="h-4 w-4" />
-                ) : user?.role === 'technician' ? (
-                  <Wrench className="h-4 w-4" />
-                ) : (
-                  <ShieldCheck className="h-4 w-4" />
-                )}
+          {/* ================================================================= */}
+          {/* 2. 4 GOLD KPI SPARKLINE CARDS (MATCHING 4 TOP CARDS IN IMAGE)     */}
+          {/* ================================================================= */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {/* Card 1: OPD Patient Throughput (matches ARR Throughput) */}
+            <div className="relative overflow-hidden rounded-2xl bg-[#131824] border border-[#222b3d] hover:border-amber-500/50 p-4.5 sm:p-5 shadow-xl transition-all duration-200 group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-400">1. OPD Patient Throughput</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
               </div>
-              <div className="text-xs truncate">
-                <span className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px]">
-                  {grt.rolePrefix}{user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR'}
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">1,284</span>
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.5 rounded-md">
+                  (+14%)
                 </span>
-                <span className="text-slate-300 dark:text-slate-700 mx-2">|</span>
-                <span className="text-slate-600 dark:text-slate-300 font-normal">{roleInfo.title}</span>
-                <span className="text-slate-300 dark:text-slate-700 mx-2">|</span>
-                <span className="text-slate-500 dark:text-slate-400 font-medium">{grt.scopedCount}<strong>{displayedWorkstations.length}</strong></span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">Daily consultations & registrations</p>
+              {/* Glowing Golden Curved Sparkline SVG */}
+              <div className="absolute right-2 bottom-2 w-28 h-12 pointer-events-none opacity-85 group-hover:opacity-100 transition-opacity">
+                <svg viewBox="0 0 120 40" className="w-full h-full overflow-visible">
+                  <path
+                    d="M 0 32 Q 25 35, 45 22 T 80 18 T 120 8"
+                    fill="none"
+                    stroke="#f59e0b"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    className="filter drop-shadow-[0_2px_6px_rgba(245,158,11,0.5)]"
+                  />
+                </svg>
               </div>
             </div>
 
-            <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/70 px-2.5 py-0.5 rounded-md shrink-0 self-end sm:self-auto flex items-center gap-1.5">
+            {/* Card 2: Bed Occupancy (BOR) (matches API Ingest) */}
+            <div className="relative overflow-hidden rounded-2xl bg-[#131824] border border-[#222b3d] hover:border-amber-500/50 p-4.5 sm:p-5 shadow-xl transition-all duration-200 group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-400">2. Inpatient Bed Occupancy</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">85.0%</span>
+                <span className="text-xs font-semibold text-amber-400 font-mono">340/400</span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">General, Maternity & ICU beds</p>
+              <div className="absolute right-2 bottom-2 w-28 h-12 pointer-events-none opacity-85 group-hover:opacity-100 transition-opacity">
+                <svg viewBox="0 0 120 40" className="w-full h-full overflow-visible">
+                  <path
+                    d="M 0 28 Q 20 20, 45 30 T 85 14 T 120 10"
+                    fill="none"
+                    stroke="#f59e0b"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    className="filter drop-shadow-[0_2px_6px_rgba(245,158,11,0.5)]"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Card 3: Clinical Staff On-Duty (matches Compute Provisioning) */}
+            <div className="relative overflow-hidden rounded-2xl bg-[#131824] border border-[#222b3d] hover:border-amber-500/50 p-4.5 sm:p-5 shadow-xl transition-all duration-200 group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-400">3. Clinical Staff On-Duty</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">142</span>
+                <span className="text-xs font-semibold text-slate-400 font-mono">Active Duty</span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">Doctors, Nurses, Pharmacists & Lab</p>
+              <div className="absolute right-2 bottom-2 w-28 h-12 pointer-events-none opacity-85 group-hover:opacity-100 transition-opacity">
+                <svg viewBox="0 0 120 40" className="w-full h-full overflow-visible">
+                  <path
+                    d="M 0 34 Q 30 30, 50 16 T 85 24 T 120 12"
+                    fill="none"
+                    stroke="#f59e0b"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    className="filter drop-shadow-[0_2px_6px_rgba(245,158,11,0.5)]"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Card 4: MoH Clinical Quality Score (matches Security Score) */}
+            <div className="relative overflow-hidden rounded-2xl bg-[#131824] border border-[#222b3d] hover:border-amber-500/50 p-4.5 sm:p-5 shadow-xl transition-all duration-200 group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-400">4. MoH Clinical Safety Index</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">99.4/100</span>
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.5 rounded-md">Tier-4</span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">EHSTG Hospital Scorecard 99.4%</p>
+              <div className="absolute right-2 bottom-2 w-28 h-12 pointer-events-none opacity-85 group-hover:opacity-100 transition-opacity">
+                <svg viewBox="0 0 120 40" className="w-full h-full overflow-visible">
+                  <path
+                    d="M 0 30 Q 30 18, 60 26 T 90 12 T 120 6"
+                    fill="none"
+                    stroke="#f59e0b"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    className="filter drop-shadow-[0_2px_6px_rgba(245,158,11,0.5)]"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* ================================================================= */}
+          {/* 3. HERO TELEMETRY DUAL-WAVE SPLINE CHART (MATCHING CENTER CHART)  */}
+          {/* ================================================================= */}
+          <div className="rounded-2xl bg-[#131824] border border-[#222b3d] p-5 sm:p-6 shadow-xl relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <div>
+                <h2 className="text-base font-bold text-white tracking-tight">
+                  Telemetry & Patient Flow
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Real-time patient intake vs discharge flow across 24h operational cycle
+                </p>
+              </div>
+              <div className="flex items-center gap-4 text-xs font-semibold select-none">
+                <span className="flex items-center gap-1.5 text-amber-400">
+                  <span className="h-2 w-2 rounded-full bg-amber-400" />
+                  <span>OPD Inflow & Consultations</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-slate-400">
+                  <span className="h-2 w-2 rounded-full bg-slate-400" />
+                  <span>Discharges & Admissions</span>
+                </span>
+              </div>
+            </div>
+
+            {/* SVG Dual-Wave Spline Graph */}
+            <div className="relative w-full h-56 sm:h-64 my-2">
+              <svg viewBox="0 0 1000 240" preserveAspectRatio="none" className="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="goldCurveGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="silverCurveGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                {/* Silver Discharges Wave */}
+                <path
+                  d="M 0 155 C 140 155, 180 185, 290 180 C 400 175, 470 145, 570 135 C 670 125, 760 160, 850 120 C 920 95, 960 90, 1000 85 L 1000 240 L 0 240 Z"
+                  fill="url(#silverCurveGrad)"
+                />
+                <path
+                  d="M 0 155 C 140 155, 180 185, 290 180 C 400 175, 470 145, 570 135 C 670 125, 760 160, 850 120 C 920 95, 960 90, 1000 85"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="2"
+                  strokeDasharray="4 4"
+                />
+
+                {/* Gold Inflow Primary Wave */}
+                <path
+                  d="M 0 180 C 130 180, 190 125, 300 130 C 410 135, 490 85, 600 70 C 700 60, 740 170, 800 165 C 880 160, 930 110, 1000 100 L 1000 240 L 0 240 Z"
+                  fill="url(#goldCurveGrad)"
+                />
+                <path
+                  d="M 0 180 C 130 180, 190 125, 300 130 C 410 135, 490 85, 600 70 C 700 60, 740 170, 800 165 C 880 160, 930 110, 1000 100"
+                  fill="none"
+                  stroke="#f59e0b"
+                  strokeWidth="3"
+                  className="filter drop-shadow-[0_2px_12px_rgba(245,158,11,0.5)]"
+                />
+
+                {/* Peak Marker Dot & Glow */}
+                <circle cx="600" cy="70" r="6" fill="#f59e0b" stroke="#ffffff" strokeWidth="2.5" />
+                <circle cx="600" cy="70" r="14" fill="#f59e0b" opacity="0.25" className="animate-pulse" />
+
+                {/* Dip Marker Dot */}
+                <circle cx="800" cy="165" r="5" fill="#fcd34d" stroke="#ffffff" strokeWidth="2" />
+              </svg>
+
+              {/* Floating Callout 1 (Peak Intake: 312 OPD) */}
+              <div
+                className="absolute pointer-events-none transform -translate-x-1/2 -translate-y-full"
+                style={{ left: '60%', top: '24%' }}
+              >
+                <div className="bg-[#0b0f17]/95 border border-amber-500/50 text-amber-300 px-3 py-1 rounded-full text-xs font-bold shadow-xl backdrop-blur-md flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span>Peak Intake: 312 OPD</span>
+                </div>
+              </div>
+
+              {/* Floating Callout 2 (Triage: 42 Acute) */}
+              <div
+                className="absolute pointer-events-none transform -translate-x-1/2 -translate-y-full"
+                style={{ left: '80%', top: '65%' }}
+              >
+                <div className="bg-[#0b0f17]/95 border border-slate-700 text-slate-200 px-3 py-1 rounded-full text-xs font-bold shadow-xl backdrop-blur-md flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                  <span>Triage: 42 Acute</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Time Axis Bar */}
+            <div className="flex items-center justify-between pt-3 border-t border-[#1e283c] text-xs font-mono text-slate-500">
+              <span>08:00</span>
+              <span>10:00</span>
+              <span>12:00</span>
+              <span>14:00</span>
+              <span>16:00</span>
+              <span>18:00</span>
+              <span>20:00</span>
+            </div>
+          </div>
+
+          {/* ================================================================= */}
+          {/* 4. SPLIT ROW: WORKSTATION HEALTH & AUDIT VAULT                    */}
+          {/* ================================================================= */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Left: Workstation & Ward Health (Matching "Microservices Health") */}
+            <div className="rounded-2xl bg-[#131824] border border-[#222b3d] p-5 shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-[#1e283c]">
+                  <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                    <span>Workstation & Ward Health</span>
+                  </h3>
+                  <MoreHorizontal className="w-4 h-4 text-slate-500 cursor-pointer hover:text-white transition-colors" />
+                </div>
+
+                {/* Table Header */}
+                <div className="grid grid-cols-12 text-[11px] font-semibold uppercase tracking-wider text-slate-500 py-2.5 border-b border-[#1b2334]">
+                  <div className="col-span-2">Status</div>
+                  <div className="col-span-5">Workstation / Ward</div>
+                  <div className="col-span-3">Capacity Load</div>
+                  <div className="col-span-2 text-right">Avg Wait</div>
+                </div>
+
+                {/* Rows with Segmented Meter Bars */}
+                <div className="divide-y divide-[#182133] text-xs">
+                  {/* Row 1: Emergency */}
+                  <div className="grid grid-cols-12 items-center py-3">
+                    <div className="col-span-2 flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                      <span className="h-2 w-2 rounded-full bg-amber-400" />
+                    </div>
+                    <div className="col-span-5 font-semibold text-white truncate">
+                      Emergency & Triage
+                    </div>
+                    <div className="col-span-3 flex items-center gap-1">
+                      {[...Array(12)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={`h-4 w-1.5 rounded-xs ${
+                            i < 9 ? 'bg-amber-400 shadow-[0_0_4px_rgba(245,158,11,0.5)]' : 'bg-slate-800'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="col-span-2 text-right font-mono text-slate-300">8 min</div>
+                  </div>
+
+                  {/* Row 2: General OPD */}
+                  <div className="grid grid-cols-12 items-center py-3">
+                    <div className="col-span-2 flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                      <span className="h-2 w-2 rounded-full bg-amber-400" />
+                    </div>
+                    <div className="col-span-5 font-semibold text-white truncate">
+                      General OPD Clinics
+                    </div>
+                    <div className="col-span-3 flex items-center gap-1">
+                      {[...Array(12)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={`h-4 w-1.5 rounded-xs ${
+                            i < 10 ? 'bg-amber-400 shadow-[0_0_4px_rgba(245,158,11,0.5)]' : 'bg-slate-800'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="col-span-2 text-right font-mono text-slate-300">18 min</div>
+                  </div>
+
+                  {/* Row 3: Inpatient Wards */}
+                  <div className="grid grid-cols-12 items-center py-3">
+                    <div className="col-span-2 flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                      <span className="h-2 w-2 rounded-full bg-amber-400" />
+                    </div>
+                    <div className="col-span-5 font-semibold text-white truncate">
+                      Inpatient & ICU Wards
+                    </div>
+                    <div className="col-span-3 flex items-center gap-1">
+                      {[...Array(12)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={`h-4 w-1.5 rounded-xs ${
+                            i < 11 ? 'bg-amber-400 shadow-[0_0_4px_rgba(245,158,11,0.5)]' : 'bg-slate-800'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="col-span-2 text-right font-mono text-slate-300">24 min</div>
+                  </div>
+
+                  {/* Row 4: Central Pharmacy */}
+                  <div className="grid grid-cols-12 items-center py-3">
+                    <div className="col-span-2 flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    </div>
+                    <div className="col-span-5 font-semibold text-white truncate">
+                      Central Pharmacy & FEFO
+                    </div>
+                    <div className="col-span-3 flex items-center gap-1">
+                      {[...Array(12)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={`h-4 w-1.5 rounded-xs ${
+                            i < 6 ? 'bg-amber-400 shadow-[0_0_4px_rgba(245,158,11,0.5)]' : 'bg-slate-800'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="col-span-2 text-right font-mono text-slate-300">12 min</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Administrative Clinical Audit Vault (Matching "Administrative Audit Vault") */}
+            <div className="rounded-2xl bg-[#131824] border border-[#222b3d] p-5 shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-[#1e283c]">
+                  <h3 className="text-sm font-bold text-white tracking-tight">
+                    Administrative Clinical Audit Vault
+                  </h3>
+                  <MoreHorizontal className="w-4 h-4 text-slate-500 cursor-pointer hover:text-white transition-colors" />
+                </div>
+
+                {/* Stream of Audit Actions */}
+                <div className="divide-y divide-[#182133] pt-1">
+                  {/* Item 1 */}
+                  <div className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-8 w-8 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs flex items-center justify-center shrink-0 border border-amber-500/30">
+                        DB
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-white truncate">
+                          Emergency Admission by Dr. Bekele
+                        </p>
+                        <p className="text-[11px] text-slate-400 font-medium">12 minutes ago</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                      <Check className="w-3 h-3 text-amber-400" />
+                      <span>Verified</span>
+                    </span>
+                  </div>
+
+                  {/* Item 2 */}
+                  <div className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-8 w-8 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0 border border-emerald-500/30">
+                        NC
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-white truncate">
+                          START Triage Protocol initiated
+                        </p>
+                        <p className="text-[11px] text-slate-400 font-medium">24 minutes ago</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                      <Check className="w-3 h-3 text-emerald-400" />
+                      <span>Active</span>
+                    </span>
+                  </div>
+
+                  {/* Item 3 */}
+                  <div className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-8 w-8 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-xs flex items-center justify-center shrink-0 border border-indigo-500/30">
+                        PT
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-white truncate">
+                          FEFO Insulin Batch Dispensation audited
+                        </p>
+                        <p className="text-[11px] text-slate-400 font-medium">38 minutes ago</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                      <Check className="w-3 h-3 text-emerald-400" />
+                      <span>Passed</span>
+                    </span>
+                  </div>
+
+                  {/* Item 4 */}
+                  <div className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-8 w-8 rounded-full bg-purple-500/20 text-purple-300 font-bold text-xs flex items-center justify-center shrink-0 border border-purple-500/30">
+                        AD
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-white truncate">
+                          Facility Microgrid & Shift Handover logged
+                        </p>
+                        <p className="text-[11px] text-slate-400 font-medium">1 hour ago</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                      <Check className="w-3 h-3 text-emerald-400" />
+                      <span>Passed</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* RBAC SCOPE BAR & EXECUTIVE OVERSIGHT HUB (PRESERVED FUNCTIONALITY) */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border border-[#222b3d] bg-[#131824] px-5 py-2.5 shadow-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 shrink-0 border border-amber-500/30">
+                <ShieldCheck className="h-4 w-4" />
+              </div>
+              <div className="text-xs truncate">
+                <span className="font-bold text-amber-400 uppercase tracking-wider text-[11px]">
+                  {grt.rolePrefix}{user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR'}
+                </span>
+                <span className="text-slate-600 mx-2">|</span>
+                <span className="text-slate-300 font-normal">{roleInfo.title}</span>
+                <span className="text-slate-600 mx-2">|</span>
+                <span className="text-slate-400 font-medium">{grt.scopedCount}<strong>{displayedWorkstations.length}</strong></span>
+              </div>
+            </div>
+
+            <span className="text-[11px] font-medium text-emerald-400 bg-emerald-950/40 border border-emerald-800/70 px-2.5 py-0.5 rounded-md shrink-0 self-end sm:self-auto flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               {user?.role === 'admin' || user?.role === 'super_admin' ? grt.executiveActive : grt.rbacActive}
             </span>
@@ -1345,173 +1752,47 @@ export default function DashboardPage(): React.ReactElement {
             <AdminOversightHub />
           )}
 
-          {/* SECTION 3: SITUATIONAL AWARENESS (4 PRECISION CLINICAL CARDS) */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <Activity className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
-                <span>{sit.sectionTitle}</span>
-              </h2>
-              <span className="text-[11px] font-medium text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-0.5 rounded-md border border-teal-200/80 dark:border-teal-800/80 flex items-center gap-1">
-                <Radio className="h-3 w-3 text-teal-600 animate-pulse" />
-                <span>{sit.sensorBadge}</span>
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              {/* Tile 1: Bed Capacity (BOR) */}
-              <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4 shadow-xs hover:border-teal-500/80 transition-colors">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200 uppercase text-[11px] tracking-wider">
-                    <BedDouble className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
-                    <span>{sit.bedTitle}</span>
-                  </span>
-                  <span className="rounded-md bg-teal-50 dark:bg-teal-950/50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 dark:text-teal-300 border border-teal-200/70 dark:border-teal-800/70">
-                    {sit.bedOccupancy}
-                  </span>
-                </div>
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-white">340</span>
-                  <span className="text-xs font-medium text-slate-400">{sit.bedTotal}</span>
-                </div>
-                <div className="mt-2.5 h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                  <div className="h-full rounded-full bg-teal-600 dark:bg-teal-500 transition-all duration-300" style={{ width: '85%' }} />
-                </div>
-                <div className="mt-2.5 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-medium text-slate-600 dark:text-slate-300">{sit.bedAvail}</span>
-                  <span className="text-teal-700 dark:text-teal-400 font-semibold">{sit.bedIcu}</span>
-                </div>
-              </div>
-
-              {/* Tile 2: Emergency Triage (START Protocol) */}
-              <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4 shadow-xs hover:border-teal-500/80 transition-colors">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200 uppercase text-[11px] tracking-wider">
-                    <Siren className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
-                    <span>{sit.edTitle}</span>
-                  </span>
-                  <span className="rounded-md bg-rose-50 dark:bg-rose-950/50 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:text-rose-300 border border-rose-200/70 dark:border-rose-800/70">
-                    {sit.edBadge}
-                  </span>
-                </div>
-                <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
-                  <div className="rounded-lg bg-rose-50/80 dark:bg-rose-950/30 py-1.5 border border-rose-200/70 dark:border-rose-900/50">
-                    <span className="block text-sm font-bold font-mono text-rose-700 dark:text-rose-400">3</span>
-                    <span className="text-[10px] font-semibold text-rose-800 dark:text-rose-300 uppercase">Red</span>
-                  </div>
-                  <div className="rounded-lg bg-amber-50/80 dark:bg-amber-950/30 py-1.5 border border-amber-200/70 dark:border-amber-900/50">
-                    <span className="block text-sm font-bold font-mono text-amber-700 dark:text-amber-400">12</span>
-                    <span className="text-[10px] font-semibold text-amber-800 dark:text-amber-300 uppercase">Yel</span>
-                  </div>
-                  <div className="rounded-lg bg-emerald-50/80 dark:bg-emerald-950/30 py-1.5 border border-emerald-200/70 dark:border-emerald-900/50">
-                    <span className="block text-sm font-bold font-mono text-emerald-700 dark:text-emerald-400">48</span>
-                    <span className="text-[10px] font-semibold text-emerald-800 dark:text-emerald-300 uppercase">Grn</span>
-                  </div>
-                  <div className="rounded-lg bg-slate-100/80 dark:bg-slate-800/80 py-1.5 border border-slate-200/70 dark:border-slate-700">
-                    <span className="block text-sm font-bold font-mono text-slate-600 dark:text-slate-300">0</span>
-                    <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 uppercase">Blk</span>
-                  </div>
-                </div>
-                <p className="mt-2.5 text-center text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                  {sit.edSub}
-                </p>
-              </div>
-
-              {/* Tile 3: Critical Supply Reserves */}
-              <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4 shadow-xs hover:border-teal-500/80 transition-colors">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200 uppercase text-[11px] tracking-wider">
-                    <Droplets className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
-                    <span>{sit.o2Title}</span>
-                  </span>
-                  <span className="rounded-md bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/70">
-                    {sit.o2Badge}
-                  </span>
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-bold font-mono text-slate-900 dark:text-white">4.8</span>
-                      <span className="text-xs font-medium text-slate-400">Bar</span>
-                    </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{sit.o2Pipeline}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-baseline justify-end gap-1">
-                      <span className="text-2xl font-bold font-mono text-rose-600 dark:text-rose-400">6</span>
-                      <span className="text-xs font-medium text-slate-400">Units</span>
-                    </div>
-                    <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-0.5">{sit.o2LowStock}</p>
-                  </div>
-                </div>
-                <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-2 text-xs text-slate-500 dark:text-slate-400">
-                  <span>{sit.o2Days}</span>
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">{sit.o2Total}</span>
-                </div>
-              </div>
-
-              {/* Tile 4: Facility Power & Grid Resilience */}
-              <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4 shadow-xs hover:border-teal-500/80 transition-colors">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200 uppercase text-[11px] tracking-wider">
-                    <Zap className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span>{sit.powerTitle}</span>
-                  </span>
-                  <span className="rounded-md bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/70">
-                    {sit.powerBadge}
-                  </span>
-                </div>
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-base font-bold text-emerald-700 dark:text-emerald-400">{sit.powerSolar}</span>
-                </div>
-                <div className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span>{sit.powerGen}</span>
-                </div>
-                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500 font-mono">{sit.powerSwitch}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* SECTION 4: WORKSTATION DIRECTORY — SEARCH, FILTER & 27 TILES */}
+          {/* ================================================================= */}
+          {/* 5. WORKSTATION DIRECTORY — SEARCH, FILTER & 27 TILES             */}
+          {/* ================================================================= */}
           <div className="space-y-4">
             {/* Filter Toolbar: Modern Minimalist Search Bar & Category Pills */}
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between">
               {/* Sleek Search Bar */}
               <div className="relative w-full sm:w-80 md:w-96 shrink-0">
-                <div className="flex h-10 items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0f172a] px-3 shadow-xs focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-100 dark:focus-within:ring-teal-900/30 transition-all duration-150">
+                <div className="flex h-10 items-center rounded-xl border border-[#222b3d] bg-[#131824] px-3 shadow-xs focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all duration-150">
                   <Search className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
                   <input
                     type="text"
                     placeholder={t('search')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-transparent text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm font-medium text-white placeholder-slate-400 focus:outline-none"
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="ml-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                      className="ml-1 text-slate-400 hover:text-white p-0.5 rounded-md hover:bg-slate-800 transition-colors cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   )}
-                  <span className="ml-2 rounded-md bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 shrink-0">
+                  <span className="ml-2 rounded-md bg-[#0b0f17] px-2 py-0.5 text-xs font-mono font-medium text-amber-400 border border-[#222b3d] shrink-0">
                     {displayedWorkstations.length}
                   </span>
                 </div>
               </div>
 
               {/* Minimalist Category Tabs */}
-              <div className="flex items-center gap-1 overflow-x-auto rounded-lg bg-slate-100 dark:bg-slate-800/80 p-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <div className="flex items-center gap-1 overflow-x-auto rounded-xl bg-[#131824] border border-[#222b3d] p-1 text-xs font-medium text-slate-300">
                 <button
                   type="button"
                   onClick={() => setActiveTab('all')}
-                  className={`rounded-md px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'all'
-                      ? 'bg-teal-700 text-white shadow-xs font-semibold'
-                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
+                      ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
+                      : 'hover:text-white hover:bg-slate-800/60'
                   }`}
                 >
                   {t('all_tab')} ({workstations.length})
@@ -1519,10 +1800,10 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('emergency')}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'emergency'
-                      ? 'bg-rose-700 text-white shadow-xs font-semibold'
-                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
+                      ? 'bg-rose-600 text-white shadow-xs font-bold'
+                      : 'hover:text-white hover:bg-slate-800/60'
                   }`}
                 >
                   <AlertOctagon className="h-3.5 w-3.5" />
@@ -1531,10 +1812,10 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('clinical')}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'clinical'
-                      ? 'bg-teal-700 text-white shadow-xs font-semibold'
-                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
+                      ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
+                      : 'hover:text-white hover:bg-slate-800/60'
                   }`}
                 >
                   <Stethoscope className="h-3.5 w-3.5" />
@@ -1543,10 +1824,10 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('operations')}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'operations'
-                      ? 'bg-blue-700 text-white shadow-xs font-semibold'
-                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
+                      ? 'bg-blue-600 text-white shadow-xs font-bold'
+                      : 'hover:text-white hover:bg-slate-800/60'
                   }`}
                 >
                   <Briefcase className="h-3.5 w-3.5" />
@@ -1555,10 +1836,10 @@ export default function DashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setActiveTab('governance')}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     activeTab === 'governance'
-                      ? 'bg-purple-700 text-white shadow-xs font-semibold'
-                      : 'hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
+                      ? 'bg-purple-600 text-white shadow-xs font-bold'
+                      : 'hover:text-white hover:bg-slate-800/60'
                   }`}
                 >
                   <Scale className="h-3.5 w-3.5" />
@@ -1567,7 +1848,7 @@ export default function DashboardPage(): React.ReactElement {
               </div>
             </div>
 
-            {/* 3. WORKSTATIONS GRID — Restrained, Clean & Highly Structured */}
+            {/* 27 WORKSTATIONS GRID — Styled in Obsidian & Gold */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {displayedWorkstations.map((item) => {
                 const titleText = item.title[lang] || item.title.en;
@@ -1582,39 +1863,39 @@ export default function DashboardPage(): React.ReactElement {
                     prefetch={true}
                     onMouseEnter={() => router.prefetch(item.href)}
                     onFocus={() => router.prefetch(item.href)}
-                    className="group relative flex flex-col justify-between rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-4.5 shadow-xs hover:border-teal-500/80 dark:hover:border-teal-500/80 hover:shadow-md transition-all duration-150 ease-in-out cursor-pointer active:scale-[0.99] min-h-[135px]"
+                    className="group relative flex flex-col justify-between rounded-2xl border border-[#222b3d] bg-[#131824] p-4.5 shadow-sm hover:border-amber-500/60 hover:shadow-[0_0_20px_rgba(245,158,11,0.12)] transition-all duration-150 ease-in-out cursor-pointer active:scale-[0.99] min-h-[140px]"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${item.iconBg} ${item.iconColor} border border-slate-200/50 dark:border-slate-700/50 group-hover:scale-105 transition-transform`}>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 group-hover:scale-105 transition-transform shadow-xs">
                           <IconComponent className="h-4.5 w-4.5" />
                         </div>
                         {badgeText && (
                           <span
-                            className={`text-[10px] font-medium px-2 py-0.5 rounded-md border shrink-0 transition-colors ${item.badgeColor}`}
+                            className="text-[10px] font-medium px-2 py-0.5 rounded-md border shrink-0 bg-[#0b0f17] text-amber-300 border-amber-500/30"
                           >
                             {badgeText}
                           </span>
                         )}
                       </div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors leading-snug">
+                      <h3 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors leading-snug">
                         {titleText}
                       </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+                      <p className="text-xs text-slate-400 mt-1 truncate group-hover:text-slate-300 transition-colors">
                         {subtitleText}
                       </p>
                     </div>
 
-                    <div className="mt-3.5 flex items-center justify-between text-xs font-medium text-slate-400 dark:text-slate-500 group-hover:text-teal-600 dark:group-hover:text-teal-400 border-t border-slate-100 dark:border-slate-800/80 pt-2 transition-colors">
+                    <div className="mt-3.5 flex items-center justify-between text-xs font-semibold text-slate-500 group-hover:text-amber-400 border-t border-[#1e283c] pt-2.5 transition-colors">
                       <span className="group-hover:underline underline-offset-2">{grt.openWorkstation}</span>
-                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </Link>
                 );
               })}
 
               {displayedWorkstations.length === 0 && (
-                <div className="col-span-full py-12 text-center text-sm font-medium text-slate-400 bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="col-span-full py-12 text-center text-sm font-medium text-slate-400 bg-[#131824] rounded-2xl border border-[#222b3d]">
                   {grt.noFound} &quot;{searchQuery}&quot;.
                 </div>
               )}

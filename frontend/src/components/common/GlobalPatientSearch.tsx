@@ -167,13 +167,13 @@ export function GlobalPatientSearch(): React.ReactElement {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2.5 py-1.5 text-xs text-slate-300 hover:border-teal-500/60 hover:text-white transition-all cursor-pointer shadow-xs select-none max-w-[200px] sm:max-w-xs md:w-56"
+        className="flex items-center gap-2 rounded-xl border border-[#222b3d] bg-[#131824] px-3 py-1.5 text-xs text-slate-300 hover:border-amber-500/60 hover:text-white transition-all cursor-pointer shadow-xs select-none max-w-[200px] sm:max-w-xs md:w-56"
         title="Universal Search (Ctrl+K)"
         aria-label="Universal Patient & Command Search"
       >
-        <Search className="h-3.5 w-3.5 text-teal-400 shrink-0" />
+        <Search className="h-3.5 w-3.5 text-amber-400 shrink-0" />
         <span className="truncate text-left flex-1 text-slate-400">Search patient, MRN...</span>
-        <kbd className="hidden sm:inline-flex items-center rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-400">
+        <kbd className="hidden sm:inline-flex items-center rounded-md border border-[#222b3d] bg-[#0b0f17] px-1.5 py-0.5 text-[10px] font-mono text-amber-400 font-bold">
           ⌘K
         </kbd>
       </button>
@@ -182,15 +182,15 @@ export function GlobalPatientSearch(): React.ReactElement {
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4">
           <div
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in"
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs transition-opacity animate-in fade-in"
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />
 
-          <div className="relative w-full max-w-2xl rounded-2xl bg-[#0f172a] border border-slate-700/80 shadow-2xl overflow-hidden z-10 text-white animate-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-2xl rounded-2xl bg-[#131824] border border-[#222b3d] shadow-2xl overflow-hidden z-10 text-white animate-in zoom-in-95 duration-150">
             {/* Input Bar */}
-            <div className="flex items-center gap-3 border-b border-slate-800 px-4 py-3 bg-[#0b1329]">
-              <Search className="h-4.5 w-4.5 text-teal-400 shrink-0" />
+            <div className="flex items-center gap-3 border-b border-[#1e283c] px-4 py-3 bg-[#0b0f17]">
+              <Search className="h-4.5 w-4.5 text-amber-400 shrink-0" />
               <input
                 ref={inputRef}
                 value={query}

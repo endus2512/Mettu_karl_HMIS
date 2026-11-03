@@ -208,17 +208,17 @@ export function Sidebar(): React.ReactElement {
                 onFocus={() => router.prefetch(item.href)}
                 title={collapsed ? itemLabel : undefined}
                 className={`group relative flex items-center ${
-                  collapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3 py-2'
-                } rounded-lg text-xs transition-colors duration-150 cursor-pointer ${
+                  collapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3.5 py-2.5'
+                } rounded-xl text-xs transition-all duration-150 cursor-pointer ${
                   isActive
-                    ? 'bg-teal-500/15 text-teal-300 font-semibold border-l-2 border-teal-400'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60 font-medium'
+                    ? 'bg-amber-500/10 text-amber-300 font-semibold border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.12)]'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-[#141b29] font-medium'
                 }`}
               >
                 <div className={`flex items-center gap-2.5 ${collapsed ? 'justify-center' : 'min-w-0'}`}>
                   <IconComponent
                     className={`h-4 w-4 shrink-0 transition-transform ${
-                      isActive ? 'text-teal-400' : 'text-slate-400 group-hover:text-slate-200'
+                      isActive ? 'text-amber-400' : 'text-slate-400 group-hover:text-slate-200'
                     }`}
                   />
                   {!collapsed && <span className="truncate">{itemLabel}</span>}
@@ -226,7 +226,9 @@ export function Sidebar(): React.ReactElement {
                 {!collapsed && item.badge && (
                   <span
                     className={`text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md shrink-0 ${
-                      item.badgeColor || 'bg-slate-800 text-slate-300'
+                      isActive
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                        : item.badgeColor || 'bg-slate-800 text-slate-300'
                     }`}
                   >
                     {item.badge}
@@ -257,26 +259,26 @@ export function Sidebar(): React.ReactElement {
       <aside
         className={`hidden lg:flex ${
           isCollapsed ? 'w-18' : 'w-72 lg:w-76'
-        } flex-shrink-0 border-r border-slate-800 bg-[#0b1329] text-white flex-col h-screen sticky top-0 shadow-lg select-none z-20 transition-all duration-200`}
+        } flex-shrink-0 border-r border-[#1a2233] bg-[#0b0f17] text-white flex-col h-screen sticky top-0 shadow-2xl select-none z-20 transition-all duration-200`}
       >
         {/* Brand Header */}
         <Link
           href="/dashboard"
           className={`flex h-16 items-center ${
             isCollapsed ? 'justify-center px-2' : 'gap-3 px-4'
-          } border-b border-slate-800 flex-shrink-0 bg-[#080e1e] hover:bg-slate-900/90 transition-colors group cursor-pointer`}
+          } border-b border-[#1a2233] flex-shrink-0 bg-[#080c14] hover:bg-[#101622] transition-colors group cursor-pointer`}
           title={t('hospital_name')}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-400 shrink-0 group-hover:scale-105 transition-transform">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-400 shrink-0 group-hover:scale-105 shadow-[0_0_12px_rgba(245,158,11,0.15)] transition-transform">
             <Building2 className="h-5 w-5" />
           </div>
           {!isCollapsed && (
             <div className="min-w-0 flex-1">
-              <span className="text-xs sm:text-sm font-bold text-white tracking-tight leading-tight block group-hover:text-teal-200 transition-colors truncate">
+              <span className="text-xs sm:text-sm font-bold text-white tracking-tight leading-tight block group-hover:text-amber-300 transition-colors truncate">
                 {t('hospital_name')}
               </span>
-              <span className="text-[10px] font-medium text-slate-400 block truncate">
-                HMIS Enterprise Platform
+              <span className="text-[10px] font-medium text-amber-500/80 block truncate">
+                Enterprise Core Command
               </span>
             </div>
           )}
@@ -291,12 +293,12 @@ export function Sidebar(): React.ReactElement {
         </nav>
 
         {/* Hospital Footer status & Collapse Toggle */}
-        <div className={`p-2.5 border-t border-slate-800 bg-[#080e1e] flex items-center ${isCollapsed ? 'flex-col gap-2' : 'justify-between'} text-xs`}>
+        <div className={`p-2.5 border-t border-[#1a2233] bg-[#080c14] flex items-center ${isCollapsed ? 'flex-col gap-2' : 'justify-between'} text-xs`}>
           {!isCollapsed ? (
             <>
               <div className="flex items-center gap-2 min-w-0">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                <span className="text-[10px] font-mono font-semibold text-teal-300 bg-teal-950/80 px-1.5 py-0.5 rounded-md border border-teal-700/40 truncate">
+                <span className="text-[10px] font-mono font-semibold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-600/30 truncate">
                   {roleLabel}
                 </span>
               </div>
@@ -315,7 +317,7 @@ export function Sidebar(): React.ReactElement {
               type="button"
               onClick={toggleCollapse}
               title="Expand sidebar"
-              className="p-1.5 rounded-md text-slate-400 hover:text-teal-300 hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-colors cursor-pointer"
               aria-label="Expand sidebar"
             >
               <ChevronRight className="h-4 w-4" />
@@ -334,14 +336,14 @@ export function Sidebar(): React.ReactElement {
 
       {/* 3. MOBILE SLIDE-OVER DRAWER PANEL */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-[#0b1329] text-white shadow-2xl flex flex-col lg:hidden transform transition-transform duration-200 ease-out border-r border-slate-800 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-[#0b0f17] text-white shadow-2xl flex flex-col lg:hidden transform transition-transform duration-200 ease-out border-r border-[#1a2233] ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Drawer Header with Brand & Close Button */}
-        <div className="flex h-16 items-center justify-between border-b border-slate-800 px-4 bg-[#080e1e] shrink-0">
+        <div className="flex h-16 items-center justify-between border-b border-[#1a2233] px-4 bg-[#080c14] shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-400 shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-400 shrink-0">
               <Building2 className="h-4.5 w-4.5" />
             </div>
             <span className="text-xs sm:text-sm font-bold text-white truncate">

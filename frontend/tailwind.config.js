@@ -10,6 +10,27 @@ module.exports = {
     extend: {
       colors: {
         // Core HMIS Brand & Enterprise Tokens
+        obsidian: {
+          950: '#070a10',
+          900: '#0b0f17',
+          850: '#0f1420',
+          800: '#131824',
+          750: '#171e2c',
+          700: '#1b2334',
+          border: '#222b3d',
+          'border-light': '#2c374d',
+        },
+        gold: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          primary: '#f59e0b',
+        },
         navy: {
           50: '#f0f4f9',
           100: '#d9e2ec',

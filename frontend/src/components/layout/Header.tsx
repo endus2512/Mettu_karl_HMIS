@@ -223,9 +223,9 @@ export function Header(): React.ReactElement {
   const roleLabel = user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR';
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-[#080e1e] px-3 sm:px-6 sticky top-0 z-30 shadow-sm select-none text-white">
-      {/* LEFT: Clinician Profile & Mobile Drawer Trigger */}
-      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+    <header className="flex h-16 items-center justify-between border-b border-[#1b2334] bg-[#0b0f17] px-3 sm:px-6 sticky top-0 z-30 shadow-md select-none text-white">
+      {/* LEFT: Mobile Drawer Trigger & Breadcrumb Navigation */}
+      <div className="flex items-center gap-3 shrink-0">
         <button
           type="button"
           onClick={() => {
@@ -233,101 +233,125 @@ export function Header(): React.ReactElement {
               window.dispatchEvent(new CustomEvent('toggle-mkh-sidebar'));
             }
           }}
-          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 hover:text-white border border-slate-700 transition-colors shrink-0 cursor-pointer"
+          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-[#141b29] hover:bg-[#1c263a] text-amber-400 hover:text-white border border-[#222b3d] transition-colors shrink-0 cursor-pointer"
           title="Toggle Navigation Menu"
           aria-label="Toggle Navigation Menu"
         >
           <Menu className="h-4.5 w-4.5" />
         </button>
 
-        <div className="h-9 w-9 rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-300 font-bold text-xs flex items-center justify-center shrink-0">
-          {profile.initials}
-        </div>
-        <div className="text-left min-w-0">
-          <p className="text-xs sm:text-sm font-semibold text-white truncate leading-tight">
-            {profile.name}
-          </p>
-          <p className="text-[11px] text-teal-400 capitalize truncate mt-0.5">
-            {roleLabel} <span className="hidden sm:inline text-slate-400">• {profile.dept}</span>
-          </p>
+        {/* Clean Executive Breadcrumb Trail (Matching Uploaded Image Style) */}
+        <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-medium select-none shrink-0 whitespace-nowrap">
+          <Link href="/dashboard" className="text-slate-400 hover:text-amber-300 transition-colors">
+            Enterprise
+          </Link>
+          <span className="text-slate-600">/</span>
+          <span className="text-slate-200 font-semibold tracking-wide">
+            Core Overview
+          </span>
         </div>
       </div>
 
       {/* CENTER: GLOBAL PATIENT & COMMAND SPOTLIGHT SEARCH (Ctrl+K) */}
-      <div className="hidden md:flex items-center mx-2 lg:mx-4">
+      <div className="hidden md:flex items-center mx-2 lg:mx-4 shrink-0">
         <GlobalPatientSearch />
       </div>
 
-      {/* RIGHT: UNIFIED COMMAND COCKPIT (Calendar -> Shift -> Scanner -> SMS -> Languages -> Logout) */}
-      <div className="flex items-center gap-1.5 sm:gap-2.5 rounded-xl border border-slate-800 bg-[#0b1329] px-2 sm:px-3 py-1 shadow-xs shrink-0">
-        {/* 1. Calendar (Clickable, Normal Inline) */}
-        <button
-          type="button"
-          onClick={() => setCalendarModalOpen(true)}
-          title="Click to configure hospital date (Kalandarii jijjiiruuf cuqaasaa)"
-          className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-slate-200 hover:text-teal-300 transition-colors cursor-pointer select-none pr-2.5 border-r border-slate-800"
-        >
-          <Calendar className="h-3.5 w-3.5 text-teal-400" />
-          <span className="hover:underline decoration-teal-400 underline-offset-2">{dateDisplay}</span>
-        </button>
+      {/* RIGHT: COMMAND COCKPIT & GOLD PRIMARY ACTION (Matching Uploaded Image) */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Hospital Utilities Capsule (Calendar -> Shift -> Scanner -> Bell -> Lang) */}
+        <div className="flex items-center gap-1 sm:gap-1.5 rounded-xl border border-[#222b3d] bg-[#101624] px-2 py-1 shadow-xs">
+          {/* Calendar (Editable Modal) */}
+          <button
+            type="button"
+            onClick={() => setCalendarModalOpen(true)}
+            title="Click to configure hospital date (Kalandarii jijjiiruuf)"
+            className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-amber-300 transition-colors cursor-pointer select-none pr-2 border-r border-[#1e283c]"
+          >
+            <Calendar className="h-3.5 w-3.5 text-amber-400" />
+            <span className="hover:underline underline-offset-2">{dateDisplay}</span>
+          </button>
 
-        {/* 2. Shift (Normal Inline) */}
-        <div className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-teal-300 select-none pr-2.5 border-r border-slate-800">
-          {shiftType === 'morning' ? (
-            <Sun className="h-3.5 w-3.5 text-amber-400" />
-          ) : shiftType === 'afternoon' ? (
-            <CloudSun className="h-3.5 w-3.5 text-sky-400" />
-          ) : (
-            <Moon className="h-3.5 w-3.5 text-indigo-400" />
-          )}
-          <span>{shiftName}</span>
+          {/* Shift indicator */}
+          <div className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-amber-300 select-none pr-2 border-r border-[#1e283c]">
+            {shiftType === 'morning' ? (
+              <Sun className="h-3.5 w-3.5 text-amber-400" />
+            ) : shiftType === 'afternoon' ? (
+              <CloudSun className="h-3.5 w-3.5 text-sky-400" />
+            ) : (
+              <Moon className="h-3.5 w-3.5 text-indigo-400" />
+            )}
+            <span>{shiftName}</span>
+          </div>
+
+          {/* Scanner link */}
+          <Link
+            href="/scanner"
+            title={t('barcode_qr_scanner')}
+            className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-[#222b3d] bg-[#141b29] hover:bg-amber-500/20 hover:border-amber-500/40 px-2 py-1 text-xs font-medium text-slate-300 hover:text-amber-300 transition-colors cursor-pointer"
+          >
+            <QrCode className="h-3.5 w-3.5" />
+            <span className="hidden xl:inline">Scan</span>
+          </Link>
+
+          {/* SMS / USSD */}
+          <Link
+            href="/sms-ussd"
+            title={t('sms_ussd_gateway')}
+            className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-[#222b3d] bg-[#141b29] hover:bg-emerald-500/20 hover:border-emerald-500/40 px-2 py-1 text-xs font-medium text-slate-300 hover:text-emerald-300 transition-colors cursor-pointer"
+          >
+            <Smartphone className="h-3.5 w-3.5" />
+            <span className="hidden xl:inline">*907#</span>
+          </Link>
+
+          {/* Notification Bell */}
+          <div className="flex items-center px-0.5">
+            <NotificationBell variant="dark" />
+          </div>
+
+          {/* Language Selector */}
+          <div className="flex items-center px-0.5 border-l border-[#1e283c]">
+            <LanguageSelect variant="dark" />
+          </div>
+
+          {/* Theme Toggle */}
+          <div className="flex items-center px-0.5 border-l border-[#1e283c]">
+            <ThemeToggle variant="cockpit" />
+          </div>
         </div>
 
-        {/* 3. Barcode & QR Code Scanner Quick Launch */}
+        {/* PRIMARY GOLD ACTION BUTTON (Matching "+ Deploy Service" in Uploaded Image) */}
         <Link
-          href="/scanner"
-          title={t('barcode_qr_scanner')}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-950/40 hover:bg-teal-700 hover:text-white px-2.5 py-1 text-xs font-medium text-teal-300 transition-colors cursor-pointer shrink-0"
+          href="/patients"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-bold px-3.5 py-1.5 text-xs shadow-md shadow-amber-500/20 transition-all duration-150 cursor-pointer active:scale-95 shrink-0"
         >
-          <QrCode className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Scanner</span>
+          <span className="text-base leading-none font-extrabold">+</span>
+          <span className="tracking-tight">{t('patients')}</span>
         </Link>
 
-        {/* 4. SMS & USSD Gateway (*907#) Quick Launch */}
-        <Link
-          href="/sms-ussd"
-          title={t('sms_ussd_gateway')}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 hover:bg-emerald-700 hover:text-white px-2.5 py-1 text-xs font-medium text-emerald-300 transition-colors cursor-pointer shrink-0"
-        >
-          <Smartphone className="h-3.5 w-3.5" />
-          <span className="hidden md:inline">SMS/*907#</span>
-        </Link>
-
-        {/* 5. Hospital Notification Bell */}
-        <div className="flex items-center pr-1 border-r border-slate-800">
-          <NotificationBell variant="dark" />
+        {/* Clinician Profile Avatar & Name (Matching Uploaded Image Top-Right) */}
+        <div className="flex items-center gap-2 pl-1 shrink-0">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold text-xs flex items-center justify-center ring-2 ring-amber-400/30 shrink-0 shadow-xs">
+            {profile.initials}
+          </div>
+          <div className="hidden lg:block text-left min-w-0">
+            <p className="text-xs font-bold text-white truncate leading-tight">
+              {profile.name}
+            </p>
+            <p className="text-[10px] text-amber-400/90 capitalize truncate">
+              {roleLabel}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleInstantLogout}
+            title={t('logout')}
+            className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Logout"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+          </button>
         </div>
-
-        {/* 6. Language Selector */}
-        <div className="flex items-center pr-1 border-r border-slate-800">
-          <LanguageSelect variant="dark" />
-        </div>
-
-        {/* 7. Theme Toggle */}
-        <div className="flex items-center pr-1 border-r border-slate-800">
-          <ThemeToggle variant="cockpit" />
-        </div>
-
-        {/* 8. Logout Button */}
-        <button
-          type="button"
-          onClick={handleInstantLogout}
-          title={t('logout')}
-          className="inline-flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-950/50 hover:bg-rose-600 hover:text-white px-2.5 py-1 text-xs font-medium text-rose-300 transition-colors cursor-pointer shrink-0"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{t('logout')}</span>
-        </button>
       </div>
 
       {/* EDITABLE CALENDAR & SHIFT MODAL */}
