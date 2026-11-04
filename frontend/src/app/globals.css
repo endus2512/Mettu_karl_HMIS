@@ -10,7 +10,7 @@
 :root.dark,
 .dark {
   --foreground-rgb: 248, 250, 252;
-  --background-rgb: 7, 14, 30;
+  --background-rgb: 11, 15, 23; /* #0b0f17 midnight obsidian */
 }
 
 body {
@@ -19,22 +19,63 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Global Dark Mode Overrides for Full Dashboard & Workstation Theme Integration */
+/* =========================================================================
+   Universal Midnight Obsidian & Gold Theme System (Matching Executive Dashboard Image)
+   Applies across ALL dashboards, clinical workstations, tables, and dialogs.
+   ========================================================================= */
+
+/* 1. Universal Canvas & Page Backgrounds */
 .dark .bg-\[\#f8fafc\],
 .dark .bg-slate-50,
 .dark .bg-slate-100,
-.dark .bg-slate-100\/90 {
-  background-color: #070e1e !important;
+.dark .bg-slate-100\/80,
+.dark .bg-slate-100\/90,
+.dark .bg-slate-950,
+.dark .bg-\[\#070e1e\] {
+  background-color: #0b0f17 !important;
 }
 
+/* 2. Universal Cards, Modals, Panels & Surfaces */
 .dark .bg-white,
 .dark .bg-white\/70,
 .dark .bg-white\/80,
-.dark .bg-white\/90 {
-  background-color: #0f1c34 !important;
+.dark .bg-white\/90,
+.dark .bg-slate-900,
+.dark .bg-slate-900\/60,
+.dark .bg-slate-900\/80,
+.dark .bg-slate-900\/90,
+.dark .bg-\[\#0f1c34\],
+.dark .bg-\[\#0f172a\] {
+  background-color: #131824 !important;
 }
 
-/* Crisp, high-contrast typography in Dark Mode */
+/* 3. Sub-panels, Table Headers & Inset Containers */
+.dark .bg-slate-50\/50,
+.dark .bg-slate-800\/40,
+.dark .bg-slate-800\/60,
+.dark .bg-slate-800,
+.dark .bg-slate-800\/90 {
+  background-color: #0e131f !important;
+}
+
+/* 4. Universal Obsidian Borders */
+.dark .border-slate-800,
+.dark .border-slate-800\/80,
+.dark .border-slate-800\/60,
+.dark .border-slate-700,
+.dark .border-slate-700\/80,
+.dark .border-slate-700\/60,
+.dark .border-slate-200,
+.dark .border-slate-200\/90,
+.dark .border-slate-200\/70,
+.dark .border-slate-200\/60,
+.dark .border-slate-100,
+.dark .border-teal-100,
+.dark .border-slate-300 {
+  border-color: #222b3d !important;
+}
+
+/* 5. Crisp, High-Contrast Obsidian Typography */
 .dark .text-slate-900,
 .dark .text-slate-800 {
   color: #f8fafc !important;
@@ -49,22 +90,35 @@ body {
 }
 
 .dark .text-slate-500 {
-  color: #a6b4c9 !important;
-}
-
-.dark .text-slate-400 {
   color: #94a3b8 !important;
 }
 
-/* Borders and dividers in Dark Mode */
-.dark .border-slate-200,
-.dark .border-slate-200\/90,
-.dark .border-slate-200\/70,
-.dark .border-slate-200\/60,
-.dark .border-slate-100,
-.dark .border-teal-100,
-.dark .border-slate-300 {
-  border-color: #1e293b !important;
+.dark .text-slate-400 {
+  color: #8391a7 !important;
+}
+
+/* 6. Form Inputs & Selects across All Workstations */
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #0b0f17 !important;
+  border-color: #222b3d !important;
+  color: #f8fafc !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
+}
+
+/* 7. Universal Interactive Table Rows */
+.dark tr:hover td,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-800\/50:hover,
+.dark .hover\:bg-slate-800:hover {
+  background-color: #172033 !important;
 }
 
 /* High-contrast clinical badges in Dark Mode */
@@ -310,5 +364,96 @@ body {
   border-color: #2c374d;
 }
 
+/* =========================================================================
+   Extended Obsidian Theme – Covers ALL remaining clinical workstation pages
+   Added to fully propagate midnight obsidian + gold to every module.
+   ========================================================================= */
+
+/* Teal icon containers → gold obsidian in dark */
+.dark .bg-teal-950\/60,
+.dark .bg-teal-950\/40,
+.dark .bg-teal-950\/20,
+.dark .bg-teal-900\/40,
+.dark .bg-teal-900\/60 {
+  background-color: rgba(19, 24, 36, 0.8) !important;
+}
+.dark .border-teal-800,
+.dark .border-teal-700 {
+  border-color: #222b3d !important;
+}
+.dark .text-teal-600,
+.dark .text-teal-500,
+.dark .text-teal-400,
+.dark .text-teal-300 {
+  color: #34d399 !important;
+}
+
+/* Purple → obsidian override */
+.dark .bg-purple-50,
+.dark .bg-purple-100,
+.dark .bg-purple-950\/40 {
+  background-color: rgba(19, 24, 36, 0.8) !important;
+}
+.dark .text-purple-700,
+.dark .text-purple-600,
+.dark .text-purple-500,
+.dark .text-purple-400 {
+  color: #c4b5fd !important;
+}
+
+/* Sky blue */
+.dark .bg-sky-950\/40,
+.dark .bg-sky-900\/40 {
+  background-color: rgba(19, 24, 36, 0.8) !important;
+}
+
+/* Hover row in obsidian – handled via global tr:hover rule above */
+
+/* Divider lines */
+.dark .divide-slate-100 > * + *,
+.dark .divide-slate-800\/80 > * + *,
+.dark .divide-slate-800 > * + * {
+  border-color: #1b2334 !important;
+}
+
+/* Additional background patterns used in remaining pages */
+.dark .bg-slate-900\/90,
+.dark .bg-slate-900\/70 {
+  background-color: #0e131f !important;
+}
+
+/* Teal buttons → amber gold in dark mode on remaining pages */
+.dark a[class*="bg-teal-6"],
+.dark button[class*="bg-teal-6"],
+.dark a[class*="bg-teal-7"],
+.dark button[class*="bg-teal-7"] {
+  /* Keep teal for clinical items; individual overrides handle primary CTAs */
+}
+
+/* Badge & pill border fixes */
+.dark .border-teal-200,
+.dark .border-teal-300 {
+  border-color: #0d9488 !important;
+}
+.dark .border-blue-200,
+.dark .border-blue-300 {
+  border-color: #3b82f6 !important;
+}
+.dark .border-purple-200 {
+  border-color: #7c3aed !important;
+}
+
+/* Table headers in remaining pages */
+.dark thead {
+  background-color: #0e131f !important;
+}
+.dark thead th {
+  color: #8391a7 !important;
+}
+
+/* Expanded "section header" container fixes */
+.dark .bg-slate-50.dark\:bg-slate-800\/60 {
+  background-color: #0e131f !important;
+}
 
 

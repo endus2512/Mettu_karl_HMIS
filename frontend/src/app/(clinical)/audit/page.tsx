@@ -297,10 +297,10 @@ export default function ClinicalAuditPage(): React.ReactElement {
         <Header />
         <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           {/* Header Bar with Workstation Branding */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-6 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-[#131824] px-6 py-5 rounded-2xl border border-slate-200 dark:border-[#222b3d] shadow-sm">
             <div>
               <div className="flex items-center gap-3.5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-500 dark:text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
                 <div>
@@ -372,7 +372,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
 
               {/* 4 Security Sentinel KPI Cards */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     <span>Audit Events Har'aa</span>
                     <Activity className="w-4 h-4 text-blue-500" />
@@ -405,7 +405,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                     <span>Privacy Masking FHIR</span>
                     <EyeOff className="w-4 h-4 text-emerald-600" />
@@ -585,7 +585,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
             <div className="space-y-6 animate-in fade-in duration-200">
               {/* Quick Metrics KPI Cards */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Overall EHSTG Score</span>
                   <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono">
                     {avgScore}%
@@ -593,7 +593,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                   <p className="mt-1 text-xs text-teal-600 dark:text-teal-400 font-medium">Highest tier referral hospital</p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Chapters Audited</span>
                   <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                     4 Chapters
@@ -609,7 +609,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                   <p className="mt-1 text-xs text-amber-600 dark:text-amber-400 font-medium">OT surgical safety sign-out</p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Mortality Audit Rate</span>
                   <p className="mt-2 text-2xl font-bold tracking-tight text-blue-600 dark:text-blue-400 font-mono">
                     100%
@@ -628,7 +628,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                     {audits.map((a) => (
                       <div
                         key={a.id}
-                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-teal-500/50 transition-colors"
+                        className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm hover:border-teal-500/50 transition-colors"
                       >
                         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
                           <span className="font-bold text-slate-900 dark:text-white text-sm">
@@ -664,7 +664,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                     {capas.map((capa) => (
                       <div
                         key={capa.id}
-                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-teal-500/50 transition-colors"
+                        className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm hover:border-teal-500/50 transition-colors"
                       >
                         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
                           <span className="font-mono text-xs font-bold text-teal-700 dark:text-teal-400">

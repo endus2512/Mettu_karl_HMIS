@@ -113,15 +113,21 @@ export default function BloodBankPage(): React.ReactElement {
         <Header />
         <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           {/* Header Action Bar */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-6 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-[#131824] px-6 py-5 rounded-2xl border border-slate-200 dark:border-[#222b3d] shadow-sm">
             <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)] shrink-0">
                 <Droplet className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                  {t('blood_bank')} • Regional Transfusion & Donor Registry
-                </h1>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                    {t('blood_bank')} • Regional Transfusion & Donor Registry
+                  </h1>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#102419] text-[#34d399] border border-[#059669]/40 shadow-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#34d399] animate-pulse" />
+                    Cold Vault Online
+                  </span>
+                </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Cold Chain Telemetry (2°C - 6°C) • PRBC / FFP / Platelet Inventory • Hemovigilance & Compatibility
                 </p>
@@ -130,72 +136,100 @@ export default function BloodBankPage(): React.ReactElement {
 
             {/* Cold Chain Badges */}
             <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="inline-flex items-center gap-1.5 rounded-xl bg-[#102419] px-3 py-1 text-xs font-semibold text-[#34d399] border border-[#059669]/40">
+                <span className="h-2 w-2 rounded-full bg-[#34d399] animate-pulse" />
                 <Thermometer className="h-3.5 w-3.5" />
                 Fridge 1: 3.8°C
               </div>
-              <div className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60">
+              <div className="inline-flex items-center gap-1.5 rounded-xl bg-[#0e192e] px-3 py-1 text-xs font-semibold text-sky-400 border border-sky-500/30">
                 <Snowflake className="h-3.5 w-3.5" />
-                FFP Freezer: -24.2°C
+                FFP: -24.2°C
               </div>
-              <div className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60">
+              <div className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-300 border border-amber-500/30">
                 <Activity className="h-3.5 w-3.5" />
-                Platelet Incubator: 22.0°C
+                Platelet: 22.0°C
               </div>
             </div>
           </div>
 
-          {/* Quick Metrics KPI Cards */}
+          {/* Quick Metrics KPI Cards (Obsidian & Sparklines) */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total PRBC Units</span>
-                <span className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
+                <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-amber-400">✦</span> 1. Total PRBC
+                </span>
+                <span className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30">
                   <Droplet className="h-4 w-4" />
                 </span>
               </div>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{totalPRBC} Units</p>
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              <div className="mt-2 flex items-baseline justify-between">
+                <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{totalPRBC} Units</p>
+                <svg className="h-5 w-16 text-rose-500/60" viewBox="0 0 64 20" fill="none">
+                  <path d="M 0 15 Q 16 5 32 12 T 64 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
                 <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-                <span>100% negative HIV, HBV, HCV, VDRL</span>
+                <span>100% screened negative</span>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/20 p-5 shadow-xs">
+            <div className="rounded-2xl border border-rose-500/40 bg-rose-50/50 dark:bg-[#1a1118] p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider">O-Negative Reserve</span>
-                <span className="p-2 rounded-lg bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400">
+                <span className="text-[11px] font-mono font-semibold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-amber-400">✦</span> 2. O-Negative Reserve
+                </span>
+                <span className="p-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40">
                   <AlertTriangle className="h-4 w-4" />
                 </span>
               </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <p className="text-2xl font-bold tracking-tight text-rose-700 dark:text-rose-300">{oNegStock} Units</p>
-                <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/60 px-2 py-0.5 rounded-full">Critical Low</span>
+              <div className="mt-2 flex items-baseline justify-between">
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold tracking-tight text-rose-400">{oNegStock} Units</p>
+                  <span className="text-[10px] font-semibold text-rose-300 bg-rose-950/80 px-2 py-0.5 rounded-full border border-rose-500/40">Critical Low</span>
+                </div>
+                <svg className="h-5 w-16 text-rose-500/70" viewBox="0 0 64 20" fill="none">
+                  <path d="M 0 18 Q 20 18 40 10 T 64 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
               </div>
-              <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">Priority universal donor recall activated</p>
+              <p className="mt-2 text-xs text-rose-400/90 font-medium">Priority universal recall active</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fresh Frozen Plasma</span>
-                <span className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
+                <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-amber-400">✦</span> 3. Fresh Frozen Plasma
+                </span>
+                <span className="p-2 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/30">
                   <Snowflake className="h-4 w-4" />
                 </span>
               </div>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{totalFFP} Bags</p>
-              <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 font-medium">Cryoprecipitate ready for trauma & DIC</p>
+              <div className="mt-2 flex items-baseline justify-between">
+                <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{totalFFP} Bags</p>
+                <svg className="h-5 w-16 text-sky-500/60" viewBox="0 0 64 20" fill="none">
+                  <path d="M 0 14 Q 24 6 40 10 T 64 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <p className="mt-2 text-xs text-sky-400 font-medium">Cryoprecipitate ready for trauma & DIC</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Platelet Concentrates</span>
-                <span className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+                <span className="text-[11px] font-mono font-semibold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-amber-400">✦</span> 4. Platelet Packs
+                </span>
+                <span className="p-2 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30">
                   <Activity className="h-4 w-4" />
                 </span>
               </div>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{totalPlatelets} Units</p>
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Continuous agitation in incubator</p>
+              <div className="mt-2 flex items-baseline justify-between">
+                <p className="text-2xl font-bold tracking-tight text-amber-300">{totalPlatelets} Units</p>
+                <svg className="h-5 w-16 text-amber-400/70" viewBox="0 0 64 20" fill="none">
+                  <path d="M 0 16 Q 20 8 45 14 T 64 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <p className="mt-2 text-xs text-amber-400/80 font-medium">Continuous agitation in incubator</p>
             </div>
           </div>
 
@@ -251,16 +285,16 @@ export default function BloodBankPage(): React.ReactElement {
             </div>
 
             {/* Crossmatch Compatibility Simulator */}
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs space-y-4">
-              <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-                <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 dark:border-[#222b3d] pb-3">
+                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
                   <TestTube2 className="h-4 w-4" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                     Crossmatch Simulator
                   </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Major/Minor ABO & Rh Serology Check</p>
+                  <p className="text-[11px] text-slate-400">Major/Minor ABO & Rh Serology Check</p>
                 </div>
               </div>
 
@@ -272,7 +306,7 @@ export default function BloodBankPage(): React.ReactElement {
                   <select
                     value={donorGroup}
                     onChange={(e) => setDonorGroup(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-[#222b3d] bg-slate-50 dark:bg-[#0b0f17] px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                   >
                     {stock.map((s) => (
                       <option key={s.group} value={s.group}>{s.group.replace('_', ' ')}</option>
@@ -287,7 +321,7 @@ export default function BloodBankPage(): React.ReactElement {
                   <select
                     value={recipientGroup}
                     onChange={(e) => setRecipientGroup(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-[#222b3d] bg-slate-50 dark:bg-[#0b0f17] px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                   >
                     {stock.map((s) => (
                       <option key={s.group} value={s.group}>{s.group.replace('_', ' ')}</option>
@@ -298,23 +332,23 @@ export default function BloodBankPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={checkCompatibility}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2.5 shadow-xs transition-colors cursor-pointer text-xs"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-bold py-2.5 shadow-md shadow-amber-500/20 transition cursor-pointer text-xs"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <Sparkles className="h-3.5 w-3.5 text-slate-950" />
                   Verify Compatibility Matrix
                 </button>
 
                 {crossmatchResult && (
                   <div className={`p-3.5 rounded-xl border text-xs font-medium leading-relaxed ${
                     crossmatchResult.startsWith('COMPATIBLE')
-                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
-                      : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+                      ? 'bg-emerald-50 dark:bg-[#0f1d18] border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
+                      : 'bg-rose-50 dark:bg-[#1a1118] border-rose-200 dark:border-rose-500/40 text-rose-800 dark:text-rose-300'
                   }`}>
                     <div className="flex items-start gap-2">
                       {crossmatchResult.startsWith('COMPATIBLE') ? (
-                        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
                       ) : (
-                        <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+                        <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
                       )}
                       <span>{crossmatchResult}</span>
                     </div>
@@ -325,11 +359,11 @@ export default function BloodBankPage(): React.ReactElement {
           </div>
 
           {/* Transfusion & Crossmatch Log Table */}
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
-            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] shadow-sm overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-[#222b3d] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <FileSpreadsheet className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <FileSpreadsheet className="h-4 w-4 text-amber-400" />
                   Recent Blood Transfusion & Crossmatch Roster
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -344,7 +378,7 @@ export default function BloodBankPage(): React.ReactElement {
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
                   placeholder="Filter patient, MRN, unit..."
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 dark:border-[#222b3d] bg-slate-50 dark:bg-[#0b0f17] pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
             </div>

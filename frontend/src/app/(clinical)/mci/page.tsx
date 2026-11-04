@@ -99,7 +99,7 @@ export default function MCIPage(): React.ReactElement {
         <Header />
         <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           {/* Header Action Bar */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-6 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-[#131824] px-6 py-5 rounded-2xl border border-slate-200 dark:border-[#222b3d] shadow-sm">
             <div className="flex items-center gap-3.5">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400">
                 <Siren className="h-6 w-6 animate-pulse" />
@@ -164,7 +164,7 @@ export default function MCIPage(): React.ReactElement {
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Casualty List Table (2 cols) */}
-            <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
+            <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] shadow-sm overflow-hidden">
               <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -183,7 +183,7 @@ export default function MCIPage(): React.ReactElement {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Filter casualty tag or bay..."
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0b0f17] pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -199,7 +199,7 @@ export default function MCIPage(): React.ReactElement {
                       <th className="px-5 py-3 text-right">Intake Time</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#1b2334] font-medium">
                     {filteredCasualties.map((c) => (
                       <tr key={c.tag} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-5 py-3.5 font-mono text-teal-700 dark:text-teal-400 font-bold">{c.tag}</td>
@@ -227,7 +227,7 @@ export default function MCIPage(): React.ReactElement {
             </div>
 
             {/* Rapid START Algorithm Calculator */}
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs space-y-4">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm space-y-4">
               <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
                   <HeartPulse className="h-4 w-4" />

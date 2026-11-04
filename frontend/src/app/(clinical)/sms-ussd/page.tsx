@@ -528,7 +528,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
               {/* Header Action Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white dark:bg-slate-900 px-6 py-5 border border-slate-200 dark:border-slate-800 shadow-xs">
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-500 dark:text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
                     <Smartphone className="h-6 w-6" />
                   </div>
                   <div>
@@ -555,7 +555,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
 
               {/* Quick Stat Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     {dict.stat1Label}
                   </span>
@@ -567,7 +567,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     {dict.stat2Label}
                   </span>
@@ -579,7 +579,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     {dict.stat3Label}
                   </span>

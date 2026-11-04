@@ -490,50 +490,50 @@ export default function PatientPortalPage(): React.ReactElement {
             1. DEDICATED PATIENT LEFTSIDE NAVIGATION (SIDEBAR - DESKTOP & MOBILE DRAWER)
             ========================================================================= */}
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex w-72 lg:w-80 shrink-0 border-r-2 border-slate-800 bg-slate-950 flex-col h-screen sticky top-0 shadow-2xl select-none z-30">
+        <aside className="hidden lg:flex w-72 lg:w-80 shrink-0 border-r border-[#1b2334] bg-[#0b0f17] flex-col h-screen sticky top-0 shadow-2xl select-none z-30">
           {/* Sidebar Top: Hospital Brand */}
-          <div className="h-18 flex items-center gap-3 border-b border-slate-800 px-4 py-3 bg-slate-900/90 shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-md shadow-teal-950/40 border border-teal-400 text-xl shrink-0">
-              
+          <div className="h-18 flex items-center gap-3 border-b border-[#1b2334] px-4 py-3 bg-[#0e131f] shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 text-slate-950 font-black shadow-md shadow-amber-500/20 border border-amber-300 text-xl shrink-0">
+              MK
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="text-xs sm:text-sm font-black text-white leading-tight truncate">
+              <h2 className="text-xs sm:text-sm font-bold text-white leading-tight truncate">
                 {t('hospital_name')}
               </h2>
-              <span className="inline-block rounded-full bg-teal-950 text-teal-300 border border-teal-700 px-2 py-0.2 text-[10px] font-black uppercase tracking-wider mt-0.5">
+              <span className="inline-block rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.2 text-[10px] font-semibold uppercase tracking-wider mt-0.5">
                 {t('patient_portal')}
               </span>
             </div>
           </div>
 
           {/* Sidebar Patient Profile Capsule */}
-          <div className="p-3.5 border-b border-slate-800 bg-slate-900/40 shrink-0">
-            <div className="rounded-2xl border-2 border-slate-800 bg-slate-900/90 p-3 shadow-md space-y-2">
+          <div className="p-3.5 border-b border-[#1b2334] bg-[#0e131f]/60 shrink-0">
+            <div className="rounded-2xl border border-[#222b3d] bg-[#131824] p-3 shadow-md space-y-2">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white font-black text-sm shadow-xs border border-teal-400/30">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 font-bold text-sm shadow-xs border border-amber-500/30">
                   {profile?.blood_group || 'O+'}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-black text-white truncate">
+                  <p className="text-xs sm:text-sm font-bold text-white truncate">
                     {profile?.full_name || 'Gudeta Hailu'}
                   </p>
-                  <p className="text-[11px] font-mono font-bold text-teal-400 truncate">
+                  <p className="text-[11px] font-mono font-medium text-amber-400 truncate">
                     MRN: {profile?.mrn || 'MKH-2026-0001'}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-1 border-t border-slate-800 text-[10px] font-bold">
+              <div className="flex items-center justify-between pt-1 border-t border-[#1b2334] text-[10px] font-medium">
                 <span className="text-slate-400 font-mono">{profile?.fayda_id || 'FAN-9901-2384'}</span>
-                <span className="bg-emerald-950 text-emerald-300 border border-emerald-600 px-1.5 py-0.5 rounded font-black">
+                <span className="bg-[#102419] text-[#34d399] border border-[#059669]/40 px-1.5 py-0.5 rounded font-semibold">
                   CBHI 80%
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Sidebar Navigation Items (5 Workstations with Responsive Rectangular Hover & Response) */}
+          {/* Sidebar Navigation Items (5 Workstations with Executive Gold Rounded Active State) */}
           <nav className="flex-1 overflow-y-auto p-3 space-y-2">
-            <p className="px-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
+            <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               {language === 'am' ? 'የታካሚ አገልግሎቶች' : language === 'en' ? 'Patient Workstations' : 'Kutaalee Yaalaa'}
             </p>
 
@@ -541,20 +541,18 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => setActiveTab('queue')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all duration-150 cursor-pointer select-none active:scale-[0.98] ${
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
                 activeTab === 'queue'
-                  ? 'border-teal-400 bg-teal-600 text-white font-black shadow-lg shadow-teal-950/50 ring-2 ring-teal-400/30'
-                  : 'border-slate-800/80 bg-slate-900/60 text-white font-bold hover:border-teal-400 hover:bg-slate-800 hover:text-teal-200 hover:shadow-md hover:shadow-teal-900/30'
+                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
+                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <Ticket className="h-4 w-4 text-teal-300 shrink-0" />
-                <span className="truncate text-xs sm:text-sm text-white">{t('queue_tracking')}</span>
+                <Ticket className={`h-4 w-4 shrink-0 ${activeTab === 'queue' ? 'text-amber-400' : 'text-slate-400'}`} />
+                <span className="truncate text-xs sm:text-sm">{t('queue_tracking')}</span>
               </div>
               {queueStatus?.has_active_token && (
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
-                  activeTab === 'queue' ? 'bg-amber-300 text-slate-950' : 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
-                }`}>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-slate-950 shrink-0">
                   {queueStatus.token_number}
                 </span>
               )}
@@ -564,18 +562,18 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => setActiveTab('history')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all duration-150 cursor-pointer select-none active:scale-[0.98] ${
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
                 activeTab === 'history'
-                  ? 'border-teal-400 bg-teal-600 text-white font-black shadow-lg shadow-teal-950/50 ring-2 ring-teal-400/30'
-                  : 'border-slate-800/80 bg-slate-900/60 text-white font-bold hover:border-teal-400 hover:bg-slate-800 hover:text-teal-200 hover:shadow-md hover:shadow-teal-900/30'
+                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
+                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <FileText className="h-4 w-4 text-teal-300 shrink-0" />
-                <span className="truncate text-xs sm:text-sm text-white">{t('medical_history')}</span>
+                <FileText className={`h-4 w-4 shrink-0 ${activeTab === 'history' ? 'text-amber-400' : 'text-slate-400'}`} />
+                <span className="truncate text-xs sm:text-sm">{t('medical_history')}</span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                activeTab === 'history' ? 'bg-teal-700 text-white' : 'bg-slate-800 text-slate-300 border border-slate-700'
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
+                activeTab === 'history' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-300 border border-slate-700'
               }`}>
                 {encounters.length}
               </span>
@@ -585,18 +583,18 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => setActiveTab('prescriptions')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all duration-150 cursor-pointer select-none active:scale-[0.98] ${
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
                 activeTab === 'prescriptions'
-                  ? 'border-teal-400 bg-teal-600 text-white font-black shadow-lg shadow-teal-950/50 ring-2 ring-teal-400/30'
-                  : 'border-slate-800/80 bg-slate-900/60 text-white font-bold hover:border-teal-400 hover:bg-slate-800 hover:text-teal-200 hover:shadow-md hover:shadow-teal-900/30'
+                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
+                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <Pill className="h-4 w-4 text-teal-300 shrink-0" />
-                <span className="truncate text-xs sm:text-sm text-white">{t('my_prescriptions')}</span>
+                <Pill className={`h-4 w-4 shrink-0 ${activeTab === 'prescriptions' ? 'text-amber-400' : 'text-slate-400'}`} />
+                <span className="truncate text-xs sm:text-sm">{t('my_prescriptions')}</span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                activeTab === 'prescriptions' ? 'bg-teal-700 text-white' : 'bg-slate-800 text-slate-300 border border-slate-700'
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
+                activeTab === 'prescriptions' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-300 border border-slate-700'
               }`}>
                 {prescriptions.length}
               </span>
@@ -606,18 +604,18 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => setActiveTab('billing')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all duration-150 cursor-pointer select-none active:scale-[0.98] ${
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
                 activeTab === 'billing'
-                  ? 'border-teal-400 bg-teal-600 text-white font-black shadow-lg shadow-teal-950/50 ring-2 ring-teal-400/30'
-                  : 'border-slate-800/80 bg-slate-900/60 text-white font-bold hover:border-teal-400 hover:bg-slate-800 hover:text-teal-200 hover:shadow-md hover:shadow-teal-900/30'
+                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
+                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <CreditCard className="h-4 w-4 text-teal-300 shrink-0" />
-                <span className="truncate text-xs sm:text-sm text-white">{t('billing_telebirr')}</span>
+                <CreditCard className={`h-4 w-4 shrink-0 ${activeTab === 'billing' ? 'text-amber-400' : 'text-slate-400'}`} />
+                <span className="truncate text-xs sm:text-sm">{t('billing_telebirr')}</span>
               </div>
               {invoices.some((i) => i.status.includes('PENDING')) && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white shrink-0 animate-pulse">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-600 text-white shrink-0 animate-pulse">
                   Pay
                 </span>
               )}
@@ -627,17 +625,17 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => setActiveTab('telemed')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all duration-150 cursor-pointer select-none active:scale-[0.98] ${
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
                 activeTab === 'telemed'
-                  ? 'border-teal-400 bg-teal-600 text-white font-black shadow-lg shadow-teal-950/50 ring-2 ring-teal-400/30'
-                  : 'border-slate-800/80 bg-slate-900/60 text-white font-bold hover:border-teal-400 hover:bg-slate-800 hover:text-teal-200 hover:shadow-md hover:shadow-teal-900/30'
+                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
+                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <Video className="h-4 w-4 text-teal-300 shrink-0" />
-                <span className="truncate text-xs sm:text-sm text-white">{t('telemedicine_tab')}</span>
+                <Video className={`h-4 w-4 shrink-0 ${activeTab === 'telemed' ? 'text-amber-400' : 'text-slate-400'}`} />
+                <span className="truncate text-xs sm:text-sm">{t('telemedicine_tab')}</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600 shrink-0">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#102419] text-[#34d399] border border-[#059669]/40 shrink-0">
                 Live
               </span>
             </button>
@@ -709,16 +707,16 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => { setActiveTab('queue'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                activeTab === 'queue' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                activeTab === 'queue' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Ticket className="h-4 w-4 text-teal-400" />
+                <Ticket className={`h-4 w-4 ${activeTab === 'queue' ? 'text-amber-400' : 'text-slate-400'}`} />
                 <span className="text-xs font-bold">{t('queue_tracking')}</span>
               </div>
               {queueStatus?.has_active_token && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-300 text-slate-950">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950">
                   {queueStatus.token_number}
                 </span>
               )}
@@ -727,12 +725,12 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => { setActiveTab('history'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                activeTab === 'history' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                activeTab === 'history' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <FileText className="h-4 w-4 text-teal-400" />
+                <FileText className={`h-4 w-4 ${activeTab === 'history' ? 'text-amber-400' : 'text-slate-400'}`} />
                 <span className="text-xs font-bold">{t('medical_history')}</span>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
@@ -743,12 +741,12 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => { setActiveTab('prescriptions'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                activeTab === 'prescriptions' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                activeTab === 'prescriptions' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Pill className="h-4 w-4 text-teal-400" />
+                <Pill className={`h-4 w-4 ${activeTab === 'prescriptions' ? 'text-amber-400' : 'text-slate-400'}`} />
                 <span className="text-xs font-bold">{t('my_prescriptions')}</span>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
@@ -759,12 +757,12 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => { setActiveTab('billing'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                activeTab === 'billing' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                activeTab === 'billing' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <CreditCard className="h-4 w-4 text-teal-400" />
+                <CreditCard className={`h-4 w-4 ${activeTab === 'billing' ? 'text-amber-400' : 'text-slate-400'}`} />
                 <span className="text-xs font-bold">{t('billing_telebirr')}</span>
               </div>
               {invoices.some((i) => i.status.includes('PENDING')) && (
@@ -775,23 +773,23 @@ export default function PatientPortalPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => { setActiveTab('telemed'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                activeTab === 'telemed' ? 'border-teal-400 bg-teal-600 text-white font-black' : 'border-slate-800 bg-slate-900/60 text-white font-bold'
+              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                activeTab === 'telemed' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Video className="h-4 w-4 text-teal-400" />
+                <Video className={`h-4 w-4 ${activeTab === 'telemed' ? 'text-amber-400' : 'text-slate-400'}`} />
                 <span className="text-xs font-bold">{t('telemedicine_tab')}</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300">Live</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#102419] text-[#34d399] border border-[#059669]/40">Live</span>
             </button>
           </nav>
 
           {/* Drawer Helpline */}
-          <div className="p-3.5 border-t border-slate-800 bg-slate-900/80 shrink-0">
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-2 text-center">
-              <span className="block text-[10px] uppercase font-bold text-slate-400">
-                <Phone className="h-3.5 w-3.5 text-teal-400 inline mr-1" /> 907 / 047-111-2233
+          <div className="p-3.5 border-t border-[#1b2334] bg-[#0e131f] shrink-0">
+            <div className="rounded-xl border border-[#222b3d] bg-[#0b0f17] p-2 text-center">
+              <span className="block text-[10px] uppercase font-bold text-amber-400">
+                <Phone className="h-3.5 w-3.5 text-amber-400 inline mr-1" /> 907 / 047-111-2233
               </span>
             </div>
           </div>
@@ -800,15 +798,15 @@ export default function PatientPortalPage(): React.ReactElement {
         {/* =========================================================================
             2. MAIN WORKSPACE (RIGHT SIDE: WIDE & BREATHABLE)
             ========================================================================= */}
-        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden bg-gradient-to-b from-teal-50/40 via-slate-50 to-slate-100/80 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100 pb-20 lg:pb-0">
-          {/* Main Top Header Bar - Solid Black with White Text and Integrated Calendar & Shift Cockpit */}
-          <header className="sticky top-0 z-20 border-b border-slate-800 bg-black text-white px-3 sm:px-6 py-3 shadow-xl flex items-center justify-between gap-2.5 select-none w-full">
+        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 pb-20 lg:pb-0">
+          {/* Main Top Header Bar - Midnight Obsidian with Integrated Calendar & Shift Cockpit */}
+          <header className="sticky top-0 z-20 border-b border-[#1b2334] bg-[#0b0f17] text-white px-3 sm:px-6 py-3 shadow-xl flex items-center justify-between gap-2.5 select-none w-full">
             {/* Header Left: Hamburger for mobile + Active Workstation Title */}
             <div className="flex items-center gap-2 sm:gap-2.5 shrink min-w-0">
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-slate-800 text-teal-300 hover:text-white border border-slate-700 active:scale-95 transition-all shadow-sm shrink-0 touch-manipulation cursor-pointer"
+                className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-[#141b29] text-amber-400 hover:text-white border border-[#222b3d] active:scale-95 transition-all shadow-sm shrink-0 touch-manipulation cursor-pointer"
                 title="Toggle Patient Menu"
                 aria-label="Toggle Patient Menu"
               >
@@ -818,21 +816,21 @@ export default function PatientPortalPage(): React.ReactElement {
               </button>
 
               <span className="text-xl sm:text-2xl drop-shadow-sm shrink-0">
-                {activeTab === 'queue' && <Ticket className='h-5 w-5 text-teal-500 shrink-0' />}
-                {activeTab === 'history' && <FileText className='h-5 w-5 text-teal-500 shrink-0' />}
-                {activeTab === 'prescriptions' && <Pill className='h-5 w-5 text-teal-500 shrink-0' />}
-                {activeTab === 'billing' && <CreditCard className='h-5 w-5 text-teal-500 shrink-0' />}
-                {activeTab === 'telemed' && <Video className='h-5 w-5 text-teal-500 shrink-0' />}
+                {activeTab === 'queue' && <Ticket className='h-5 w-5 text-amber-400 shrink-0' />}
+                {activeTab === 'history' && <FileText className='h-5 w-5 text-amber-400 shrink-0' />}
+                {activeTab === 'prescriptions' && <Pill className='h-5 w-5 text-amber-400 shrink-0' />}
+                {activeTab === 'billing' && <CreditCard className='h-5 w-5 text-amber-400 shrink-0' />}
+                {activeTab === 'telemed' && <Video className='h-5 w-5 text-amber-400 shrink-0' />}
               </span>
               <div className="min-w-0">
-                <h1 className="text-sm sm:text-base font-black text-white tracking-tight leading-tight truncate">
+                <h1 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight truncate">
                   {activeTab === 'queue' && t('queue_tracking')}
                   {activeTab === 'history' && t('medical_history')}
                   {activeTab === 'prescriptions' && t('my_prescriptions')}
                   {activeTab === 'billing' && t('billing_telebirr')}
                   {activeTab === 'telemed' && t('telemedicine_tab')}
                 </h1>
-                <p className="text-[10px] sm:text-[11px] text-teal-400 font-bold uppercase tracking-wider truncate">
+                <p className="text-[10px] sm:text-[11px] text-amber-400/90 font-medium uppercase tracking-wider truncate">
                   {t('hospital_name')} • {language === 'am' ? 'የታካሚ ክፍል' : language === 'en' ? 'Patient Portal' : 'Kutaa Dhukkubsataa'}
                 </p>
               </div>
@@ -841,19 +839,19 @@ export default function PatientPortalPage(): React.ReactElement {
             {/* Header Center: Calendar, Morning Shift & FHIR Cockpit */}
             <div className="hidden lg:flex items-center gap-2 mx-auto shrink-0">
               {/* 1. Calendar (Kalandarii) */}
-              <div className="flex items-center gap-1.5 rounded-xl bg-slate-900 border border-slate-700/80 px-2.5 py-1 text-xs font-bold text-white shadow-xs">
-                <Calendar className="h-4 w-4 text-teal-400 shrink-0" />
-                <span className="text-white font-bold tracking-tight">{calendarDate}</span>
+              <div className="flex items-center gap-1.5 rounded-xl bg-[#101624] border border-[#222b3d] px-2.5 py-1 text-xs font-medium text-slate-300 shadow-xs">
+                <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
+                <span className="text-slate-200 tracking-tight">{calendarDate}</span>
               </div>
 
               {/* 2. Morning Shift (Dabaree Ganamaa) */}
-              <div className="flex items-center gap-1.5 rounded-xl bg-slate-900 border border-slate-700/80 px-2.5 py-1 text-xs font-bold text-teal-300 shadow-xs">
+              <div className="flex items-center gap-1.5 rounded-xl bg-[#101624] border border-[#222b3d] px-2.5 py-1 text-xs font-medium text-amber-300 shadow-xs">
                 <span className="text-sm">{shiftIcon}</span>
-                <span className="text-teal-300 font-bold tracking-tight">{shiftName}</span>
+                <span className="text-amber-300 tracking-tight">{shiftName}</span>
               </div>
 
               {/* 3. FHIR Status Pill */}
-              <div className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-950/60 px-2.5 py-1 text-[11px] font-bold text-emerald-300">
+              <div className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-[#059669]/40 bg-[#102419] px-2.5 py-1 text-[11px] font-semibold text-[#34d399]">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>FHIR R4</span>
               </div>

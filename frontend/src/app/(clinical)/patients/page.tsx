@@ -378,8 +378,8 @@ export default function PatientsFHIRPage(): React.ReactElement {
             </div>
 
             <div className="flex items-center gap-2.5 shrink-0">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#102419] px-3 py-1 text-xs font-semibold text-[#34d399] border border-[#059669]/40">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 FHIR R4 Online
               </span>
 
@@ -387,17 +387,17 @@ export default function PatientsFHIRPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setIsRegisterOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 active:bg-teal-800 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 text-slate-950 font-bold px-3.5 py-2 text-xs shadow-md shadow-amber-500/20 border border-amber-300 transition-all cursor-pointer"
                 >
-                  <UserPlus className="w-4 h-4" />
+                  <UserPlus className="w-4 h-4 text-slate-950" />
                   <span>{language === 'om' ? 'Galmee Haaraa' : language === 'am' ? 'አዲስ ታካሚ ምዝገባ' : 'Register Patient'}</span>
                 </button>
               ) : (
                 <Link
                   href="/analytics"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-all"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#131824] hover:bg-[#1a2233] border border-amber-500/30 px-3.5 py-2 text-xs font-semibold text-amber-300 shadow-xs transition-all"
                 >
-                  <TrendingUp className="w-4 h-4 text-teal-400" />
+                  <TrendingUp className="w-4 h-4 text-amber-400" />
                   <span>BI Analytics →</span>
                 </Link>
               )}
@@ -406,16 +406,16 @@ export default function PatientsFHIRPage(): React.ReactElement {
 
           {/* ADMIN CLINICAL PRIVACY / CONFIDENTIALITY BANNER */}
           {isAdmin && (
-            <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/30 p-4 sm:p-5 shadow-xs">
+            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5 shadow-xs">
               <div className="flex items-start gap-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40">
                   <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div className="space-y-1 flex-1">
-                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-200">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300">
                     <span>Clinical Data Confidentiality Active (MOH Health Data Policy)</span>
                   </div>
-                  <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                  <p className="text-xs text-amber-200/90 leading-relaxed">
                     Under Ethiopian MoH clinical privacy guidelines, sensitive diagnostic, medication, and allergy details are restricted to verified clinical practitioners (Doctor/Nurse). Administrative accounts retain aggregate BI and workload oversight.
                   </p>
                 </div>
@@ -423,62 +423,77 @@ export default function PatientsFHIRPage(): React.ReactElement {
             </div>
           )}
 
-          {/* Precision Situational Awareness KPI Cards */}
+          {/* Precision Situational Awareness KPI Cards (Matching Reference Sparkline Cards) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             {/* Total Registered */}
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-700">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Registered</span>
-                <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60">
-                  <Users className="w-4 h-4" />
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-4.5 shadow-xs transition-all hover:border-amber-500/40 hover:shadow-md">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">1. Total Registered</span>
+                  <p className="mt-1.5 text-2xl font-black text-slate-900 dark:text-white tracking-tight">14,892</p>
                 </div>
+                <span className="text-amber-400 text-sm">✦</span>
               </div>
-              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">14,892</p>
-              <div className="mt-1 flex items-center gap-1.5 text-xs text-teal-600 dark:text-teal-400 font-medium">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>+38 new registered today</span>
+              <div className="mt-1 flex items-center justify-between">
+                <span className="text-xs text-amber-500 dark:text-amber-400 font-medium">+38 registered today</span>
+                {/* Gold Sparkline */}
+                <svg className="w-20 h-6 shrink-0" viewBox="0 0 100 30" fill="none">
+                  <path d="M 0,22 Q 25,28 50,15 T 100,5" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
               </div>
             </div>
 
             {/* Active Inpatients */}
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-700">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Active Inpatients</span>
-                <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200/60 dark:border-sky-800/60">
-                  <Bed className="w-4 h-4" />
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-4.5 shadow-xs transition-all hover:border-amber-500/40 hover:shadow-md">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">2. Active Inpatients</span>
+                  <p className="mt-1.5 text-2xl font-black text-slate-900 dark:text-white tracking-tight">340</p>
                 </div>
+                <span className="text-amber-400 text-sm">✦</span>
               </div>
-              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">340</p>
-              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                85% Bed Occupancy Rate (BOR)
+              <div className="mt-1 flex items-center justify-between">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">85% Bed Occupancy (340/400)</span>
+                {/* Gold Sparkline */}
+                <svg className="w-20 h-6 shrink-0" viewBox="0 0 100 30" fill="none">
+                  <path d="M 0,25 Q 25,10 50,18 T 100,8" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
               </div>
             </div>
 
             {/* Emergency & Triage */}
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-700">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Emergency & Triage</span>
-                <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60">
-                  <AlertTriangle className="w-4 h-4" />
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-4.5 shadow-xs transition-all hover:border-rose-500/40 hover:shadow-md">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">3. Emergency & Triage</span>
+                  <p className="mt-1.5 text-2xl font-black text-rose-500 dark:text-rose-400 tracking-tight">24 Acute</p>
                 </div>
+                <span className="text-rose-400 text-sm">✦</span>
               </div>
-              <p className="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400">24</p>
-              <div className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
-                3 Immediate (Red Resuscitation)
+              <div className="mt-1 flex items-center justify-between">
+                <span className="text-xs text-rose-500 dark:text-rose-400 font-medium">3 Immediate (Red Resuscitation)</span>
+                {/* Rose Sparkline */}
+                <svg className="w-20 h-6 shrink-0" viewBox="0 0 100 30" fill="none">
+                  <path d="M 0,20 Q 30,5 60,25 T 100,10" stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
               </div>
             </div>
 
             {/* Fayda FIN Verified */}
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-700">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Fayda FIN Linkage</span>
-                <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60">
-                  <CreditCard className="w-4 h-4" />
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-4.5 shadow-xs transition-all hover:border-amber-500/40 hover:shadow-md">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">4. Fayda FIN Linkage</span>
+                  <p className="mt-1.5 text-2xl font-black text-emerald-500 dark:text-emerald-400 tracking-tight">92.4%</p>
                 </div>
+                <span className="text-amber-400 text-sm">✦</span>
               </div>
-              <p className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">92.4%</p>
-              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Zero duplicate MRNs across hospital
+              <div className="mt-1 flex items-center justify-between">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Zero duplicate MRNs</span>
+                {/* Gold Sparkline */}
+                <svg className="w-20 h-6 shrink-0" viewBox="0 0 100 30" fill="none">
+                  <path d="M 0,26 Q 30,22 60,12 T 100,4" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
               </div>
             </div>
           </div>

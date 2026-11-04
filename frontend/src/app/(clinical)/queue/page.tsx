@@ -353,7 +353,7 @@ export default function QueuePage(): React.ReactElement {
               <button
                 type="button"
                 onClick={handleRecall}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-[#101624] hover:bg-amber-500/20 text-amber-300 px-3 py-2 text-xs font-semibold shadow-xs transition cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Recall Token</span>
@@ -364,9 +364,9 @@ export default function QueuePage(): React.ReactElement {
                 type="button"
                 onClick={handleCallNext}
                 disabled={isCalling}
-                className="inline-flex items-center gap-2 rounded-lg bg-teal-600 hover:bg-teal-700 active:bg-teal-800 px-4 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 text-slate-950 font-bold px-4 py-2 text-xs shadow-md shadow-amber-500/20 border border-amber-300 transition cursor-pointer disabled:opacity-60"
               >
-                <Megaphone className="w-4 h-4 text-teal-200" />
+                <Megaphone className="w-4 h-4 text-slate-950" />
                 <span>{isCalling ? 'Calling...' : t('call_next')}</span>
               </button>
             </div>
@@ -374,24 +374,24 @@ export default function QueuePage(): React.ReactElement {
 
           {/* Queue Performance Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 shadow-xs">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Currently Waiting</span>
-              <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{waitingList.length}</p>
-              <span className="text-[11px] text-teal-600 dark:text-teal-400 font-medium">Across all OPD wards</span>
+            <div className="rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-3.5 shadow-xs">
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Currently Waiting</span>
+              <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">{waitingList.length}</p>
+              <span className="text-[11px] text-amber-500 dark:text-amber-400 font-medium">Across all OPD wards</span>
             </div>
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 shadow-xs">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Avg Wait Time</span>
-              <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">14 min</p>
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Within MOH EHSTG target</span>
+            <div className="rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-3.5 shadow-xs">
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Avg Wait Time</span>
+              <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">14 min</p>
+              <span className="text-[11px] text-emerald-500 dark:text-[#34d399] font-medium">Within MOH EHSTG target</span>
             </div>
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 shadow-xs">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Completed Today</span>
-              <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">142</p>
+            <div className="rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-3.5 shadow-xs">
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Completed Today</span>
+              <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">142</p>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">+18 per hour pace</span>
             </div>
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 shadow-xs">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Active Counters</span>
-              <p className="mt-1 text-2xl font-bold text-teal-600 dark:text-teal-400">8 / 10</p>
+            <div className="rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-3.5 shadow-xs">
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Active Counters</span>
+              <p className="mt-1 text-2xl font-black text-amber-500 dark:text-amber-400">8 / 10</p>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">80% operational capacity</span>
             </div>
           </div>
@@ -399,20 +399,20 @@ export default function QueuePage(): React.ReactElement {
           {/* Hall TV Display Grid */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Primary Serving Showcase (Hall Monitor View) */}
-            <div className="lg:col-span-2 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 p-6 sm:p-8 text-white shadow-xl border border-slate-800 relative overflow-hidden flex flex-col justify-between">
-              {/* Subtle Ambient Glow */}
-              <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="lg:col-span-2 rounded-2xl bg-gradient-to-br from-[#070a10] via-[#0b0f17] to-[#131824] p-6 sm:p-8 text-white shadow-xl border border-[#222b3d] relative overflow-hidden flex flex-col justify-between">
+              {/* Subtle Ambient Gold Glow */}
+              <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
               {/* Monitor Header */}
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3 py-1 text-xs font-semibold">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#102419] text-[#34d399] border border-[#059669]/40 px-3 py-1 text-xs font-semibold">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                     <span>Now Serving / Amma Tajaajilamaa Jira</span>
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-mono text-teal-200">
-                  <Clock className="w-3.5 h-3.5 text-teal-400" />
+                <div className="flex items-center gap-2 text-xs font-mono text-amber-300">
+                  <Clock className="w-3.5 h-3.5 text-amber-400" />
                   <span>{currentTime || '10:42:00 AM'}</span>
                 </div>
               </div>

@@ -210,17 +210,21 @@ export default function PharmacyPage(): React.ReactElement {
         <Header />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           {/* Header Bar */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-5 sm:px-6 py-4 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-[#131824] px-5 sm:px-6 py-4 rounded-2xl border border-slate-200/90 dark:border-[#222b3d] shadow-sm">
             <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 shadow-xs shrink-0">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)] shrink-0">
                 <Pill className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                  <span>{t('pharmacy')}</span>
-                  <span className="text-slate-400 font-normal">•</span>
-                  <span className="text-sm font-semibold text-teal-600 dark:text-teal-400">FEFO Inventory & CDSS Safety</span>
-                </h1>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    {t('pharmacy')}
+                  </h1>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#102419] text-[#34d399] border border-[#059669]/40 shadow-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#34d399] animate-pulse" />
+                    FEFO Dispense Active
+                  </span>
+                </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   First-Expired, First-Out (FEFO) Allocation • Automated Drug-Drug & Allergy Contraindication Checks
                 </p>
@@ -231,70 +235,114 @@ export default function PharmacyPage(): React.ReactElement {
               <button
                 type="button"
                 onClick={handleTestCDSS}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 active:bg-rose-800 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 active:bg-rose-700 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer border border-rose-500/30"
               >
                 <ShieldAlert className="w-4 h-4 text-rose-200" />
                 <span>Test CDSS Safety Alerts</span>
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  notifications.show({
+                    title: 'New Formulary Entry',
+                    message: 'Medication intake modal opened for batch registration.',
+                    color: 'yellow',
+                  });
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-bold px-4 py-2 text-xs shadow-md shadow-amber-500/20 transition cursor-pointer"
+              >
+                <Plus className="w-4 h-4 text-slate-950 font-bold" />
+                <span>Add Medication</span>
+              </button>
             </div>
           </div>
 
-          {/* Quick Stats / Stock Alerts */}
+          {/* Quick Stats / Stock Alerts (Executive Obsidian & Sparkline Cards) */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* Low Stock Warning */}
             <div
               onClick={() => setStatusFilter('low')}
-              className="rounded-xl border border-rose-200 dark:border-rose-900/60 bg-white dark:bg-slate-900 p-4.5 shadow-xs hover:border-rose-400 transition cursor-pointer"
+              className={`rounded-2xl border p-4.5 transition cursor-pointer ${
+                statusFilter === 'low'
+                  ? 'border-rose-500/60 bg-[#17121b] ring-1 ring-rose-500/30'
+                  : 'border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] hover:border-rose-500/40'
+              }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
-                  {t('low_stock_warning')}
+                <span className="text-[11px] font-mono font-semibold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-amber-400">✦</span> 1. {t('low_stock_warning')}
                 </span>
-                <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60">
+                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30">
                   <PackageX className="w-4 h-4" />
                 </div>
               </div>
-              <p className="mt-2 text-2xl font-bold text-rose-700 dark:text-rose-400">{lowStockCount} Medications</p>
-              <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">Below safety reorder threshold</p>
+              <div className="mt-2 flex items-baseline justify-between">
+                <p className="text-2xl font-bold text-rose-400">{lowStockCount} <span className="text-xs font-normal text-slate-400">Medications</span></p>
+                {/* SVG sparkline */}
+                <svg className="h-6 w-20 text-rose-500/60" viewBox="0 0 80 24" fill="none">
+                  <path d="M 0 18 Q 20 8 40 16 T 80 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <p className="mt-1 text-xs text-rose-400/80 font-medium">Below safety reorder threshold</p>
             </div>
 
             {/* Expiring in 90 Days */}
             <div
               onClick={() => setStatusFilter('expiring')}
-              className="rounded-xl border border-amber-200 dark:border-amber-900/60 bg-white dark:bg-slate-900 p-4.5 shadow-xs hover:border-amber-400 transition cursor-pointer"
+              className={`rounded-2xl border p-4.5 transition cursor-pointer ${
+                statusFilter === 'expiring'
+                  ? 'border-amber-500/60 bg-[#1c1811] ring-1 ring-amber-500/30'
+                  : 'border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] hover:border-amber-500/40'
+              }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
-                  FEFO Expiring &lt; 90 Days
+                <span className="text-[11px] font-mono font-semibold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-amber-400">✦</span> 2. FEFO Expiring &lt; 90 Days
                 </span>
-                <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/60">
+                <div className="p-2 rounded-xl bg-amber-500/15 text-amber-300 border border-amber-500/30">
                   <Clock className="w-4 h-4" />
                 </div>
               </div>
-              <p className="mt-2 text-2xl font-bold text-amber-700 dark:text-amber-400">{expiringCount} Batches</p>
-              <p className="mt-1 text-xs text-amber-600 dark:text-amber-400 font-medium">Priority dispense recommended</p>
+              <div className="mt-2 flex items-baseline justify-between">
+                <p className="text-2xl font-bold text-amber-300">{expiringCount} <span className="text-xs font-normal text-slate-400">Batches</span></p>
+                {/* SVG sparkline */}
+                <svg className="h-6 w-20 text-amber-400/70" viewBox="0 0 80 24" fill="none">
+                  <path d="M 0 14 Q 25 20 45 8 T 80 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <p className="mt-1 text-xs text-amber-400/80 font-medium">Priority dispense recommended</p>
             </div>
 
             {/* Healthy Stock */}
             <div
               onClick={() => setStatusFilter('good')}
-              className="rounded-xl border border-teal-200 dark:border-teal-900/60 bg-white dark:bg-slate-900 p-4.5 shadow-xs hover:border-teal-400 transition cursor-pointer"
+              className={`rounded-2xl border p-4.5 transition cursor-pointer ${
+                statusFilter === 'good'
+                  ? 'border-emerald-500/60 bg-[#0f1d18] ring-1 ring-emerald-500/30'
+                  : 'border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] hover:border-emerald-500/40'
+              }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 uppercase tracking-wider">
-                  Adequate Stock
+                <span className="text-[11px] font-mono font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-amber-400">✦</span> 3. Adequate Buffer Stock
                 </span>
-                <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60">
+                <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                   <PackageCheck className="w-4 h-4" />
                 </div>
               </div>
-              <p className="mt-2 text-2xl font-bold text-teal-700 dark:text-teal-400">{goodCount} Formulary Drugs</p>
-              <p className="mt-1 text-xs text-teal-600 dark:text-teal-400 font-medium">Adequate hospital buffer stock</p>
+              <div className="mt-2 flex items-baseline justify-between">
+                <p className="text-2xl font-bold text-emerald-400">{goodCount} <span className="text-xs font-normal text-slate-400">Formulary</span></p>
+                {/* SVG sparkline */}
+                <svg className="h-6 w-20 text-emerald-400/70" viewBox="0 0 80 24" fill="none">
+                  <path d="M 0 16 Q 20 4 50 12 T 80 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <p className="mt-1 text-xs text-emerald-400/80 font-medium">Adequate hospital buffer stock</p>
             </div>
           </div>
 
           {/* Search Bar & Status Filters */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-[#131824] p-3.5 rounded-2xl border border-slate-200/90 dark:border-[#222b3d] shadow-sm">
             {/* Search Input */}
             <div className="relative flex-1 max-w-md">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -303,18 +351,18 @@ export default function PharmacyPage(): React.ReactElement {
                 placeholder={language === 'om' ? 'Qoricha, generic, ykn batch barbaadi...' : 'Search brand, generic, batch...'}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-300 dark:border-[#222b3d] bg-slate-50 dark:bg-[#0b0f17] text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
               />
             </div>
 
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 text-xs font-medium border border-slate-200 dark:border-slate-700">
+            {/* Filter Tabs (Obsidian Capsules with Gold Highlight) */}
+            <div className="flex items-center gap-1.5 rounded-xl bg-slate-100 dark:bg-[#0b0f17] p-1 text-xs font-medium border border-slate-200 dark:border-[#222b3d]">
               <button
                 type="button"
                 onClick={() => setStatusFilter('all')}
-                className={`px-3 py-1.5 rounded-md transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                   statusFilter === 'all'
-                    ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
+                    ? 'bg-amber-500/15 text-amber-300 font-bold border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.15)]'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -323,9 +371,9 @@ export default function PharmacyPage(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setStatusFilter('low')}
-                className={`px-3 py-1.5 rounded-md transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                   statusFilter === 'low'
-                    ? 'bg-white dark:bg-slate-900 text-rose-700 dark:text-rose-400 shadow-xs font-semibold'
+                    ? 'bg-rose-500/15 text-rose-300 font-bold border border-rose-500/40'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -334,9 +382,9 @@ export default function PharmacyPage(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setStatusFilter('expiring')}
-                className={`px-3 py-1.5 rounded-md transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                   statusFilter === 'expiring'
-                    ? 'bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-400 shadow-xs font-semibold'
+                    ? 'bg-amber-500/15 text-amber-300 font-bold border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.15)]'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -345,9 +393,9 @@ export default function PharmacyPage(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setStatusFilter('good')}
-                className={`px-3 py-1.5 rounded-md transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                   statusFilter === 'good'
-                    ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
+                    ? 'bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/40'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -357,23 +405,23 @@ export default function PharmacyPage(): React.ReactElement {
           </div>
 
           {/* Pharmacy Inventory Data Table */}
-          <div className="overflow-hidden rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
+          <div className="overflow-hidden rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <thead className="bg-slate-50 dark:bg-[#0e131f] border-b border-slate-200 dark:border-[#222b3d] text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   <tr>
-                    <th className="px-4 py-3">Medication Name</th>
-                    <th className="px-4 py-3">Generic / Pharmacology</th>
-                    <th className="px-4 py-3">Batch Number</th>
-                    <th className="px-4 py-3">In-Stock Qty</th>
-                    <th className="px-4 py-3">Expiry Date (FEFO)</th>
-                    <th className="px-4 py-3">Unit Price</th>
-                    <th className="px-4 py-3 text-right">FEFO Status</th>
+                    <th className="px-4 py-3.5">Medication Name</th>
+                    <th className="px-4 py-3.5">Generic / Pharmacology</th>
+                    <th className="px-4 py-3.5">Batch Number</th>
+                    <th className="px-4 py-3.5">In-Stock Qty</th>
+                    <th className="px-4 py-3.5">Expiry Date (FEFO)</th>
+                    <th className="px-4 py-3.5">Unit Price</th>
+                    <th className="px-4 py-3.5 text-right">FEFO Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#1b2334]">
                   {filteredInventory.map((item) => (
-                    <tr key={item.id} className="hover:bg-teal-50/40 dark:hover:bg-slate-800/40 transition">
+                    <tr key={item.id} className="hover:bg-amber-500/5 dark:hover:bg-amber-500/5 transition">
                       <td className="px-4 py-3.5">
                         <p className="font-semibold text-slate-900 dark:text-white text-sm">{item.name}</p>
                         <span className="text-[11px] text-slate-400">{item.form}</span>
@@ -384,7 +432,7 @@ export default function PharmacyPage(): React.ReactElement {
                         <span className="text-[10px] text-slate-400">{item.category}</span>
                       </td>
 
-                      <td className="px-4 py-3.5 font-mono font-bold text-teal-700 dark:text-teal-400">
+                      <td className="px-4 py-3.5 font-mono font-bold text-amber-500 dark:text-amber-400">
                         {item.batch}
                       </td>
 
@@ -405,20 +453,20 @@ export default function PharmacyPage(): React.ReactElement {
 
                       <td className="px-4 py-3.5 text-right">
                         {item.status === 'expiring' && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-2.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
-                            <Clock className="w-3 h-3 text-amber-600" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300">
+                            <Clock className="w-3 h-3 text-amber-400" />
                             <span>Expiring Soon</span>
                           </span>
                         )}
                         {item.status === 'low' && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 px-2.5 py-0.5 text-[10px] font-semibold text-rose-700 dark:text-rose-300 animate-pulse">
-                            <AlertTriangle className="w-3 h-3 text-rose-600" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 border border-rose-500/30 px-2.5 py-0.5 text-[10px] font-semibold text-rose-300 animate-pulse">
+                            <AlertTriangle className="w-3 h-3 text-rose-400" />
                             <span>Low Stock</span>
                           </span>
                         )}
                         {item.status === 'good' && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-300">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                             <span>In Stock</span>
                           </span>
                         )}

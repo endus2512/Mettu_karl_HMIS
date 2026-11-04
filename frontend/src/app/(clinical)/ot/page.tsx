@@ -181,7 +181,7 @@ export default function OTPage(): React.ReactElement {
                 {surgeries.map((s, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-teal-400/60 transition"
+                    className="rounded-xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm hover:border-teal-400/60 transition"
                   >
                     <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                       <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export default function OTPage(): React.ReactElement {
             </div>
 
             {/* CSSD Sterilizer Hub */}
-            <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs space-y-4 flex flex-col justify-between">
+            <div className="rounded-xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm space-y-4 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">

@@ -914,15 +914,15 @@ export function AdminOversightHub(): React.ReactElement {
   };
 
   return (
-    <section className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-5 sm:p-6 shadow-xs space-y-5">
+    <section className="rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 sm:p-6 shadow-xs space-y-5">
       {/* 1. Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-[#1b2334] pb-4">
         <div className="flex items-start gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-xs">
             <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-md border border-teal-500/30 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300 mb-1">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-300 mb-1">
               <span>{txt.badge}</span>
             </div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -939,7 +939,7 @@ export function AdminOversightHub(): React.ReactElement {
           <button
             type="button"
             onClick={() => setBroadcastModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-2 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 text-slate-950 font-bold px-3.5 py-2 text-xs shadow-md shadow-amber-500/20 border border-amber-300 transition-colors cursor-pointer"
           >
             <Megaphone className="h-4 w-4" />
             <span>{txt.broadcastBtn}</span>
@@ -947,7 +947,7 @@ export function AdminOversightHub(): React.ReactElement {
           <button
             type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 text-xs font-medium shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#0e131f] hover:bg-slate-50 dark:hover:bg-[#151c2e] text-slate-700 dark:text-slate-200 px-3 py-2 text-xs font-medium shadow-xs transition-colors cursor-pointer"
           >
             {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
             <span>{isCollapsed ? (lang === 'om' ? 'Kutaalee Agarsiisi' : lang === 'am' ? 'ዘርጋ' : 'Expand') : (lang === 'om' ? 'Simplicity (Dhadhahi)' : lang === 'am' ? 'አሳጥር' : 'Minimize')}</span>
@@ -1035,7 +1035,7 @@ export function AdminOversightHub(): React.ReactElement {
           {/* 3. Search Bar & Role Filter Tabs */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-1">
             {/* Role Tabs */}
-            <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700">
+            <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#0e131f] rounded-xl border border-slate-200 dark:border-[#222b3d]">
               {[
                 { key: 'all', label: txt.tabAll, count: HOSPITAL_ROSTER.length },
                 { key: 'doctor', label: txt.tabDoctor, count: HOSPITAL_ROSTER.filter((r) => r.role === 'doctor').length },
@@ -1048,10 +1048,10 @@ export function AdminOversightHub(): React.ReactElement {
                   key={tab.key}
                   type="button"
                   onClick={() => setRoleFilter(tab.key as any)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     roleFilter === tab.key
-                      ? 'bg-teal-700 text-white shadow-xs font-semibold'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700'
+                      ? 'border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.12)]'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-amber-200 hover:bg-white/60 dark:hover:bg-[#151c2e]'
                   }`}
                 >
                   {tab.label} <span className="opacity-75">({tab.count})</span>

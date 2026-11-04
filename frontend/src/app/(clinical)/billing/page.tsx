@@ -285,14 +285,14 @@ export default function BillingPage(): React.ReactElement {
                   <span className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-2">
                     Payment Gateway
                   </span>
-                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-lg bg-slate-100 dark:bg-slate-800 mb-4 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-[#0e131f] mb-4 text-xs font-semibold border border-slate-200 dark:border-[#222b3d]">
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('telebirr')}
-                      className={`py-1.5 px-2 rounded-md transition text-center cursor-pointer ${
+                      className={`py-1.5 px-2 rounded-lg transition text-center cursor-pointer ${
                         paymentMethod === 'telebirr'
-                          ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
-                          : 'text-slate-600 dark:text-slate-400'
+                          ? 'border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.12)] font-bold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-amber-200'
                       }`}
                     >
                       Telebirr
@@ -300,10 +300,10 @@ export default function BillingPage(): React.ReactElement {
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('cbe_birr')}
-                      className={`py-1.5 px-2 rounded-md transition text-center cursor-pointer ${
+                      className={`py-1.5 px-2 rounded-lg transition text-center cursor-pointer ${
                         paymentMethod === 'cbe_birr'
-                          ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
-                          : 'text-slate-600 dark:text-slate-400'
+                          ? 'border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.12)] font-bold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-amber-200'
                       }`}
                     >
                       CBE Birr
@@ -311,10 +311,10 @@ export default function BillingPage(): React.ReactElement {
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('cash')}
-                      className={`py-1.5 px-2 rounded-md transition text-center cursor-pointer ${
+                      className={`py-1.5 px-2 rounded-lg transition text-center cursor-pointer ${
                         paymentMethod === 'cash'
-                          ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 shadow-xs font-semibold'
-                          : 'text-slate-600 dark:text-slate-400'
+                          ? 'border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.12)] font-bold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-amber-200'
                       }`}
                     >
                       Cash Desk
@@ -330,7 +330,7 @@ export default function BillingPage(): React.ReactElement {
                         type="text"
                         value={telebirrPhone}
                         onChange={(e) => setTelebirrPhone(e.target.value)}
-                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 text-xs font-mono font-bold text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 text-xs font-mono font-bold text-slate-900 dark:text-white focus:border-amber-500 focus:outline-none"
                       />
                     </div>
                   )}
@@ -341,16 +341,16 @@ export default function BillingPage(): React.ReactElement {
               <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
                 {isPaid ? (
                   <div className="space-y-2">
-                    <div className="rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 p-3 text-center text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center justify-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <div className="rounded-xl border border-emerald-300 dark:border-[#059669]/40 bg-[#102419] p-3 text-center text-xs font-semibold text-[#34d399] flex items-center justify-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       <span>Settled via {paymentMethod.toUpperCase()} (Ref: TB-992384)</span>
                     </div>
                     <button
                       type="button"
                       onClick={handlePrint}
-                      className="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full h-10 rounded-xl border border-amber-500/30 bg-[#101624] hover:bg-amber-500/20 text-xs font-semibold text-amber-300 transition flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <Printer className="w-4 h-4 text-slate-500" />
+                      <Printer className="w-4 h-4 text-amber-400" />
                       <span>Print Hospital Receipt</span>
                     </button>
                   </div>
@@ -358,9 +358,9 @@ export default function BillingPage(): React.ReactElement {
                   <button
                     type="button"
                     onClick={handlePay}
-                    className="w-full h-11 rounded-lg bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full h-11 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-amber-500/20 border border-amber-300 transition flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Smartphone className="w-4 h-4 text-teal-200" />
+                    <Smartphone className="w-4 h-4 text-slate-950" />
                     <span>Pay {patientPayable.toFixed(2)} ETB with {paymentMethod.toUpperCase()}</span>
                   </button>
                 )}
