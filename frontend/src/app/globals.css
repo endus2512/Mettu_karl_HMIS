@@ -10,13 +10,15 @@
 :root.dark,
 .dark {
   --foreground-rgb: 248, 250, 252;
-  --background-rgb: 11, 15, 23; /* #0b0f17 midnight obsidian */
+  --background-rgb: 8, 11, 17; /* #080b11 refined midnight obsidian */
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* =========================================================================
@@ -31,8 +33,9 @@ body {
 .dark .bg-slate-100\/80,
 .dark .bg-slate-100\/90,
 .dark .bg-slate-950,
-.dark .bg-\[\#070e1e\] {
-  background-color: #0b0f17 !important;
+.dark .bg-\[\#070e1e\],
+.dark .bg-\[\#0b0f17\] {
+  background-color: #080b11 !important;
 }
 
 /* 2. Universal Cards, Modals, Panels & Surfaces */
@@ -45,8 +48,9 @@ body {
 .dark .bg-slate-900\/80,
 .dark .bg-slate-900\/90,
 .dark .bg-\[\#0f1c34\],
-.dark .bg-\[\#0f172a\] {
-  background-color: #131824 !important;
+.dark .bg-\[\#0f172a\],
+.dark .bg-\[\#131824\] {
+  background-color: #0f1420 !important;
 }
 
 /* 3. Sub-panels, Table Headers & Inset Containers */
@@ -54,8 +58,9 @@ body {
 .dark .bg-slate-800\/40,
 .dark .bg-slate-800\/60,
 .dark .bg-slate-800,
-.dark .bg-slate-800\/90 {
-  background-color: #0e131f !important;
+.dark .bg-slate-800\/90,
+.dark .bg-\[\#0e131f\] {
+  background-color: #0b0e17 !important;
 }
 
 /* 4. Universal Obsidian Borders */
@@ -71,8 +76,9 @@ body {
 .dark .border-slate-200\/60,
 .dark .border-slate-100,
 .dark .border-teal-100,
-.dark .border-slate-300 {
-  border-color: #222b3d !important;
+.dark .border-slate-300,
+.dark .border-\[\#222b3d\] {
+  border-color: #1a2233 !important;
 }
 
 /* 5. Crisp, High-Contrast Obsidian Typography */

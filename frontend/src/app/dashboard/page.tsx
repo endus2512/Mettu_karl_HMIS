@@ -1784,72 +1784,38 @@ export default function DashboardPage(): React.ReactElement {
                 </div>
               </div>
 
-              {/* Minimalist Category Tabs */}
-              <div className="flex items-center gap-1 overflow-x-auto rounded-xl bg-[#131824] border border-[#222b3d] p-1 text-xs font-medium text-slate-300">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('all')}
-                  className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
-                    activeTab === 'all'
-                      ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
-                      : 'hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  {t('all_tab')} ({workstations.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('emergency')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
-                    activeTab === 'emergency'
-                      ? 'bg-rose-600 text-white shadow-xs font-bold'
-                      : 'hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  <AlertOctagon className="h-3.5 w-3.5" />
-                  <span>{t('emergency_triage')}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('clinical')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
-                    activeTab === 'clinical'
-                      ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
-                      : 'hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  <Stethoscope className="h-3.5 w-3.5" />
-                  <span>{t('clinical_care')}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('operations')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
-                    activeTab === 'operations'
-                      ? 'bg-blue-600 text-white shadow-xs font-bold'
-                      : 'hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  <Briefcase className="h-3.5 w-3.5" />
-                  <span>{t('operations_erp')}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('governance')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
-                    activeTab === 'governance'
-                      ? 'bg-purple-600 text-white shadow-xs font-bold'
-                      : 'hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  <Scale className="h-3.5 w-3.5" />
-                  <span>{t('regulations_governance')}</span>
-                </button>
+              {/* Minimalist Unified Category Segmented Control */}
+              <div className="flex items-center gap-1 overflow-x-auto rounded-xl bg-[#0b0f17] border border-[#1e2636] p-1 text-xs font-medium custom-scrollbar">
+                {[
+                  { id: 'all', label: `${t('all_tab')} (${workstations.length})`, icon: null },
+                  { id: 'emergency', label: t('emergency_triage'), icon: AlertOctagon },
+                  { id: 'clinical', label: t('clinical_care'), icon: Stethoscope },
+                  { id: 'operations', label: t('operations_erp'), icon: Briefcase },
+                  { id: 'governance', label: t('regulations_governance'), icon: Scale },
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                        isActive
+                          ? 'bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.12)]'
+                          : 'text-slate-400 hover:text-slate-100 hover:bg-[#131824]'
+                      }`}
+                    >
+                      {Icon && <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-amber-400' : 'text-slate-500'}`} />}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* 27 WORKSTATIONS GRID — Styled in Obsidian & Gold */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {/* 27 WORKSTATIONS GRID — Clean, Modern & Professional Enterprise Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
               {displayedWorkstations.map((item) => {
                 const titleText = item.title[lang] || item.title.en;
                 const subtitleText = item.subtitle[lang] || item.subtitle.en;
@@ -1863,32 +1829,28 @@ export default function DashboardPage(): React.ReactElement {
                     prefetch={true}
                     onMouseEnter={() => router.prefetch(item.href)}
                     onFocus={() => router.prefetch(item.href)}
-                    className="group relative flex flex-col justify-between rounded-2xl border border-[#222b3d] bg-[#131824] p-4.5 shadow-sm hover:border-amber-500/60 hover:shadow-[0_0_20px_rgba(245,158,11,0.12)] transition-all duration-150 ease-in-out cursor-pointer active:scale-[0.99] min-h-[140px]"
+                    className="group relative flex flex-col justify-between rounded-xl border border-[#1e2636] bg-[#0f1420] hover:bg-[#131926] hover:border-amber-500/40 hover:shadow-[0_4px_20px_rgba(0,0,0,0.35)] p-4 transition-all duration-150 cursor-pointer"
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 group-hover:scale-105 transition-transform shadow-xs">
-                          <IconComponent className="h-4.5 w-4.5" />
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 group-hover:scale-105 group-hover:border-amber-500/40 transition-all">
+                          <IconComponent className="h-4 w-4" />
                         </div>
-                        {badgeText && (
-                          <span
-                            className="text-[10px] font-medium px-2 py-0.5 rounded-md border shrink-0 bg-[#0b0f17] text-amber-300 border-amber-500/30"
-                          >
-                            {badgeText}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1.5">
+                          {badgeText && (
+                            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-[#0b0e17] text-amber-300 border border-amber-500/30">
+                              {badgeText}
+                            </span>
+                          )}
+                          <ArrowRight className="h-3.5 w-3.5 text-slate-600 group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all" />
+                        </div>
                       </div>
-                      <h3 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors leading-snug">
+                      <h3 className="text-sm font-semibold text-slate-100 group-hover:text-amber-300 transition-colors leading-snug">
                         {titleText}
                       </h3>
-                      <p className="text-xs text-slate-400 mt-1 truncate group-hover:text-slate-300 transition-colors">
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-1 group-hover:text-slate-300 transition-colors">
                         {subtitleText}
                       </p>
-                    </div>
-
-                    <div className="mt-3.5 flex items-center justify-between text-xs font-semibold text-slate-500 group-hover:text-amber-400 border-t border-[#1e283c] pt-2.5 transition-colors">
-                      <span className="group-hover:underline underline-offset-2">{grt.openWorkstation}</span>
-                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </Link>
                 );
