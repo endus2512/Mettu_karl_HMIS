@@ -872,15 +872,18 @@ export default function PatientPortalPage(): React.ReactElement {
               {/* Single Interchangeable Light/Dark Theme Toggle Button */}
               <ThemeToggle variant="cockpit" />
 
-              {/* Logout Button: Bold Red, clearly situated on the far right */}
+              {/* Logout Button: Bold, clearly situated on the far right */}
               <button
                 type="button"
                 onClick={handleInstantLogout}
-                title="Bahuu (Sign out)"
-                className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xl border-2 border-rose-400 bg-rose-600 px-2.5 sm:px-3.5 py-1.5 text-xs sm:text-sm font-black text-white hover:bg-rose-500 hover:border-rose-300 active:scale-90 active:bg-rose-700 transition-all duration-75 cursor-pointer shadow-md select-none touch-manipulation shrink-0"
+                title={language === 'om' ? "Poortaalii Dhukkubsataa Keessaa Ba'i (Logout)" : language === 'am' ? 'ከታካሚ ፖርታል ውጣ (Logout)' : 'Sign out of Patient Portal'}
+                className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 hover:bg-rose-600 hover:border-rose-400 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-rose-300 hover:text-white transition-all duration-150 shadow-sm shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-95 cursor-pointer select-none touch-manipulation shrink-0"
+                aria-label="Logout"
               >
-                <LogOut className="h-4 w-4 text-rose-400 shrink-0" />
-                <span className="hidden sm:inline">{t('logout')}</span>
+                <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-rose-400 group-hover:text-white transition-transform duration-150 group-hover:scale-110 shrink-0" />
+                <span className="hidden sm:inline font-bold tracking-wide">
+                  {language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Logout'}
+                </span>
               </button>
             </div>
           </header>

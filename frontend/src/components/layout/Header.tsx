@@ -52,7 +52,7 @@ const ETH_MONTHS = [
 export function Header(): React.ReactElement {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   // Calendar & Shift State (with editable capability)
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
@@ -83,7 +83,11 @@ export function Header(): React.ReactElement {
 
   const handleInstantLogout = () => {
     void logout();
-    router.replace('/login');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    } else {
+      router.replace('/login');
+    }
   };
 
   // Load persisted calendar date or default
@@ -330,7 +334,7 @@ export function Header(): React.ReactElement {
         </Link>
 
         {/* Clinician Profile Avatar & Name (Matching Uploaded Image Top-Right) */}
-        <div className="flex items-center gap-2 pl-1 shrink-0">
+        <div className="flex items-center gap-2 pl-1 pr-1 border-r border-[#1e283c] shrink-0">
           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold text-xs flex items-center justify-center ring-2 ring-amber-400/30 shrink-0 shadow-xs">
             {profile.initials}
           </div>
@@ -342,16 +346,21 @@ export function Header(): React.ReactElement {
               {roleLabel}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleInstantLogout}
-            title={t('logout')}
-            className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
-            aria-label="Logout"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-          </button>
         </div>
+
+        {/* DEDICATED RIGHT-HAND HEADER LOGOUT BUTTON */}
+        <button
+          type="button"
+          onClick={handleInstantLogout}
+          title={language === 'om' ? "Sirna Keessaa Ba'i (Logout)" : language === 'am' ? 'ከስርዓቱ ውጣ (Logout)' : 'Sign out of HMIS'}
+          className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 hover:bg-rose-600 hover:border-rose-400 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-rose-300 hover:text-white transition-all duration-150 shadow-sm shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-95 cursor-pointer select-none shrink-0"
+          aria-label="Logout"
+        >
+          <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-rose-400 group-hover:text-white transition-transform duration-150 group-hover:scale-110 shrink-0" />
+          <span className="hidden sm:inline font-bold tracking-wide">
+            {language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Logout'}
+          </span>
+        </button>
       </div>
 
       {/* EDITABLE CALENDAR & SHIFT MODAL */}
