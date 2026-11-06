@@ -60,6 +60,9 @@ import {
   Pill,
   Microscope,
   Receipt,
+  AlertCircle,
+  Shield,
+  CheckCircle2,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, type Language } from '@/lib/i18n';
@@ -127,6 +130,14 @@ interface PageText {
   forgotModalStep2: string;
   forgotModalContact: string;
   forgotModalClose: string;
+  capsLockOn: string;
+  clearField: string;
+  systemOperational: string;
+  passwordStrengthWeak: string;
+  passwordStrengthMedium: string;
+  passwordStrengthStrong: string;
+  passwordMatch: string;
+  passwordMismatch: string;
 }
 
 const copy: Record<Language, PageText> = {
@@ -166,6 +177,14 @@ const copy: Record<Language, PageText> = {
     forgotModalStep2: 'Call internal ICT extension 4401 or dial emergency IT hotline: +251 47 111 0204.',
     forgotModalContact: 'ict-support@mettukarl.gov.et',
     forgotModalClose: 'Understood, Close',
+    capsLockOn: 'Caps Lock is ON!',
+    clearField: 'Clear',
+    systemOperational: 'System Operational',
+    passwordStrengthWeak: 'Weak password',
+    passwordStrengthMedium: 'Medium strength',
+    passwordStrengthStrong: 'Strong password',
+    passwordMatch: 'Passwords match',
+    passwordMismatch: 'Passwords do not match',
   },
   om: {
     hospitalName: 'Hospitaala Rifeeraalaa Meettuu Kaarli',
@@ -203,6 +222,14 @@ const copy: Record<Language, PageText> = {
     forgotModalStep2: 'Lakk. bilbila keessaa ICT 4401 ykn sarara yeroo balaa: +251 47 111 0204 bilbilaa.',
     forgotModalContact: 'ict-support@mettukarl.gov.et',
     forgotModalClose: 'Hubadheera, Cufi',
+    capsLockOn: 'Qubee Gurguddaan (Caps Lock) banaadha!',
+    clearField: 'Haqi',
+    systemOperational: 'Sirnichi Hojjataa Jira',
+    passwordStrengthWeak: 'Jecha iccitii laafaa',
+    passwordStrengthMedium: 'Jecha iccitii giddu-galeessa',
+    passwordStrengthStrong: 'Jecha iccitii cimaa',
+    passwordMatch: 'Jechi icchitii wal sima',
+    passwordMismatch: 'Jechi icchitii wal hin simne',
   },
   am: {
     hospitalName: 'የመቱ ካርል ሪፈራል ሆስፒታል',
@@ -240,6 +267,14 @@ const copy: Record<Language, PageText> = {
     forgotModalStep2: 'የውስጥ መስመር 4401 ይደውሉ ወይም የድንገተኛ ስልክ: +251 47 111 0204 ይጠቀሙ።',
     forgotModalContact: 'ict-support@mettukarl.gov.et',
     forgotModalClose: 'ተረድቻለሁ፣ ዝጋ',
+    capsLockOn: 'Caps Lock በርቷል!',
+    clearField: 'አጽዳ',
+    systemOperational: 'ስርዓቱ በመስራት ላይ ነው',
+    passwordStrengthWeak: 'ደካማ የይለፍ ቃል',
+    passwordStrengthMedium: 'መካከለኛ የይለፍ ቃል',
+    passwordStrengthStrong: 'ጠንካራ የይለፍ ቃል',
+    passwordMatch: 'የይለፍ ቃሎች ተዛምደዋል',
+    passwordMismatch: 'የይለፍ ቃሎች አይዛመዱም',
   },
 };
 
@@ -307,6 +342,11 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showPatientPassword, setShowPatientPassword] = useState(false);
+  const [showPatientConfirmPassword, setShowPatientConfirmPassword] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showSignupConfirmPassword, setShowSignupConfirmPassword] = useState(false);
+  const [capsLockActive, setCapsLockActive] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -390,6 +430,35 @@ export default function LoginPage() {
   }, [startRevealSequence]);
 
   const t = copy[language] ?? copy.om;
+
+  // Password strength calculation helper for registration
+  function getPasswordStrength(pwd: string): { score: number; label: string; color: string } {
+    if (!pwd) return { score: 0, label: '', color: '' };
+    let score = 0;
+    if (pwd.length >= 6) score++;
+    if (pwd.length >= 8 && /[0-9]/.test(pwd) && /[a-zA-Z]/.test(pwd)) score++;
+    if (pwd.length >= 10 && /[^a-zA-Z0-9]/.test(pwd)) score++;
+
+    if (score <= 1) {
+      return {
+        score: 1,
+        label: t.passwordStrengthWeak,
+        color: 'bg-rose-500 text-rose-400',
+      };
+    }
+    if (score === 2) {
+      return {
+        score: 2,
+        label: t.passwordStrengthMedium,
+        color: 'bg-amber-500 text-amber-400',
+      };
+    }
+    return {
+      score: 3,
+      label: t.passwordStrengthStrong,
+      color: 'bg-emerald-500 text-emerald-400',
+    };
+  }
 
   // Set theme mode explicitly (light or dark)
   function setThemeMode(dark: boolean) {
@@ -706,22 +775,28 @@ export default function LoginPage() {
   return (
     <div className="w-screen h-screen min-h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden bg-[#0a3a78] dark:bg-[#061426] font-sans select-none m-0 p-0 relative">
       {/* ======================================================================= */}
-      {/* TOP-RIGHT CONTROLS: LANGUAGE DROPDOWN                                  */}
+      {/* TOP-RIGHT CONTROLS: SYSTEM TELEMETRY & LANGUAGE DROPDOWN              */}
       {/* ======================================================================= */}
-      <div className="absolute top-8 sm:top-8 right-3.5 sm:right-8 z-40 flex items-center gap-2 sm:gap-2.5">
+      <div className="absolute top-4 sm:top-6 right-3.5 sm:right-8 z-40 flex items-center gap-2 sm:gap-2.5">
+        {/* System Operational Badge */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#080d1a]/85 backdrop-blur-md border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold shadow-lg shadow-emerald-950/40">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="hidden xs:inline">{t.systemOperational}</span>
+        </div>
+
         {/* Language Selector Dropdown */}
         <div className="relative" ref={langMenuRef}>
           <button
             type="button"
             onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-            className="flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/25 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold shadow-sm backdrop-blur-md transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-full bg-[#0b0f17]/90 hover:bg-[#131824] text-white border border-[#222b3d] hover:border-amber-500/50 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold shadow-lg backdrop-blur-md transition-all cursor-pointer"
             aria-expanded={isLangMenuOpen}
             aria-label="Select Language"
           >
-            <Globe className="h-3.5 w-3.5 text-sky-200" />
+            <Globe className="h-3.5 w-3.5 text-amber-400" />
             <span>{currentLangLabel}</span>
             <ChevronDown
-              className={`h-3.5 w-3.5 text-sky-200/80 transition-transform duration-200 ${
+              className={`h-3.5 w-3.5 text-amber-400/80 transition-transform duration-200 ${
                 isLangMenuOpen ? 'rotate-180' : ''
               }`}
             />
@@ -729,21 +804,21 @@ export default function LoginPage() {
 
           {/* Language Dropdown Menu */}
           {isLangMenuOpen && (
-            <div className="absolute right-0 mt-1.5 w-40 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 mt-1.5 w-44 rounded-2xl bg-[#0e131f] border border-[#222b3d] shadow-[0_16px_40px_rgba(0,0,0,0.8)] py-1.5 z-50 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150">
               <button
                 type="button"
                 onClick={() => {
                   setLanguage('en');
                   setIsLangMenuOpen(false);
                 }}
-                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-blue-50 dark:hover:bg-slate-800 transition cursor-pointer ${
+                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
                   language === 'en'
-                    ? 'text-blue-600 font-bold bg-blue-50/50 dark:bg-slate-800/80'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'text-amber-400 font-bold bg-amber-500/10'
+                    : 'text-slate-300'
                 }`}
               >
                 <span>English</span>
-                {language === 'en' && <Check className="h-3.5 w-3.5 text-blue-600" />}
+                {language === 'en' && <Check className="h-3.5 w-3.5 text-amber-400" />}
               </button>
               <button
                 type="button"
@@ -751,14 +826,14 @@ export default function LoginPage() {
                   setLanguage('om');
                   setIsLangMenuOpen(false);
                 }}
-                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-blue-50 dark:hover:bg-slate-800 transition cursor-pointer ${
+                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
                   language === 'om'
-                    ? 'text-blue-600 font-bold bg-blue-50/50 dark:bg-slate-800/80'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'text-amber-400 font-bold bg-amber-500/10'
+                    : 'text-slate-300'
                 }`}
               >
                 <span>Afaan Oromoo</span>
-                {language === 'om' && <Check className="h-3.5 w-3.5 text-blue-600" />}
+                {language === 'om' && <Check className="h-3.5 w-3.5 text-amber-400" />}
               </button>
               <button
                 type="button"
@@ -766,14 +841,14 @@ export default function LoginPage() {
                   setLanguage('am');
                   setIsLangMenuOpen(false);
                 }}
-                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-blue-50 dark:hover:bg-slate-800 transition cursor-pointer ${
+                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
                   language === 'am'
-                    ? 'text-blue-600 font-bold bg-blue-50/50 dark:bg-slate-800/80'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'text-amber-400 font-bold bg-amber-500/10'
+                    : 'text-slate-300'
                 }`}
               >
                 <span>አማርኛ</span>
-                {language === 'am' && <Check className="h-3.5 w-3.5 text-blue-600" />}
+                {language === 'am' && <Check className="h-3.5 w-3.5 text-amber-400" />}
               </button>
             </div>
           )}
@@ -1018,6 +1093,17 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
+                          loginForm.setValue('username', 'superadmin');
+                          loginForm.setValue('password', 'password');
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 transition cursor-pointer shadow-xs"
+                      >
+                        <Shield className="w-3 h-3 text-amber-400" />
+                        <span>Super Admin (Exec)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
                           loginForm.setValue('username', 'dr_bekele');
                           loginForm.setValue('password', 'password');
                         }}
@@ -1109,7 +1195,7 @@ export default function LoginPage() {
                         htmlFor={usernameId}
                         className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 cursor-pointer"
                       >
-                        <User className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                        <User className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
                         <span>{t.usernameLabel}</span>
                       </label>
 
@@ -1124,8 +1210,19 @@ export default function LoginPage() {
                           autoFocus
                           {...loginForm.register('username')}
                           placeholder={t.usernamePlaceholder}
-                          className="block w-full h-11 rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-4 text-sm font-normal text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:bg-white dark:focus:bg-[#070a10] focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:focus:ring-amber-500/20 transition-all"
+                          className="block w-full h-11 rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-10 text-sm font-normal text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:bg-white dark:focus:bg-[#070a10] focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:focus:ring-amber-500/20 transition-all"
                         />
+                        {loginForm.watch('username') && (
+                          <button
+                            type="button"
+                            onClick={() => loginForm.setValue('username', '', { shouldValidate: true })}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-amber-300 cursor-pointer transition-colors"
+                            title={t.clearField}
+                            aria-label="Clear username field"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                       {loginForm.formState.errors.username && (
                         <p className="mt-1 text-xs font-medium text-rose-600 flex items-center gap-1">
@@ -1153,6 +1250,17 @@ export default function LoginPage() {
                           type={showPassword ? 'text' : 'password'}
                           autoComplete="current-password"
                           {...loginForm.register('password')}
+                          onKeyDown={(e) => {
+                            if (typeof e.getModifierState === 'function') {
+                              setCapsLockActive(e.getModifierState('CapsLock'));
+                            }
+                          }}
+                          onKeyUp={(e) => {
+                            if (typeof e.getModifierState === 'function') {
+                              setCapsLockActive(e.getModifierState('CapsLock'));
+                            }
+                          }}
+                          onBlur={() => setCapsLockActive(false)}
                           placeholder={t.passwordPlaceholder}
                           className="block w-full h-11 rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-11 text-sm font-normal text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:bg-white dark:focus:bg-[#070a10] focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:focus:ring-amber-500/20 transition-all"
                         />
@@ -1170,6 +1278,15 @@ export default function LoginPage() {
                           )}
                         </button>
                       </div>
+
+                      {/* Caps Lock Alert */}
+                      {capsLockActive && (
+                        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-500 dark:text-amber-400 animate-in fade-in duration-150">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+                          <span>{t.capsLockOn}</span>
+                        </div>
+                      )}
+
                       {loginForm.formState.errors.password && (
                         <p className="mt-1 text-xs font-medium text-rose-600 flex items-center gap-1">
                           <span>•</span> {loginForm.formState.errors.password.message}
@@ -1242,7 +1359,7 @@ export default function LoginPage() {
                           autoFocus
                           {...mfaForm.register('totp_code')}
                           placeholder={t.mfaPlaceholder}
-                          className="block w-full h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 pl-10 pr-3 text-center tracking-widest text-lg font-mono text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                          className="block w-full h-11 rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-center tracking-widest text-lg font-mono text-slate-900 dark:text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         />
                       </div>
                       {mfaForm.formState.errors.totp_code && (
@@ -1255,10 +1372,10 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-700/60 dark:border-teal-400/40"
+                      className="w-full h-11 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer border border-amber-300"
                     >
                       {isLoading ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
                       ) : (
                         <span>{t.mfaVerifyBtn}</span>
                       )}
@@ -1267,7 +1384,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setStep('credentials')}
-                      className="w-full text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1 pt-1 cursor-pointer"
+                      className="w-full text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-amber-400 flex items-center justify-center gap-1 pt-1 cursor-pointer transition-colors"
                     >
                       <ArrowLeft className="h-3 w-3" />
                       <span>{t.mfaBackBtn}</span>
@@ -1286,7 +1403,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setFormType('signup')}
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold transition cursor-pointer"
+                      className="text-amber-600 hover:text-amber-700 dark:text-amber-400 font-bold transition cursor-pointer ml-1"
                     >
                       {language === 'om'
                         ? "Galmaa'aa (Sign Up)"
@@ -1303,17 +1420,17 @@ export default function LoginPage() {
               /* =============================================================== */
               <div>
                 {/* Account Type Selector: Patient vs Hospital Staff */}
-                <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 mb-4 border border-slate-200/80 dark:border-slate-700/80">
+                <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-[#070a10] mb-4 border border-slate-200/80 dark:border-[#222b3d]">
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('patient')}
                     className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'patient'
-                        ? 'bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 text-white shadow-xs border border-teal-500/30'
-                        : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-bold shadow-md shadow-amber-500/20 border border-amber-300'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <HeartPulse className="w-4 h-4 text-teal-400" />
+                    <HeartPulse className={`w-4 h-4 ${signupAccountType === 'patient' ? 'text-slate-950' : 'text-amber-400'}`} />
                     <span>
                       {language === 'om'
                         ? 'Dhukkubsataa (Patient)'
@@ -1327,11 +1444,11 @@ export default function LoginPage() {
                     onClick={() => setSignupAccountType('staff')}
                     className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'staff'
-                        ? 'bg-gradient-to-r from-slate-900 via-teal-900 to-slate-900 text-white shadow-xs border border-teal-500/30'
-                        : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-bold shadow-md shadow-amber-500/20 border border-amber-300'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <Building2 className="w-4 h-4 text-teal-400" />
+                    <Building2 className={`w-4 h-4 ${signupAccountType === 'staff' ? 'text-slate-950' : 'text-amber-400'}`} />
                     <span>
                       {language === 'om'
                         ? 'Hojjataa (Staff Station)'
@@ -1380,7 +1497,7 @@ export default function LoginPage() {
                             value={patientFullName}
                             onChange={(e) => setPatientFullName(e.target.value)}
                             placeholder={language === 'om' ? 'Fkn. Chaltuu Guddataa / Guddataa Fayyisaa' : 'e.g. Chaltu Gudeta / Gudeta Fayisa'}
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                            className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                           />
                         </div>
                       </div>
@@ -1401,7 +1518,7 @@ export default function LoginPage() {
                               value={patientPhone}
                               onChange={(e) => setPatientPhone(e.target.value)}
                               placeholder="+251 911 002 233"
-                              className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                              className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             />
                           </div>
                         </div>
@@ -1419,7 +1536,7 @@ export default function LoginPage() {
                               value={patientFaydaId}
                               onChange={(e) => setPatientFaydaId(e.target.value)}
                               placeholder="FAN-9901-2384-5120"
-                              className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                              className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             />
                           </div>
                         </div>
@@ -1439,7 +1556,7 @@ export default function LoginPage() {
                             value={patientAddress}
                             onChange={(e) => setPatientAddress(e.target.value)}
                             placeholder={language === 'om' ? 'Fkn. Meettuu, Ganda 02' : 'e.g. Mettu, Kebele 02'}
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                            className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                           />
                         </div>
                       </div>
@@ -1455,7 +1572,7 @@ export default function LoginPage() {
                               type="date"
                               value={patientBirthDate}
                               onChange={(e) => setPatientBirthDate(e.target.value)}
-                              className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                              className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             />
                           </div>
                         </div>
@@ -1467,7 +1584,7 @@ export default function LoginPage() {
                           <select
                             value={patientGender}
                             onChange={(e) => setPatientGender(e.target.value as 'male' | 'female')}
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                            className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                           >
                             <option value="male">{language === 'om' ? 'Dhiira' : language === 'am' ? 'ወንድ' : 'Male'}</option>
                             <option value="female">{language === 'om' ? 'Dubara' : language === 'am' ? 'ሴት' : 'Female'}</option>
@@ -1489,40 +1606,111 @@ export default function LoginPage() {
                             value={patientCbhi}
                             onChange={(e) => setPatientCbhi(e.target.value)}
                             placeholder="CBHI-ILL-10294"
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                            className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                           />
                         </div>
                       </div>
 
-                      {/* PASSWORD & CONFIRM PASSWORD */}
+                      {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                             {language === 'om' ? 'Jecha Icchitii' : language === 'am' ? 'የይለፍ ቃል' : 'Password'} *
                           </label>
-                          <input
-                            type="password"
-                            required
-                            value={patientPassword}
-                            onChange={(e) => setPatientPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                          />
+                          <div className="relative">
+                            <input
+                              type={showPatientPassword ? 'text' : 'password'}
+                              required
+                              value={patientPassword}
+                              onChange={(e) => setPatientPassword(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (typeof e.getModifierState === 'function') {
+                                  setCapsLockActive(e.getModifierState('CapsLock'));
+                                }
+                              }}
+                              onKeyUp={(e) => {
+                                if (typeof e.getModifierState === 'function') {
+                                  setCapsLockActive(e.getModifierState('CapsLock'));
+                                }
+                              }}
+                              onBlur={() => setCapsLockActive(false)}
+                              placeholder="••••••••"
+                              className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-3 pr-10 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPatientPassword(!showPatientPassword)}
+                              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-amber-300 cursor-pointer transition-colors"
+                              title={showPatientPassword ? 'Hide password' : 'Show password'}
+                              aria-label="Toggle password visibility"
+                            >
+                              {showPatientPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                          {/* Password Strength Indicator */}
+                          {patientPassword && (
+                            <div className="mt-1.5 space-y-1">
+                              <div className="flex gap-1 h-1.5 w-full">
+                                <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 1 ? 'bg-amber-500' : 'bg-slate-700'}`} />
+                                <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 2 ? 'bg-amber-500' : 'bg-slate-700'}`} />
+                                <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 3 ? 'bg-emerald-500' : 'bg-slate-700'}`} />
+                              </div>
+                              <span className={`text-[10px] font-semibold ${getPasswordStrength(patientPassword).color.split(' ')[1]}`}>
+                                {getPasswordStrength(patientPassword).label}
+                              </span>
+                            </div>
+                          )}
                         </div>
+
                         <div>
                           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                             {language === 'om' ? 'Mirkaneessi' : language === 'am' ? 'አረጋግጥ' : 'Confirm'} *
                           </label>
-                          <input
-                            type="password"
-                            required
-                            value={patientConfirmPassword}
-                            onChange={(e) => setPatientConfirmPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                          />
+                          <div className="relative">
+                            <input
+                              type={showPatientConfirmPassword ? 'text' : 'password'}
+                              required
+                              value={patientConfirmPassword}
+                              onChange={(e) => setPatientConfirmPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-3 pr-10 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPatientConfirmPassword(!showPatientConfirmPassword)}
+                              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-amber-300 cursor-pointer transition-colors"
+                              title={showPatientConfirmPassword ? 'Hide password' : 'Show password'}
+                              aria-label="Toggle password visibility"
+                            >
+                              {showPatientConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                          {/* Match indicator */}
+                          {patientConfirmPassword && (
+                            <div className="flex items-center gap-1 mt-1 text-[10.5px]">
+                              {patientPassword === patientConfirmPassword ? (
+                                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                                  <Check className="w-3 h-3 text-emerald-400" />
+                                  {t.passwordMatch}
+                                </span>
+                              ) : (
+                                <span className="text-rose-400 font-medium flex items-center gap-1">
+                                  <span>•</span>
+                                  {t.passwordMismatch}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
+
+                      {/* Caps Lock Alert */}
+                      {capsLockActive && (
+                        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-500 dark:text-amber-400 animate-in fade-in duration-150">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+                          <span>{t.capsLockOn}</span>
+                        </div>
+                      )}
 
                       {/* Patient Registration Submit Button */}
                       <button
@@ -1584,7 +1772,7 @@ export default function LoginPage() {
                           value={signupFullName}
                           onChange={(e) => setSignupFullName(e.target.value)}
                           placeholder={language === 'om' ? 'Fkn. Dr. Tolasaa Raggaasaa' : 'e.g. Dr. Abebe Kebede'}
-                          className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                          className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         />
                       </div>
 
@@ -1600,7 +1788,7 @@ export default function LoginPage() {
                             value={signupStaffId}
                             onChange={(e) => setSignupStaffId(e.target.value)}
                             placeholder="MKRH-STF-0142"
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                            className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                           />
                         </div>
 
@@ -1619,24 +1807,24 @@ export default function LoginPage() {
                               setIsRoleDropdownOpen(!isRoleDropdownOpen);
                               setIsDeptDropdownOpen(false);
                             }}
-                            className={`w-full h-[46px] rounded-xl border bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
+                            className={`w-full h-[46px] rounded-xl border bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
                               isRoleDropdownOpen
-                                ? 'border-blue-500 ring-1 ring-blue-400 shadow-sm'
-                                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                                ? 'border-amber-500 ring-2 ring-amber-500/20 shadow-sm'
+                                : 'border-slate-300 dark:border-[#222b3d] hover:border-amber-500/50'
                             }`}
                           >
                             <span className="truncate text-left">
                               {STAFF_ROLES.find((r) => r.value === signupRole)?.text || 'Medical Doctor / Clinician (Doktora / Ogeessa Yaalaa)'}
                             </span>
                             <ChevronDown
-                              className={`w-4 h-4 text-slate-400 shrink-0 ml-1.5 transition-transform duration-200 ${
-                                isRoleDropdownOpen ? 'rotate-180 text-blue-500' : ''
+                              className={`w-4 h-4 text-amber-400 shrink-0 ml-1.5 transition-transform duration-200 ${
+                                isRoleDropdownOpen ? 'rotate-180 text-amber-500' : ''
                               }`}
                             />
                           </button>
 
                           {isRoleDropdownOpen && (
-                            <div className="absolute left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl z-50 py-1 scrollbar-thin">
+                            <div className="absolute left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl bg-[#0e131f] border border-[#222b3d] shadow-2xl z-50 py-1 scrollbar-thin">
                               {STAFF_ROLES.map((role) => {
                                 const isSelected = signupRole === role.value;
                                 return (
@@ -1649,12 +1837,12 @@ export default function LoginPage() {
                                     }}
                                     className={`w-full text-left px-3.5 py-2 text-xs sm:text-[13px] font-medium transition-colors flex items-center justify-between cursor-pointer ${
                                       isSelected
-                                        ? 'bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold'
-                                        : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                                        ? 'bg-amber-500/15 text-amber-300 font-bold'
+                                        : 'text-slate-300 hover:bg-[#151c2c]'
                                     }`}
                                   >
                                     <span className="truncate">{role.text}</span>
-                                    {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 ml-1.5" />}
+                                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-400 shrink-0 ml-1.5" />}
                                   </button>
                                 );
                               })}
@@ -1663,7 +1851,7 @@ export default function LoginPage() {
                         </div>
                       </div>
 
-                      {/* DEPARTMENT (CUSTOM IN-DOM DROPDOWN: 100% ROCK SOLID, ZERO JITTER OUTSIDE PORTAL) */}
+                      {/* DEPARTMENT (CUSTOM IN-DOM DROPDOWN) */}
                       <div className="relative" ref={deptDropdownRef}>
                         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                           {language === 'om' ? 'Kutaa Hojii (Department)' : language === 'am' ? 'የስራ ክፍል (Department)' : 'Department'} *
@@ -1674,25 +1862,25 @@ export default function LoginPage() {
                             setIsDeptDropdownOpen(!isDeptDropdownOpen);
                             setIsRoleDropdownOpen(false);
                           }}
-                          className={`w-full h-[46px] rounded-xl border bg-white dark:bg-slate-900 px-3.5 text-sm text-slate-900 dark:text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
+                          className={`w-full h-[46px] rounded-xl border bg-white dark:bg-[#070a10] px-3.5 text-sm text-slate-900 dark:text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
                             isDeptDropdownOpen
-                              ? 'border-blue-500 ring-1 ring-blue-400 shadow-sm'
-                              : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                              ? 'border-amber-500 ring-2 ring-amber-500/20 shadow-sm'
+                              : 'border-slate-300 dark:border-[#222b3d] hover:border-amber-500/50'
                           }`}
                         >
                           <span className="truncate text-left">
                             {STAFF_DEPARTMENTS.find((d) => d.value === signupDept)?.text || 'Doctor / Ogeessa Yaalaa (Medical Doctor Services)'}
                           </span>
                           <ChevronDown
-                            className={`w-4 h-4 text-slate-400 shrink-0 ml-2 transition-transform duration-200 ${
-                              isDeptDropdownOpen ? 'rotate-180 text-blue-500' : ''
+                            className={`w-4 h-4 text-amber-400 shrink-0 ml-2 transition-transform duration-200 ${
+                              isDeptDropdownOpen ? 'rotate-180 text-amber-500' : ''
                             }`}
                           />
                         </button>
 
                         {/* Custom in-DOM Dropdown Menu */}
                         {isDeptDropdownOpen && (
-                          <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl z-50 py-1.5 scrollbar-thin">
+                          <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-xl bg-[#0e131f] border border-[#222b3d] shadow-2xl z-50 py-1.5 scrollbar-thin">
                             {STAFF_DEPARTMENTS.map((dept) => {
                               const isSelected = signupDept === dept.value;
                               return (
@@ -1705,12 +1893,12 @@ export default function LoginPage() {
                                   }}
                                   className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-medium transition-colors flex items-center justify-between cursor-pointer ${
                                     isSelected
-                                      ? 'bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold'
-                                      : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                                      ? 'bg-amber-500/15 text-amber-300 font-bold'
+                                      : 'text-slate-300 hover:bg-[#151c2c]'
                                   }`}
                                 >
                                   <span className="truncate">{dept.text}</span>
-                                  {isSelected && <Check className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
+                                  {isSelected && <Check className="w-4 h-4 text-amber-400 shrink-0 ml-2" />}
                                 </button>
                               );
                             })}
@@ -1718,7 +1906,7 @@ export default function LoginPage() {
                         )}
                       </div>
 
-                      {/* IF CLINICAL ROLE (DOCTOR/NURSE/SPECIALIST): REQUIRE MEDICAL LICENSE & SHOW SENTINEL NOTICE */}
+                      {/* IF CLINICAL ROLE: REQUIRE MEDICAL LICENSE & SHOW SENTINEL NOTICE */}
                       {isClinicalSignup && (
                         <div className="space-y-2.5 animate-in fade-in duration-200">
                           <div>
@@ -1735,7 +1923,7 @@ export default function LoginPage() {
                               value={signupLicenseNumber}
                               onChange={(e) => setSignupLicenseNumber(e.target.value)}
                               placeholder="Fkn. ETH-MED-2024-8491 ykn EFDA/2026/09"
-                              className="block w-full h-[46px] rounded-xl border border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-slate-900 px-4 text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                              className="block w-full h-[46px] rounded-xl border border-amber-500/40 bg-amber-500/5 dark:bg-[#070a10] px-4 text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             />
                             <p className="text-[10.5px] text-slate-500 dark:text-slate-400 mt-1">
                               {language === 'om'
@@ -1745,15 +1933,15 @@ export default function LoginPage() {
                           </div>
 
                           {/* Zero-Trust Clinical Guard Sentinel Banner */}
-                          <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/90 dark:bg-amber-950/40 p-3 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200 shadow-xs">
-                            <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                          <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 dark:bg-[#070a10] p-3 flex items-start gap-2.5 text-xs text-amber-200 shadow-xs ring-1 ring-amber-500/20">
+                            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                             <div>
-                              <p className="font-bold text-[12px]">
+                              <p className="font-bold text-[12px] text-amber-300">
                                 {language === 'om'
                                   ? 'Eegumsa Iccitii Yaalaa (Zero-Trust Clinical Guard)'
                                   : 'Zero-Trust Clinical Guard & License Verification'}
                               </p>
-                              <p className="mt-0.5 text-[11px] leading-relaxed text-amber-800 dark:text-amber-300">
+                              <p className="mt-0.5 text-[11px] leading-relaxed text-amber-200/80">
                                 {language === 'om'
                                   ? "Osoo ragaan hayyama ogummaa yaalaa keessanii Daarektara Yaalaa (Medical Director) fi Kutaa ICT Hospitaalaatiin hin mirkanaa'in akkaawuntiin kun ragaa dhukkubsattootaa ilaaluu hin danda'u. Galmeen booda haala qorannoo (Pending Verification) keessa tura."
                                   : "Clinical accounts remain locked in Pending Verification status until physical license verification by the Medical Director & ICT before patient charts can be opened."}
@@ -1763,35 +1951,106 @@ export default function LoginPage() {
                         </div>
                       )}
 
-                      {/* PASSWORD & CONFIRM PASSWORD */}
+                      {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                             {language === 'om' ? 'Jecha Icchitii' : language === 'am' ? 'የይለፍ ቃል' : 'Password'} *
                           </label>
-                          <input
-                            type="password"
-                            required
-                            value={signupPassword}
-                            onChange={(e) => setSignupPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                          />
+                          <div className="relative">
+                            <input
+                              type={showSignupPassword ? 'text' : 'password'}
+                              required
+                              value={signupPassword}
+                              onChange={(e) => setSignupPassword(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (typeof e.getModifierState === 'function') {
+                                  setCapsLockActive(e.getModifierState('CapsLock'));
+                                }
+                              }}
+                              onKeyUp={(e) => {
+                                if (typeof e.getModifierState === 'function') {
+                                  setCapsLockActive(e.getModifierState('CapsLock'));
+                                }
+                              }}
+                              onBlur={() => setCapsLockActive(false)}
+                              placeholder="••••••••"
+                              className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-3 pr-10 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowSignupPassword(!showSignupPassword)}
+                              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-amber-300 cursor-pointer transition-colors"
+                              title={showSignupPassword ? 'Hide password' : 'Show password'}
+                              aria-label="Toggle password visibility"
+                            >
+                              {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                          {/* Password Strength Indicator */}
+                          {signupPassword && (
+                            <div className="mt-1.5 space-y-1">
+                              <div className="flex gap-1 h-1.5 w-full">
+                                <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 1 ? 'bg-amber-500' : 'bg-slate-700'}`} />
+                                <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 2 ? 'bg-amber-500' : 'bg-slate-700'}`} />
+                                <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 3 ? 'bg-emerald-500' : 'bg-slate-700'}`} />
+                              </div>
+                              <span className={`text-[10px] font-semibold ${getPasswordStrength(signupPassword).color.split(' ')[1]}`}>
+                                {getPasswordStrength(signupPassword).label}
+                              </span>
+                            </div>
+                          )}
                         </div>
+
                         <div>
                           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                             {language === 'om' ? 'Mirkaneessi' : language === 'am' ? 'አረጋግጥ' : 'Confirm'} *
                           </label>
-                          <input
-                            type="password"
-                            required
-                            value={signupConfirmPassword}
-                            onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="block w-full h-[46px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                          />
+                          <div className="relative">
+                            <input
+                              type={showSignupConfirmPassword ? 'text' : 'password'}
+                              required
+                              value={signupConfirmPassword}
+                              onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-3 pr-10 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
+                              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-amber-300 cursor-pointer transition-colors"
+                              title={showSignupConfirmPassword ? 'Hide password' : 'Show password'}
+                              aria-label="Toggle password visibility"
+                            >
+                              {showSignupConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                          {/* Match indicator */}
+                          {signupConfirmPassword && (
+                            <div className="flex items-center gap-1 mt-1 text-[10.5px]">
+                              {signupPassword === signupConfirmPassword ? (
+                                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                                  <Check className="w-3 h-3 text-emerald-400" />
+                                  {t.passwordMatch}
+                                </span>
+                              ) : (
+                                <span className="text-rose-400 font-medium flex items-center gap-1">
+                                  <span>•</span>
+                                  {t.passwordMismatch}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
+
+                      {/* Caps Lock Alert */}
+                      {capsLockActive && (
+                        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-500 dark:text-amber-400 animate-in fade-in duration-150">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+                          <span>{t.capsLockOn}</span>
+                        </div>
+                      )}
 
                       {/* Submit Staff Sign Up Button */}
                       <button
@@ -1832,7 +2091,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setFormType('login')}
-                      className="text-teal-600 hover:text-teal-700 dark:text-teal-400 font-semibold transition cursor-pointer"
+                      className="text-amber-600 hover:text-amber-700 dark:text-amber-400 font-bold transition cursor-pointer ml-1"
                     >
                       {language === 'om' ? 'Seenaa (Login)' : language === 'am' ? 'ይግቡ (Login)' : 'Log In'}
                     </button>
@@ -1842,10 +2101,10 @@ export default function LoginPage() {
             )}
 
             {/* Subtle Secure Access Information Panel */}
-            <div className="w-full rounded-lg bg-teal-50/60 dark:bg-teal-950/30 border border-teal-200/70 dark:border-teal-800/50 p-3 flex items-center gap-3 mt-4">
-              <ShieldCheck className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
+            <div className="w-full rounded-xl bg-amber-500/10 dark:bg-[#070a10] border border-amber-500/30 dark:border-[#222b3d] p-3 flex items-center gap-3 mt-4 shadow-xs">
+              <ShieldCheck className="h-5 w-5 text-amber-500 dark:text-amber-400 shrink-0" />
               <div className="text-left">
-                <p className="text-xs font-semibold text-slate-900 dark:text-teal-200 leading-tight">
+                <p className="text-xs font-semibold text-slate-900 dark:text-amber-300 leading-tight">
                   {t.secureAccessTitle}
                 </p>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-tight mt-0.5">
@@ -1859,14 +2118,14 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(true)}
-                className="flex items-center gap-2 hover:text-teal-600 dark:hover:text-teal-400 transition cursor-pointer text-left"
+                className="flex items-center gap-2 hover:text-amber-600 dark:hover:text-amber-400 transition cursor-pointer text-left"
               >
-                <Headphones className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                <Headphones className="h-4 w-4 text-amber-500 dark:text-amber-400 shrink-0" />
                 <div>
                   <p className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
                     {t.itSupportTitle}
                   </p>
-                  <p className="text-[10px] text-teal-600 dark:text-teal-400 leading-tight">
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400 leading-tight">
                     {t.itSupportContact}
                   </p>
                 </div>
@@ -1882,44 +2141,44 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {showForgotModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150"
           onClick={() => setShowForgotModal(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-slate-200 dark:border-slate-800"
+            className="w-full max-w-md rounded-2xl bg-[#0e131f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border border-[#222b3d]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-start justify-between pb-3 border-b border-[#1a2233]">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-lg bg-teal-50 dark:bg-teal-950/60 p-2 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
+                <div className="rounded-lg bg-amber-500/15 p-2 text-amber-400 border border-amber-500/30">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold text-white">
                     {t.forgotModalTitle}
                   </h3>
-                  <p className="text-xs text-slate-500">Mettu Karl Referral Hospital</p>
+                  <p className="text-xs text-amber-300/80">Mettu Karl Referral Hospital</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowForgotModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:text-white hover:bg-[#1a2233] transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-3 py-4 text-xs text-slate-600 dark:text-slate-300">
-              <p className="font-medium text-slate-800 dark:text-slate-200">
+            <div className="space-y-3 py-4 text-xs text-slate-300">
+              <p className="font-medium text-slate-200">
                 {t.forgotModalSubtitle}
               </p>
-              <ul className="space-y-2 border-l-2 border-teal-500 pl-3">
+              <ul className="space-y-2 border-l-2 border-amber-500 pl-3 text-slate-300">
                 <li>{t.forgotModalStep1}</li>
                 <li>{t.forgotModalStep2}</li>
               </ul>
-              <div className="rounded-lg bg-slate-50 dark:bg-slate-800/80 p-2.5 flex items-center gap-2 text-slate-700 dark:text-slate-300 font-mono text-[11px] border border-slate-200 dark:border-slate-700">
-                <Info className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+              <div className="rounded-lg bg-[#070a10] p-2.5 flex items-center gap-2 text-amber-300 font-mono text-[11px] border border-[#222b3d]">
+                <Info className="h-4 w-4 text-amber-400 shrink-0" />
                 <span>{t.forgotModalContact}</span>
               </div>
             </div>
@@ -1928,7 +2187,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowForgotModal(false)}
-                className="rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
+                className="rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 border border-amber-300 transition cursor-pointer"
               >
                 {t.forgotModalClose}
               </button>
@@ -1942,53 +2201,57 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {showITSupportModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150"
           onClick={() => setShowITSupportModal(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-slate-200 dark:border-slate-800"
+            className="w-full max-w-md rounded-2xl bg-[#0e131f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border border-[#222b3d]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-start justify-between pb-3 border-b border-[#1a2233]">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-lg bg-teal-50 dark:bg-teal-950/60 p-2 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
+                <div className="rounded-lg bg-amber-500/15 p-2 text-amber-400 border border-amber-500/30">
                   <Headphones className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold text-white">
                     {t.itSupportTitle}
                   </h3>
-                  <p className="text-xs text-slate-500">Mettu Karl Referral Hospital</p>
+                  <p className="text-xs text-amber-300/80">Mettu Karl Referral Hospital</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:text-white hover:bg-[#1a2233] transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-3 py-4 text-xs text-slate-600 dark:text-slate-300">
-              <p className="font-medium text-slate-800 dark:text-slate-200">
-                Hospital ICT Help Desk (24/7 Operations):
+            <div className="space-y-3 py-4 text-xs text-slate-300">
+              <p className="font-medium text-slate-200">
+                {language === 'om'
+                  ? 'Kutaa Deeggarsa ICT Hospitaalaa (Tajaajila Sa\'a 24/7):'
+                  : language === 'am'
+                  ? 'የሆስፒታሉ ICT ድጋፍ ክፍል (24/7 አገልግሎት):'
+                  : 'Hospital ICT Help Desk (24/7 Operations):'}
               </p>
-              <ul className="space-y-2 border-l-2 border-teal-500 pl-3">
+              <ul className="space-y-2 border-l-2 border-amber-500 pl-3">
                 <li>
-                  <strong>Internal Extension:</strong> 4401 / 4402
+                  <strong className="text-amber-200">Internal Extension:</strong> 4401 / 4402
                 </li>
                 <li>
-                  <strong>Direct Line:</strong> +251 47 111 0204
+                  <strong className="text-amber-200">Direct Line:</strong> +251 47 111 0204
                 </li>
                 <li>
-                  <strong>Duty ICT Officer:</strong> +251 91 123 4567
+                  <strong className="text-amber-200">Duty ICT Officer:</strong> +251 91 123 4567
                 </li>
                 <li>
-                  <strong>Location:</strong> Administrative Building, 2nd Floor, Room 204
+                  <strong className="text-amber-200">Location:</strong> Administrative Building, 2nd Floor, Room 204
                 </li>
                 <li>
-                  <strong>Email:</strong> support@mettukarl.gov.et
+                  <strong className="text-amber-200">Email:</strong> support@mettukarl.gov.et
                 </li>
               </ul>
             </div>
@@ -1997,9 +2260,9 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(false)}
-                className="rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
+                className="rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 border border-amber-300 transition cursor-pointer"
               >
-                Close
+                {t.forgotModalClose}
               </button>
             </div>
           </div>
