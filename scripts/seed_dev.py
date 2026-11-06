@@ -144,12 +144,12 @@ INITIAL_ICD10 = [
 ]
 
 INITIAL_QUEUE_DEPTS = [
-    {"name": "Triage & Emergency", "code": "TRIAGE", "prefix": "T", "counter": "Triage Desk 1"},
-    {"name": "Outpatient Clinic 1 (General OPD)", "code": "OPD_1", "prefix": "A", "counter": "OPD Room 1"},
-    {"name": "Outpatient Clinic 2 (Pediatrics)", "code": "OPD_2", "prefix": "P", "counter": "Pediatrics Room"},
-    {"name": "Clinical Diagnostic Laboratory", "code": "LAB", "prefix": "L", "counter": "Phlebotomy Station"},
-    {"name": "Central Dispensary Pharmacy", "code": "PHARM", "prefix": "D", "counter": "Pharmacy Counter 1"},
-    {"name": "Cashier & Billing Desk", "code": "BILLING", "prefix": "B", "counter": "Cashier Desk A"},
+    {"name": "Triage & Emergency", "code": "TRIAGE", "token_prefix": "T", "counter_name": "Triage Desk 1"},
+    {"name": "Outpatient Clinic 1 (General OPD)", "code": "OPD_1", "token_prefix": "A", "counter_name": "OPD Room 1"},
+    {"name": "Outpatient Clinic 2 (Pediatrics)", "code": "OPD_2", "token_prefix": "P", "counter_name": "Pediatrics Room"},
+    {"name": "Clinical Diagnostic Laboratory", "code": "LAB", "token_prefix": "L", "counter_name": "Phlebotomy Station"},
+    {"name": "Central Dispensary Pharmacy", "code": "PHARM", "token_prefix": "D", "counter_name": "Pharmacy Counter 1"},
+    {"name": "Cashier & Billing Desk", "code": "BILLING", "token_prefix": "B", "counter_name": "Cashier Desk A"},
 ]
 
 INITIAL_COA = [
@@ -219,8 +219,8 @@ async def seed_database():
                     dosage_form=d["form"],
                     strength=d["strength"],
                     unit_price=d["price"],
-                    reorder_threshold=d["reorder"],
-                    is_formulary=True,
+                    reorder_level=d["reorder"],
+                    is_active=True,
                 )
                 session.add(drug_obj)
                 await session.flush()
@@ -228,11 +228,11 @@ async def seed_database():
                 batch = DrugBatch(
                     drug_id=drug_obj.id,
                     batch_number=f"BAT-{uuid.uuid4().hex[:6].upper()}",
-                    manufactured_date=today - timedelta(days=90),
+                    manufacture_date=today - timedelta(days=90),
                     expiry_date=today + timedelta(days=365),
                     initial_quantity=200,
-                    remaining_quantity=180,
-                    unit_cost=d["price"] * 0.7,
+                    current_quantity=180,
+                    cost_price=d["price"] * 0.7,
                 )
                 session.add(batch)
                 print(f"  + Drug & Batch: {d['name']}")
@@ -259,16 +259,18 @@ async def seed_database():
             if not (await session.execute(stmt)).scalar_one_or_none():
                 q_obj = QueueDepartment(**q)
                 session.add(q_obj)
-                print(f"  + Queue: {q['name']} (Prefix: {q['prefix']})")
+                print(f"  + Queue: {q['name']} (Prefix: {q['token_prefix']})")
 
         # 6. CDSS Drug-Drug Interaction
         print("\n[6/12] Seeding CDSS Drug Safety Rules...")
-        ddi_stmt = select(DrugInteraction).where(DrugInteraction.interacting_pair_key == "ASPIRIN_WARFARIN")
+        ddi_stmt = select(DrugInteraction).where(
+            DrugInteraction.drug_a_name == "Warfarin",
+            DrugInteraction.drug_b_name == "Aspirin",
+        )
         if not (await session.execute(ddi_stmt)).scalar_one_or_none():
             ddi = DrugInteraction(
-                interacting_pair_key="ASPIRIN_WARFARIN",
-                primary_generic="Warfarin",
-                interacting_generic="Aspirin",
+                drug_a_name="Warfarin",
+                drug_b_name="Aspirin",
                 severity=SeverityLevel.CRITICAL,
                 clinical_effect="Severe synergism increasing risk of major internal bleeding.",
                 recommendation="Avoid concurrent administration.",
@@ -300,16 +302,15 @@ async def seed_database():
 
         # 8. Operating Theatre & CSSD
         print("\n[8/12] Seeding OT & CSSD Sterilization Units...")
-        ot_stmt = select(OperatingRoom).where(OperatingRoom.room_code == "OT-SUITE-1")
+        ot_stmt = select(OperatingRoom).where(OperatingRoom.name == "Major Trauma & General Surgery Suite")
         if not (await session.execute(ot_stmt)).scalar_one_or_none():
             ot1 = OperatingRoom(
-                room_code="OT-SUITE-1",
                 name="Major Trauma & General Surgery Suite",
-                floor_building="Building B, 2nd Floor",
-                is_operational=True,
+                specialty="General Surgery",
+                is_active=True,
             )
             session.add(ot1)
-            print("  + Operating Suite: OT-SUITE-1")
+            print("  + Operating Suite: Major Surgery")
 
         cssd_stmt = select(CSSDBatch).where(CSSDBatch.batch_code == "CSSD-BATCH-01")
         if not (await session.execute(cssd_stmt)).scalar_one_or_none():
@@ -378,20 +379,20 @@ async def seed_database():
 
         # 11. Module 4: Specialized, Academic & IoMT Records
         print("\n[11/12] Seeding Module 4 (Blood Bank, EMS, IoMT, Mortuary, Tenders)...")
-        bb_stmt = select(BloodUnit).where(BloodUnit.unit_number == "MKH-BB-2026-001")
+        bb_stmt = select(BloodUnit).where(BloodUnit.unit_barcode == "MKH-BB-2026-001")
         if not (await session.execute(bb_stmt)).scalar_one_or_none():
             b_units = [
-                BloodUnit(unit_number="MKH-BB-2026-001", blood_group=BloodGroup.O_NEG, component_type=ComponentType.PRBC, volume_ml=450, collected_date=today - timedelta(days=5), expiry_date=today + timedelta(days=30), storage_location="Fridge 1 Shelf A", status=BloodUnitStatus.AVAILABLE),
-                BloodUnit(unit_number="MKH-BB-2026-002", blood_group=BloodGroup.O_POS, component_type=ComponentType.PRBC, volume_ml=450, collected_date=today - timedelta(days=2), expiry_date=today + timedelta(days=33), storage_location="Fridge 1 Shelf B", status=BloodUnitStatus.AVAILABLE),
+                BloodUnit(unit_barcode="MKH-BB-2026-001", blood_group=BloodGroup.O_NEG, component_type=ComponentType.PACKED_RBC, volume_ml=450, collected_at=datetime.now(timezone.utc) - timedelta(days=5), expiry_date=datetime.now(timezone.utc) + timedelta(days=30), status=BloodUnitStatus.AVAILABLE),
+                BloodUnit(unit_barcode="MKH-BB-2026-002", blood_group=BloodGroup.O_POS, component_type=ComponentType.PACKED_RBC, volume_ml=450, collected_at=datetime.now(timezone.utc) - timedelta(days=2), expiry_date=datetime.now(timezone.utc) + timedelta(days=33), status=BloodUnitStatus.AVAILABLE),
             ]
             session.add_all(b_units)
             print("  + Blood Bank: O- & O+ PRBC units")
 
-        amb_stmt = select(Ambulance).where(Ambulance.call_sign == "AMB-01")
+        amb_stmt = select(Ambulance).where(Ambulance.plate_number == "ET-3-10294")
         if not (await session.execute(amb_stmt)).scalar_one_or_none():
             ambs = [
-                Ambulance(call_sign="AMB-01", plate_number="ET-3-10294", vehicle_type="Advanced Life Support (ALS)", current_latitude=8.2985, current_longitude=35.5841, is_available=True),
-                Ambulance(call_sign="AMB-02", plate_number="ET-3-10295", vehicle_type="Advanced Life Support (ALS)", current_latitude=8.2990, current_longitude=35.5860, is_available=False),
+                Ambulance(plate_number="ET-3-10294", vehicle_model="Toyota Land Cruiser HZJ78 (ALS)", is_als=True, driver_name="Tolasa Gemechu", driver_phone="+251911445566", current_lat=8.2985, current_lon=35.5841, is_available=True),
+                Ambulance(plate_number="ET-3-10295", vehicle_model="Toyota Land Cruiser HZJ78 (ALS)", is_als=True, driver_name="Chala Daba", driver_phone="+251911778899", current_lat=8.2990, current_lon=35.5860, is_available=False),
             ]
             session.add_all(ambs)
             print("  + EMS Fleet: AMB-01 & AMB-02")

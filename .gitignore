@@ -58,6 +58,11 @@ secrets.yaml
 *.sublime-project
 *.sublime-workspace
 
+# ─── Database ─────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
 # ─── OS ───────────────────────────────────────────────────────
 .DS_Store
 .DS_Store?
