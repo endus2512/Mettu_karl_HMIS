@@ -52,6 +52,7 @@ import {
   ChevronRight,
   ChevronLeft,
   ShieldCheck,
+  LogOut,
 } from 'lucide-react';
 
 interface NavItem {
@@ -108,10 +109,19 @@ const resilienceItems: NavItem[] = [
 export function Sidebar(): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname();
-  const { t } = useTranslation();
-  const { user } = useAuth();
+  const { t, language } = useTranslation();
+  const { user, logout } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleSidebarLogout = () => {
+    void logout();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    } else {
+      router.replace('/login');
+    }
+  };
 
   // Restore collapsed state
   useEffect(() => {
@@ -293,35 +303,59 @@ export function Sidebar(): React.ReactElement {
         </nav>
 
         {/* Hospital Footer status & Collapse Toggle */}
-        <div className={`p-2.5 border-t border-[#1a2233] bg-[#080c14] flex items-center ${isCollapsed ? 'flex-col gap-2' : 'justify-between'} text-xs`}>
+        <div className={`p-2.5 border-t border-[#1a2233] bg-[#080c14] space-y-2 text-xs`}>
           {!isCollapsed ? (
             <>
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                <span className="text-[10px] font-mono font-semibold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-600/30 truncate">
-                  {roleLabel}
-                </span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  <span className="text-[10px] font-mono font-semibold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-600/30 truncate">
+                    {roleLabel}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleCollapse}
+                  title="Collapse sidebar to icon mode"
+                  className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                  aria-label="Collapse sidebar"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
               </div>
+
+              {/* Prominent Sidebar Logout Button */}
               <button
                 type="button"
-                onClick={toggleCollapse}
-                title="Collapse sidebar to icon mode"
-                className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-                aria-label="Collapse sidebar"
+                onClick={handleSidebarLogout}
+                title={language === 'om' ? "Sirna Keessaa Ba'i (Logout)" : language === 'am' ? 'ከስርዓቱ ውጣ (Logout)' : 'Sign out of HMIS'}
+                className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-2 px-3 text-xs shadow-md shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-[0.98] transition-all cursor-pointer border border-rose-400/30"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <LogOut className="h-3.5 w-3.5 shrink-0" />
+                <span>{language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Logout'}</span>
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              onClick={toggleCollapse}
-              title="Expand sidebar"
-              className="p-1.5 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-colors cursor-pointer"
-              aria-label="Expand sidebar"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            <div className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={handleSidebarLogout}
+                title={language === 'om' ? "Sirna Keessaa Ba'i (Logout)" : language === 'am' ? 'ከስርዓቱ ውጣ (Logout)' : 'Sign out of HMIS'}
+                className="p-2 rounded-lg bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white shadow-md active:scale-95 transition-all cursor-pointer border border-rose-400/30"
+                aria-label="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleCollapse}
+                title="Expand sidebar"
+                className="p-1.5 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-colors cursor-pointer"
+                aria-label="Expand sidebar"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
           )}
         </div>
       </aside>
@@ -367,6 +401,18 @@ export function Sidebar(): React.ReactElement {
           {renderNavGroup('Specialized & IoMT', filteredSpecialized)}
           {renderNavGroup('Regulations & Resilience', filteredResilience)}
         </nav>
+
+        {/* Mobile Drawer Footer with Logout Button */}
+        <div className="p-3 border-t border-[#1a2233] bg-[#080c14] shrink-0">
+          <button
+            type="button"
+            onClick={handleSidebarLogout}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-2.5 px-4 text-sm shadow-md shadow-rose-950/50 active:scale-95 transition-all cursor-pointer border border-rose-400/30"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            <span>{language === 'om' ? "Ba'i (Logout)" : language === 'am' ? 'ውጣ (Logout)' : 'Logout'}</span>
+          </button>
+        </div>
       </div>
     </>
   );

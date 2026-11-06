@@ -23,8 +23,6 @@ import {
   Sun,
   Moon,
   CloudSun,
-  QrCode,
-  Smartphone,
   Menu,
   X,
   RotateCcw,
@@ -263,14 +261,14 @@ export function Header(): React.ReactElement {
 
       {/* RIGHT: COMMAND COCKPIT & GOLD PRIMARY ACTION (Matching Uploaded Image) */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Hospital Utilities Capsule (Calendar -> Shift -> Scanner -> Bell -> Lang) */}
+        {/* Hospital Utilities Capsule (Calendar -> Shift -> Bell -> Lang -> Theme) */}
         <div className="flex items-center gap-1 sm:gap-1.5 rounded-xl border border-[#222b3d] bg-[#101624] px-2 py-1 shadow-xs">
           {/* Calendar (Editable Modal) */}
           <button
             type="button"
             onClick={() => setCalendarModalOpen(true)}
             title="Click to configure hospital date (Kalandarii jijjiiruuf)"
-            className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-amber-300 transition-colors cursor-pointer select-none pr-2 border-r border-[#1e283c]"
+            className="hidden xl:flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-amber-300 transition-colors cursor-pointer select-none pr-2 border-r border-[#1e283c]"
           >
             <Calendar className="h-3.5 w-3.5 text-amber-400" />
             <span className="hover:underline underline-offset-2">{dateDisplay}</span>
@@ -288,26 +286,6 @@ export function Header(): React.ReactElement {
             <span>{shiftName}</span>
           </div>
 
-          {/* Scanner link */}
-          <Link
-            href="/scanner"
-            title={t('barcode_qr_scanner')}
-            className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-[#222b3d] bg-[#141b29] hover:bg-amber-500/20 hover:border-amber-500/40 px-2 py-1 text-xs font-medium text-slate-300 hover:text-amber-300 transition-colors cursor-pointer"
-          >
-            <QrCode className="h-3.5 w-3.5" />
-            <span className="hidden xl:inline">Scan</span>
-          </Link>
-
-          {/* SMS / USSD */}
-          <Link
-            href="/sms-ussd"
-            title={t('sms_ussd_gateway')}
-            className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-[#222b3d] bg-[#141b29] hover:bg-emerald-500/20 hover:border-emerald-500/40 px-2 py-1 text-xs font-medium text-slate-300 hover:text-emerald-300 transition-colors cursor-pointer"
-          >
-            <Smartphone className="h-3.5 w-3.5" />
-            <span className="hidden xl:inline">*907#</span>
-          </Link>
-
           {/* Notification Bell */}
           <div className="flex items-center px-0.5">
             <NotificationBell variant="dark" />
@@ -324,16 +302,7 @@ export function Header(): React.ReactElement {
           </div>
         </div>
 
-        {/* PRIMARY GOLD ACTION BUTTON (Matching "+ Deploy Service" in Uploaded Image) */}
-        <Link
-          href="/patients"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-bold px-3.5 py-1.5 text-xs shadow-md shadow-amber-500/20 transition-all duration-150 cursor-pointer active:scale-95 shrink-0"
-        >
-          <span className="text-base leading-none font-extrabold">+</span>
-          <span className="tracking-tight">{t('patients')}</span>
-        </Link>
-
-        {/* Clinician Profile Avatar & Name (Matching Uploaded Image Top-Right) */}
+        {/* Clinician Profile Avatar & Name */}
         <div className="flex items-center gap-2 pl-1 pr-1 border-r border-[#1e283c] shrink-0">
           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold text-xs flex items-center justify-center ring-2 ring-amber-400/30 shrink-0 shadow-xs">
             {profile.initials}
@@ -348,16 +317,16 @@ export function Header(): React.ReactElement {
           </div>
         </div>
 
-        {/* DEDICATED RIGHT-HAND HEADER LOGOUT BUTTON */}
+        {/* PROMINENT RIGHT-HAND HEADER LOGOUT BUTTON (BOLD RED, VISIBLE EVERYWHERE) */}
         <button
           type="button"
           onClick={handleInstantLogout}
           title={language === 'om' ? "Sirna Keessaa Ba'i (Logout)" : language === 'am' ? 'ከስርዓቱ ውጣ (Logout)' : 'Sign out of HMIS'}
-          className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 hover:bg-rose-600 hover:border-rose-400 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-rose-300 hover:text-white transition-all duration-150 shadow-sm shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-95 cursor-pointer select-none shrink-0"
+          className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold px-3 sm:px-3.5 py-1.5 text-xs shadow-md shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-95 transition-all duration-150 cursor-pointer select-none shrink-0 border border-rose-400/40"
           aria-label="Logout"
         >
-          <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-rose-400 group-hover:text-white transition-transform duration-150 group-hover:scale-110 shrink-0" />
-          <span className="hidden sm:inline font-bold tracking-wide">
+          <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white shrink-0" />
+          <span className="inline font-bold tracking-wide">
             {language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Logout'}
           </span>
         </button>
