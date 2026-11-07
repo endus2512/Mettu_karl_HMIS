@@ -1,7 +1,9 @@
 """
-SMS Gateway and USSD Telco Session Endpoints.
-Integrates Ethio Telecom Bulk SMS and *907# USSD feature phone workflows.
+SMS Gateway, USSD Telco Session, and Carrier Provider Management Endpoints.
+Integrates Ethio Telecom Bulk SMS, Twilio Global SMS, Android GSM SIM Gateway, and *907# USSD workflows.
 """
+from datetime import datetime, timezone
+import os
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -9,8 +11,8 @@ from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.models.notification import SMSNotificationLog, NotificationStatus
-from app.services.sms_service import sms_service, TEMPLATES
+from app.models.notification import SMSNotificationLog, NotificationStatus, SMSGatewayConfig
+from app.services.sms_service import sms_service, TEMPLATES, format_ethiopian_phone
 
 router = APIRouter()
 
@@ -50,16 +52,176 @@ class USSDSessionResponse(BaseModel):
     action: str  # "CON" (continue) or "END" (session complete)
 
 
-@router.post("/send", response_model=SMSDispatchResponse, summary="Dispatch SMS via Ethio Telecom Gateway")
+class SMSGatewayConfigPayload(BaseModel):
+    provider: str = Field("twilio", description="Provider: twilio, ethio_telecom, android_gateway, africastalking, simulated")
+    is_active: bool = True
+
+    # Twilio
+    twilio_account_sid: Optional[str] = None
+    twilio_auth_token: Optional[str] = None
+    twilio_from_number: Optional[str] = None
+
+    # Ethio Telecom
+    ethio_url: Optional[str] = None
+    ethio_username: Optional[str] = None
+    ethio_password: Optional[str] = None
+    ethio_shortcode: Optional[str] = "907"
+
+    # Android GSM Gateway
+    android_gateway_url: Optional[str] = None
+    android_gateway_token: Optional[str] = None
+
+    # Africa's Talking
+    africastalking_username: Optional[str] = None
+    africastalking_api_key: Optional[str] = None
+    africastalking_sender_id: Optional[str] = None
+
+
+class SMSGatewayConfigResponse(BaseModel):
+    provider: str
+    is_active: bool
+    is_configured: bool
+    status_summary: str
+    twilio_account_sid_masked: Optional[str] = None
+    twilio_from_number: Optional[str] = None
+    ethio_url: Optional[str] = None
+    ethio_shortcode: Optional[str] = None
+    android_gateway_url: Optional[str] = None
+
+
+class TestSMSConnectionRequest(BaseModel):
+    phone_number: str = Field(..., description="Target mobile phone to receive real test SMS")
+    message: Optional[str] = "Mettu Karl Hospital: Testing Live SMS Gateway Connection. *907#"
+
+
+class TestSMSConnectionResponse(BaseModel):
+    success: bool
+    phone_number: str
+    provider_used: str
+    carrier_message: str
+    dispatch_log_id: Optional[int] = None
+
+
+def _mask(s: Optional[str]) -> Optional[str]:
+    if not s or len(s) < 8:
+        return "****" if s else None
+    return f"{s[:4]}...{s[-4:]}"
+
+
+@router.get("/config", response_model=SMSGatewayConfigResponse, summary="Get Active SMS Gateway Configuration")
+async def get_gateway_config(db: AsyncSession = Depends(get_db)) -> SMSGatewayConfigResponse:
+    """Retrieve current active carrier configuration (passwords masked for security)."""
+    stmt = select(SMSGatewayConfig).where(SMSGatewayConfig.is_active == True).order_by(desc(SMSGatewayConfig.id))
+    res = await db.execute(stmt)
+    cfg = res.scalar_one_or_none()
+
+    provider = cfg.provider if cfg else "simulated"
+    is_active = cfg.is_active if cfg else False
+
+    # Check env fallbacks
+    tw_sid = (cfg.twilio_account_sid if cfg else None) or os.getenv("TWILIO_ACCOUNT_SID")
+    tw_token = (cfg.twilio_auth_token if cfg else None) or os.getenv("TWILIO_AUTH_TOKEN")
+    eth_url = (cfg.ethio_url if cfg else None) or os.getenv("ETHIO_TELECOM_SMS_URL")
+    android_url = (cfg.android_gateway_url if cfg else None) or os.getenv("ANDROID_GSM_GATEWAY_URL")
+
+    is_configured = bool((tw_sid and tw_token) or eth_url or android_url)
+
+    if tw_sid and tw_token:
+        summary = "Twilio Global Gateway Configured & Ready"
+    elif eth_url:
+        summary = "Ethio Telecom REST Gateway Configured & Ready"
+    elif android_url:
+        summary = "Android Phone SIM Gateway Configured & Ready"
+    else:
+        summary = "Simulation / Internal Audit Mode (No live cellular credentials configured)"
+
+    return SMSGatewayConfigResponse(
+        provider=provider,
+        is_active=is_active or is_configured,
+        is_configured=is_configured,
+        status_summary=summary,
+        twilio_account_sid_masked=_mask(tw_sid),
+        twilio_from_number=(cfg.twilio_from_number if cfg else None) or os.getenv("TWILIO_FROM_NUMBER"),
+        ethio_url=eth_url,
+        ethio_shortcode=(cfg.ethio_shortcode if cfg else None) or os.getenv("ETHIO_TELECOM_SHORTCODE", "907"),
+        android_gateway_url=android_url,
+    )
+
+
+@router.post("/config", response_model=SMSGatewayConfigResponse, summary="Update SMS Gateway Carrier Settings")
+async def update_gateway_config(
+    payload: SMSGatewayConfigPayload,
+    db: AsyncSession = Depends(get_db),
+) -> SMSGatewayConfigResponse:
+    """Save live carrier settings (Twilio, Ethio Telecom, or Android GSM Modem)."""
+    # Deactivate previous configs
+    old_res = await db.execute(select(SMSGatewayConfig))
+    for old in old_res.scalars().all():
+        old.is_active = False
+
+    new_cfg = SMSGatewayConfig(
+        provider=payload.provider,
+        is_active=payload.is_active,
+        twilio_account_sid=payload.twilio_account_sid,
+        twilio_auth_token=payload.twilio_auth_token,
+        twilio_from_number=payload.twilio_from_number,
+        ethio_url=payload.ethio_url,
+        ethio_username=payload.ethio_username,
+        ethio_password=payload.ethio_password,
+        ethio_shortcode=payload.ethio_shortcode or "907",
+        android_gateway_url=payload.android_gateway_url,
+        android_gateway_token=payload.android_gateway_token,
+        africastalking_username=payload.africastalking_username,
+        africastalking_api_key=payload.africastalking_api_key,
+        africastalking_sender_id=payload.africastalking_sender_id,
+        updated_at=datetime.now(timezone.utc),
+    )
+    db.add(new_cfg)
+    await db.commit()
+    await db.refresh(new_cfg)
+
+    return await get_gateway_config(db)
+
+
+@router.post("/test-connection", response_model=TestSMSConnectionResponse, summary="Send Live Test SMS to Handset")
+async def test_sms_connection(
+    payload: TestSMSConnectionRequest,
+    db: AsyncSession = Depends(get_db),
+) -> TestSMSConnectionResponse:
+    """Send an immediate test message through the configured carrier and report exact results."""
+    clean_phone = format_ethiopian_phone(payload.phone_number)
+    text = payload.message or "Mettu Karl Hospital: Testing Live SMS Gateway Connection. *907#"
+
+    log = await sms_service.send_custom_sms(
+        db=db,
+        recipient_phone=clean_phone,
+        message_text=text,
+        lang="om",
+    )
+
+    is_live = bool(log.error_message and "Delivered" in log.error_message)
+
+    return TestSMSConnectionResponse(
+        success=is_live,
+        phone_number=clean_phone,
+        provider_used="Carrier Dispatcher",
+        carrier_message=log.error_message or "Processed",
+        dispatch_log_id=log.id,
+    )
+
+
+@router.post("/send", response_model=SMSDispatchResponse, summary="Dispatch SMS via Active Gateway")
 async def send_sms_notification(
     payload: SMSDispatchRequest,
     db: AsyncSession = Depends(get_db),
 ) -> SMSDispatchResponse:
     """Send an automated SMS alert to a patient's mobile phone."""
+    clean_phone = format_ethiopian_phone(payload.phone_number)
+
     if payload.template_key:
         log = await sms_service.send_sms(
             db=db,
-            recipient_phone=payload.phone_number,
+            recipient_phone=clean_phone,
             template_key=payload.template_key,
             lang=payload.language,
             **payload.parameters,
@@ -67,7 +229,7 @@ async def send_sms_notification(
     elif payload.custom_message:
         log = await sms_service.send_custom_sms(
             db=db,
-            recipient_phone=payload.phone_number,
+            recipient_phone=clean_phone,
             message_text=payload.custom_message,
             lang=payload.language,
         )
@@ -78,6 +240,7 @@ async def send_sms_notification(
         )
 
     is_delivered = bool(log.error_message and "Delivered" in log.error_message)
+
     return SMSDispatchResponse(
         id=log.id,
         recipient_phone=log.recipient_phone,
@@ -94,9 +257,7 @@ async def send_sms_notification(
 
 @router.post("/ussd", response_model=USSDSessionResponse, summary="Process Ethio Telecom USSD (*907# / *804#)")
 async def process_ussd_session(payload: USSDSessionRequest) -> USSDSessionResponse:
-    """
-    Simulate and handle interactive USSD session from basic phones without smartphone/internet.
-    """
+    """Simulate and handle interactive USSD session from basic phones without smartphone/internet."""
     res = sms_service.handle_ussd(
         session_id=payload.session_id,
         phone_number=payload.phone_number,
@@ -128,6 +289,7 @@ async def get_sms_logs(
             "language": l.language,
             "status": l.status.value,
             "channel": l.channel.value,
+            "error_message": l.error_message,
             "created_at": l.created_at.isoformat(),
             "sent_at": l.sent_at.isoformat() if l.sent_at else None,
         }

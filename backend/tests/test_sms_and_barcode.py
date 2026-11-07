@@ -102,3 +102,38 @@ async def test_barcode_and_qr_resolver():
         presets = presets_res.json()
         assert len(presets["medicines"]) >= 4
         assert len(presets["patient_wristbands"]) >= 2
+
+
+@pytest.mark.asyncio
+async def test_sms_gateway_configuration_and_test_ping():
+    """Test dynamic SMS gateway configuration and connection test."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Get initial gateway config
+        cfg_res = await ac.get("/api/v1/sms/config")
+        assert cfg_res.status_code == 200
+        cfg = cfg_res.json()
+        assert "provider" in cfg
+
+        # 2. Update config to Twilio
+        up_res = await ac.post("/api/v1/sms/config", json={
+            "provider": "twilio",
+            "is_active": True,
+            "twilio_account_sid": "mock_twilio_account_sid_test",
+            "twilio_auth_token": "token_mock_secret_12345",
+            "twilio_from_number": "+1234567890",
+        })
+        assert up_res.status_code == 200
+        up_cfg = up_res.json()
+        assert up_cfg["is_configured"] is True
+        assert up_cfg["twilio_from_number"] == "+1234567890"
+
+        # 3. Test connection endpoint
+        ping_res = await ac.post("/api/v1/sms/test-connection", json={
+            "phone_number": "0911223344",
+            "message": "Testing SMS Gateway Connectivity",
+        })
+        assert ping_res.status_code == 200
+        ping = ping_res.json()
+        assert ping["phone_number"] == "+251911223344"
+        assert "carrier_message" in ping

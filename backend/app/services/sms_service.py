@@ -14,6 +14,7 @@ from app.models.notification import (
     NotificationChannel,
     NotificationStatus,
     SMSNotificationLog,
+    SMSGatewayConfig,
 )
 
 logger = logging.getLogger(__name__)
@@ -53,70 +54,152 @@ TEMPLATES: Dict[str, Dict[str, str]] = {
 }
 
 
-class SMSService:
-    """SMS Gateway Client & USSD State Engine for Ethio Telecom integration."""
+def format_ethiopian_phone(phone: str) -> str:
+    """Standardize Ethiopian mobile phone numbers to E.164 international format (+251...)."""
+    cleaned = phone.strip().replace(" ", "").replace("-", "")
+    if cleaned.startswith("09") or cleaned.startswith("07"):
+        return "+251" + cleaned[1:]
+    elif cleaned.startswith("9") or cleaned.startswith("7"):
+        return "+251" + cleaned
+    elif cleaned.startswith("251"):
+        return "+" + cleaned
+    return cleaned
 
-    async def _dispatch_to_carrier(self, recipient_phone: str, message_text: str) -> Tuple[bool, str]:
+
+class SMSService:
+    """SMS Gateway Client & USSD State Engine for Ethio Telecom, Twilio, and Android GSM Gateways."""
+
+    async def _get_active_config(self, db: Optional[AsyncSession]) -> Optional[SMSGatewayConfig]:
+        """Retrieve active carrier gateway configuration from database if available."""
+        if not db:
+            return None
+        try:
+            stmt = select(SMSGatewayConfig).where(SMSGatewayConfig.is_active == True).order_by(SMSGatewayConfig.id.desc())
+            res = await db.execute(stmt)
+            return res.scalar_one_or_none()
+        except Exception as e:
+            logger.warning(f"Failed to query sms_gateway_configs: {e}")
+            return None
+
+    async def _dispatch_to_carrier(
+        self,
+        recipient_phone: str,
+        message_text: str,
+        db: Optional[AsyncSession] = None,
+    ) -> Tuple[bool, str]:
         """
         Attempt live cellular network transmission via configured telecom gateway.
-        Supports Ethio Telecom REST/SMPP Gateway and Twilio REST API.
+        Checks database config first, then falls back to environment variables.
         """
-        # 1. Ethio Telecom REST Gateway
-        ethio_url = os.getenv("ETHIO_TELECOM_SMS_URL")
-        if ethio_url:
+        import httpx
+
+        clean_phone = format_ethiopian_phone(recipient_phone)
+        db_cfg = await self._get_active_config(db)
+
+        # 1. Twilio Global SMS Gateway
+        tw_sid = (db_cfg.twilio_account_sid if db_cfg and db_cfg.provider == "twilio" else None) or os.getenv("TWILIO_ACCOUNT_SID")
+        tw_token = (db_cfg.twilio_auth_token if db_cfg and db_cfg.provider == "twilio" else None) or os.getenv("TWILIO_AUTH_TOKEN")
+        tw_from = (db_cfg.twilio_from_number if db_cfg and db_cfg.provider == "twilio" else None) or os.getenv("TWILIO_FROM_NUMBER")
+
+        if tw_sid and tw_token and tw_from and (not db_cfg or db_cfg.provider in ["twilio", "simulated"]):
             try:
-                import httpx
-                async with httpx.AsyncClient(timeout=10.0) as client:
+                url = f"https://api.twilio.com/2010-04-01/Accounts/{tw_sid}/Messages.json"
+                async with httpx.AsyncClient(timeout=12.0) as client:
                     resp = await client.post(
-                        ethio_url,
+                        url,
+                        data={
+                            "To": clean_phone,
+                            "From": tw_from,
+                            "Body": message_text,
+                        },
+                        auth=(tw_sid, tw_token),
+                    )
+                    data = resp.json() if resp.status_code in (200, 201) else {}
+                    sid_suffix = f" (SID: {data.get('sid', '')[-6:]})" if data.get('sid') else ""
+                    if resp.status_code in (200, 201):
+                        logger.info(f"Twilio live dispatch SUCCESS to {clean_phone}")
+                        return True, f"Live Cellular Broadcast Delivered via Twilio{sid_suffix} to {clean_phone}"
+                    err_msg = data.get("message") or resp.text[:90]
+                    return False, f"Twilio HTTP {resp.status_code}: {err_msg}"
+            except Exception as e:
+                logger.error(f"Twilio dispatch exception: {e}")
+                return False, f"Twilio Connection Error: {str(e)[:80]}"
+
+        # 2. Ethio Telecom REST Gateway
+        eth_url = (db_cfg.ethio_url if db_cfg and db_cfg.provider == "ethio_telecom" else None) or os.getenv("ETHIO_TELECOM_SMS_URL")
+        eth_user = (db_cfg.ethio_username if db_cfg and db_cfg.provider == "ethio_telecom" else None) or os.getenv("ETHIO_TELECOM_SMS_USER", "mettu_karl")
+        eth_pwd = (db_cfg.ethio_password if db_cfg and db_cfg.provider == "ethio_telecom" else None) or os.getenv("ETHIO_TELECOM_SMS_PASSWORD", "")
+        eth_sc = (db_cfg.ethio_shortcode if db_cfg and db_cfg.provider == "ethio_telecom" else None) or os.getenv("ETHIO_TELECOM_SHORTCODE", "907")
+
+        if eth_url and (not db_cfg or db_cfg.provider in ["ethio_telecom", "simulated"]):
+            try:
+                async with httpx.AsyncClient(timeout=12.0) as client:
+                    resp = await client.post(
+                        eth_url,
                         json={
-                            "user": os.getenv("ETHIO_TELECOM_SMS_USER", "mettu_karl"),
-                            "password": os.getenv("ETHIO_TELECOM_SMS_PASSWORD", ""),
-                            "shortcode": os.getenv("ETHIO_TELECOM_SHORTCODE", "907"),
-                            "recipient": recipient_phone,
+                            "user": eth_user,
+                            "password": eth_pwd,
+                            "shortcode": eth_sc,
+                            "recipient": clean_phone,
                             "message": message_text,
                         },
                     )
                     if resp.status_code in (200, 201):
-                        return True, f"Live Ethio Telecom Broadcast Delivered (HTTP {resp.status_code})"
+                        logger.info(f"Ethio Telecom live dispatch SUCCESS to {clean_phone}")
+                        return True, f"Live Ethio Telecom SMS Delivered via Shortcode {eth_sc} to {clean_phone}"
                     return False, f"Ethio Telecom Gateway HTTP {resp.status_code}: {resp.text[:80]}"
             except Exception as e:
                 logger.error(f"Ethio Telecom dispatch exception: {e}")
                 return False, f"Ethio Telecom Network Error: {str(e)[:80]}"
 
-        # 2. Twilio Global SMS Gateway
-        twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
-        twilio_token = os.getenv("TWILIO_AUTH_TOKEN")
-        twilio_from = os.getenv("TWILIO_FROM_NUMBER")
-        if twilio_sid and twilio_token and twilio_from:
-            try:
-                import httpx
-                url = f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json"
-                clean_phone = recipient_phone.strip()
-                if clean_phone.startswith("09"):
-                    clean_phone = "+251" + clean_phone[1:]
-                elif clean_phone.startswith("9"):
-                    clean_phone = "+251" + clean_phone
+        # 3. Android GSM Phone Gateway (Wi-Fi SIM Card Transmitter)
+        android_url = (db_cfg.android_gateway_url if db_cfg and db_cfg.provider == "android_gateway" else None) or os.getenv("ANDROID_GSM_GATEWAY_URL")
+        android_token = (db_cfg.android_gateway_token if db_cfg and db_cfg.provider == "android_gateway" else None) or os.getenv("ANDROID_GSM_GATEWAY_TOKEN")
 
-                async with httpx.AsyncClient(timeout=10.0) as client:
+        if android_url and (not db_cfg or db_cfg.provider == "android_gateway"):
+            try:
+                headers = {"Authorization": f"Bearer {android_token}"} if android_token else {}
+                async with httpx.AsyncClient(timeout=12.0) as client:
                     resp = await client.post(
-                        url,
-                        data={
-                            "To": clean_phone,
-                            "From": twilio_from,
-                            "Body": message_text,
-                        },
-                        auth=(twilio_sid, twilio_token),
+                        android_url,
+                        json={"to": clean_phone, "message": message_text, "phone": clean_phone, "text": message_text},
+                        headers=headers,
                     )
                     if resp.status_code in (200, 201):
-                        return True, f"Live Cellular Network Delivered via Twilio ({clean_phone})"
-                    return False, f"Twilio API Error HTTP {resp.status_code}: {resp.text[:80]}"
+                        logger.info(f"Android GSM Gateway dispatch SUCCESS to {clean_phone}")
+                        return True, f"Live SMS Broadcast Delivered via Android Phone SIM to {clean_phone}"
+                    return False, f"Android Gateway HTTP {resp.status_code}: {resp.text[:80]}"
             except Exception as e:
-                logger.error(f"Twilio dispatch exception: {e}")
-                return False, f"Twilio Connection Error: {str(e)[:80]}"
+                logger.error(f"Android Gateway dispatch exception: {e}")
+                return False, f"Android Phone Gateway Error: {str(e)[:80]}"
 
-        # 3. Default: Local Hospital Audit Simulation
-        return False, "SIMULATED: No live telecom credentials (ETHIO_TELECOM_SMS_URL / TWILIO_ACCOUNT_SID) configured in .env. Logged in hospital audit DB."
+        # 4. Africa's Talking Gateway
+        at_user = (db_cfg.africastalking_username if db_cfg and db_cfg.provider == "africastalking" else None) or os.getenv("AFRICASTALKING_USERNAME")
+        at_key = (db_cfg.africastalking_api_key if db_cfg and db_cfg.provider == "africastalking" else None) or os.getenv("AFRICASTALKING_API_KEY")
+        at_from = (db_cfg.africastalking_sender_id if db_cfg and db_cfg.provider == "africastalking" else None) or os.getenv("AFRICASTALKING_SENDER_ID")
+
+        if at_user and at_key:
+            try:
+                at_url = "https://api.africastalking.com/version1/messaging"
+                async with httpx.AsyncClient(timeout=12.0) as client:
+                    resp = await client.post(
+                        at_url,
+                        data={
+                            "username": at_user,
+                            "to": clean_phone,
+                            "message": message_text,
+                            **({"from": at_from} if at_from else {}),
+                        },
+                        headers={"apiKey": at_key, "Accept": "application/json"},
+                    )
+                    if resp.status_code in (200, 201):
+                        return True, f"Live Africa's Talking SMS Delivered to {clean_phone}"
+                    return False, f"Africa's Talking HTTP {resp.status_code}: {resp.text[:80]}"
+            except Exception as e:
+                return False, f"Africa's Talking Error: {str(e)[:80]}"
+
+        # 5. Default Simulation Mode (When no carrier credentials are provided)
+        return False, "SIMULATED: No live telecom credentials configured. Ergaan sirna keessoo database qofatti galmaa'eera."
 
     async def send_sms(
         self,
@@ -139,7 +222,7 @@ class SMSService:
             logger.error(f"Template rendering failed: {e}")
             rendered_message = template
 
-        is_delivered, carrier_note = await self._dispatch_to_carrier(recipient_phone, rendered_message)
+        is_delivered, carrier_note = await self._dispatch_to_carrier(recipient_phone, rendered_message, db)
 
         log_entry = SMSNotificationLog(
             recipient_phone=recipient_phone,
@@ -165,7 +248,7 @@ class SMSService:
         lang: str = "om",
     ) -> SMSNotificationLog:
         """Send a direct non-templated text message to a patient or staff phone."""
-        is_delivered, carrier_note = await self._dispatch_to_carrier(recipient_phone, message_text)
+        is_delivered, carrier_note = await self._dispatch_to_carrier(recipient_phone, message_text, db)
 
         log_entry = SMSNotificationLog(
             recipient_phone=recipient_phone,

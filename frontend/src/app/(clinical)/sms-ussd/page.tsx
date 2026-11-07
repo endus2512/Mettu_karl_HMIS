@@ -13,7 +13,24 @@ import { useTranslation } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
-import { Smartphone, MessageSquare, Send, Radio, Mail, FileText } from 'lucide-react';
+import {
+  Smartphone,
+  MessageSquare,
+  Send,
+  Radio,
+  Mail,
+  FileText,
+  Settings,
+  CheckCircle2,
+  AlertTriangle,
+  X,
+  Wifi,
+  Server,
+  Zap,
+  Check,
+  PhoneCall,
+  Lock,
+} from 'lucide-react';
 
 interface SMSLog {
   id: number;
@@ -318,6 +335,135 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
     }
   };
 
+  // Carrier Setup State
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [carrierConfig, setCarrierConfig] = useState<any>(null);
+  const [activeCarrierTab, setActiveCarrierTab] = useState<'twilio' | 'ethio_telecom' | 'android_gateway'>('twilio');
+
+  // Form fields
+  const [cfgTwilioSid, setCfgTwilioSid] = useState('');
+  const [cfgTwilioToken, setCfgTwilioToken] = useState('');
+  const [cfgTwilioFrom, setCfgTwilioFrom] = useState('');
+
+  const [cfgEthioUrl, setCfgEthioUrl] = useState('');
+  const [cfgEthioUser, setCfgEthioUser] = useState('mettu_karl');
+  const [cfgEthioPwd, setCfgEthioPwd] = useState('');
+  const [cfgEthioShortcode, setCfgEthioShortcode] = useState('907');
+
+  const [cfgAndroidUrl, setCfgAndroidUrl] = useState('');
+  const [cfgAndroidToken, setCfgAndroidToken] = useState('');
+
+  // Live test ping state
+  const [testPingPhone, setTestPingPhone] = useState('');
+  const [testPingResult, setTestPingResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [isTestingPing, setIsTestingPing] = useState(false);
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
+
+  const fetchGatewayConfig = async () => {
+    try {
+      const res = await apiClient.get('/sms/config');
+      if (res.data) {
+        setCarrierConfig(res.data);
+        if (res.data.provider && ['twilio', 'ethio_telecom', 'android_gateway'].includes(res.data.provider)) {
+          setActiveCarrierTab(res.data.provider as any);
+        }
+        if (res.data.twilio_from_number) setCfgTwilioFrom(res.data.twilio_from_number);
+        if (res.data.ethio_url) setCfgEthioUrl(res.data.ethio_url);
+        if (res.data.android_gateway_url) setCfgAndroidUrl(res.data.android_gateway_url);
+      }
+    } catch (e) {
+      console.error('Failed to load carrier config:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchGatewayConfig();
+  }, []);
+
+  const handleSaveConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingConfig(true);
+    try {
+      const payload: any = {
+        provider: activeCarrierTab,
+        is_active: true,
+      };
+      if (activeCarrierTab === 'twilio') {
+        payload.twilio_account_sid = cfgTwilioSid;
+        payload.twilio_auth_token = cfgTwilioToken;
+        payload.twilio_from_number = cfgTwilioFrom;
+      } else if (activeCarrierTab === 'ethio_telecom') {
+        payload.ethio_url = cfgEthioUrl;
+        payload.ethio_username = cfgEthioUser;
+        payload.ethio_password = cfgEthioPwd;
+        payload.ethio_shortcode = cfgEthioShortcode;
+      } else if (activeCarrierTab === 'android_gateway') {
+        payload.android_gateway_url = cfgAndroidUrl;
+        payload.android_gateway_token = cfgAndroidToken;
+      }
+
+      const res = await apiClient.post('/sms/config', payload);
+      setCarrierConfig(res.data);
+      notifications.show({
+        title: "Qindaa'inni Sararaa Milkaa'eera!",
+        message: `Carrier ${activeCarrierTab.toUpperCase()} milkaa'inaan qindaa'eera.`,
+        color: 'teal',
+      });
+    } catch (err: any) {
+      notifications.show({
+        title: "Dogoggora Qindaa'inaa",
+        message: err.message || "Qindaa'ina olkaa'uun hin dandaamne.",
+        color: 'red',
+      });
+    } finally {
+      setIsSavingConfig(false);
+    }
+  };
+
+  const handleTestPing = async () => {
+    if (!testPingPhone) {
+      notifications.show({
+        title: "Lakkoofsa Bilbilaa Galchaa",
+        message: "Mee lakkoofsa bilbila keessan galchaatii yaalaa.",
+        color: 'amber',
+      });
+      return;
+    }
+    setIsTestingPing(true);
+    setTestPingResult(null);
+    try {
+      const res = await apiClient.post('/sms/test-connection', {
+        phone_number: testPingPhone,
+        message: `Mettu Karl Hospital: Testing Live Carrier connection to ${testPingPhone}. Verification successful! *907#`,
+      });
+      setTestPingResult({
+        success: res.data.success,
+        message: res.data.carrier_message,
+      });
+      if (res.data.success) {
+        notifications.show({
+          title: "Ergaan Bilbila Keessan Qaqqabeera!",
+          message: res.data.carrier_message,
+          color: 'teal',
+        });
+      } else {
+        notifications.show({
+          title: "Carrier Response",
+          message: res.data.carrier_message,
+          color: 'amber',
+          autoClose: 8000,
+        });
+      }
+    } catch (err: any) {
+      setTestPingResult({
+        success: false,
+        message: err.message || "Connection failed",
+      });
+    } finally {
+      setIsTestingPing(false);
+    }
+  };
+
   // Preset Scenario Loaders
   const loadScenario = (type: 'queue' | 'rx' | 'bill' | 'apt') => {
     if (type === 'queue') {
@@ -559,7 +705,20 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsConfigModalOpen(true)}
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold text-amber-300 transition shadow-sm cursor-pointer"
+                  >
+                    <Settings className="h-4 w-4 text-amber-400" />
+                    <span>Qindaa'ina Sararaa (Carrier Setup)</span>
+                    {carrierConfig?.is_configured ? (
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    ) : (
+                      <span className="h-2 w-2 rounded-full bg-amber-400" />
+                    )}
+                  </button>
                   <div className="rounded-xl border border-teal-200 dark:border-teal-800/60 bg-teal-50 dark:bg-teal-950/40 px-3.5 py-1.5 text-xs font-semibold text-teal-800 dark:text-teal-300">
                     {dict.shortcode}
                   </div>
@@ -983,6 +1142,296 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                 </div>
               </div>
             </div>
+
+            {/* CARRIER CONFIGURATION MODAL */}
+            {isConfigModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+                <div className="bg-white dark:bg-[#0d131f] border border-slate-200 dark:border-[#1e293b] rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden my-6">
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-[#1e293b] bg-slate-50 dark:bg-[#101726]">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center">
+                        <Settings className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                          Qindaa'ina Sarara Moobaayilaa (SMS Carrier Setup)
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Ergaan bilbila dhugaa irratti akka gahuuf sarara telecom filadhaa
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsConfigModalOpen(false)}
+                      className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <div className="p-6 space-y-5">
+                    {/* Active Status Banner */}
+                    <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-[#070a0f] border border-slate-200 dark:border-[#1e293b] flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <Radio className={`h-4 w-4 ${carrierConfig?.is_configured ? 'text-emerald-500' : 'text-amber-500'}`} />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">Haala Sarara Ammaa (Current Status):</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            {carrierConfig?.status_summary || 'Checking configuration...'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                        carrierConfig?.is_configured
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                          : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                      }`}>
+                        {carrierConfig?.is_configured ? 'Active Carrier' : 'Simulated'}
+                      </span>
+                    </div>
+
+                    {/* Carrier Provider Tabs */}
+                    <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100 dark:bg-[#070a0f] rounded-xl border border-slate-200 dark:border-[#1e293b]">
+                      <button
+                        type="button"
+                        onClick={() => setActiveCarrierTab('twilio')}
+                        className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                          activeCarrierTab === 'twilio'
+                            ? 'bg-white dark:bg-amber-500 text-slate-900 dark:text-slate-950 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <Zap className="h-3.5 w-3.5" />
+                        Twilio (Global)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveCarrierTab('ethio_telecom')}
+                        className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                          activeCarrierTab === 'ethio_telecom'
+                            ? 'bg-white dark:bg-amber-500 text-slate-900 dark:text-slate-950 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <Server className="h-3.5 w-3.5" />
+                        Ethio Telecom
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveCarrierTab('android_gateway')}
+                        className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                          activeCarrierTab === 'android_gateway'
+                            ? 'bg-white dark:bg-amber-500 text-slate-900 dark:text-slate-950 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <Wifi className="h-3.5 w-3.5" />
+                        Android GSM SIM
+                      </button>
+                    </div>
+
+                    {/* Provider Forms */}
+                    <form onSubmit={handleSaveConfig} className="space-y-4">
+                      {activeCarrierTab === 'twilio' && (
+                        <div className="space-y-3.5 p-4 rounded-2xl border border-slate-200 dark:border-[#1e293b] bg-slate-50/50 dark:bg-[#101726]/50">
+                          <div className="text-xs text-slate-600 dark:text-slate-400">
+                            <strong>Twilio:</strong> Bilbila Itoophiyaa (+251 9... ykn +251 7...) hundaaf daqiiqaa muraasa keessatti ergaa dhugaa erga.
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                              Twilio Account SID *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                              value={cfgTwilioSid}
+                              onChange={(e) => setCfgTwilioSid(e.target.value)}
+                              className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                              Twilio Auth Token *
+                            </label>
+                            <input
+                              type="password"
+                              required
+                              placeholder="••••••••••••••••••••••••••••••••"
+                              value={cfgTwilioToken}
+                              onChange={(e) => setCfgTwilioToken(e.target.value)}
+                              className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                              Twilio Phone Number (From) *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="+1234567890"
+                              value={cfgTwilioFrom}
+                              onChange={(e) => setCfgTwilioFrom(e.target.value)}
+                              className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {activeCarrierTab === 'ethio_telecom' && (
+                        <div className="space-y-3.5 p-4 rounded-2xl border border-slate-200 dark:border-[#1e293b] bg-slate-50/50 dark:bg-[#101726]/50">
+                          <div className="text-xs text-slate-600 dark:text-slate-400">
+                            <strong>Ethio Telecom:</strong> Sarara Bulk SMS biyyaalessaa koodii gabaabaa <strong>907</strong> wajjin walqabatu.
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                              Ethio Telecom API URL *
+                            </label>
+                            <input
+                              type="url"
+                              required
+                              placeholder="https://sms.ethiotelecom.et/api/v1/send"
+                              value={cfgEthioUrl}
+                              onChange={(e) => setCfgEthioUrl(e.target.value)}
+                              className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Username *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={cfgEthioUser}
+                                onChange={(e) => setCfgEthioUser(e.target.value)}
+                                className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Password *
+                              </label>
+                              <input
+                                type="password"
+                                required
+                                placeholder="••••••••"
+                                value={cfgEthioPwd}
+                                onChange={(e) => setCfgEthioPwd(e.target.value)}
+                                className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                              Sender Shortcode
+                            </label>
+                            <input
+                              type="text"
+                              value={cfgEthioShortcode}
+                              onChange={(e) => setCfgEthioShortcode(e.target.value)}
+                              className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {activeCarrierTab === 'android_gateway' && (
+                        <div className="space-y-3.5 p-4 rounded-2xl border border-slate-200 dark:border-[#1e293b] bg-slate-50/50 dark:bg-[#101726]/50">
+                          <div className="text-xs text-slate-600 dark:text-slate-400">
+                            <strong>Android GSM SIM Gateway:</strong> Bilbila Android kamiyyuu Ethio Telecom SIM qabu fayyadamuun kaffaltii API tokko malee kaardii bilbilaa baratameen (0.15 ETB) ergaa dhugaa erga. App <em>'Android SMS Gateway'</em> Google Play irraa buufadhaatii Wi-Fi IP as galchaa.
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                              Android Local Wi-Fi Gateway URL *
+                            </label>
+                            <input
+                              type="url"
+                              required
+                              placeholder="http://192.168.1.50:8080/message"
+                              value={cfgAndroidUrl}
+                              onChange={(e) => setCfgAndroidUrl(e.target.value)}
+                              className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                              Access Token (Optional)
+                            </label>
+                            <input
+                              type="password"
+                              placeholder="Token yoo qabaate..."
+                              value={cfgAndroidToken}
+                              onChange={(e) => setCfgAndroidToken(e.target.value)}
+                              className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-end gap-3 pt-2">
+                        <button
+                          type="submit"
+                          disabled={isSavingConfig}
+                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 active:scale-95 transition"
+                        >
+                          {isSavingConfig ? 'Olkaa\'aa jira...' : 'Qindaa\'ina Olkaa\'i (Save Settings)'}
+                        </button>
+                      </div>
+                    </form>
+
+                    {/* LIVE CONNECTION TEST SECTION */}
+                    <div className="pt-4 border-t border-slate-200 dark:border-[#1e293b] space-y-3">
+                      <div className="flex items-center gap-2">
+                        <PhoneCall className="h-4 w-4 text-emerald-500" />
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                          Qorannoo Ergaa Dhugaa (Live Handset Ping Test)
+                        </h4>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Lakkoofsa bilbila keessan galchaatii 'Ergaa Qorannoo Ergi' cuqaasaa. Ergaan kallattiin bilbila keessan qaqqabuu isaa mirkaneeffadhaa:
+                      </p>
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="tel"
+                          placeholder="Fkn: 0911223344 ykn +251911223344"
+                          value={testPingPhone}
+                          onChange={(e) => setTestPingPhone(e.target.value)}
+                          className="flex-1 px-3.5 py-2.5 bg-slate-50 dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleTestPing}
+                          disabled={isTestingPing}
+                          className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95 flex-shrink-0"
+                        >
+                          <Send className="h-3.5 w-3.5" />
+                          {isTestingPing ? 'Ergaa jira...' : 'Ergaa Qorannoo Ergi'}
+                        </button>
+                      </div>
+
+                      {testPingResult && (
+                        <div className={`p-3 rounded-xl border text-xs ${
+                          testPingResult.success
+                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                            : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300'
+                        }`}>
+                          <p className="font-bold flex items-center gap-1.5">
+                            {testPingResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <AlertTriangle className="h-4 w-4 text-amber-500" />}
+                            {testPingResult.success ? 'Ergaan Milkaa\'inaan Gaheera!' : 'Carrier Response:'}
+                          </p>
+                          <p className="mt-1 text-[11px] font-mono leading-relaxed">{testPingResult.message}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </main>
         </div>
       </div>
