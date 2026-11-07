@@ -95,3 +95,129 @@ class StockAlert(BaseModel):
     message: str
     total_quantity: int
     expiry_date: Optional[date] = None
+
+
+class BatchDetail(BaseModel):
+    id: int
+    batch_number: str
+    manufacture_date: Optional[date] = None
+    expiry_date: date
+    initial_quantity: int
+    current_quantity: int
+    cost_price: float
+    days_to_expiry: int
+    status: str  # "good", "expiring_soon", "expired", "depleted"
+
+    model_config = {"from_attributes": True}
+
+
+class DrugInventoryItemResponse(BaseModel):
+    id: int
+    name: str
+    generic_name: str
+    dosage_form: DosageForm
+    strength: str
+    unit_price: float
+    reorder_level: int
+    is_active: bool
+    total_quantity: int
+    status: str  # "good", "low", "expiring", "out_of_stock"
+    earliest_expiry: Optional[date] = None
+    batches: List[BatchDetail] = []
+
+    model_config = {"from_attributes": True}
+
+
+class PatientBrief(BaseModel):
+    id: int
+    mrn: str
+    first_name: str
+    last_name: str
+    gender: str
+    birth_date: Optional[date] = None
+    phone_number: Optional[str] = None
+
+
+class PrescriberBrief(BaseModel):
+    id: int
+    username: str
+    full_name: str
+    role: str
+
+
+class PrescriptionItemDetail(BaseModel):
+    id: int
+    drug_id: int
+    drug_name: str
+    generic_name: Optional[str] = None
+    dosage_form: Optional[str] = None
+    strength: Optional[str] = None
+    unit_price: float
+    total_price: float
+    dosage: str
+    frequency: str
+    duration_days: int
+    quantity_prescribed: int
+    quantity_dispensed: int
+    instructions: Optional[str] = None
+    batch_id: Optional[int] = None
+    batch_number: Optional[str] = None
+    is_fully_dispensed: bool
+
+
+class PrescriptionDetailResponse(BaseModel):
+    id: int
+    prescription_code: str
+    patient_id: int
+    patient: Optional[PatientBrief] = None
+    prescriber_id: int
+    prescriber: Optional[PrescriberBrief] = None
+    status: PrescriptionStatus
+    clinical_notes: Optional[str] = None
+    created_at: datetime
+    dispensed_at: Optional[datetime] = None
+    items: List[PrescriptionItemDetail] = []
+    total_amount: float = 0.0
+
+
+class StockMovementResponse(BaseModel):
+    id: int
+    drug_id: int
+    drug_name: str
+    batch_id: int
+    batch_number: str
+    movement_type: MovementType
+    quantity: int
+    balance_after: int
+    reference_number: Optional[str] = None
+    created_at: datetime
+    user_name: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class DispensedBatchUsage(BaseModel):
+    batch_id: int
+    batch_number: str
+    expiry_date: date
+    quantity_deducted: int
+
+
+class DispenseItemResult(BaseModel):
+    item_id: int
+    drug_id: int
+    drug_name: str
+    quantity_prescribed: int
+    quantity_dispensed_now: int
+    total_dispensed: int
+    batches_used: List[DispensedBatchUsage] = []
+
+
+class DispenseResultResponse(BaseModel):
+    prescription_id: int
+    prescription_code: str
+    status: PrescriptionStatus
+    dispensed_at: datetime
+    message: str
+    items: List[DispenseItemResult] = []
+

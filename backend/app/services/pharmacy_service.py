@@ -43,19 +43,24 @@ async def dispense_prescription_item(
     item: PrescriptionItem,
     dispense_quantity: int,
     user_id: Optional[int] = None,
-) -> bool:
+) -> Tuple[int, List[dict]]:
     """
     Dispense medication for an item using FEFO batches.
     Decrements batch inventory and logs stock movements.
+    Returns (dispensed_now, batches_used).
     """
     remaining = dispense_quantity
     fefo_batches = await get_fefo_batches_for_drug(db, item.drug_id)
+    batches_used: List[dict] = []
 
     for batch in fefo_batches:
         if remaining <= 0:
             break
 
         take_qty = min(remaining, batch.current_quantity)
+        if take_qty <= 0:
+            continue
+
         batch.current_quantity -= take_qty
         remaining -= take_qty
 
@@ -71,10 +76,17 @@ async def dispense_prescription_item(
         )
         db.add(movement)
         item.batch_id = batch.id
+        batches_used.append({
+            "batch_id": batch.id,
+            "batch_number": batch.batch_number,
+            "expiry_date": batch.expiry_date,
+            "quantity_deducted": take_qty,
+        })
 
-    item.quantity_dispensed += (dispense_quantity - remaining)
+    dispensed_now = dispense_quantity - remaining
+    item.quantity_dispensed += dispensed_now
     await db.commit()
-    return remaining == 0
+    return dispensed_now, batches_used
 
 
 async def check_inventory_alerts(db: AsyncSession) -> List[StockAlert]:
