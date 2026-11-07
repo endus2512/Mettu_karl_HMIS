@@ -59,6 +59,24 @@ async def get_current_user(
     return user
 
 
+async def get_optional_current_user(
+    credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(optional_bearer_scheme)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> Optional[User]:
+    """Extract current user if bearer token is provided, otherwise return None."""
+    if not credentials:
+        return None
+    try:
+        payload = decode_token(credentials.credentials)
+        user_id_str: str | None = payload.get("sub")
+        token_type: str | None = payload.get("type")
+        if user_id_str and token_type == "access":
+            return await get_user_by_id(db, int(user_id_str))
+    except Exception:
+        pass
+    return None
+
+
 def require_roles(*roles: UserRole):
     """
     Dependency factory that enforces role-based access control.

@@ -26,6 +26,7 @@ from app.api.v1.endpoints import (
     infection_control,
     insurance_claims,
     iomt,
+    laboratory,
     mci,
     mortuary,
     ot_cssd,
@@ -51,6 +52,7 @@ api_v1_router.include_router(fhir.router, prefix="/fhir/r4", tags=["FHIR R4"])
 # Clinical & Patient Modules
 api_v1_router.include_router(billing.router, prefix="/billing", tags=["Billing & Telebirr"])
 api_v1_router.include_router(pharmacy.router, prefix="/pharmacy", tags=["Pharmacy & Stock"])
+api_v1_router.include_router(laboratory.router, prefix="/laboratory", tags=["Laboratory & Pathology LIS"])
 api_v1_router.include_router(coding.router, prefix="/coding", tags=["Medical Coding"])
 api_v1_router.include_router(queue.router, prefix="/queue", tags=["Queue & Token System"])
 api_v1_router.include_router(cdss.router, prefix="/cdss", tags=["Clinical Decision Support"])

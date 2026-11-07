@@ -105,6 +105,17 @@ from app.models.iomt import (
     TelemetryAlarm,
     VitalTelemetry,
 )
+from app.models.laboratory import (
+    LabCategory,
+    LabOrder,
+    LabOrderItem,
+    LabOrderPriority,
+    LabOrderStatus,
+    LabResult,
+    LabTestCatalog,
+    ResultFlag,
+    SpecimenType,
+)
 from app.models.mci import (
     MassCasualtyIncident,
     MCICasualtyTag,
@@ -299,4 +310,13 @@ __all__ = [
     "PowerSourceType",
     "ATSState",
     "HospitalPowerTelemetry",
+    "LabCategory",
+    "SpecimenType",
+    "LabOrderStatus",
+    "LabOrderPriority",
+    "ResultFlag",
+    "LabTestCatalog",
+    "LabOrder",
+    "LabOrderItem",
+    "LabResult",
 ]

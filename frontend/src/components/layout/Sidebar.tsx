@@ -22,6 +22,7 @@ import {
   Ticket,
   CreditCard,
   Pill,
+  FlaskConical,
   Stethoscope,
   TrendingUp,
   Briefcase,
@@ -70,6 +71,7 @@ const clinicalItems: NavItem[] = [
   { key: 'queue_system', href: '/queue', icon: Ticket, badge: 'TV', badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40', allowedRoles: ['doctor', 'nurse', 'receptionist', 'super_admin'] },
   { key: 'billing', href: '/billing', icon: CreditCard, allowedRoles: ['billing', 'insurance_officer', 'admin', 'super_admin'] },
   { key: 'pharmacy', href: '/pharmacy', icon: Pill, allowedRoles: ['pharmacist', 'doctor', 'super_admin'] },
+  { key: 'laboratory', href: '/laboratory', icon: FlaskConical, badge: 'LIS', badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40', allowedRoles: ['doctor', 'nurse', 'technician', 'admin', 'super_admin'] },
   { key: 'telemedicine', href: '/telemed', icon: Stethoscope, allowedRoles: ['doctor', 'super_admin'] },
   { key: 'executive_bi', href: '/analytics', icon: TrendingUp, allowedRoles: ['admin', 'doctor', 'super_admin'] },
 ];
