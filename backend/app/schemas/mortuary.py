@@ -1,12 +1,23 @@
 """
-Pydantic schemas for Hospital Mortuary, Cold Vaults, and Autopsy Logs.
+Pydantic schemas for Hospital Mortuary, Cold Vaults, Autopsy, and Legal Release.
 """
 from datetime import datetime, date, timezone
-from typing import Optional
+from typing import Optional, List
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 from app.models.mortuary import VaultStatus
+
+
+class BodyVaultBase(BaseModel):
+    vault_code: str
+    vault_number: Optional[str] = None
+    bay_name: Optional[str] = "Bay 1 Top"
+    temperature_celsius: float = Field(default=2.5, ge=-10.0, le=15.0)
+
+
+class BodyVaultCreate(BodyVaultBase):
+    pass
 
 
 class BodyVaultResponse(BaseModel):
@@ -16,6 +27,9 @@ class BodyVaultResponse(BaseModel):
     bay_name: Optional[str] = None
     temperature_celsius: float
     status: str
+    occupant_name: Optional[str] = None
+    occupant_tag: Optional[str] = None
+    occupant_dod: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -34,6 +48,10 @@ class MortuaryRecordCreate(BaseModel):
     vault_id: Optional[int] = None
     death_certificate_number: Optional[str] = None
     is_autopsy_conducted: bool = False
+    autopsy_findings: Optional[str] = None
+    pathologist_name: Optional[str] = None
+    police_case_number: Optional[str] = None
+    burial_permit_number: Optional[str] = None
     contact_kin_name: Optional[str] = None
     contact_kin_phone: Optional[str] = None
 
@@ -81,8 +99,14 @@ class MortuaryRecordResponse(BaseModel):
     declaring_doctor_name: str
     body_vault_id: Optional[int] = None
     vault_id: Optional[int] = None
+    vault_code: Optional[str] = None
     death_certificate_number: Optional[str] = None
     is_autopsy_conducted: bool = False
+    autopsy_findings: Optional[str] = None
+    pathologist_name: Optional[str] = None
+    autopsy_date: Optional[datetime] = None
+    burial_permit_number: Optional[str] = None
+    police_case_number: Optional[str] = None
     received_at: datetime
     released_at: Optional[datetime] = None
     released_to_name: Optional[str] = None
@@ -94,7 +118,56 @@ class MortuaryRecordResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class AutopsyRecordRequest(BaseModel):
+    pathologist_name: str
+    autopsy_findings: str
+    confirmed_cause_of_death: Optional[str] = None
+    police_case_number: Optional[str] = None
+
+
 class ReleaseDeceasedRequest(BaseModel):
     released_to_name: Optional[str] = "Next of Kin"
     released_to_relationship: Optional[str] = "Family Member"
+    contact_kin_phone: Optional[str] = None
     death_certificate_number: Optional[str] = None
+    burial_permit_number: Optional[str] = None
+
+
+class MortuaryStatsResponse(BaseModel):
+    total_vaults: int
+    occupied_vaults: int
+    vacant_vaults: int
+    maintenance_vaults: int
+    total_deceased_admitted: int
+    total_released: int
+    total_autopsies: int
+    avg_storage_temp: float
+
+
+class MortuaryCertificateVoucherResponse(BaseModel):
+    hospital_name: str
+    hospital_subtitle: str
+    tin_number: str
+    telephone: str
+    voucher_id: str
+    tag_number: str
+    death_certificate_number: str
+    deceased_name: str
+    gender: str
+    datetime_of_death: str
+    cause_of_death: str
+    declaring_doctor_name: str
+    vault_code: str
+    bay_name: str
+    temperature_recorded: str
+    received_at: str
+    is_autopsy_conducted: bool
+    pathologist_name: Optional[str] = None
+    autopsy_findings: Optional[str] = None
+    released_at: Optional[str] = None
+    released_to_name: Optional[str] = None
+    released_to_relationship: Optional[str] = None
+    contact_kin_phone: Optional[str] = None
+    burial_permit_number: Optional[str] = None
+    police_case_number: Optional[str] = None
+    verification_qr: str

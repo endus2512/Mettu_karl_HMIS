@@ -60,6 +60,11 @@ class MortuaryRecord(Base):
     body_vault_id: Mapped[Optional[int]] = mapped_column(ForeignKey("body_vaults.id", ondelete="SET NULL"), nullable=True)
     death_certificate_number: Mapped[Optional[str]] = mapped_column(String(100), unique=True, nullable=True)
     is_autopsy_conducted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    autopsy_findings: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    pathologist_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    autopsy_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    burial_permit_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    police_case_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
     received_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

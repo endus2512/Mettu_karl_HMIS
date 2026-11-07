@@ -371,39 +371,52 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
         parameters: params,
       });
 
+      const isDelivered = res.data?.is_carrier_delivered;
+      const carrierNote = res.data?.carrier_note || res.data?.error_message;
+
       const newLog: SMSLog = {
-        id: res.data.id || Date.now(),
+        id: res.data?.id || Date.now(),
         recipient_phone: recipientPhone,
-        message_text: res.data.message_text || previewMessage,
+        message_text: res.data?.message_text || previewMessage,
         language: currentLang,
-        status: 'SENT',
-        channel: 'SMS (Shortcode 907)',
+        status: isDelivered ? 'SENT (LIVE CARRIER)' : 'SENT (SIMULATED AUDIT)',
+        channel: isDelivered ? 'Live Ethio Telecom / Twilio' : 'SMS (*907# Sim)',
         created_at: new Date().toLocaleTimeString(),
       };
 
       setLogs((prev) => [newLog, ...prev]);
 
-      notifications.show({
-        title: dict.toastSuccessTitle,
-        message: dict.toastSuccessMsg.replace('{phone}', recipientPhone),
-        color: 'teal',
-      });
+      if (isDelivered) {
+        notifications.show({
+          title: "Ergaan SMS Milkaa'inaan Ergameera!",
+          message: `Ergaan bilbila ${recipientPhone} irratti sarara bilbilaa dhugaatiin ergameera.`,
+          color: 'teal',
+        });
+      } else {
+        notifications.show({
+          title: "Galmee Keessootti Qabameera (Simulated Audit)",
+          message: `Ergaan bilbila ${recipientPhone} sirna database keessatti qabameera. Bilbila dhugaatti erguuf credential Ethio Telecom ykn Twilio .env irratti qindeessuun barbaachisaadha.`,
+          color: 'amber',
+          autoClose: 9000,
+        });
+      }
     } catch {
       const newLog: SMSLog = {
         id: Date.now(),
         recipient_phone: recipientPhone,
         message_text: previewMessage,
         language: currentLang,
-        status: 'SENT',
-        channel: 'SMS (Ethio Telecom 907)',
+        status: 'SENT (OFFLINE AUDIT)',
+        channel: 'SMS (Shortcode 907)',
         created_at: new Date().toLocaleTimeString(),
       };
       setLogs((prev) => [newLog, ...prev]);
 
       notifications.show({
-        title: dict.toastSuccessTitle,
-        message: dict.toastSuccessMsg.replace('{phone}', recipientPhone),
-        color: 'teal',
+        title: "Galmee Keessoo (Audit Logged)",
+        message: `Ergaan bilbila ${recipientPhone} sirna keessatti qabameera (Simulated).`,
+        color: 'amber',
+        autoClose: 7000,
       });
     } finally {
       setIsSending(false);
@@ -604,6 +617,17 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                       </h2>
                     </div>
                     <span className="text-xs font-semibold text-slate-400">Ethio Telecom REST Gateway</span>
+                  </div>
+
+                  {/* Telecom Integration Notice */}
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
+                    <Radio className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-bold text-amber-900 dark:text-amber-300">Hubachiisa Sarara Bilbilaa (Live Carrier Status):</p>
+                      <p className="mt-0.5 text-[11px] leading-relaxed text-amber-800 dark:text-amber-200/90">
+                        Ergaan kun bilbila keessan irratti kallattiin akka gahuuf, credential <strong>Ethio Telecom Bulk SMS API</strong> ykn <strong>Twilio</strong> faayilii <code>backend/.env</code> keessatti qindeessuun barbaachisaadha. Yoo credential hin qindeessine ta'e, ergaan sirna keessoo hospitaalaa (Database Audit Trail) qofatti qabama.
+                      </p>
+                    </div>
                   </div>
 
                   {/* Quick 1-Click Scenario Loaders */}

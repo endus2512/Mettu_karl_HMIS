@@ -31,6 +31,9 @@ class SMSDispatchResponse(BaseModel):
     status: str
     channel: str
     sent_at: Optional[str] = None
+    carrier_note: Optional[str] = None
+    is_carrier_delivered: bool = False
+    error_message: Optional[str] = None
 
 
 class USSDSessionRequest(BaseModel):
@@ -74,6 +77,7 @@ async def send_sms_notification(
             detail="Must provide either template_key or custom_message",
         )
 
+    is_delivered = bool(log.error_message and "Delivered" in log.error_message)
     return SMSDispatchResponse(
         id=log.id,
         recipient_phone=log.recipient_phone,
@@ -82,6 +86,9 @@ async def send_sms_notification(
         status=log.status.value,
         channel=log.channel.value,
         sent_at=log.sent_at.isoformat() if log.sent_at else None,
+        carrier_note=log.error_message,
+        is_carrier_delivered=is_delivered,
+        error_message=log.error_message,
     )
 
 
