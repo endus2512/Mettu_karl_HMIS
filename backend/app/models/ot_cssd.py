@@ -4,7 +4,7 @@ Manages surgical table scheduling, clinical team allocation, autoclave batches, 
 """
 from datetime import datetime, timezone
 import enum
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -40,10 +40,12 @@ class OperatingRoom(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False) # e.g. "OT Suite 1 (Major Surgery)"
+    room_code: Mapped[str] = mapped_column(String(20), default="OT-1", nullable=False)
     specialty: Mapped[str] = mapped_column(String(100), default="General Surgery", nullable=False)
+    floor_location: Mapped[str] = mapped_column(String(50), default="Block B - 2nd Floor", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    bookings: Mapped[list["SurgicalBooking"]] = relationship("SurgicalBooking", back_populates="room")
+    bookings: Mapped[List["SurgicalBooking"]] = relationship("SurgicalBooking", back_populates="room")
 
 
 class SurgicalBooking(Base):
@@ -64,7 +66,7 @@ class SurgicalBooking(Base):
     scheduled_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
 
     status: Mapped[SurgeryStatus] = mapped_column(
-        Enum(SurgeryStatus, name="surgery_status_enum", native_enum=False),
+        Enum(SurgeryStatus, name="surgery_status_enum", native_enum=False, values_callable=lambda x: [e.value for e in x]),
         default=SurgeryStatus.SCHEDULED,
         index=True,
         nullable=False,
@@ -72,8 +74,16 @@ class SurgicalBooking(Base):
 
     who_safety_checklist_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     post_op_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    blood_loss_ml: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    findings: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    implants_used: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
+    # Relationships
     room: Mapped["OperatingRoom"] = relationship("OperatingRoom", back_populates="bookings")
+    patient: Mapped["Patient"] = relationship("Patient", foreign_keys=[patient_id])
+    lead_surgeon: Mapped["User"] = relationship("User", foreign_keys=[lead_surgeon_id])
+    anesthesiologist: Mapped[Optional["User"]] = relationship("User", foreign_keys=[anesthesiologist_id])
+    scrub_nurse: Mapped[Optional["User"]] = relationship("User", foreign_keys=[scrub_nurse_id])
 
 
 class CSSDBatch(Base):
@@ -83,7 +93,7 @@ class CSSDBatch(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     batch_code: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     sterilizer_type: Mapped[SterilizerType] = mapped_column(
-        Enum(SterilizerType, name="sterilizer_type_enum", native_enum=False),
+        Enum(SterilizerType, name="sterilizer_type_enum", native_enum=False, values_callable=lambda x: [e.value for e in x]),
         default=SterilizerType.STEAM_AUTOCLAVE,
         nullable=False,
     )
@@ -101,7 +111,8 @@ class CSSDBatch(Base):
     )
     operator_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
-    packs: Mapped[list["SterilePack"]] = relationship("SterilePack", back_populates="batch")
+    packs: Mapped[List["SterilePack"]] = relationship("SterilePack", back_populates="batch", cascade="all, delete-orphan")
+    operator: Mapped[Optional["User"]] = relationship("User", foreign_keys=[operator_id])
 
 
 class SterilePack(Base):
@@ -115,7 +126,7 @@ class SterilePack(Base):
     pack_name: Mapped[str] = mapped_column(String(150), nullable=False) # e.g. "Caesarean Section Instrument Set"
     expiry_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
     status: Mapped[SterilePackStatus] = mapped_column(
-        Enum(SterilePackStatus, name="sterile_pack_status_enum", native_enum=False),
+        Enum(SterilePackStatus, name="sterile_pack_status_enum", native_enum=False, values_callable=lambda x: [e.value for e in x]),
         default=SterilePackStatus.STERILE,
         nullable=False,
     )
