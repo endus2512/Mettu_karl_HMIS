@@ -57,15 +57,15 @@ class TelebirrService:
         db: AsyncSession,
         invoice: Invoice,
         customer_phone: str,
-    ) -> Tuple[str, str]:
+    ) -> Tuple[str, str, str, float]:
         """
         Create payment order for an invoice.
         
         Returns:
-            (checkout_url, transaction_ref)
+            (checkout_url, transaction_ref, qr_data, amount_to_pay)
         """
-        transaction_ref = f"TB-{uuid.uuid4().hex[:12].upper()}"
-        amount_to_pay = invoice.patient_payable_amount - invoice.paid_amount
+        transaction_ref = f"TB-{uuid.uuid4().hex[:10].upper()}"
+        amount_to_pay = max(0.0, invoice.patient_payable_amount - invoice.paid_amount)
 
         # Record pending transaction in DB
         payment = Payment(
@@ -80,18 +80,20 @@ class TelebirrService:
         db.add(payment)
         await db.commit()
 
-        # Build simulated Telebirr checkout web/USSD URL
+        # Build simulated Telebirr checkout web/USSD URL & QR string
         checkout_url = (
             f"https://telebirr.ethiotelecom.et/payment/webCheckout?"
             f"appId={self.app_id}&tradeNo={transaction_ref}&totalAmount={amount_to_pay:.2f}"
         )
-        return checkout_url, transaction_ref
+        qr_data = f"telebirr://pay?shortCode={self.short_code}&outTradeNo={transaction_ref}&totalAmount={amount_to_pay:.2f}&phone={customer_phone}"
+
+        return checkout_url, transaction_ref, qr_data, amount_to_pay
 
     async def process_payment_success(
         self,
         db: AsyncSession,
         transaction_reference: str,
-        paid_amount: float,
+        paid_amount: Optional[float] = None,
     ) -> Optional[Payment]:
         """Mark payment successful and update invoice status."""
         stmt = select(Payment).where(Payment.transaction_reference == transaction_reference)
@@ -102,6 +104,7 @@ class TelebirrService:
             logger.warning(f"Telebirr payment with reference '{transaction_reference}' not found")
             return None
 
+        actual_paid = paid_amount if paid_amount is not None else payment.amount
         payment.status = PaymentStatus.SUCCESS
 
         # Fetch associated invoice
@@ -110,8 +113,8 @@ class TelebirrService:
         invoice = inv_res.scalar_one_or_none()
 
         if invoice:
-            invoice.paid_amount += paid_amount
-            if invoice.paid_amount >= invoice.patient_payable_amount:
+            invoice.paid_amount += actual_paid
+            if invoice.paid_amount >= (invoice.patient_payable_amount - 0.01):
                 invoice.status = InvoiceStatus.PAID
             else:
                 invoice.status = InvoiceStatus.PARTIAL
