@@ -6,10 +6,12 @@ from datetime import datetime, timezone
 import enum
 from typing import Optional
 
-from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.models.patient import Patient
+from app.models.user import User
 
 
 class ModalityType(str, enum.Enum):
@@ -42,6 +44,7 @@ class RadiologyOrder(Base):
     )
     body_part: Mapped[str] = mapped_column(String(100), nullable=False) # e.g. "Chest", "Pelvis", "Head"
     clinical_indication: Mapped[str] = mapped_column(String(255), nullable=False)
+    priority: Mapped[str] = mapped_column(String(20), default="routine", index=True, nullable=False)
     status: Mapped[RadiologyStatus] = mapped_column(
         Enum(RadiologyStatus, name="radiology_status_enum", native_enum=False),
         default=RadiologyStatus.ORDERED,
@@ -53,6 +56,8 @@ class RadiologyOrder(Base):
         nullable=False,
     )
 
+    patient: Mapped["Patient"] = relationship("Patient")
+    ordering_doctor: Mapped["User"] = relationship("User", foreign_keys=[ordering_doctor_id])
     study: Mapped[Optional["DICOMStudy"]] = relationship("DICOMStudy", back_populates="order", uselist=False)
 
 
@@ -74,10 +79,19 @@ class DICOMStudy(Base):
 
     # Radiologist findings
     radiologist_report: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    clinical_impression: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    is_critical_finding: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    image_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    window_width: Mapped[int] = mapped_column(Integer, default=400, nullable=False)
+    window_level: Mapped[int] = mapped_column(Integer, default=40, nullable=False)
+    slice_count: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+
     reporting_doctor_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     order: Mapped[Optional["RadiologyOrder"]] = relationship("RadiologyOrder", back_populates="study")
+    patient: Mapped["Patient"] = relationship("Patient")
+    reporting_doctor: Mapped[Optional["User"]] = relationship("User", foreign_keys=[reporting_doctor_id])
     series: Mapped[list["DICOMSeries"]] = relationship("DICOMSeries", back_populates="study", cascade="all, delete-orphan")
 
 
