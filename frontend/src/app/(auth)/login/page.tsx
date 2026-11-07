@@ -334,7 +334,7 @@ const BUILDING_PARTS = [
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, verifyMFA, patientRegister } = useAuth();
+  const { login, verifyMFA, patientRegister, user } = useAuth();
   const { language, setLanguage } = useTranslation();
 
   const [step, setStep] = useState<'credentials' | 'mfa'>('credentials');
@@ -585,7 +585,32 @@ export default function LoginPage() {
       });
 
       setIsFormOpen(false);
-      const destination = isPatient ? '/patient-portal' : '/dashboard';
+      const destination = ((): string => {
+        const r = (response?.role as string) || '';
+        switch (r) {
+          case 'patient':
+            return '/patient-portal';
+          case 'pharmacist':
+            return '/pharmacy';
+          case 'billing':
+          case 'insurance_officer':
+            return '/billing';
+          case 'technician':
+          case 'lab_tech':
+          case 'lab_technician':
+            return '/laboratory';
+          case 'receptionist':
+            return '/queue';
+          case 'doctor':
+            return '/patients';
+          case 'nurse':
+            return '/wards';
+          case 'admin':
+          case 'super_admin':
+          default:
+            return '/dashboard';
+        }
+      })();
       if (typeof window !== 'undefined') {
         window.location.href = destination;
       } else {
@@ -623,17 +648,69 @@ export default function LoginPage() {
         color: 'teal',
       });
       setIsFormOpen(false);
+      const mfaDestination = ((): string => {
+        const r = (user?.role as string) || '';
+        switch (r) {
+          case 'patient':
+            return '/patient-portal';
+          case 'pharmacist':
+            return '/pharmacy';
+          case 'billing':
+          case 'insurance_officer':
+            return '/billing';
+          case 'technician':
+          case 'lab_tech':
+          case 'lab_technician':
+            return '/laboratory';
+          case 'receptionist':
+            return '/queue';
+          case 'doctor':
+            return '/patients';
+          case 'nurse':
+            return '/wards';
+          case 'admin':
+          case 'super_admin':
+          default:
+            return '/dashboard';
+        }
+      })();
       if (typeof window !== 'undefined') {
-        window.location.href = '/dashboard';
+        window.location.href = mfaDestination;
       } else {
-        router.push('/dashboard');
+        router.push(mfaDestination);
       }
     } catch {
       setIsFormOpen(false);
+      const mfaDestination = ((): string => {
+        const r = (user?.role as string) || '';
+        switch (r) {
+          case 'patient':
+            return '/patient-portal';
+          case 'pharmacist':
+            return '/pharmacy';
+          case 'billing':
+          case 'insurance_officer':
+            return '/billing';
+          case 'technician':
+          case 'lab_tech':
+          case 'lab_technician':
+            return '/laboratory';
+          case 'receptionist':
+            return '/queue';
+          case 'doctor':
+            return '/patients';
+          case 'nurse':
+            return '/wards';
+          case 'admin':
+          case 'super_admin':
+          default:
+            return '/dashboard';
+        }
+      })();
       if (typeof window !== 'undefined') {
-        window.location.href = '/dashboard';
+        window.location.href = mfaDestination;
       } else {
-        router.push('/dashboard');
+        router.push(mfaDestination);
       }
     } finally {
       setIsLoading(false);
