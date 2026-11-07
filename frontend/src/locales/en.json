@@ -3,6 +3,7 @@
   "dashboard": "Dashboard",
   "welcome_back": "Welcome back",
   "patients": "Patients (FHIR)",
+  "inpatient_wards": "Inpatient Wards (IPD)",
   "pharmacy": "Pharmacy & Inventory",
   "laboratory": "Laboratory & Pathology LIS",
   "billing": "Billing & Insurance",

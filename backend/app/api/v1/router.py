@@ -24,6 +24,7 @@ from app.api.v1.endpoints import (
     health,
     hrm,
     infection_control,
+    inpatient,
     insurance_claims,
     iomt,
     laboratory,
@@ -50,6 +51,7 @@ api_v1_router.include_router(patient_portal.router, prefix="/portal", tags=["Pat
 api_v1_router.include_router(fhir.router, prefix="/fhir/r4", tags=["FHIR R4"])
 
 # Clinical & Patient Modules
+api_v1_router.include_router(inpatient.router, prefix="/inpatient", tags=["Inpatient & Ward Bed Management"])
 api_v1_router.include_router(billing.router, prefix="/billing", tags=["Billing & Telebirr"])
 api_v1_router.include_router(pharmacy.router, prefix="/pharmacy", tags=["Pharmacy & Stock"])
 api_v1_router.include_router(laboratory.router, prefix="/laboratory", tags=["Laboratory & Pathology LIS"])

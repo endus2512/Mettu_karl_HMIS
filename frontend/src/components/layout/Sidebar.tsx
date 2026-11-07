@@ -19,6 +19,7 @@ import type { UserRole } from '@/types';
 import {
   LayoutDashboard,
   Users,
+  Bed,
   Ticket,
   CreditCard,
   Pill,
@@ -68,6 +69,7 @@ interface NavItem {
 const clinicalItems: NavItem[] = [
   { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
   { key: 'patients', href: '/patients', icon: Users, badge: 'FHIR', badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40', allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'] },
+  { key: 'inpatient_wards', href: '/wards', icon: Bed, badge: 'IPD', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'] },
   { key: 'queue_system', href: '/queue', icon: Ticket, badge: 'TV', badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40', allowedRoles: ['doctor', 'nurse', 'receptionist', 'super_admin'] },
   { key: 'billing', href: '/billing', icon: CreditCard, allowedRoles: ['billing', 'insurance_officer', 'admin', 'super_admin'] },
   { key: 'pharmacy', href: '/pharmacy', icon: Pill, allowedRoles: ['pharmacist', 'doctor', 'super_admin'] },

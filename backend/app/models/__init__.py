@@ -92,6 +92,16 @@ from app.models.infection_control import (
     PHEMDiseaseCategory,
     PHEMOutbreakReport,
 )
+from app.models.inpatient import (
+    AcuityLevel,
+    AdmissionStatus,
+    BedStatus,
+    BedTransferLog,
+    BedType,
+    InpatientAdmission,
+    Ward,
+    WardBed,
+)
 from app.models.insurance_claims import (
     ClaimStatus,
     InsuranceClaimBatch,

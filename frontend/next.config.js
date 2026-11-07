@@ -8,11 +8,7 @@ const nextConfig = {
         output: 'export',
         basePath: '/Mettu_karl_HMIS',
       }
-    : isVercel
-    ? {}
-    : {
-        output: 'standalone',
-      }),
+    : {}),
   reactStrictMode: false,
   swcMinify: true,
   images: {
