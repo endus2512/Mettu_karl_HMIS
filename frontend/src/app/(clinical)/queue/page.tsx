@@ -408,7 +408,7 @@ export default function QueuePage(): React.ReactElement {
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[#102419] text-[#34d399] border border-[#059669]/40 px-3 py-1 text-xs font-semibold">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                    <span>Now Serving / Amma Tajaajilamaa Jira</span>
+                    <span>{language === 'om' ? 'Amma Tajaajilamaa Jira' : language === 'am' ? 'አሁን በመስተናገድ ላይ' : 'Now Serving'}</span>
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-mono text-amber-300">
@@ -451,7 +451,7 @@ export default function QueuePage(): React.ReactElement {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                     <RotateCcw className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                    <span>Duraan Kan Waamaman (Recent Calls)</span>
+                    <span>{language === 'om' ? 'Duraan Kan Waamaman' : language === 'am' ? 'የቅርብ ጥሪዎች' : 'Recent Calls'}</span>
                   </h3>
                   <span className="text-[11px] text-slate-400">History</span>
                 </div>
@@ -492,7 +492,7 @@ export default function QueuePage(): React.ReactElement {
               <div>
                 <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                   <Users className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                  <span>Waiting Hall Roster / Tarree Dhukkubsattoota Eegaa Jiranii</span>
+                  <span>{language === 'om' ? 'Tarree Dhukkubsattoota Eegaa Jiranii' : language === 'am' ? 'የተጠባባቂዎች ዝርዝር' : 'Waiting Hall Queue Roster'}</span>
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Real-time ticket dispatch queue with triage priority categorization

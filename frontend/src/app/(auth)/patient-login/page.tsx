@@ -40,18 +40,18 @@ import { ThemeToggle } from '@/components/common/ThemeToggle';
 
 // Validation Schemas
 const patientLoginSchema = z.object({
-  identifier: z.string().min(4, 'Identifier required / Barbaachisaadha / ያስፈልጋል'),
-  password_or_otp: z.string().min(4, 'Password or OTP required / Barbaachisaadha / ያስፈልጋል'),
+  identifier: z.string().min(4, 'Valid identifier or phone number is required'),
+  password_or_otp: z.string().min(4, 'Password or SMS OTP code is required'),
 });
 
 const patientRegisterSchema = z.object({
-  full_name: z.string().min(3, 'Maqaa guutuu barreessaa / ሙሉ ስም ያስገቡ'),
-  phone_number: z.string().min(7, 'Lakkoofsa bilbilaa sirrii / ትክክለኛ ስልክ ቁጥር'),
+  full_name: z.string().min(3, 'Full name is required (minimum 3 characters)'),
+  phone_number: z.string().min(7, 'Valid phone number is required'),
   birth_place: z.string().optional(),
   fayda_id: z.string().optional(),
   birth_date: z.string().optional(),
   gender: z.enum(['male', 'female']).default('male'),
-  password: z.string().min(4, 'Jechi darbii yoo xiqqaate qubee 4 qabaachuu qaba'),
+  password: z.string().min(4, 'Password must be at least 4 characters'),
 });
 
 type PatientLoginForm = z.infer<typeof patientLoginSchema>;

@@ -279,7 +279,7 @@ export default function PharmacyPage(): React.ReactElement {
   const handleCreateDrugSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDrugForm.name || !newDrugForm.generic_name || !newDrugForm.strength) {
-      notifications.show({ title: 'Validation Error', message: 'Maqaa fi qabiyyee qorichaa guutaa.', color: 'red' });
+      notifications.show({ title: 'Validation Error', message: 'Please enter medication name and dosage strength.', color: 'red' });
       return;
     }
     try {
@@ -293,7 +293,7 @@ export default function PharmacyPage(): React.ReactElement {
       });
       notifications.show({
         title: 'Drug Registered',
-        message: `Qorichi ${newDrugForm.name} galmee kuusaatti dabalameera.`,
+        message: `Medication ${newDrugForm.name} added to pharmacy formulary.`,
         color: 'green',
       });
       setIsAddDrugOpen(false);
@@ -308,7 +308,7 @@ export default function PharmacyPage(): React.ReactElement {
       await fetchAllPharmacyData();
     } catch (err: any) {
       console.error('Create drug error:', err);
-      notifications.show({ title: 'Error', message: 'Qoricha galmeessuu hin dandeenye.', color: 'red' });
+      notifications.show({ title: 'Error', message: 'Unable to register medication in formulary.', color: 'red' });
     }
   };
 
@@ -318,7 +318,7 @@ export default function PharmacyPage(): React.ReactElement {
   const handleReceiveBatchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBatchForm.batch_number || !newBatchForm.expiry_date || newBatchForm.initial_quantity <= 0) {
-      notifications.show({ title: 'Validation Error', message: 'Odeeffannoo baachii sirriitti guutaa.', color: 'red' });
+      notifications.show({ title: 'Validation Error', message: 'Please enter valid batch number, quantity and expiry date.', color: 'red' });
       return;
     }
     try {
@@ -332,7 +332,7 @@ export default function PharmacyPage(): React.ReactElement {
       });
       notifications.show({
         title: 'Batch Received',
-        message: `Baachiin ${newBatchForm.batch_number} kuusaa qorichaatti seeneera (FEFO Galmaa'e).`,
+        message: `Batch ${newBatchForm.batch_number} recorded into FEFO inventory.`,
         color: 'teal',
       });
       setIsReceiveBatchOpen(false);

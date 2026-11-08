@@ -300,7 +300,7 @@ function EMSWorkstationContent(): React.ReactElement {
         setIsDispatchModalOpen(true);
       }
     } catch (err: any) {
-      setActionError(err.message || 'Waamicha galmeessuu irratti hanqinni uumame');
+      setActionError(err.message || 'Failed to dispatch 907 emergency call');
     } finally {
       setActionLoading(false);
     }
@@ -347,7 +347,7 @@ function EMSWorkstationContent(): React.ReactElement {
       setAmbCrew('');
       fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Ambalaansii galmeessuu hin dandeenye');
+      setActionError(err.message || 'Failed to register ambulance fleet unit');
     } finally {
       setActionLoading(false);
     }
@@ -486,7 +486,7 @@ function EMSWorkstationContent(): React.ReactElement {
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-rose-500 to-red-500 hover:from-rose-500 hover:to-red-400 text-white font-bold text-xs shadow-lg shadow-rose-950/60 transition-all cursor-pointer active:scale-95 border border-rose-400/40"
                 >
                   <PhoneCall className="h-4 w-4 text-white" />
-                  Waamicha 907 Galmeessi
+                  Dispatch 907 Call
                 </button>
 
                 <button
@@ -503,7 +503,7 @@ function EMSWorkstationContent(): React.ReactElement {
                   onClick={fetchAllData}
                   disabled={loading}
                   className="inline-flex items-center justify-center p-2.5 rounded-xl bg-[#101624] hover:bg-[#161f33] text-slate-400 hover:text-amber-300 border border-slate-800 transition-colors"
-                  title="Haaromsi (Refresh)"
+                  title="Refresh"
                 >
                   <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-amber-400' : ''}`} />
                 </button>
@@ -1051,7 +1051,7 @@ function EMSWorkstationContent(): React.ReactElement {
                             onClick={() => handleUpdateStatus(call.id, 'arrived_hospital')}
                             className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer shadow-md"
                           >
-                            3. Hospitaala Ga'e (Arrived)
+                            3. Arrived at Hospital ED
                           </button>
                         </div>
 
@@ -1152,7 +1152,7 @@ function EMSWorkstationContent(): React.ReactElement {
                       <PhoneCall className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Waamicha Hatattamaa 907 Galmeessi</h3>
+                      <h3 className="text-base font-bold text-white">Dispatch 907 Emergency Hotline Intake</h3>
                       <p className="text-[11px] text-slate-400">Emergency Call Intake & Color Triage</p>
                     </div>
                   </div>

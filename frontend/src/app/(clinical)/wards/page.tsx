@@ -361,9 +361,9 @@ export default function InpatientWardsPage() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || 'Haala siree jijjiiruu hin dandeenye');
+        throw new Error(err.detail || 'Failed to update bed status');
       }
-      setActionSuccess(`Haalli siree milkaa'inaan gara '${newStatus.toUpperCase()}'tti jijjiirameera.`);
+      setActionSuccess(`Bed status updated successfully to '${newStatus.toUpperCase()}'.`);
       await fetchAllData();
       setTimeout(() => setActionSuccess(null), 3500);
     } catch (err: any) {
@@ -378,7 +378,7 @@ export default function InpatientWardsPage() {
   const handleAdmitSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!admitDiagnosis.trim()) {
-      setActionError('Maaloo yaada qorannoo dhibee (Admitting Diagnosis) galchaa.');
+      setActionError('Please enter the admitting diagnosis.');
       return;
     }
     setActionLoading(true);
@@ -404,18 +404,18 @@ export default function InpatientWardsPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || 'Dhukkubsataa galmeessuun hin dandaamne');
+        throw new Error(err.detail || 'Failed to register patient admission');
       }
 
       const created = await res.json();
-      setActionSuccess(`Dhukkubsataan Lakk. Ciisichaa ${created.admission_number} tiin milkaa'inaan galmaa'eera!`);
+      setActionSuccess(`Patient admitted successfully under Admission #${created.admission_number}!`);
       setShowAdmitModal(false);
       setAdmitDiagnosis('');
       setAdmitIcd10('');
       await fetchAllData();
       setTimeout(() => setActionSuccess(null), 4000);
     } catch (err: any) {
-      setActionError(err.message || 'Dogoggorri galmee ciisichaa uumameera.');
+      setActionError(err.message || 'An error occurred during admission registration.');
       setTimeout(() => setActionError(null), 5000);
     } finally {
       setActionLoading(false);
@@ -427,7 +427,7 @@ export default function InpatientWardsPage() {
     e.preventDefault();
     if (!selectedAdmission) return;
     if (!transferReason.trim()) {
-      setActionError('Sababa dabarsa dhukkubsataa (Transfer Reason) galchaa.');
+      setActionError('Please enter the clinical transfer reason.');
       return;
     }
     setActionLoading(true);
@@ -447,17 +447,17 @@ export default function InpatientWardsPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || 'Dabarsa dhukkubsataa xumuruun hin dandaamne');
+        throw new Error(err.detail || 'Failed to complete patient transfer');
       }
 
-      setActionSuccess(`Dhukkubsataan ${selectedAdmission.patient_name} gara kutaa/siree haaraatti milkaa'inaan dabarfameera.`);
+      setActionSuccess(`Patient ${selectedAdmission.patient_name} transferred successfully to target ward & bed.`);
       setShowTransferModal(false);
       setSelectedAdmission(null);
       setTransferReason('');
       await fetchAllData();
       setTimeout(() => setActionSuccess(null), 4000);
     } catch (err: any) {
-      setActionError(err.message || 'Dogoggorri dabarsa siree uumameera.');
+      setActionError(err.message || 'An error occurred during bed transfer.');
       setTimeout(() => setActionError(null), 5000);
     } finally {
       setActionLoading(false);
@@ -469,7 +469,7 @@ export default function InpatientWardsPage() {
     e.preventDefault();
     if (!selectedAdmission) return;
     if (!dischargeSummary.trim()) {
-      setActionError('Gabaasa gabaabaa baasii yaalaa (Discharge Summary) galchaa.');
+      setActionError('Please enter the physician discharge summary.');
       return;
     }
     setActionLoading(true);
@@ -488,11 +488,11 @@ export default function InpatientWardsPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || 'Baasii dhukkubsataa xumuruun hin dandaamne');
+        throw new Error(err.detail || 'Failed to process patient discharge');
       }
 
       const discharged = await res.json();
-      setActionSuccess(`Dhukkubsataan ${discharged.patient_name} guyyoota ${discharged.total_days} ciisuun milkaa'inaan ba'aniiru.`);
+      setActionSuccess(`Patient ${discharged.patient_name} discharged successfully after ${discharged.total_days} days of inpatient care.`);
       setShowDischargeModal(false);
       setDischargeSummary('');
       await fetchAllData();
@@ -501,7 +501,7 @@ export default function InpatientWardsPage() {
       // Offer to view voucher
       handleOpenVoucher(discharged.id);
     } catch (err: any) {
-      setActionError(err.message || 'Dogoggorri baasii dhukkubsataa uumameera.');
+      setActionError(err.message || 'An error occurred during patient discharge.');
       setTimeout(() => setActionError(null), 5000);
     } finally {
       setActionLoading(false);
@@ -514,13 +514,13 @@ export default function InpatientWardsPage() {
     try {
       const res = await fetch(`${API_BASE}/api/v1/inpatient/admissions/${admissionId}/voucher`);
       if (!res.ok) {
-        throw new Error('Waraqaa gabaasa ciisichaa argachuu hin dandeenye.');
+        throw new Error('Unable to fetch inpatient summary voucher.');
       }
       const data = await res.json();
       setVoucherPayload(data);
       setShowVoucherModal(true);
     } catch (err: any) {
-      setActionError(err.message || 'Waraqaa gabaasaa banuu hin dandeenye.');
+      setActionError(err.message || 'Unable to open voucher preview.');
       setTimeout(() => setActionError(null), 4000);
     } finally {
       setActionLoading(false);
@@ -534,27 +534,27 @@ export default function InpatientWardsPage() {
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-            CRITICAL (CIMAA)
+            CRITICAL (ICU)
           </span>
         );
       case 'high':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-            HIGH (OL-AANAA)
+            HIGH (MONITORING)
           </span>
         );
       case 'moderate':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/40">
-            MODERATE (GIDDU-GALEESSA)
+            MODERATE (WARD)
           </span>
         );
       case 'stable':
       default:
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-            STABLE (TASGABBAA'AA)
+            STABLE
           </span>
         );
     }
@@ -609,12 +609,12 @@ export default function InpatientWardsPage() {
           <div>
             <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
               <Link href="/dashboard" className="hover:text-amber-400 transition-colors flex items-center gap-1">
-                <Home className="w-3.5 h-3.5" /> Daashboordii
+                <Home className="w-3.5 h-3.5" /> Dashboard
               </Link>
               <ChevronRight className="w-3 h-3 text-slate-600" />
-              <span className="text-slate-200">Kutaa Yaala Ciisichaa (Inpatient IPD)</span>
+              <span className="text-slate-200">Inpatient Wards (IPD)</span>
               <ChevronRight className="w-3 h-3 text-slate-600" />
-              <span className="text-amber-400 font-medium">To'annoo Siree & Census</span>
+              <span className="text-amber-400 font-medium">Bed Census & Tracking</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
@@ -622,7 +622,7 @@ export default function InpatientWardsPage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                  Kutaa Ciisichaa & To'annoo Sireewwanii
+                  Inpatient Wards & Bed Occupancy
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                     Live IPD Workstation
                   </span>
@@ -640,10 +640,10 @@ export default function InpatientWardsPage() {
               onClick={fetchAllData}
               disabled={loading}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[#1a2233] hover:bg-[#253047] text-slate-200 border border-[#2b374e] transition-all disabled:opacity-50"
-              title="Haaromsi (Refresh)"
+              title="Refresh Census"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
-              <span className="hidden sm:inline">Haaromsi</span>
+              <span className="hidden sm:inline">Refresh</span>
             </button>
 
             <button
@@ -654,7 +654,7 @@ export default function InpatientWardsPage() {
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
-              Dhukkubsataa Galchi (Admit Patient)
+              Admit New Patient
             </button>
           </div>
         </div>
@@ -708,7 +708,7 @@ export default function InpatientWardsPage() {
         {/* KPI 2: Occupied Active Admissions */}
         <div className="bg-[#101624] border border-[#1a2233] rounded-2xl p-4 flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-            <span>Dhukkubsattoota Ciisan</span>
+            <span>Admitted Inpatients</span>
             <Users className="w-4 h-4 text-amber-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
@@ -716,14 +716,14 @@ export default function InpatientWardsPage() {
             <span className="text-[11px] text-slate-400">Active Census</span>
           </div>
           <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1 mt-1">
-            <CheckCircle2 className="w-3 h-3" /> Wardi 6 guutuutti
+            <CheckCircle2 className="w-3 h-3" /> Across 6 clinical wards
           </span>
         </div>
 
         {/* KPI 3: Available Free Beds */}
         <div className="bg-[#101624] border border-[#1a2233] rounded-2xl p-4 flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-            <span>Sireewwan Qophii Ta'an</span>
+            <span>Available Beds</span>
             <Bed className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
@@ -736,7 +736,7 @@ export default function InpatientWardsPage() {
         {/* KPI 4: Sanitization & Maintenance */}
         <div className="bg-[#101624] border border-[#1a2233] rounded-2xl p-4 flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-            <span>Qulqullina & Suphaa</span>
+            <span>Sanitizing & Maint</span>
             <Sparkles className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
@@ -749,7 +749,7 @@ export default function InpatientWardsPage() {
         {/* KPI 5: Critical Acuity Patients */}
         <div className="bg-[#101624] border border-rose-500/20 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-            <span>Haala Cimaa (Critical Acuity)</span>
+            <span>Critical Acuity</span>
             <ShieldAlert className="w-4 h-4 text-rose-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
@@ -777,7 +777,7 @@ export default function InpatientWardsPage() {
             }`}
           >
             <Bed className="w-3.5 h-3.5" />
-            Kaartaa Sireewwanii (Bed Matrix)
+            Bed Census Matrix
           </button>
           <button
             onClick={() => setActiveTab('census')}
@@ -788,7 +788,7 @@ export default function InpatientWardsPage() {
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            Galmee Dhukkubsattootaa (Census)
+            Inpatient Census
             <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-amber-950/40 text-amber-200">
               {admissions.length}
             </span>
@@ -802,7 +802,7 @@ export default function InpatientWardsPage() {
             }`}
           >
             <ArrowRightLeft className="w-3.5 h-3.5" />
-            Jijjiirraa & Galmee (Transfers)
+            Bed Transfers & Logs
           </button>
           <button
             onClick={() => setActiveTab('wards')}
@@ -813,7 +813,7 @@ export default function InpatientWardsPage() {
             }`}
           >
             <Building2 className="w-3.5 h-3.5" />
-            Kutaalee (Wards)
+            Clinical Wards
           </button>
         </div>
 
@@ -826,10 +826,10 @@ export default function InpatientWardsPage() {
               onChange={(e) => setSelectedWardFilter(e.target.value)}
               className="bg-[#101624] border border-[#1a2233] text-slate-200 text-xs rounded-xl px-3 py-2 pr-8 focus:outline-none focus:border-amber-500 appearance-none cursor-pointer"
             >
-              <option value="all">Kutaalee Hundumaa (All Wards)</option>
+              <option value="all">All Clinical Wards</option>
               {wards.map((w) => (
                 <option key={w.id} value={w.id.toString()}>
-                  {w.name_om} ({w.ward_code})
+                  {w.name_en || w.name_om} ({w.ward_code})
                 </option>
               ))}
             </select>
@@ -843,11 +843,11 @@ export default function InpatientWardsPage() {
               onChange={(e) => setSelectedStatusFilter(e.target.value)}
               className="bg-[#101624] border border-[#1a2233] text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500 cursor-pointer"
             >
-              <option value="all">Haala Hundumaa (All Status)</option>
-              <option value="available">Siree Qophii (Available)</option>
-              <option value="occupied">Dhukkubsataan Jira (Occupied)</option>
-              <option value="cleaning">Qulqullina Irratti (Cleaning)</option>
-              <option value="maintenance">Suphaa (Maintenance)</option>
+              <option value="all">All Bed Statuses</option>
+              <option value="available">Available Beds</option>
+              <option value="occupied">Occupied Beds</option>
+              <option value="cleaning">Cleaning / Sanitizing</option>
+              <option value="maintenance">Maintenance</option>
             </select>
           )}
 
@@ -855,7 +855,7 @@ export default function InpatientWardsPage() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Barbaadi (Maqaa, MRN, Lakk. Siree)..."
+              placeholder="Search by Patient Name, MRN, or Bed..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-[#101624] border border-[#1a2233] text-slate-200 text-xs rounded-xl pl-8 pr-3 py-2 w-56 md:w-64 focus:outline-none focus:border-amber-500"
@@ -876,25 +876,25 @@ export default function InpatientWardsPage() {
           <div className="space-y-6">
             {/* Status Legend */}
             <div className="flex flex-wrap items-center gap-4 p-3 rounded-2xl bg-[#101624]/60 border border-[#1a2233] text-xs text-slate-300">
-              <span className="font-bold text-slate-400">Mallattoo (Legend):</span>
+              <span className="font-bold text-slate-400">Status Legend:</span>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20"></span>
-                <span>Siree Qophii (Available)</span>
+                <span>Available Beds</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-amber-400/20"></span>
-                <span>Dhukkubsataan Jira (Occupied)</span>
+                <span>Occupied Beds</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 ring-2 ring-cyan-400/20 animate-pulse"></span>
-                <span>Qulqullina Irratti (Cleaning / Disinfecting)</span>
+                <span>Cleaning / Sanitizing</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-500 ring-2 ring-slate-500/20"></span>
-                <span>Suphaa (Maintenance)</span>
+                <span>Maintenance</span>
               </div>
               <div className="ml-auto text-[11px] text-slate-500 font-mono">
-                {filteredBeds.length} Sireewwan Tarreeffaman
+                {filteredBeds.length} Beds Listed
               </div>
             </div>
 
@@ -915,7 +915,7 @@ export default function InpatientWardsPage() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h2 className="text-base font-bold text-white">{ward.name_om}</h2>
+                            <h2 className="text-base font-bold text-white">{ward.name_en || ward.name_om}</h2>
                             <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#1a2233] text-amber-300 border border-[#2b374e]">
                               {ward.ward_code}
                             </span>
@@ -1009,7 +1009,7 @@ export default function InpatientWardsPage() {
                                   <div className="space-y-1.5">
                                     <div className="flex items-center justify-between">
                                       <span className="text-xs font-bold text-white truncate">
-                                        {bed.patient_name || 'Dhukkubsataa'}
+                                        {bed.patient_name || 'Patient'}
                                       </span>
                                       {getAcuityBadge(bed.acuity_level)}
                                     </div>
@@ -1021,16 +1021,16 @@ export default function InpatientWardsPage() {
                                 ) : isAvailable ? (
                                   <div className="py-2 text-center text-xs text-emerald-400/90 flex items-center justify-center gap-1.5">
                                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                                    <span>Sireen dhukkubsataaf qophiidha</span>
+                                    <span>Bed ready for patient admission</span>
                                   </div>
                                 ) : isCleaning ? (
                                   <div className="py-2 text-center text-xs text-cyan-400 flex items-center justify-center gap-1.5 animate-pulse">
                                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                    <span>Qulqullina & Sanitize godhamaa jira</span>
+                                    <span>Under housekeeping disinfection</span>
                                   </div>
                                 ) : (
                                   <div className="py-2 text-center text-xs text-slate-500">
-                                    <span>Siree suphaa irra jiru</span>
+                                    <span>Under engineering maintenance</span>
                                   </div>
                                 )}
                               </div>
@@ -1050,10 +1050,10 @@ export default function InpatientWardsPage() {
                                       }
                                     }}
                                     className="flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-[#1a2233] hover:bg-[#253047] text-slate-200 border border-[#2b374e] transition-all"
-                                    title="Gara siree biraatti dabarsi"
+                                    title="Transfer Bed"
                                   >
                                     <ArrowRightLeft className="w-3 h-3 text-amber-400" />
-                                    <span>Dabarsi</span>
+                                    <span>Transfer</span>
                                   </button>
                                   <button
                                     onClick={() => {
@@ -1064,10 +1064,10 @@ export default function InpatientWardsPage() {
                                       }
                                     }}
                                     className="flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition-all"
-                                    title="Dhukkubsataa Baasi (Discharge)"
+                                    title="Discharge Patient"
                                   >
                                     <LogOut className="w-3 h-3 text-rose-400" />
-                                    <span>Baasi</span>
+                                    <span>Discharge</span>
                                   </button>
                                 </>
                               )}
@@ -1083,7 +1083,7 @@ export default function InpatientWardsPage() {
                                   className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition-all"
                                 >
                                   <Plus className="w-3.5 h-3.5 text-emerald-400" />
-                                  <span>Asitti Ciubsi (Admit Here)</span>
+                                  <span>Admit Here</span>
                                 </button>
                               )}
 
@@ -1094,7 +1094,7 @@ export default function InpatientWardsPage() {
                                   className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 transition-all disabled:opacity-50"
                                 >
                                   <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
-                                  <span>Qulqullina Mirkaneessi (Mark Clean)</span>
+                                  <span>Mark Sanitized</span>
                                 </button>
                               )}
 
@@ -1104,7 +1104,7 @@ export default function InpatientWardsPage() {
                                   disabled={actionLoading}
                                   className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 transition-all"
                                 >
-                                  <span>Suphaa Xumuri (Release)</span>
+                                  <span>Release to Service</span>
                                 </button>
                               )}
                             </div>
@@ -1126,13 +1126,13 @@ export default function InpatientWardsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#1a2233] gap-3">
               <div>
                 <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  Galmee Dhukkubsattoota Ciisanii (Active Inpatient Census)
+                  Active Inpatient Census
                   <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30">
-                    {filteredAdmissions.length} Dhukkubsattoota
+                    {filteredAdmissions.length} Inpatients
                   </span>
                 </h2>
                 <p className="text-xs text-slate-400">
-                  Tarree dhukkubsattoota kutaalee garaa garaa keessa ciisanii fi sadarkaa ariifachiisummaa isaanii
+                  Current census of admitted inpatients across all wards with triage acuity
                 </p>
               </div>
 
@@ -1142,7 +1142,7 @@ export default function InpatientWardsPage() {
                   className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Galmee Haaraa
+                  Admit Patient
                 </button>
               </div>
             </div>
@@ -1152,22 +1152,22 @@ export default function InpatientWardsPage() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#141b29] text-slate-400 font-mono uppercase text-[11px] border-b border-[#1a2233]">
                   <tr>
-                    <th className="py-3 px-4">Lakk. Ciisichaa / MRN</th>
-                    <th className="py-3 px-4">Maqaa Dhukkubsataa</th>
-                    <th className="py-3 px-4">Kutaa / Siree</th>
-                    <th className="py-3 px-4">Qorannoo Dhibee (Diagnosis)</th>
+                    <th className="py-3 px-4">Admission # / MRN</th>
+                    <th className="py-3 px-4">Patient Name</th>
+                    <th className="py-3 px-4">Ward / Bed</th>
+                    <th className="py-3 px-4">Admitting Diagnosis</th>
                     <th className="py-3 px-4">Acuity</th>
-                    <th className="py-3 px-4">Guyyaa Ciisichaa</th>
-                    <th className="py-3 px-4">Kaffaltii</th>
-                    <th className="py-3 px-4">Doktora / Ogeessa</th>
-                    <th className="py-3 px-4 text-right">Tarkaanfii</th>
+                    <th className="py-3 px-4">Admit Date</th>
+                    <th className="py-3 px-4">Payment Method</th>
+                    <th className="py-3 px-4">Attending Physician</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#1a2233] text-slate-200">
                   {filteredAdmissions.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="py-12 text-center text-slate-500">
-                        Dhukkubsataan ciise hin argamne.
+                        No active inpatient admissions found.
                       </td>
                     </tr>
                   ) : (
@@ -1230,7 +1230,7 @@ export default function InpatientWardsPage() {
                                 setShowTransferModal(true);
                               }}
                               className="p-1.5 rounded-lg bg-[#1a2233] hover:bg-[#253047] text-amber-400 transition-colors"
-                              title="Gara siree biraatti dabarsi"
+                              title="Transfer Bed"
                             >
                               <ArrowRightLeft className="w-3.5 h-3.5" />
                             </button>
@@ -1240,14 +1240,14 @@ export default function InpatientWardsPage() {
                                 setShowDischargeModal(true);
                               }}
                               className="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 transition-colors"
-                              title="Baasi (Discharge)"
+                              title="Discharge Patient"
                             >
                               <LogOut className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleOpenVoucher(adm.id)}
                               className="p-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 transition-colors"
-                              title="Waraqaa Gabaasaa Maxxansi"
+                              title="Print Inpatient Summary Voucher"
                             >
                               <Printer className="w-3.5 h-3.5" />
                             </button>
@@ -1269,10 +1269,10 @@ export default function InpatientWardsPage() {
           <div className="bg-[#101624] border border-[#1a2233] rounded-3xl p-6 shadow-xl space-y-4">
             <div className="pb-4 border-b border-[#1a2233]">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                Galmee Dabarsa Kutaalee & Sireewwanii (Ward Bed Transfer Audit Log)
+                Ward Bed Transfer Audit Log
               </h2>
               <p className="text-xs text-slate-400">
-                Seenaa fi ragaa dhukkubsattoonni kutaa tokko irraa gara kutaa biraatti daddarbanii fi sababa isaanii
+                Comprehensive audit log of patient relocations between hospital wards and beds
               </p>
             </div>
 
@@ -1280,20 +1280,20 @@ export default function InpatientWardsPage() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#141b29] text-slate-400 font-mono uppercase text-[11px] border-b border-[#1a2233]">
                   <tr>
-                    <th className="py-3 px-4">Yeroo (Timestamp)</th>
-                    <th className="py-3 px-4">Lakk. Ciisichaa</th>
-                    <th className="py-3 px-4">Dhukkubsataa</th>
-                    <th className="py-3 px-4">Kutaa/Siree Duraanii</th>
-                    <th className="py-3 px-4">Kutaa/Siree Haaraa</th>
-                    <th className="py-3 px-4">Sababa Dabarsaa (Reason)</th>
-                    <th className="py-3 px-4">Ogeessa Dabarse</th>
+                    <th className="py-3 px-4">Timestamp</th>
+                    <th className="py-3 px-4">Admission #</th>
+                    <th className="py-3 px-4">Patient Name</th>
+                    <th className="py-3 px-4">Previous Ward/Bed</th>
+                    <th className="py-3 px-4">Target Ward/Bed</th>
+                    <th className="py-3 px-4">Transfer Reason</th>
+                    <th className="py-3 px-4">Authorized Clinician</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#1a2233] text-slate-200">
                   {transfers.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-12 text-center text-slate-500">
-                        Galmeen dabarsa siree hin argamne.
+                        No bed transfer records logged.
                       </td>
                     </tr>
                   ) : (
@@ -1380,7 +1380,7 @@ export default function InpatientWardsPage() {
                       <strong className="text-base font-extrabold text-emerald-400">{ward.available_beds}</strong>
                     </div>
                     <div>
-                      <span className="text-cyan-400 text-[10px] block font-medium">Qulqullina</span>
+                      <span className="text-cyan-400 text-[10px] block font-medium">Cleaning</span>
                       <strong className="text-base font-extrabold text-cyan-400">{ward.cleaning_beds}</strong>
                     </div>
                   </div>
@@ -1397,7 +1397,7 @@ export default function InpatientWardsPage() {
                     }}
                     className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1"
                   >
-                    Sireewwan Ilaali <ChevronRight className="w-3.5 h-3.5" />
+                    View Beds <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -1418,8 +1418,8 @@ export default function InpatientWardsPage() {
                   <Bed className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Dhukkubsataa Haaraa Galchi (Inpatient Admission)</h3>
-                  <p className="text-xs text-slate-400">Kutaa ciisichaa fi siree qophii ta'e filachuun galmeessi</p>
+                  <h3 className="text-base font-bold text-white">Inpatient Admission</h3>
+                  <p className="text-xs text-slate-400">Select ward, bed, and admitting diagnosis to assign an inpatient bed</p>
                 </div>
               </div>
               <button onClick={() => setShowAdmitModal(false)} className="p-2 text-slate-400 hover:text-white">
@@ -1431,7 +1431,7 @@ export default function InpatientWardsPage() {
               {/* Select Patient */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Dhukkubsataa Filadhu (Select Registered Patient) *
+                  Select Registered Patient *
                 </label>
                 <select
                   value={admitPatientId}
@@ -1450,7 +1450,7 @@ export default function InpatientWardsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Kutaa Yaalaa (Target Ward) *
+                    Target Clinical Ward *
                   </label>
                   <select
                     value={admitWardId}
@@ -1464,7 +1464,7 @@ export default function InpatientWardsPage() {
                   >
                     {wards.map((w) => (
                       <option key={w.id} value={w.id}>
-                        {w.name_om} ({w.ward_code})
+                        {w.name_en || w.name_om} ({w.ward_code})
                       </option>
                     ))}
                   </select>
@@ -1472,7 +1472,7 @@ export default function InpatientWardsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Siree Qophii Ta'e (Available Bed) *
+                    Available Bed *
                   </label>
                   <select
                     value={admitBedId}
@@ -1481,7 +1481,7 @@ export default function InpatientWardsPage() {
                     className="w-full bg-[#141b29] border border-[#2b374e] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 disabled:opacity-50"
                   >
                     {availableBedsForAdmit.length === 0 ? (
-                      <option value="">Sireen qophii ta'e hin jiru!</option>
+                      <option value="">No beds currently available in this ward!</option>
                     ) : (
                       availableBedsForAdmit.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -1497,7 +1497,7 @@ export default function InpatientWardsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Qorannoo Dhibee (Admitting Diagnosis) *
+                    Admitting Diagnosis *
                   </label>
                   <input
                     type="text"
@@ -1524,23 +1524,23 @@ export default function InpatientWardsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Sadarkaa Ariifachiisummaa (Acuity / Triage) *
+                    Clinical Acuity Level *
                   </label>
                   <select
                     value={admitAcuity}
                     onChange={(e) => setAdmitAcuity(e.target.value as any)}
                     className="w-full bg-[#141b29] border border-[#2b374e] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500"
                   >
-                    <option value="critical">CRITICAL (Cimaa - ICU Required)</option>
-                    <option value="high">HIGH (Ol-aanaa - Close Monitoring)</option>
-                    <option value="moderate">MODERATE (Giddu-galeessa - Standard Ward)</option>
-                    <option value="stable">STABLE (Tasgabbaa'aa - Elective)</option>
+                    <option value="critical">CRITICAL (ICU Required)</option>
+                    <option value="high">HIGH (Close Monitoring)</option>
+                    <option value="moderate">MODERATE (Standard Ward)</option>
+                    <option value="stable">STABLE (Elective / Observational)</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Gosa Galmee (Admission Type) *
+                    Admission Type *
                   </label>
                   <select
                     value={admitType}
@@ -1558,7 +1558,7 @@ export default function InpatientWardsPage() {
               {/* Diet & Payment Method */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Gosa Nyaataa (Diet Category)</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Diet Category</label>
                   <select
                     value={admitDiet}
                     onChange={(e) => setAdmitDiet(e.target.value)}
@@ -1573,16 +1573,16 @@ export default function InpatientWardsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Haala Kaffaltii (Payment Method)</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Payment Method</label>
                   <select
                     value={admitPayment}
                     onChange={(e) => setAdmitPayment(e.target.value)}
                     className="w-full bg-[#141b29] border border-[#2b374e] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500"
                   >
-                    <option value="cbhi">CBHI (Fayyaa Hawaasaa - Insured)</option>
-                    <option value="cash">Cash (Kaffaltii Dhimmaa)</option>
-                    <option value="private_insurance">Private Insurance (Inshuraansii Dhuunfaa)</option>
-                    <option value="free_exempted">Exempted / Free (Eegumsa Mootummaa)</option>
+                    <option value="cbhi">CBHI (Community-Based Health Insurance)</option>
+                    <option value="cash">Cash (Self-Pay)</option>
+                    <option value="private_insurance">Private Insurance</option>
+                    <option value="free_exempted">Exempted / Government Scheme</option>
                   </select>
                 </div>
               </div>
@@ -1594,14 +1594,14 @@ export default function InpatientWardsPage() {
                   onClick={() => setShowAdmitModal(false)}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-[#1a2233]"
                 >
-                  Dhiisi (Cancel)
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading || availableBedsForAdmit.length === 0}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-lg shadow-amber-500/20 transition-all disabled:opacity-50"
                 >
-                  {actionLoading ? 'Galmeessaa jira...' : 'Galmeessi & Siree Qabadhu (Admit)'}
+                  {actionLoading ? 'Admitting...' : 'Admit Patient & Assign Bed'}
                 </button>
               </div>
             </form>
@@ -1621,8 +1621,8 @@ export default function InpatientWardsPage() {
                   <ArrowRightLeft className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Dabarsa Siree & Kutaa (Patient Bed Transfer)</h3>
-                  <p className="text-xs text-slate-400">Dhukkubsataa gara kutaa ykn siree biraatti dabarsi</p>
+                  <h3 className="text-base font-bold text-white">Patient Bed Transfer</h3>
+                  <p className="text-xs text-slate-400">Transfer inpatient to another ward or specialized bed</p>
                 </div>
               </div>
               <button onClick={() => setShowTransferModal(false)} className="p-2 text-slate-400 hover:text-white">
@@ -1634,11 +1634,11 @@ export default function InpatientWardsPage() {
               {/* Current Status Box */}
               <div className="p-3.5 rounded-2xl bg-[#141b29] border border-[#1f293d] space-y-1 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Dhukkubsataa:</span>
+                  <span className="text-slate-400">Patient:</span>
                   <strong className="text-white">{selectedAdmission.patient_name} ({selectedAdmission.patient_mrn})</strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Kutaa/Siree Ammaa:</span>
+                  <span className="text-slate-400">Current Ward & Bed:</span>
                   <span className="text-rose-300 font-mono font-bold">
                     {selectedAdmission.ward_name} • {selectedAdmission.bed_number}
                   </span>
@@ -1649,7 +1649,7 @@ export default function InpatientWardsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Kutaa Haaraa (Target Ward) *
+                    Target Clinical Ward *
                   </label>
                   <select
                     value={transferTargetWardId}
@@ -1663,7 +1663,7 @@ export default function InpatientWardsPage() {
                   >
                     {wards.map((w) => (
                       <option key={w.id} value={w.id}>
-                        {w.name_om} ({w.ward_code})
+                        {w.name_en || w.name_om} ({w.ward_code})
                       </option>
                     ))}
                   </select>
@@ -1671,7 +1671,7 @@ export default function InpatientWardsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Siree Haaraa (Target Bed) *
+                    Target Bed *
                   </label>
                   <select
                     value={transferTargetBedId}
@@ -1680,7 +1680,7 @@ export default function InpatientWardsPage() {
                     className="w-full bg-[#141b29] border border-[#2b374e] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 disabled:opacity-50"
                   >
                     {availableBedsForTransfer.length === 0 ? (
-                      <option value="">Sireen qophii ta'e hin jiru!</option>
+                      <option value="">No beds currently available in this ward!</option>
                     ) : (
                       availableBedsForTransfer.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -1695,7 +1695,7 @@ export default function InpatientWardsPage() {
               {/* Transfer Reason */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Sababa Dabarsa Yaalaa (Clinical Transfer Reason) *
+                  Clinical Transfer Reason *
                 </label>
                 <textarea
                   required
@@ -1709,7 +1709,7 @@ export default function InpatientWardsPage() {
 
               <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300/90 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Sireen duraanii battalatti gara haala qulqullinaatti (Cleaning) jijjiirama.</span>
+                <span>The vacated bed will automatically be queued for Housekeeping disinfection.</span>
               </div>
 
               {/* Submit Buttons */}
@@ -1719,14 +1719,14 @@ export default function InpatientWardsPage() {
                   onClick={() => setShowTransferModal(false)}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-[#1a2233]"
                 >
-                  Dhiisi
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading || availableBedsForTransfer.length === 0}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-lg shadow-amber-500/20 transition-all disabled:opacity-50"
                 >
-                  {actionLoading ? 'Dabarsaa jira...' : 'Dabarsi (Execute Transfer)'}
+                  {actionLoading ? 'Transferring...' : 'Execute Bed Transfer'}
                 </button>
               </div>
             </form>
@@ -1746,8 +1746,8 @@ export default function InpatientWardsPage() {
                   <LogOut className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Baasii Dhukkubsataa (Clinical Discharge Clearance)</h3>
-                  <p className="text-xs text-slate-400">Gabaasa baasii galmeessi, siree qulqullinaaf gadhiisi</p>
+                  <h3 className="text-base font-bold text-white">Clinical Discharge Clearance</h3>
+                  <p className="text-xs text-slate-400">Record physician discharge summary and release bed for cleaning</p>
                 </div>
               </div>
               <button onClick={() => setShowDischargeModal(false)} className="p-2 text-slate-400 hover:text-white">
@@ -1759,15 +1759,15 @@ export default function InpatientWardsPage() {
               {/* Patient summary */}
               <div className="p-3.5 rounded-2xl bg-[#141b29] border border-[#1f293d] space-y-1 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Dhukkubsataa:</span>
+                  <span className="text-slate-400">Patient:</span>
                   <strong className="text-white">{selectedAdmission.patient_name} ({selectedAdmission.patient_mrn})</strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Kutaa / Siree:</span>
+                  <span className="text-slate-400">Ward / Bed:</span>
                   <span className="text-amber-300 font-mono">{selectedAdmission.ward_name} • {selectedAdmission.bed_number}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Guyyaa Ciise:</span>
+                  <span className="text-slate-400">Admission Date:</span>
                   <span className="text-slate-200 font-mono">
                     {new Date(selectedAdmission.admission_date).toLocaleDateString()}
                   </span>
@@ -1777,29 +1777,29 @@ export default function InpatientWardsPage() {
               {/* Discharge Condition */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Haala Dhukkubsataan Ittiin Ba'u (Discharge Disposition) *
+                  Discharge Disposition *
                 </label>
                 <select
                   value={dischargeCondition}
                   onChange={(e) => setDischargeCondition(e.target.value)}
                   className="w-full bg-[#141b29] border border-[#2b374e] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500"
                 >
-                  <option value="cured_improved">Fayyeera / Fooyya'eera (Cured & Improved)</option>
-                  <option value="transferred">Gara Hospitaala Biraatti Dabarfame (Transferred to Tertiary Center)</option>
-                  <option value="lama">Fedhii Isaatiin Ba'e (Left Against Medical Advice - LAMA)</option>
-                  <option value="deceased">Boqoteera (Deceased)</option>
+                  <option value="cured_improved">Cured & Improved</option>
+                  <option value="transferred">Transferred to Higher Tertiary Facility</option>
+                  <option value="lama">Left Against Medical Advice (LAMA)</option>
+                  <option value="deceased">Deceased</option>
                 </select>
               </div>
 
               {/* Discharge Narrative Summary */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Gabaasa Baasii Doktaraa (Physician Discharge Summary & Instructions) *
+                  Physician Discharge Summary & Instructions *
                 </label>
                 <textarea
                   required
                   rows={4}
-                  placeholder="Gabaasa yaalaa, qoricha manatti fudhatamu, fi beellama qorannoo itti aanu galchaa..."
+                  placeholder="Enter clinical course, discharge medications, follow-up instructions..."
                   value={dischargeSummary}
                   onChange={(e) => setDischargeSummary(e.target.value)}
                   className="w-full bg-[#141b29] border border-[#2b374e] rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500"
@@ -1813,14 +1813,14 @@ export default function InpatientWardsPage() {
                   onClick={() => setShowDischargeModal(false)}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-[#1a2233]"
                 >
-                  Dhiisi
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20 transition-all disabled:opacity-50"
                 >
-                  {actionLoading ? 'Baasaa jira...' : 'Baasii Mirkaneessi & Xumuri (Discharge)'}
+                  {actionLoading ? 'Discharging...' : 'Confirm & Finalize Discharge'}
                 </button>
               </div>
             </form>
@@ -1845,7 +1845,7 @@ export default function InpatientWardsPage() {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md transition-all"
                 >
                   <Printer className="w-4 h-4" />
-                  Maxxansi (Print)
+                  Print Voucher
                 </button>
                 <button onClick={() => setShowVoucherModal(false)} className="p-2 text-slate-400 hover:text-slate-700">
                   <X className="w-5 h-5" />

@@ -267,11 +267,11 @@ function MortuaryWorkstationContent(): React.ReactElement {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.detail || 'Galmeen reeffaa hin milkoofne');
+        throw new Error(errData.detail || 'Failed to register deceased intake');
       }
 
       const newRec = await res.json();
-      setActionSuccess(`Reeffi kabajamaa/tuu ${admitName} milkaa'inaan kutaa reeffaatti galmaa'eera (Tag: ${newRec.tag_number})`);
+      setActionSuccess(`Deceased ${admitName} registered successfully into cold vault storage (Tag: ${newRec.tag_number})`);
       setIsAdmitModalOpen(false);
       resetAdmitForm();
       await fetchAllData();
@@ -294,7 +294,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
   const handleAutopsySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRecordForAutopsy || !autopsyFindings) {
-      setActionError('Bu\'aa qorannoo post-mortem galchuun dirqama');
+      setActionError('Post-mortem findings are required');
       return;
     }
 
@@ -315,10 +315,10 @@ function MortuaryWorkstationContent(): React.ReactElement {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.detail || 'Qorannoo post-mortem galmeessuun hin dandaamne');
+        throw new Error(errData.detail || 'Failed to record post-mortem findings');
       }
 
-      setActionSuccess(`Qorannoon post-mortem reeffa ${selectedRecordForAutopsy.deceased_name} seeraan galmaa'eera.`);
+      setActionSuccess(`Post-mortem examination for ${selectedRecordForAutopsy.deceased_name} recorded successfully.`);
       setIsAutopsyModalOpen(false);
       setSelectedRecordForAutopsy(null);
       setAutopsyFindings('');
@@ -334,7 +334,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
   const handleReleaseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRecordForRelease || !releaseKinName) {
-      setActionError('Maqaa fira dhiyoo reeffa fudhatuu galchuun dirqama');
+      setActionError('Next-of-kin legal claimant name is required');
       return;
     }
 
@@ -356,10 +356,10 @@ function MortuaryWorkstationContent(): React.ReactElement {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.detail || 'Reeffa gadhiisuun hin dandaamne');
+        throw new Error(errData.detail || 'Failed to process deceased release');
       }
 
-      setActionSuccess(`Reeffi ${selectedRecordForRelease.deceased_name} seeraan maatiitti dabarfamee jira.`);
+      setActionSuccess(`Deceased ${selectedRecordForRelease.deceased_name} released legally to next-of-kin.`);
       setIsReleaseModalOpen(false);
       const freedRecId = selectedRecordForRelease.id;
       setSelectedRecordForRelease(null);
@@ -418,7 +418,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
               <div>
                 <div className="flex items-center gap-3">
                   <h1 className="text-2xl font-bold tracking-tight text-white">
-                    Kutaa Reeffaa & Qorannoo Post-Mortem
+                    Mortuary Vaults & Forensic Pathology
                   </h1>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-950/80 text-blue-400 border border-blue-800/80">
                     <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
@@ -437,7 +437,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
               >
                 <Plus className="h-4 w-4" />
-                Reeffa Haaraa Galmeessi
+                Register Deceased Intake
               </button>
             </div>
           </div>
@@ -480,7 +480,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
 
             <div className="bg-[#0d131f] border border-[#1e293b] p-4 rounded-xl">
               <div className="flex items-center justify-between text-xs text-slate-400 uppercase font-semibold">
-                <span>Reeffa Qabame</span>
+                <span>In Custody</span>
                 <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
               </div>
               <p className="text-2xl font-bold text-amber-400 mt-2">{stats.occupied_vaults}</p>
@@ -507,7 +507,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
 
             <div className="bg-[#0d131f] border border-[#1e293b] p-4 rounded-xl">
               <div className="flex items-center justify-between text-xs text-slate-400 uppercase font-semibold">
-                <span>Post-Mortem Autopsy</span>
+                <span>Post-Mortem Cases</span>
                 <Stethoscope className="h-4 w-4 text-purple-400" />
               </div>
               <p className="text-2xl font-bold text-purple-400 mt-2">{stats.total_autopsies}</p>
@@ -545,7 +545,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                Galmee Reeffaa (Custody Census) ({inCustodyRecords.length})
+                Custody Census ({inCustodyRecords.length})
               </button>
               <button
                 onClick={() => setActiveTab('autopsy')}
@@ -555,7 +555,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                Qorannoo Post-Mortem & Forensic ({autopsyRecords.length})
+                Post-Mortem & Forensic Pathology ({autopsyRecords.length})
               </button>
               <button
                 onClick={() => setActiveTab('releases')}
@@ -662,7 +662,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                       {isOccupied ? (
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-slate-400">Reeffa (Deceased):</span>
+                            <span className="text-xs text-slate-400">Deceased:</span>
                             <span className="text-xs font-mono text-amber-400">{vault.occupant_tag}</span>
                           </div>
                           <p className="text-sm font-bold text-white truncate">{vault.occupant_name}</p>
@@ -675,7 +675,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                         <div className="flex flex-col items-center justify-center py-2 text-center text-slate-500">
                           <CheckCircle2 className="h-6 w-6 text-emerald-500/60 mb-1" />
                           <span className="text-xs font-medium text-slate-400">Kutaan Duwwaadha</span>
-                          <span className="text-[11px] text-slate-600">Qophii Reeffa Fudhatuu</span>
+                          <span className="text-[11px] text-slate-600">Ready for Release</span>
                         </div>
                       ) : (
                         <div className="flex flex-col items-center justify-center py-2 text-center text-slate-500">
@@ -715,7 +715,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                             className="flex-1 py-1.5 px-2 bg-blue-950/60 hover:bg-blue-900/60 border border-blue-800/60 rounded-lg text-xs font-medium text-blue-300 transition-colors flex items-center justify-center gap-1"
                           >
                             <FileCheck className="h-3.5 w-3.5" />
-                            Gadhiisi
+                            Release
                           </button>
                         </>
                       ) : isVacant ? (
@@ -727,7 +727,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                           className="w-full py-1.5 px-3 bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-800/60 rounded-lg text-xs font-medium text-emerald-300 transition-colors flex items-center justify-center gap-1.5"
                         >
                           <Plus className="h-3.5 w-3.5" />
-                          Reeffa Asitti Galmeessi
+                          Intake Deceased Here
                         </button>
                       ) : (
                         <button
@@ -749,11 +749,11 @@ function MortuaryWorkstationContent(): React.ReactElement {
             <div className="bg-[#0d131f] border border-[#1e293b] rounded-2xl overflow-hidden shadow-xl">
               <div className="px-6 py-4 border-b border-[#1e293b] flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-white">Galmee Reeffaa Hospitaalaa (Deceased Registry)</h3>
-                  <p className="text-xs text-slate-400">Ragaa du'aa, ogeessa mirkaneesse, fi qabiinsa kutaa reeffaa</p>
+                  <h3 className="text-base font-bold text-white">Hospital Deceased Registry</h3>
+                  <p className="text-xs text-slate-400">Official death certificates, certifying clinician, and cold vault custody records</p>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-slate-800 text-slate-300">
-                  {filteredRegistry.length} Galmeewwan
+                  {filteredRegistry.length} Deceased Records
                 </span>
               </div>
 
@@ -833,7 +833,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                                   }}
                                   className="px-2.5 py-1 bg-blue-900/40 hover:bg-blue-800/50 border border-blue-700/60 text-blue-300 rounded-lg text-xs font-medium transition-colors"
                                 >
-                                  Gadhiisi
+                                  Release
                                 </button>
                               )}
                               <button
@@ -859,8 +859,8 @@ function MortuaryWorkstationContent(): React.ReactElement {
             <div className="space-y-6">
               <div className="flex items-center justify-between bg-[#0d131f] border border-[#1e293b] p-5 rounded-2xl">
                 <div>
-                  <h3 className="text-base font-bold text-white">Qorannoo Post-Mortem & Forensic Pathology</h3>
-                  <p className="text-xs text-slate-400">Qorannoo seera qabeessa reeffaa fi gabaasa ogeessa falaasama fayyaa (Pathologist)</p>
+                  <h3 className="text-base font-bold text-white">Post-Mortem & Forensic Pathology</h3>
+                  <p className="text-xs text-slate-400">Official forensic autopsy documentation, histopathology, and toxicological analysis reports</p>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-purple-950 text-purple-300 border border-purple-800">
                   {autopsyRecords.length} Autopsies Done
@@ -900,13 +900,13 @@ function MortuaryWorkstationContent(): React.ReactElement {
                         </div>
                         {rec.police_case_number && (
                           <div className="flex items-center justify-between text-slate-400">
-                            <span>Lakk. Galmee Poolisii:</span>
+                            <span>Police Case / FIR #:</span>
                             <span className="font-mono text-amber-400">{rec.police_case_number}</span>
                           </div>
                         )}
                         {rec.pathologist_name && (
                           <div className="flex items-center justify-between text-slate-400">
-                            <span>Ogeessa Qorannoo (Pathologist):</span>
+                            <span>Forensic Pathologist:</span>
                             <span className="font-semibold text-purple-300">{rec.pathologist_name}</span>
                           </div>
                         )}
@@ -914,7 +914,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
 
                       {rec.autopsy_findings && (
                         <div className="mt-4 p-3.5 rounded-xl bg-[#070a0f] border border-purple-900/40">
-                          <p className="text-xs font-semibold text-purple-300 mb-1">Gabaasa Bu'aa Qorannoo:</p>
+                          <p className="text-xs font-semibold text-purple-300 mb-1">Autopsy Findings Summary:</p>
                           <p className="text-xs text-slate-300 leading-relaxed">{rec.autopsy_findings}</p>
                         </div>
                       )}
@@ -929,7 +929,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                             className="px-4 py-2 bg-purple-900/50 hover:bg-purple-800/60 border border-purple-700/80 rounded-xl text-xs font-semibold text-purple-200 transition-colors flex items-center gap-1.5"
                           >
                             <Stethoscope className="h-4 w-4" />
-                            Qorannoo Autopsy Galmeessi
+                            Document Autopsy Findings
                           </button>
                         ) : (
                           <span className="text-xs text-slate-500">Forensic Protocol Certified</span>
@@ -940,7 +940,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                           className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300 transition-colors flex items-center gap-1"
                         >
                           <Printer className="h-3.5 w-3.5" />
-                          Gabaasa Seera Qabeessa
+                          Official Legal Report
                         </button>
                       </div>
                     </div>
@@ -955,7 +955,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
             <div className="bg-[#0d131f] border border-[#1e293b] rounded-2xl overflow-hidden shadow-xl">
               <div className="px-6 py-4 border-b border-[#1e293b] flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-white">Ragaa Baasii Reeffaa Seera Qabeessa (Next-of-Kin Handover)</h3>
+                  <h3 className="text-base font-bold text-white">Legal Next-of-Kin Release & Handover Certificate</h3>
                   <p className="text-xs text-slate-400">Ragaa koodii waraaqaa du'aa, hayyama awwaalchaa, fi mallattoo maatii</p>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
@@ -1031,8 +1031,8 @@ function MortuaryWorkstationContent(): React.ReactElement {
                       <Plus className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Reeffa Haaraa Galmeessi (Mortuary Intake)</h3>
-                      <p className="text-xs text-slate-400">Galmee reeffaa kutaa qabbaneessaa (Cold Vault Storage)</p>
+                      <h3 className="text-base font-bold text-white">Register Deceased Intake (Mortuary Intake)</h3>
+                      <p className="text-xs text-slate-400">Record deceased particulars and assign cold mortuary vault compartment</p>
                     </div>
                   </div>
                   <button onClick={() => setIsAdmitModalOpen(false)} className="text-slate-400 hover:text-white">
@@ -1044,7 +1044,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                        Maqaa Guutuu Reeffaa *
+                        Deceased Full Name *
                       </label>
                       <input
                         type="text"
@@ -1178,14 +1178,14 @@ function MortuaryWorkstationContent(): React.ReactElement {
                       onClick={() => setIsAdmitModalOpen(false)}
                       className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold transition-colors"
                     >
-                      Dhiisi
+                      Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={actionLoading}
                       className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 rounded-xl text-sm font-bold shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
                     >
-                      {actionLoading ? 'Galmeessaa jira...' : 'Galmeessi'}
+                      {actionLoading ? 'Registering...' : 'Register Deceased'}
                     </button>
                   </div>
                 </form>
@@ -1203,7 +1203,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                       <Stethoscope className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Qorannoo Post-Mortem Galmeessi</h3>
+                      <h3 className="text-base font-bold text-white">Record Post-Mortem Examination</h3>
                       <p className="text-xs text-slate-400">
                         {selectedRecordForAutopsy.deceased_name} ({selectedRecordForAutopsy.tag_number})
                       </p>
@@ -1217,7 +1217,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                 <form onSubmit={handleAutopsySubmit} className="p-6 space-y-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Maqaa Ogeessa Qorannoo (Pathologist) *
+                      Forensic Pathologist / Medical Examiner *
                     </label>
                     <input
                       type="text"
@@ -1230,7 +1230,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Lakk. Galmee Poolisii (Police Case No, if forensic)
+                      Police Case Number / FIR (if forensic inquest)
                     </label>
                     <input
                       type="text"
@@ -1256,12 +1256,12 @@ function MortuaryWorkstationContent(): React.ReactElement {
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Gabaasa Qorannoo Qaamaa & Bu'aa Toxicological (Detailed Autopsy Findings) *
+                      Detailed Autopsy & Toxicological Findings *
                     </label>
                     <textarea
                       required
                       rows={4}
-                      placeholder="Qorannoo sammuu, qomaa, dhiigaa fi summii dabalatee..."
+                      placeholder="External examination, cranial, thoracic, abdominal findings, and toxicology report..."
                       value={autopsyFindings}
                       onChange={(e) => setAutopsyFindings(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-[#070a0f] border border-[#1e293b] rounded-xl text-sm text-white focus:outline-none focus:border-purple-500"
@@ -1274,14 +1274,14 @@ function MortuaryWorkstationContent(): React.ReactElement {
                       onClick={() => setIsAutopsyModalOpen(false)}
                       className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold transition-colors"
                     >
-                      Dhiisi
+                      Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={actionLoading}
                       className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-purple-900/30 active:scale-95 transition-all"
                     >
-                      {actionLoading ? 'Mirkaneessaa jira...' : 'Gabaasa Mirkaneessi'}
+                      {actionLoading ? 'Recording...' : 'Submit Autopsy Report'}
                     </button>
                   </div>
                 </form>
@@ -1299,7 +1299,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                       <FileCheck className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Reeffa Maatiitti Kenni (Release Deceased)</h3>
+                      <h3 className="text-base font-bold text-white">Release Deceased to Next-of-Kin</h3>
                       <p className="text-xs text-slate-400">
                         {selectedRecordForRelease.deceased_name} • Vault {selectedRecordForRelease.vault_code || 'Chamber'} ni duwwa'a
                       </p>
@@ -1390,7 +1390,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                   <div className="p-3 bg-amber-950/40 border border-amber-800/60 rounded-xl text-xs text-amber-300 flex items-start gap-2">
                     <ShieldCheck className="h-4 w-4 text-amber-400 mt-0.5 flex-shrink-0" />
                     <span>
-                      Tarkaanfiin kun reeffa maatiitti dabarseera jedhee galmeessuun kutaa vault ({selectedRecordForRelease.vault_code || 'Chamber'}) reeffa biraaf duwwaa godha.
+                      This action certifies legal release to next-of-kin and frees cold vault compartment ({selectedRecordForRelease.vault_code || 'Chamber'}).
                     </span>
                   </div>
 
@@ -1400,7 +1400,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                       onClick={() => setIsReleaseModalOpen(false)}
                       className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold transition-colors"
                     >
-                      Dhiisi
+                      Cancel
                     </button>
                     <button
                       type="submit"
@@ -1423,7 +1423,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e293b] bg-[#0d131f]">
                   <div className="flex items-center gap-2">
                     <Printer className="h-5 w-5 text-amber-400" />
-                    <span className="text-sm font-bold text-white">Waraaqaa Seera Qabeessa Kutaa Reeffaa</span>
+                    <span className="text-sm font-bold text-white">Official Mortuary Legal Document</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -1464,35 +1464,35 @@ function MortuaryWorkstationContent(): React.ReactElement {
                   {/* Certificate Title Badge */}
                   <div className="text-center my-4">
                     <span className="inline-block px-4 py-1 border-2 border-slate-900 font-sans font-bold text-xs tracking-wider uppercase bg-slate-100">
-                      Waraaqaa Mirkaneessa Du'aa & Gadhiifama Reeffaa (Medical Certificate of Cause of Death)
+                      Medical Certificate of Cause of Death & Mortuary Release Certificate
                     </span>
                   </div>
 
                   {/* Body Details Grid */}
                   <div className="grid grid-cols-2 gap-4 text-xs font-sans mt-4">
                     <div className="space-y-2 border border-slate-300 p-3 rounded">
-                      <p className="font-bold uppercase tracking-wider text-slate-500 text-[10px]">Odeeffannoo Reeffaa (Deceased Details)</p>
-                      <p><strong>Maqaa Guutuu:</strong> {selectedVoucher.deceased_name}</p>
-                      <p><strong>Saala (Gender):</strong> {selectedVoucher.gender}</p>
-                      <p><strong>Lakk. Tag:</strong> <span className="font-mono">{selectedVoucher.tag_number}</span></p>
-                      <p><strong>Waraaqaa Du'aa (Cert #):</strong> <span className="font-mono">{selectedVoucher.death_certificate_number}</span></p>
-                      <p><strong>Guyyaa & Sa'aatii Du'aa:</strong> {selectedVoucher.datetime_of_death}</p>
+                      <p className="font-bold uppercase tracking-wider text-slate-500 text-[10px]">Deceased Particulars</p>
+                      <p><strong>Full Name:</strong> {selectedVoucher.deceased_name}</p>
+                      <p><strong>Gender:</strong> {selectedVoucher.gender}</p>
+                      <p><strong>Tag #:</strong> <span className="font-mono">{selectedVoucher.tag_number}</span></p>
+                      <p><strong>Death Cert #:</strong> <span className="font-mono">{selectedVoucher.death_certificate_number}</span></p>
+                      <p><strong>Date & Time of Death:</strong> {selectedVoucher.datetime_of_death}</p>
                     </div>
 
                     <div className="space-y-2 border border-slate-300 p-3 rounded">
-                      <p className="font-bold uppercase tracking-wider text-slate-500 text-[10px]">Qabiinsa Kutaa Qabbaneessaa (Vault Custody)</p>
-                      <p><strong>Kutaa Vault:</strong> <span className="font-bold">{selectedVoucher.vault_code} ({selectedVoucher.bay_name})</span></p>
-                      <p><strong>Ho'a Galmaa'e:</strong> {selectedVoucher.temperature_recorded}</p>
-                      <p><strong>Yeroo Fudhatame:</strong> {selectedVoucher.received_at}</p>
-                      <p><strong>Ogeessa Yaalaa:</strong> {selectedVoucher.declaring_doctor_name}</p>
-                      <p><strong>Hayyama Awwaalchaa:</strong> <span className="font-mono">{selectedVoucher.burial_permit_number || 'BP-MKH-0041'}</span></p>
+                      <p className="font-bold uppercase tracking-wider text-slate-500 text-[10px]">Cold Vault Custody</p>
+                      <p><strong>Vault Unit:</strong> <span className="font-bold">{selectedVoucher.vault_code} ({selectedVoucher.bay_name})</span></p>
+                      <p><strong>Logged Temp:</strong> {selectedVoucher.temperature_recorded}</p>
+                      <p><strong>Received At:</strong> {selectedVoucher.received_at}</p>
+                      <p><strong>Certifying Physician:</strong> {selectedVoucher.declaring_doctor_name}</p>
+                      <p><strong>Burial Permit #:</strong> <span className="font-mono">{selectedVoucher.burial_permit_number || 'BP-MKH-0041'}</span></p>
                     </div>
                   </div>
 
                   {/* Clinical Cause of Death */}
                   <div className="mt-4 p-3 border border-slate-300 rounded font-sans text-xs">
                     <p className="font-bold uppercase tracking-wider text-slate-500 text-[10px] mb-1">
-                      Sababa Du'aa Mirkanaa'e (Certified Cause of Death - ICD Standard)
+                      Certified Cause of Death (ICD-10 Standard)
                     </p>
                     <p className="text-sm font-bold text-slate-900">{selectedVoucher.cause_of_death}</p>
                   </div>
@@ -1501,11 +1501,11 @@ function MortuaryWorkstationContent(): React.ReactElement {
                   {selectedVoucher.is_autopsy_conducted && (
                     <div className="mt-4 p-3 border border-purple-300 bg-purple-50 rounded font-sans text-xs">
                       <p className="font-bold uppercase tracking-wider text-purple-900 text-[10px] mb-1">
-                        Gabaasa Qorannoo Post-Mortem & Forensic Pathology
+                        Post-Mortem & Forensic Pathology Report
                       </p>
                       <p><strong>Pathologist:</strong> {selectedVoucher.pathologist_name || 'Dr. Daniel Gemechu'}</p>
                       {selectedVoucher.police_case_number && (
-                        <p><strong>Lakk. Poolisii:</strong> {selectedVoucher.police_case_number}</p>
+                        <p><strong>Police Case #:</strong> {selectedVoucher.police_case_number}</p>
                       )}
                       <p className="mt-1 text-slate-800 italic">{selectedVoucher.autopsy_findings}</p>
                     </div>
@@ -1514,7 +1514,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                   {/* Next of Kin Release Handover */}
                   <div className="mt-4 p-3 border border-slate-300 rounded font-sans text-xs">
                     <p className="font-bold uppercase tracking-wider text-slate-500 text-[10px] mb-1">
-                      Ragaa Fira Reeffa Fudhatuu (Next-of-Kin Release Handover)
+                      Next-of-Kin Handover & Release Clearance
                     </p>
                     <div className="grid grid-cols-3 gap-2 mt-2">
                       <p><strong>Maqaa:</strong> {selectedVoucher.released_to_name || 'Almaz Tadesse'}</p>
@@ -1526,7 +1526,7 @@ function MortuaryWorkstationContent(): React.ReactElement {
                   {/* Signatures & QR Code */}
                   <div className="mt-8 pt-4 border-t border-slate-300 flex items-center justify-between font-sans text-[11px]">
                     <div>
-                      <p className="font-bold">Mirkaneessa Ogeessa Kutaa Reeffaa:</p>
+                      <p className="font-bold">Mortuary Officer Certification:</p>
                       <p className="mt-4 border-b border-slate-400 w-44"></p>
                       <p className="text-slate-500 mt-0.5">Mallattoo & Guyyaa</p>
                     </div>
@@ -1561,7 +1561,7 @@ export default function MortuaryPage(): React.ReactElement {
         <div className="flex min-h-screen items-center justify-center bg-[#070a0f] text-slate-200">
           <div className="flex flex-col items-center gap-3">
             <Archive className="h-8 w-8 text-blue-500 animate-pulse" />
-            <p className="text-sm font-medium">Kutaa Reeffaa & Qorannoo Post-Mortem banaa jira...</p>
+            <p className="text-sm font-medium">Mortuary Vaults & Forensic Pathology banaa jira...</p>
           </div>
         </div>
       }

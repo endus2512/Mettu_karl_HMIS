@@ -558,7 +558,7 @@ export default function PACSPage(): React.ReactElement {
               }`}
             >
               <FileCheck className="w-4 h-4" />
-              3. Galmee Gabaasa Yaalaa (Diagnostic Reports)
+              3. Radiology Diagnostic Reports Directory
             </button>
             <button
               onClick={() => setActiveTab('modalities')}
@@ -873,7 +873,7 @@ export default function PACSPage(): React.ReactElement {
                   <thead className="bg-[#141b2b] text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-[#1a2233]">
                     <tr>
                       <th className="p-3.5">Lakk. Ajajaa</th>
-                      <th className="p-3.5">Dhukkubsataa (MRN)</th>
+                      <th className="p-3.5">Patient Name (MRN)</th>
                       <th className="p-3.5">Modality</th>
                       <th className="p-3.5">Qaama Qorannoo</th>
                       <th className="p-3.5">Sadarkaa</th>
@@ -941,7 +941,7 @@ export default function PACSPage(): React.ReactElement {
               <div className="flex items-center justify-between border-b border-[#1a2233] pb-3">
                 <div>
                   <h3 className="text-base font-bold text-white">
-                    Galmee Gabaasa Yaalaa (Radiology Diagnostic Reports Directory)
+                    Radiology Diagnostic Reports Directory
                   </h3>
                   <p className="text-xs text-slate-400">
                     Gabaasa suuraa yaalaa mirkanaa'anii fi ragaa seera qabeessa maxxanfamu.
@@ -1077,7 +1077,7 @@ export default function PACSPage(): React.ReactElement {
                   Ajaja Raadiyooloojii Haaraa (Doctor Imaging Order)
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Dhukkubsataa filachuun qorannoo suuraa ajajaa.
+                  Select a registered patient to order diagnostic imaging modalities.
                 </p>
               </div>
               <button onClick={() => setShowCreateOrderModal(false)} className="text-slate-400 hover:text-white">
@@ -1088,7 +1088,7 @@ export default function PACSPage(): React.ReactElement {
             <form onSubmit={handleCreateOrder} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-slate-300 block mb-1.5">Dhukkubsataa:</label>
+                  <label className="text-xs font-bold text-slate-300 block mb-1.5">Patient:</label>
                   <select
                     value={newOrderPatientId}
                     onChange={(e) => setNewOrderPatientId(parseInt(e.target.value))}

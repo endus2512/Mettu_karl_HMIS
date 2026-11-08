@@ -381,7 +381,11 @@ export function Header(): React.ReactElement {
                     </span>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Kalandarii Itoophiyaa, Sa'aatii fi Shiftii yaalaa database giddugaleessaa irratti jijjiiri
+                    {language === 'om'
+                      ? "Kalandarii Itoophiyaa, Sa'aatii fi Shiftii yaalaa database giddugaleessaa irratti jijjiiri"
+                      : language === 'am'
+                      ? 'የኢትዮጵያ ቀን መቁጠሪያ፣ ሰዓት እና የፈረቃ ስራዎችን በማዕከላዊ ዳታቤዝ ላይ ያስተዳድሩ'
+                      : 'Configure Ethiopian calendar date, system clock, and operational duty shifts'}
                   </p>
                 </div>
               </div>
@@ -538,12 +542,16 @@ export function Header(): React.ReactElement {
               {/* Duty Staffing & Ward Handover Notes */}
               <div className="rounded-xl border border-slate-200 dark:border-slate-700/80 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-2.5">
                 <span className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
-                  3. Duty Staffing & Ward Handover (Dabarsaa fi Hojjettoota)
+                  {language === 'om'
+                    ? '3. Dabarsaa fi Hojjettoota Shiftii (Duty Staffing)'
+                    : language === 'am'
+                    ? '3. የፈረቃ ሰራተኞች እና የርክክብ ማስታወሻ'
+                    : '3. Duty Staffing & Shift Handover'}
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
-                      Charge Nurse on Duty (Nurse Ittigaafatamaa)
+                      {language === 'om' ? 'Nurse Ittigaafatamaa' : 'Charge Nurse on Duty'}
                     </label>
                     <input
                       type="text"
@@ -555,7 +563,7 @@ export function Header(): React.ReactElement {
                   </div>
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
-                      Duty Physician / Surgeon (Ogeessa Yaalaa)
+                      {language === 'om' ? 'Ogeessa Yaalaa' : 'Duty Physician / Surgeon'}
                     </label>
                     <input
                       type="text"
@@ -568,7 +576,7 @@ export function Header(): React.ReactElement {
                 </div>
                 <div>
                   <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
-                    Live Shift Handover Notes (Qabxii Dabarsaa Wardii)
+                    {language === 'om' ? 'Qabxii Dabarsaa Wardii' : 'Live Shift Handover Notes'}
                   </label>
                   <textarea
                     rows={2}

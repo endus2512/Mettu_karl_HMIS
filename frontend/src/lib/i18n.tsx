@@ -27,22 +27,31 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en');
 
   useEffect(() => {
-    // Check if the user has explicitly chosen an alternative language
-    const explicitChoice = localStorage.getItem('mkh_user_selected_lang') as Language;
-    if (explicitChoice && (explicitChoice === 'en' || explicitChoice === 'om' || explicitChoice === 'am')) {
-      setLanguageState(explicitChoice);
-    } else {
-      // Default to English cleanly
+    try {
+      // Check if the user has explicitly chosen an alternative language in v3
+      const explicitChoice = localStorage.getItem('mkh_lang_preference_v3') as Language;
+      if (explicitChoice && (explicitChoice === 'en' || explicitChoice === 'om' || explicitChoice === 'am')) {
+        setLanguageState(explicitChoice);
+      } else {
+        // Purge old cached 'om' from earlier development sessions
+        localStorage.removeItem('mkh_user_selected_lang');
+        localStorage.removeItem('mkh_lang');
+        localStorage.setItem('mkh_lang_preference_v3', 'en');
+        setLanguageState('en');
+      }
+    } catch {
       setLanguageState('en');
-      localStorage.setItem('mkh_user_selected_lang', 'en');
-      localStorage.setItem('mkh_lang', 'en');
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('mkh_user_selected_lang', lang);
-    localStorage.setItem('mkh_lang', lang);
+    try {
+      localStorage.setItem('mkh_lang_preference_v3', lang);
+      localStorage.setItem('mkh_lang', lang);
+    } catch {
+      // ignore
+    }
   };
 
   const t = (key: string): string => {

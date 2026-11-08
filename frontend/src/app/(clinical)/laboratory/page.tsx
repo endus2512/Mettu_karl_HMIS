@@ -398,7 +398,7 @@ export default function LaboratoryPage(): React.ReactElement {
       setTimeout(() => setActionSuccess(null), 4000);
       fetchAllLabData();
     } catch (err: any) {
-      setActionError(err.message || "Bu'aa galmeessuu irratti rakkoon uumame");
+      setActionError(err.message || 'Error occurred while saving laboratory result');
     } finally {
       setActionLoading(false);
     }
@@ -747,7 +747,7 @@ export default function LaboratoryPage(): React.ReactElement {
                 {!activeOrder ? (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 text-slate-500 text-center">
                     <Microscope className="w-12 h-12 text-slate-600 mb-3" />
-                    <p className="text-sm font-medium">Dhukkubsataa filadhuu qorannoo isaa ilaali.</p>
+                    <p className="text-sm font-medium">Select an order from the roster to view specimen details and verify test results.</p>
                   </div>
                 ) : (
                   <div className="flex-1 flex flex-col overflow-y-auto">

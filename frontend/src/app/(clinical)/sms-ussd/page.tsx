@@ -221,7 +221,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
   const [recipientPhone, setRecipientPhone] = useState('+251 911 002 233');
   const [templateKey, setTemplateKey] = useState('queue_alert');
   const [paramToken, setParamToken] = useState('A-042');
-  const [paramRoom, setParamRoom] = useState('OPD Kutaa 04');
+  const [paramRoom, setParamRoom] = useState('OPD Room 04');
   const [paramWait, setParamWait] = useState('15');
   const [paramDoctor, setParamDoctor] = useState('Dr. Bekele Tadesse');
   const [paramDrugs, setParamDrugs] = useState('Amoxicillin 625mg, Paracetamol');
@@ -234,8 +234,8 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
     {
       id: 101,
       recipient_phone: '+251 911 002 233',
-      message_text: "Hospitaala Mettu Karl: Lakkoofsi keessan A-042 waamameera. Mee gara OPD Kutaa 04 tti darbaa. Yeroo eeggannoo: daq. 15.",
-      language: 'om',
+      message_text: "Mettu Karl Hospital: Your token A-042 has been called. Please proceed to OPD Room 04. Est. wait: 15 mins.",
+      language: 'en',
       status: 'SENT',
       channel: 'SMS (Shortcode 907)',
       created_at: '14:15:30',
@@ -243,8 +243,8 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
     {
       id: 102,
       recipient_phone: '+251 922 445 566',
-      message_text: "Hospitaala Mettu Karl: Qorichi ajajame (Amlodipine 5mg) Faarmaasii Kutaa 01 tti qophaa'eera.",
-      language: 'om',
+      message_text: "Mettu Karl Hospital: Prescribed medications (Amlodipine 5mg) are ready at Central Pharmacy Counter 01.",
+      language: 'en',
       status: 'SENT',
       channel: 'SMS (Shortcode 907)',
       created_at: '14:10:12',
@@ -254,7 +254,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
   // USSD Interactive Simulator State
   const [ussdPhone, setUssdPhone] = useState('+251 911 002 233');
   const [ussdScreenText, setUssdScreenText] = useState(
-    'Bilbila Duudaa (Feature Phone)\nUSSD *907# cuqaasaa ykn Send jedhaa...'
+    'Feature Phone (Nokia Style)\nDial *907# or click Dial to start...'
   );
   const [ussdSessionActive, setUssdSessionActive] = useState(false);
   const [ussdCurrentInput, setUssdCurrentInput] = useState('');
@@ -470,7 +470,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
       setTemplateKey('queue_alert');
       setRecipientPhone('+251 911 002 233');
       setParamToken('A-042');
-      setParamRoom('OPD Kutaa 04');
+      setParamRoom('OPD Room 04');
       setParamWait('15');
     } else if (type === 'rx') {
       setTemplateKey('prescription_ready');

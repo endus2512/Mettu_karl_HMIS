@@ -259,7 +259,11 @@ export default function AdminDashboardPage(): React.ReactElement {
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
           <p className="text-xs font-bold uppercase tracking-wider text-amber-300">
-            Mettu Karl HIS • Daashboordii Fe'aa Jira...
+            {language === 'om'
+              ? "Mettu Karl HIS • Daashboordii Fe'aa Jira..."
+              : language === 'am'
+              ? 'መቱ ካርል ሪፈራል ሆስፒታል • ዳሽቦርድ በመጫን ላይ...'
+              : 'Mettu Karl HIS • Loading Executive Command Center...'}
           </p>
         </div>
       </div>

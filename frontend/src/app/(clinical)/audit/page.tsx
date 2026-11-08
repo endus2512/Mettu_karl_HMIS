@@ -356,7 +356,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                     <div>
                       <p className="font-black text-rose-950 text-sm">{simulationToast}</p>
                       <p className="text-xs text-rose-800 mt-1">
-                        Zero-Trust Security Sentinel-n yeruma sana soba kana qabee itti cufuu isaa mirkaneeffadhaa. Galmeen taatee kun (Audit Log) gadiitti dabalameera.
+                        The Zero-Trust Sentinel detected this privilege abuse and blocked execution immediately. An immutable incident entry has been appended to the audit log below.
                       </p>
                     </div>
                   </div>
@@ -374,7 +374,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-2xl border border-slate-200 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 shadow-sm">
                   <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    <span>Audit Events Har'aa</span>
+                    <span>Audit Events Today</span>
                     <Activity className="w-4 h-4 text-blue-500" />
                   </div>
                   <p className="mt-2 text-2xl font-bold tracking-tight text-blue-700 dark:text-blue-400 font-mono">1,482</p>
@@ -385,12 +385,12 @@ export default function ClinicalAuditPage(): React.ReactElement {
 
                 <div className="rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 p-5 shadow-xs">
                   <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">
-                    <span>Soba Doktoraa Dhaabame</span>
+                    <span>Impersonations Blocked</span>
                     <ShieldAlert className="w-4 h-4 text-rose-600" />
                   </div>
                   <p className="mt-2 text-2xl font-bold tracking-tight text-rose-700 dark:text-rose-300">4 Intercepted</p>
                   <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
-                    HTTP 403 Forbidden (Ittifameera)
+                    HTTP 403 Forbidden
                   </p>
                 </div>
 
@@ -401,7 +401,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                   </div>
                   <p className="mt-2 text-2xl font-bold tracking-tight text-amber-700 dark:text-amber-300">2 Audited</p>
                   <p className="mt-1 text-xs text-amber-600 dark:text-amber-400 font-medium">
-                    Taatee Balaa Tasaa (ICU & Trauma)
+                    Emergency Break-Glass Overrides
                   </p>
                 </div>
 
@@ -412,7 +412,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                   </div>
                   <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">100% Active</p>
                   <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    Bulchiinsaaf Ragaan Yaalaa Dhorkameera
+                    Administrative Clinical Data Masked
                   </p>
                 </div>
               </div>
@@ -423,7 +423,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                   <div>
                     <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
                       <Lock className="w-5 h-5 text-blue-600" />
-                      <span>Karaalee 4 Systemichi Soba Doktoraa fi Eeyyama Malee Seenuu Ittiin Qabu</span>
+                      <span>4 Architectural Pillars of Clinician Identity & Anti-Impersonation</span>
                     </h2>
                     <p className="text-xs text-slate-500 mt-0.5">
                       How Mettu Karl HIS detects, intercepts, and prevents clinical record siphoning & impersonation:
@@ -442,7 +442,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                     ) : (
                       <ShieldAlert className="w-4 h-4" />
                     )}
-                    <span>Yaalii Soba Doktoraa Qori (Simulate Intercept)</span>
+                    <span>Simulate Impersonation Intercept</span>
                   </button>
                 </div>
 
@@ -470,7 +470,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                   <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 space-y-2">
                     <div className="flex items-center gap-2 text-amber-900 font-bold text-xs">
                       <Server className="w-4 h-4 text-amber-600" />
-                      <span>3. Galmee Dachaafamaa (Audit Trail)</span>
+                      <span>3. Immutable Audit Trails</span>
                     </div>
                     <p className="text-[11.5px] text-slate-600 leading-relaxed">
                       Doktorri dhugaa yoo ta&apos;ellee, ragaa dhukkubsataa kutaa isaa hin taane yoo banee ilaale, teessoon IP, sa&apos;aatiin, fi ID&apos;n isaa galmee dachaafamaa hin danda&apos;amne (immutable flatfile & PostgreSQL) irratti yeruma sana qabama.
@@ -494,7 +494,7 @@ export default function ClinicalAuditPage(): React.ReactElement {
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
                     <Terminal className="w-4 h-4 text-slate-500" />
-                    <span>Galmee Qabatamaa Nageenyaa & Yaaliiwwan Dhaabaman (Live Security Stream)</span>
+                    <span>Live Security Sentinel Stream & Access Intercepts</span>
                   </h3>
                   <span className="text-xs font-mono text-slate-400">
                     To&apos;annoo Battalaa (Real-Time Live Feed)
@@ -542,17 +542,17 @@ export default function ClinicalAuditPage(): React.ReactElement {
                       <div className="mt-3 space-y-1.5 text-xs">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
                           <p>
-                            <span className="text-slate-400 font-semibold">Qaama Yaale (Actor): </span>
+                            <span className="text-slate-400 font-semibold">Actor Identity: </span>
                             <strong className="text-slate-900">{evt.actor}</strong>
                           </p>
                           <p>
-                            <span className="text-slate-400 font-semibold">Gahee Sobaa/Dhugaa: </span>
+                            <span className="text-slate-400 font-semibold">Role Claimed: </span>
                             <span className="font-mono text-blue-700 font-semibold">{evt.roleClaim}</span>
                           </p>
                         </div>
 
                         <p className="text-slate-700">
-                          <span className="text-slate-400 font-semibold">Ragaa Barbaadame: </span>
+                          <span className="text-slate-400 font-semibold">Target Resource: </span>
                           <strong className="text-slate-900 font-mono">{evt.targetResource}</strong>
                         </p>
 

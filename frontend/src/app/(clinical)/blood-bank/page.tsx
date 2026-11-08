@@ -332,7 +332,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
       setSelectedVoucher(data);
       setIsVoucherModalOpen(true);
     } catch (err: any) {
-      setActionError(err.message || 'Waraaqaa mirkaneessa dhiigaa fiduun hin dandaamne');
+      setActionError(err.message || 'Unable to retrieve blood clearance voucher');
     } finally {
       setActionLoading(false);
     }
@@ -396,12 +396,12 @@ function BloodBankWorkstationContent(): React.ReactElement {
         throw new Error(errData.detail || 'Failed to receive blood unit');
       }
 
-      setActionSuccess(`Yuunitiin dhiigaa '${payload.unit_number}' (${formatBloodGroup(payload.blood_group)}) milkaa'inaan galmaa'eera!`);
+      setActionSuccess(`Blood unit '${payload.unit_number}' (${formatBloodGroup(payload.blood_group)}) registered successfully!`);
       setIsReceiveModalOpen(false);
       setFormUnitBarcode('');
       fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Dhiiga galmeessuu irratti hanqinni uumame');
+      setActionError(err.message || 'Failed to register blood unit');
     } finally {
       setActionLoading(false);
     }
@@ -433,13 +433,13 @@ function BloodBankWorkstationContent(): React.ReactElement {
         throw new Error(errData.detail || 'Failed to register blood donor');
       }
 
-      setActionSuccess(`Arjoomaan dhiigaa '${formDonorName}' milkaa'inaan galmaa'eera!`);
+      setActionSuccess(`Blood donor '${formDonorName}' registered successfully!`);
       setIsDonorModalOpen(false);
       setFormDonorName('');
       setFormDonorPhone('');
       fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Arjoomaa galmeessuu hin dandeenye');
+      setActionError(err.message || 'Failed to register donor');
     } finally {
       setActionLoading(false);
     }
@@ -449,7 +449,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
   const handlePerformCrossmatch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formCmPatientId || !formCmUnitId) {
-      setActionError('Maaloo dhukkubsataa fi yuunitii dhiigaa filadhaa');
+      setActionError('Please select patient and blood unit');
       return;
     }
 
@@ -505,10 +505,10 @@ function BloodBankWorkstationContent(): React.ReactElement {
       });
       if (!res.ok) throw new Error('Status update failed');
       const updated = await res.json();
-      setActionSuccess(`Yuunitiin dhiigaa '${updated.unit_barcode}' gara '${targetStatus}' tti jijjiirameera.`);
+      setActionSuccess(`Blood unit '${updated.unit_barcode}' status updated to '${targetStatus}'.`);
       fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Haala yuunitii jijjiiruu hin dandeenye');
+      setActionError(err.message || 'Failed to update blood unit status');
     } finally {
       setActionLoading(false);
     }
@@ -579,7 +579,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-                      <span>Baankii Dhiigaa fi Eegumsa Kuusaa Dhiigaa</span>
+                      <span>Blood Bank & Reserves Management</span>
                       <span className="text-xs px-2.5 py-0.5 rounded-full font-mono font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30">
                         MOD-08
                       </span>
@@ -604,7 +604,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition-all cursor-pointer active:scale-95"
                 >
                   <Plus className="h-4 w-4 text-slate-950" />
-                  Yuunitii Dhiigaa Fudhadhu
+                  Receive Blood Unit
                 </button>
 
                 <button
@@ -622,7 +622,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#141d2e] hover:bg-[#1a253a] text-slate-200 font-semibold text-xs border border-slate-700/60 shadow-xs transition-all cursor-pointer active:scale-95"
                 >
                   <Users className="h-4 w-4 text-rose-400" />
-                  Arjoomaa Galmeessi
+                  Register Donor
                 </button>
 
                 <button
@@ -630,7 +630,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                   onClick={fetchAllData}
                   disabled={loading}
                   className="inline-flex items-center justify-center p-2.5 rounded-xl bg-[#101624] hover:bg-[#161f33] text-slate-400 hover:text-amber-300 border border-slate-800 transition-colors"
-                  title="Haaromsi (Refresh)"
+                  title="Refresh"
                 >
                   <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-amber-400' : ''}`} />
                 </button>
@@ -683,7 +683,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
             <div className="rounded-2xl border border-slate-800 bg-[#0e1422] p-5 shadow-sm hover:border-amber-500/30 transition-all">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="text-amber-400">✦</span> 1. Yuunitii Dhiigaa Waliigalaa
+                  <span className="text-amber-400">✦</span> 1. Total Blood Units
                 </span>
                 <span className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30">
                   <Droplet className="h-4 w-4" />
@@ -753,7 +753,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
             <div className="rounded-2xl border border-slate-800 bg-[#0e1422] p-5 shadow-sm hover:border-amber-500/30 transition-all">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono font-semibold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="text-amber-400">✦</span> 4. Crossmatch & Arjoomtota
+                  <span className="text-amber-400">✦</span> 4. Crossmatch & Donors
                 </span>
                 <span className="p-2 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30">
                   <TestTube2 className="h-4 w-4" />
@@ -762,7 +762,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
               <div className="mt-3 flex items-baseline justify-between">
                 <p className="text-3xl font-extrabold tracking-tight text-amber-300 font-mono">{stats.active_crossmatches_count} <span className="text-sm font-normal text-slate-400">Matches</span></p>
                 <div className="text-right text-[11px] text-slate-400 font-mono">
-                  <span>Arjoomtota: <strong className="text-white">{stats.total_donors_count}</strong></span>
+                  <span>Active Donors: <strong className="text-white">{stats.total_donors_count}</strong></span>
                 </div>
               </div>
               <div className="mt-3 pt-2 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
@@ -798,7 +798,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                 }`}
               >
                 <Droplet className="h-4 w-4" />
-                Yuunitii Dhiigaa ({units.length})
+                Blood Units ({units.length})
               </button>
 
               <button
@@ -824,7 +824,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                 }`}
               >
                 <Users className="h-4 w-4" />
-                Galmee Arjoomtotaa ({donors.length})
+                Donor Registry ({donors.length})
               </button>
             </div>
 
@@ -851,10 +851,10 @@ function BloodBankWorkstationContent(): React.ReactElement {
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <Layers className="h-4 w-4 text-amber-400" />
-                        Gartuuwwan Dhiigaa 8 fi Sadarkaa Kuusaa (ABO/Rh Inventory Matrix)
+                        ABO/Rh 8-Group Inventory Matrix
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Kuusaa dhiigaa qulqullaa'ee qabbana keessa taa'e (Packed Red Blood Cells, Plasma & Platelets)
+                        Screened blood component reserves stored under continuous cold-chain (PRBC, FFP, Platelets)
                       </p>
                     </div>
                     <span className="text-xs text-slate-400 font-mono">
@@ -952,7 +952,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-white">
-                        Simuleetara Wal-fudhatinsa Dhiigaa (Compatibility Simulator)
+                        Transfusion Compatibility Simulator
                       </h3>
                       <p className="text-[11px] text-slate-400">ISBT ABO & Rh Serology Verification</p>
                     </div>
@@ -961,7 +961,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                   <div className="space-y-4 text-xs">
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                        Gartuu Dhiiga Arjoomaa (Donor Unit Group)
+                        Donor Blood Group
                       </label>
                       <select
                         value={simDonorGroup}
@@ -976,7 +976,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
 
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                        Gartuu Dhiiga Dhukkubsataa (Recipient Patient Group)
+                        Recipient Patient Group
                       </label>
                       <select
                         value={simRecipientGroup}
@@ -1092,7 +1092,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       {filteredUnits.length === 0 ? (
                         <tr>
                           <td colSpan={9} className="px-5 py-10 text-center text-slate-500">
-                            Yuunitiin dhiigaa ulaagaa barbaadame wajjin walsimu hin argamne.
+                            No blood units found matching filter criteria.
                           </td>
                         </tr>
                       ) : (
@@ -1184,7 +1184,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <FileSpreadsheet className="h-4 w-4 text-amber-400" />
-                      Galmee Qorannoo Crossmatch & Mirkaneessa Dhiigaa
+                      Crossmatch & Compatibility Verification Records
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5">
                       ISBT Compatibility Certification & Chain-of-Custody for Inpatient & Emergency Wards
@@ -1207,7 +1207,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                         <th className="px-5 py-3.5">Code / Order</th>
                         <th className="px-5 py-3.5">Dhukkubsataa (Patient)</th>
                         <th className="px-5 py-3.5">ABO/Rh Dhukkubsataa</th>
-                        <th className="px-5 py-3.5">Yuunitii Dhiigaa</th>
+                        <th className="px-5 py-3.5">Blood Unit #</th>
                         <th className="px-5 py-3.5">Mala Qorannoo</th>
                         <th className="px-5 py-3.5">Bu'aa (Compatibility)</th>
                         <th className="px-5 py-3.5">Ogeessa Laabii</th>
@@ -1289,10 +1289,10 @@ function BloodBankWorkstationContent(): React.ReactElement {
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <Users className="h-4 w-4 text-amber-400" />
-                      Galmee Arjoomtota Dhiigaa (Voluntary & Replacement Donor Registry)
+                      Blood Donors Registry (Voluntary & Family Replacement)
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Arjoomtota tola-ooltootaa fi firoota dhukkubsataa deeggaran
+                      Directory of certified donors supporting emergency blood supply
                     </p>
                   </div>
                   <button
@@ -1301,7 +1301,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                     className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs cursor-pointer shadow-md"
                   >
                     <Plus className="h-4 w-4" />
-                    Arjoomaa Haaraa
+                    New Donor
                   </button>
                 </div>
 
@@ -1312,9 +1312,9 @@ function BloodBankWorkstationContent(): React.ReactElement {
                         <th className="px-5 py-3.5">Donor Code</th>
                         <th className="px-5 py-3.5">Maqaa Guutuu</th>
                         <th className="px-5 py-3.5">Lakk. Bilbilaa</th>
-                        <th className="px-5 py-3.5">Gartuu Dhiigaa</th>
-                        <th className="px-5 py-3.5">Arjooma Waliigalaa</th>
-                        <th className="px-5 py-3.5">Guyyaa Arjooma Dhumaa</th>
+                        <th className="px-5 py-3.5">Blood Group</th>
+                        <th className="px-5 py-3.5">Total Donations</th>
+                        <th className="px-5 py-3.5">Last Donation Date</th>
                         <th className="px-5 py-3.5 text-right">Ulaagaa (Eligibility)</th>
                       </tr>
                     </thead>
@@ -1322,7 +1322,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       {filteredDonors.length === 0 ? (
                         <tr>
                           <td colSpan={7} className="px-5 py-10 text-center text-slate-500">
-                            Arjoomaan dhiigaa hin argamne.
+                            No registered blood donors found.
                           </td>
                         </tr>
                       ) : (
@@ -1379,7 +1379,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       <Droplet className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Yuunitii Dhiigaa Fudhadhu (Receive Blood Unit)</h3>
+                      <h3 className="text-base font-bold text-white">Receive Blood Unit (Receive Blood Unit)</h3>
                       <p className="text-[11px] text-slate-400">ISBT-128 Barcode & Cold Vault Placement</p>
                     </div>
                   </div>
@@ -1405,7 +1405,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">Gartuu Dhiigaa (ABO/Rh)</label>
+                      <label className="block text-slate-300 font-semibold mb-1">Blood Group (ABO/Rh)</label>
                       <select
                         value={formBloodGroup}
                         onChange={(e) => setFormBloodGroup(e.target.value)}
@@ -1429,7 +1429,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                         <option value="PACKED_RBC">PRBC (Packed Red Blood Cells)</option>
                         <option value="FRESH_FROZEN_PLASMA">FFP (Fresh Frozen Plasma)</option>
                         <option value="PLATELETS">Platelets (Plaatileetii)</option>
-                        <option value="WHOLE_BLOOD">Whole Blood (Dhiiga Guutuu)</option>
+                        <option value="WHOLE_BLOOD">Whole Blood</option>
                       </select>
                     </div>
                     <div>
@@ -1516,14 +1516,14 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       onClick={() => setIsReceiveModalOpen(false)}
                       className="px-4 py-2 rounded-xl bg-[#141b2a] text-slate-300 font-semibold"
                     >
-                      Dhiisi (Cancel)
+                      Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={actionLoading}
                       className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-md cursor-pointer disabled:opacity-50"
                     >
-                      {actionLoading ? 'Galmeessaa jira...' : 'Galmeessi (Register Unit)'}
+                      {actionLoading ? 'Registering...' : 'Register Unit'}
                     </button>
                   </div>
                 </form>
@@ -1541,7 +1541,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       <Users className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Arjoomaa Galmeessi (Register Donor)</h3>
+                      <h3 className="text-base font-bold text-white">Register Donor (Register Donor)</h3>
                       <p className="text-[11px] text-slate-400">Voluntary & Replacement Donor Registry</p>
                     </div>
                   </div>
@@ -1556,7 +1556,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
 
                 <form onSubmit={handleRegisterDonor} className="space-y-4">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Maqaa Guutuu Arjoomaa</label>
+                    <label className="block text-slate-300 font-semibold mb-1">Donor Full Name</label>
                     <input
                       type="text"
                       value={formDonorName}
@@ -1580,7 +1580,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">Gartuu Dhiigaa</label>
+                      <label className="block text-slate-300 font-semibold mb-1">Blood Group</label>
                       <select
                         value={formDonorBloodGroup}
                         onChange={(e) => setFormDonorBloodGroup(e.target.value)}
@@ -1595,7 +1595,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">Arjooma Kanaan Duraa</label>
+                      <label className="block text-slate-300 font-semibold mb-1">Prior Donations</label>
                       <input
                         type="number"
                         value={formDonorDonations}
@@ -1631,7 +1631,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       disabled={actionLoading}
                       className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-md cursor-pointer disabled:opacity-50"
                     >
-                      {actionLoading ? 'Galmeessaa jira...' : 'Galmeessi'}
+                      {actionLoading ? 'Registering...' : 'Register'}
                     </button>
                   </div>
                 </form>
@@ -1689,7 +1689,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">Gartuu Dhiiga Dhukkubsataa</label>
+                      <label className="block text-slate-300 font-semibold mb-1">Patient Blood Group</label>
                       <select
                         value={formCmPatientBg}
                         onChange={(e) => setFormCmPatientBg(e.target.value)}
@@ -1701,14 +1701,14 @@ function BloodBankWorkstationContent(): React.ReactElement {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">Yuunitii Dhiigaa Filadhu</label>
+                      <label className="block text-slate-300 font-semibold mb-1">Select Blood Unit</label>
                       <select
                         value={formCmUnitId}
                         onChange={(e) => setFormCmUnitId(Number(e.target.value))}
                         className="w-full rounded-xl border border-slate-800 bg-[#090d16] px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none"
                         required
                       >
-                        <option value="">-- Yuunitii Dhiigaa Filadhu --</option>
+                        <option value="">-- Select Blood Unit --</option>
                         {units
                           .filter((u) => u.status.toUpperCase() === 'AVAILABLE')
                           .map((u) => (
@@ -1821,7 +1821,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                 {/* Certificate Title */}
                 <div className="text-center py-1 bg-amber-50 border border-amber-200 rounded-xl">
                   <span className="text-xs font-black uppercase tracking-widest text-amber-900">
-                    WARAAQAA MIRKANEESSA WAL-FUDHATINSA DHIIGAA (BLOOD TRANSFUSION CLEARANCE CERTIFICATE)
+                    BLOOD TRANSFUSION CLEARANCE & COMPATIBILITY CERTIFICATE
                   </span>
                 </div>
 
@@ -1846,7 +1846,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                         <span>{selectedVoucher.patient_age} yrs • {selectedVoucher.patient_gender.replace('Gender.', '')}</span>
                       </div>
                       <div className="flex justify-between pt-1 border-t border-slate-200">
-                        <span className="text-slate-500">Gartuu Dhiigaa:</span>
+                        <span className="text-slate-500">Blood Group:</span>
                         <span className="font-black text-sm text-rose-700 font-mono">{selectedVoucher.patient_blood_group}</span>
                       </div>
                     </div>
@@ -1855,7 +1855,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                   {/* Donor Unit Profile */}
                   <div className="space-y-2 p-4 rounded-2xl bg-slate-50 border border-slate-200">
                     <span className="font-bold text-[11px] uppercase tracking-wider text-slate-500 block border-b border-slate-200 pb-1">
-                      2. Odeeffannoo Yuunitii Dhiigaa (Donor Unit Profile)
+                      2. Odeeffannoo Blood Units (Donor Unit Profile)
                     </span>
                     <div className="space-y-1">
                       <div className="flex justify-between">
@@ -1871,7 +1871,7 @@ function BloodBankWorkstationContent(): React.ReactElement {
                         <span className="font-mono">{selectedVoucher.volume_ml} ml</span>
                       </div>
                       <div className="flex justify-between pt-1 border-t border-slate-200">
-                        <span className="text-slate-500">Gartuu Dhiiga Yuunitii:</span>
+                        <span className="text-slate-500">Unit Blood Group:</span>
                         <span className="font-black text-sm text-emerald-700 font-mono">{selectedVoucher.blood_unit_group}</span>
                       </div>
                     </div>

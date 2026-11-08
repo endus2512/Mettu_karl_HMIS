@@ -374,7 +374,7 @@ export default function PatientPortalPage(): React.ReactElement {
             total_amount_etb: 420.0,
             insurance_covered_etb: 336.0,
             patient_payable_etb: 84.0,
-            status: 'PENDING_PAYMENT (Kaffaltii Eega)',
+            status: 'PENDING_PAYMENT',
             items: [
               { description: 'OPD Senior Physician Consultation', amount_etb: 120.0 },
               { description: 'Laboratory CBC & CRP Diagnostic Panel', amount_etb: 180.0 },
@@ -394,7 +394,7 @@ export default function PatientPortalPage(): React.ReactElement {
         setQueueStatus({
           has_active_token: true,
           token_number: 'B-015',
-          department: 'Cardiology Clinic (Kutaa 02)',
+          department: 'Cardiology Clinic (Room 02)',
           current_serving_token: 'B-012',
           queue_position: 3,
           estimated_wait_minutes: 12,
@@ -404,7 +404,7 @@ export default function PatientPortalPage(): React.ReactElement {
         setQueueStatus({
           has_active_token: true,
           token_number: 'A-042',
-          department: 'OPD Internal Medicine (Kutaa 04)',
+          department: 'OPD Internal Medicine (Room 04)',
           current_serving_token: 'A-038',
           queue_position: 4,
           estimated_wait_minutes: 18,
@@ -476,8 +476,8 @@ export default function PatientPortalPage(): React.ReactElement {
         );
       }
       notifications.show({
-        title: 'Kaffaltiin Telebirr Milkaa\'eera!',
-        message: `Nagaheen herregaa #${payingInvoice?.invoice_number} qophaa'eera.`,
+        title: language === 'om' ? "Kaffaltiin Telebirr Milkaa'eera!" : language === 'am' ? 'የቴሌብር ክፍያ ተሳክቷል!' : 'Telebirr Payment Successful!',
+        message: language === 'om' ? `Nagaheen herregaa #${payingInvoice?.invoice_number} qophaa'eera.` : `Digital receipt #${payingInvoice?.invoice_number} generated successfully.`,
         color: 'teal',
       });
     }, 1500);
@@ -876,7 +876,7 @@ export default function PatientPortalPage(): React.ReactElement {
               <button
                 type="button"
                 onClick={handleInstantLogout}
-                title={language === 'om' ? "Poortaalii Dhukkubsataa Keessaa Ba'i (Logout)" : language === 'am' ? 'ከታካሚ ፖርታል ውጣ (Logout)' : 'Sign out of Patient Portal'}
+                title={language === 'om' ? "Poortaalii Dhukkubsataa Keessaa Ba'i (Logout)" : language === 'am' ? 'ከታካሚ ፖርታል ውጣ' : 'Sign out of Patient Portal'}
                 className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 hover:bg-rose-600 hover:border-rose-400 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-rose-300 hover:text-white transition-all duration-150 shadow-sm shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-95 cursor-pointer select-none touch-manipulation shrink-0"
                 aria-label="Logout"
               >
@@ -951,10 +951,14 @@ export default function PatientPortalPage(): React.ReactElement {
                     <QrCode className="h-5 w-5 text-teal-400" />
                     <div>
                       <span className="font-black text-emerald-950 dark:text-emerald-200 block">
-                        Bilbila Duudaa (Feature Phone) qabduu? Interneetii malee hordofaa!
+                        {language === 'om' ? 'Bilbila Duudaa (Feature Phone) qabduu? Interneetii malee hordofaa!' : 'Using a standard mobile phone? Track without internet!'}
                       </span>
                       <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
-                        Bilbila keessan irraa <strong className="font-mono text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/60 px-1 rounded">*907#</strong> bilbiluun dabaree OPD, qoricha, fi herrega Telebirr hordofaa.
+                        {language === 'om' ? (
+                          <>Bilbila keessan irraa <strong className="font-mono text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/60 px-1 rounded">*907#</strong> bilbiluun dabaree OPD, qoricha, fi herrega Telebirr hordofaa.</>
+                        ) : (
+                          <>Dial <strong className="font-mono text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/60 px-1 rounded">*907#</strong> from any phone to track your OPD queue token, prescriptions, and Telebirr bills.</>
+                        )}
                       </span>
                     </div>
                   </div>
@@ -980,7 +984,7 @@ export default function PatientPortalPage(): React.ReactElement {
                             Token Lakkoofsa <span className="text-teal-700 dark:text-teal-400 font-mono">{queueStatus?.token_number}</span>
                           </h2>
                           <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                            {queueStatus?.department} • Maaloo gara kutaa yaalaa dhihaadhaa.
+                            {queueStatus?.department} • Please proceed to consultation room.
                           </p>
                         </div>
                       </div>
@@ -1020,7 +1024,7 @@ export default function PatientPortalPage(): React.ReactElement {
                               {queueStatus?.current_serving_token}
                             </span>
                             <span className="block text-xs text-teal-800 mt-2 font-bold">
-                              Kutaa 04 • Dr. Bekele Tadesse
+                              Room 04 • Dr. Bekele Tadesse
                             </span>
                           </div>
 
@@ -1041,7 +1045,7 @@ export default function PatientPortalPage(): React.ReactElement {
                         {/* Journey Progress Bar */}
                         <div>
                           <div className="flex justify-between text-xs text-slate-600 mb-2 font-bold">
-                            <span>1. Galmee (Reception)</span>
+                            <span>1. Reception & Triage</span>
                             <span className="text-teal-700">2. Vitals (Completed)</span>
                             <span className="text-amber-700">3. Waiting Room (Active)</span>
                             <span className="text-slate-400">4. Doctor Consultation</span>
@@ -1055,12 +1059,12 @@ export default function PatientPortalPage(): React.ReactElement {
                       {/* Clinic Directions with Responsive Rectangle Form */}
                       <div className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150 space-y-4">
                         <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                          <Compass className="h-4 w-4 text-teal-400 inline mr-1.5" /> Qajeelfama Kutaa Yaalaa
+                          <Compass className="h-4 w-4 text-teal-400 inline mr-1.5" /> Clinic & Room Navigation Guide
                         </h3>
                         <div className="space-y-3 text-xs text-slate-700">
                           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                             <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs">01</span>
-                            <p>OPD Gamoo B, Dabaqa 1ffaa, Kutaa 04tti dhiyaadhaa.</p>
+                            <p>Proceed to OPD Building B, 1st Floor, Room 04.</p>
                           </div>
                           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                             <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs">02</span>
@@ -1068,7 +1072,7 @@ export default function PatientPortalPage(): React.ReactElement {
                           </div>
                           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                             <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs">03</span>
-                            <p>Qorannoo dhiigaa ykn faarmaasii yoo ajajame nagaheen Telebirr dafee qophaa&apos;a.</p>
+                            <p>When laboratory tests or medications are prescribed, your Telebirr digital bill is ready instantly.</p>
                           </div>
                         </div>
 
@@ -1173,7 +1177,7 @@ export default function PatientPortalPage(): React.ReactElement {
                       <div>
                         <h2 className="text-xl font-black text-slate-900">{t('my_prescriptions')}</h2>
                         <p className="text-xs text-slate-500">
-                          Ajaja qorichaa e-Prescription fi qajeelfama itti fayyadamaa sirrii
+                          Verified e-Prescriptions and instructions for take-home medications
                         </p>
                       </div>
                       <span className="rounded-xl border-2 border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
@@ -1246,7 +1250,7 @@ export default function PatientPortalPage(): React.ReactElement {
                       <div>
                         <h2 className="text-xl font-black text-slate-900">{t('billing_telebirr')}</h2>
                         <p className="text-xs text-slate-500">
-                          Inshuraansii CBHI (80% mootummaan kan uwwifame) fi nagahee kaffaltii Telebirr
+                          Community-Based Health Insurance (CBHI 80% covered) and Telebirr digital payments
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1326,7 +1330,7 @@ export default function PatientPortalPage(): React.ReactElement {
                     <div>
                       <h2 className="text-xl font-black text-slate-900">{t('telemedicine_tab')}</h2>
                       <p className="text-xs text-slate-500">
-                        Viidiyoo kallattii doktoora wajjin mari&apos;achuu fi beellama hospitaalaa
+                        Live video telemedicine consultations with your physician and appointment booking
                       </p>
                     </div>
 
@@ -1401,11 +1405,11 @@ export default function PatientPortalPage(): React.ReactElement {
                 <div className="space-y-4">
                   <div className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 space-y-2 text-xs">
                     <div className="flex justify-between text-slate-600">
-                      <span>Nagahee:</span>
+                      <span>Invoice:</span>
                       <span className="font-mono font-bold text-slate-900">{payingInvoice?.invoice_number}</span>
                     </div>
                     <div className="flex justify-between text-slate-600">
-                      <span>Iddoo Kaffaltii:</span>
+                      <span>Payment Gateway:</span>
                       <span className="text-slate-900 font-bold">{t('hospital_name')}</span>
                     </div>
                     <div className="flex justify-between text-slate-600 border-t border-slate-200 pt-2 text-sm font-bold">
@@ -1459,7 +1463,7 @@ export default function PatientPortalPage(): React.ReactElement {
                     <h4 className="text-lg font-black text-slate-900">{language === 'am' ? 'ክፍያው ተጠናቋል!' : language === 'en' ? 'Payment Successful!' : 'Kaffaltiin Milkaa\'eera!'}</h4>
                     <p className="text-xs text-slate-500 mt-1">Transaction ID: <span className="font-mono text-teal-800 font-bold">{txId}</span></p>
                     <p className="text-xs text-slate-600 mt-2">
-                      Nagaheen herregaa keessanii qophaa&apos;ee faarmaasii fi laaboraatorii tti ergameera.
+                      Your digital receipt has been generated and dispatched to the hospital pharmacy and laboratory.
                     </p>
                   </div>
                   <button
@@ -1522,7 +1526,7 @@ export default function PatientPortalPage(): React.ReactElement {
 
                 {/* Self View Floating Box */}
                 <div className="absolute bottom-4 right-4 h-28 w-40 rounded-xl bg-slate-800/95 border-2 border-slate-600 p-2 flex flex-col justify-between shadow-lg">
-                  <span className="text-[10px] text-teal-300 font-bold">Dhukkubsataa (You)</span>
+                  <span className="text-[10px] text-teal-300 font-bold">Patient (You)</span>
                   <div className="text-center text-xs text-slate-300">{profile?.full_name}</div>
                   <div className="flex justify-end gap-1 text-[10px]">
                     {micMuted && <MicOff className="h-3.5 w-3.5 text-rose-400 inline ml-1" />}

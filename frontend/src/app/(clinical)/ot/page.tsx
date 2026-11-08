@@ -587,7 +587,7 @@ function OTWorkstationContent(): React.ReactElement {
       }
     } catch (err: any) {
       console.error('Failed to load OT data:', err);
-      setActionError('Kuusaa deetaa hospitaalaa irraa deetaa baqaqsanii yaaluu argachuu hin dandeenye.');
+      setActionError('Failed to fetch surgical theatre data from hospital database.');
     } finally {
       setLoading(false);
     }
@@ -664,15 +664,15 @@ function OTWorkstationContent(): React.ReactElement {
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.detail || 'Beellama yaala baqaksaa galmeessuun hin dandaamne.');
+        throw new Error(errJson.detail || 'Failed to book surgical procedure.');
       }
 
-      setActionSuccess('Beellamni yaala baqaksaa milkaa\'inaan galmaa\'eera!');
+      setActionSuccess('Surgical procedure booked successfully!');
       setShowBookModal(false);
       setBookProcedure('');
       await fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Dogoggorri uumameera.');
+      setActionError(err.message || 'An error occurred while booking surgery.');
     } finally {
       setActionLoading(false);
     }
@@ -723,14 +723,14 @@ function OTWorkstationContent(): React.ReactElement {
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.detail || 'Checklist WHO mirkaneessuun hin dandaamne.');
+        throw new Error(errJson.detail || 'Failed to verify WHO checklist.');
       }
 
-      setActionSuccess('Checklist Nageenya Baqaqsanii Yaaluu WHO milkaa\'inaan mirkanaa\'eera!');
+      setActionSuccess('WHO Surgical Safety Checklist verified successfully!');
       setShowChecklistModal(false);
       await fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Dogoggorri uumameera.');
+      setActionError(err.message || 'An error occurred during checklist verification.');
     } finally {
       setActionLoading(false);
     }
@@ -755,14 +755,14 @@ function OTWorkstationContent(): React.ReactElement {
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.detail || 'Galmee yaala baqaksaa galmeessuun hin dandaamne.');
+        throw new Error(errJson.detail || 'Failed to save operative notes.');
       }
 
-      setActionSuccess('Galmeen yaala baqaksaa (Operative Notes) milkaa\'inaan qusatameera!');
+      setActionSuccess('Operative notes saved successfully!');
       setShowPostOpModal(false);
       await fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Dogoggorri uumameera.');
+      setActionError(err.message || 'An error occurred while saving notes.');
     } finally {
       setActionLoading(false);
     }
@@ -773,7 +773,7 @@ function OTWorkstationContent(): React.ReactElement {
     try {
       setActionLoading(true);
       const res = await fetch(`${API_BASE}/api/v1/ot/bookings/${booking.id}/voucher`);
-      if (!res.ok) throw new Error('Voucher baqaqsanii yaaluu argachuu hin dandeenye.');
+      if (!res.ok) throw new Error('Unable to retrieve surgical summary voucher.');
       const data = await res.json();
       setVoucherData(data);
       setShowVoucherModal(true);
@@ -802,13 +802,13 @@ function OTWorkstationContent(): React.ReactElement {
         }),
       });
 
-      if (!res.ok) throw new Error('Marsaa otookilaavii galmeessuun hin dandaamne.');
+      if (!res.ok) throw new Error('Failed to log autoclave cycle.');
 
-      setActionSuccess('Marsaan Qulqullina Meeshaa CSSD milkaa\'inaan galmaa\'eera!');
+      setActionSuccess('CSSD autoclave sterilization cycle logged successfully!');
       setShowBatchModal(false);
       await fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Dogoggorri uumameera.');
+      setActionError(err.message || 'An error occurred while logging cycle.');
     } finally {
       setActionLoading(false);
     }
@@ -818,7 +818,7 @@ function OTWorkstationContent(): React.ReactElement {
   const handleCreatePack = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!packName) {
-      setActionError('Mee maqaa meeshaa (Pack Name) galchaa.');
+      setActionError('Please enter sterile pack name.');
       return;
     }
     try {
@@ -834,14 +834,14 @@ function OTWorkstationContent(): React.ReactElement {
         }),
       });
 
-      if (!res.ok) throw new Error('Meeshaa qulqullaawaa galmeessuun hin dandaamne.');
+      if (!res.ok) throw new Error('Failed to register sterile instrument set.');
 
-      setActionSuccess('Setiin meeshaa qulqullaa\'e milkaa\'inaan galmaa\'eera!');
+      setActionSuccess('Sterile instrument pack registered successfully!');
       setShowPackModal(false);
       setPackName('');
       await fetchAllData();
     } catch (err: any) {
-      setActionError(err.message || 'Dogoggorri uumameera.');
+      setActionError(err.message || 'An error occurred while registering pack.');
     } finally {
       setActionLoading(false);
     }
@@ -905,14 +905,13 @@ function OTWorkstationContent(): React.ReactElement {
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
                   <Scissors className="w-7 h-7 text-amber-400 shrink-0" />
-                  <span>Kutaa Baqaqsanii Yaaluu & CSSD</span>
+                  <span>Operating Theatre & CSSD</span>
                   <span className="text-sm font-normal text-slate-400 hidden sm:inline">
                     (Operation Theatre & Sterilization Hub)
                   </span>
                 </h1>
                 <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
-                  To'annoo kutaa yaala baqaksaa (OT Suites 1–4), beellama baqaqsaa, sarara qulqullina meeshaa otookilaavii
-                  (134°C Autoclave Telemetry), fi mirkaneessa eegumsa lubbuu WHO Safety Checklist.
+                  Comprehensive surgical theatre management (Suites 1–4), autoclave sterilization telemetry (134°C CSSD), and verified WHO Surgical Safety Checklist compliance.
                 </p>
               </div>
 
@@ -923,7 +922,7 @@ function OTWorkstationContent(): React.ReactElement {
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs tracking-wide shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Beellama Baqaqsaa Haaraa</span>
+                  <span>Book New Surgery</span>
                 </button>
 
                 <button
@@ -946,7 +945,7 @@ function OTWorkstationContent(): React.ReactElement {
                   onClick={fetchAllData}
                   disabled={loading}
                   className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 active:scale-95 transition-all"
-                  title="Haaromsi / Refresh"
+                  title="Refresh"
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-amber-400' : ''}`} />
                 </button>
@@ -1000,7 +999,7 @@ function OTWorkstationContent(): React.ReactElement {
             {/* Scheduled Today */}
             <div className="p-4 rounded-xl bg-[#0c121e] border border-slate-800/80 shadow-md">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-medium text-slate-400">Beellama Har'aa (Scheduled)</span>
+                <span className="text-[11px] font-medium text-slate-400">Scheduled Surgeries</span>
                 <Calendar className="w-4 h-4 text-blue-400" />
               </div>
               <div className="mt-2 flex items-baseline gap-2">
@@ -1073,7 +1072,7 @@ function OTWorkstationContent(): React.ReactElement {
                 }`}
               >
                 <Calendar className="w-4 h-4" />
-                <span>Galmee Yaala Baqaksaa (Surgical Census)</span>
+                <span>Surgical Census & Booking Matrix</span>
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-slate-300">
                   {bookings.length}
                 </span>
@@ -1129,9 +1128,9 @@ function OTWorkstationContent(): React.ReactElement {
                 className="py-1.5 px-3 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-300 focus:outline-hidden focus:border-amber-400"
               >
                 <option value="all">Sadarkaa Hunda (All Statuses)</option>
-                <option value="in_surgery">In Surgery (Baqaqsaa Irra)</option>
+                <option value="in_surgery">In Surgery</option>
                 <option value="in_prep">In Prep (Qophii Irra)</option>
-                <option value="scheduled">Scheduled (Beellamame)</option>
+                <option value="scheduled">Scheduled</option>
                 <option value="completed">Completed (Xumurame)</option>
               </select>
             </div>
@@ -1322,7 +1321,7 @@ function OTWorkstationContent(): React.ReactElement {
                             className="w-full py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-amber-300 border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
                           >
                             <Plus className="w-3.5 h-3.5" />
-                            <span>Beellama Qabi</span>
+                            <span>Book Surgery</span>
                           </button>
                         )}
                       </div>
@@ -1503,7 +1502,7 @@ function OTWorkstationContent(): React.ReactElement {
                       ) : (
                         <tr>
                           <td colSpan={9} className="py-12 text-center text-slate-500">
-                            Beellamni yaala baqaksaa hin argamne.
+                            No surgical bookings found matching filter criteria.
                           </td>
                         </tr>
                       )}
@@ -1651,7 +1650,7 @@ function OTWorkstationContent(): React.ReactElement {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-white text-base">Galmee Meeshaalee Qulqullaa'an (Sterile Instrument Packs)</h3>
+                  <h3 className="font-bold text-white text-base">Sterile Instrument Packs Directory</h3>
                   <p className="text-xs text-slate-400">
                     Surgical instrument tray sets verified sterile with barcode tracking from CSSD to OT table.
                   </p>
@@ -1661,7 +1660,7 @@ function OTWorkstationContent(): React.ReactElement {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Meeshaa Haaraa Galmeessi</span>
+                  <span>Register Sterile Pack</span>
                 </button>
               </div>
 
@@ -1749,7 +1748,7 @@ function OTWorkstationContent(): React.ReactElement {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <div className="flex items-center gap-2.5">
                     <Scissors className="w-5 h-5 text-amber-400" />
-                    <h3 className="font-bold text-white text-base">Beellama Yaala Baqaksaa Haaraa</h3>
+                    <h3 className="font-bold text-white text-base">New Surgical Booking</h3>
                   </div>
                   <button
                     onClick={() => setShowBookModal(false)}
@@ -1876,14 +1875,14 @@ function OTWorkstationContent(): React.ReactElement {
                       onClick={() => setShowBookModal(false)}
                       className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium hover:bg-slate-700 transition-colors"
                     >
-                      Dhiisi (Cancel)
+                      Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={actionLoading}
                       className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold transition-all shadow-md shadow-amber-500/20"
                     >
-                      {actionLoading ? 'Galmeessaa jira...' : 'Galmeessi (Book Surgery)'}
+                      {actionLoading ? 'Booking...' : 'Book Surgery'}
                     </button>
                   </div>
                 </form>
@@ -1932,7 +1931,7 @@ function OTWorkstationContent(): React.ReactElement {
                     </div>
                     <ul className="text-slate-300 space-y-1 list-disc list-inside text-[11px]">
                       <li>Eenyummaan dhukkubsataa, iddoon yaalaa, fi heyyamsi mirkanaa'eera.</li>
-                      <li>Iddoon baqaqsaa sirriitti mallatteeffameera (Site Marked).</li>
+                      <li>Surgical site is marked and verified.</li>
                       <li>Meeshaan oksijiinii (Pulse Oximeter) hojjetaa jiraachuun mirkanaa'eera.</li>
                       <li>Alarjii fi rakkoon qilleensa fudhachuu (Airway Risk) ilaallameera.</li>
                     </ul>
@@ -1953,7 +1952,7 @@ function OTWorkstationContent(): React.ReactElement {
                     </div>
                     <ul className="text-slate-300 space-y-1 list-disc list-inside text-[11px]">
                       <li>Miseensonni garee yaalaa hundi wal-beesisaniiru (Team Introductions).</li>
-                      <li>Maqaa dhukkubsataa, yaala baqaqsaa, fi iddoo yaalaa sagaleen mirkaneessaniiru.</li>
+                      <li>Team members introduced; confirmed patient name, procedure, and operative site verbally.</li>
                       <li>Qorichi ittisa baakteeriyaa (Antibiotic Prophylaxis) daqiiqaa 60 keessatti kennameera.</li>
                       <li>Suuraan sakatta'iinsaa (X-ray/CT) teessoo yaalaa irratti mul'achaa jira.</li>
                     </ul>
@@ -1974,7 +1973,7 @@ function OTWorkstationContent(): React.ReactElement {
                     </div>
                     <ul className="text-slate-300 space-y-1 list-disc list-inside text-[11px]">
                       <li>Baay'inni meeshaalee, ispoonjii, fi lilmoo sirriitti lakkaa'amaniiru (Instrument Counts).</li>
-                      <li>Saamudli qorannoo (Biopsy Specimen) maqaa dhukkubsataan sirriitti barreeffameera.</li>
+                      <li>Biopsy specimens labeled correctly with patient identity and tissue type.</li>
                       <li>Qulqullinni fi sirrummaan meeshaa teknikaalaa mirkanaa'eera.</li>
                       <li>Qajeelfamni bayyanachuu (Post-Op Recovery Concerns) qophaa'eera.</li>
                     </ul>
@@ -1987,7 +1986,7 @@ function OTWorkstationContent(): React.ReactElement {
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="Hubannoo dabalataa garee baqaqsaan..."
+                      placeholder="Additional WHO surgical safety notes..."
                       value={checklistNotes}
                       onChange={(e) => setChecklistNotes(e.target.value)}
                       className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-hidden focus:border-teal-400"
@@ -2001,7 +2000,7 @@ function OTWorkstationContent(): React.ReactElement {
                       onClick={() => setShowChecklistModal(false)}
                       className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium hover:bg-slate-700 transition-colors"
                     >
-                      Dhiisi
+                      Cancel
                     </button>
                     <button
                       type="button"
@@ -2027,7 +2026,7 @@ function OTWorkstationContent(): React.ReactElement {
                   <div className="flex items-center gap-2.5">
                     <FileText className="w-5 h-5 text-amber-400" />
                     <div>
-                      <h3 className="font-bold text-white text-base">Galmee Yaala Baqaksaa (Operative Notes)</h3>
+                      <h3 className="font-bold text-white text-base">Operative Notes & Surgical Record</h3>
                       <p className="text-xs text-slate-400 font-mono">
                         {selectedBooking.patient_name} • {selectedBooking.procedure_name}
                       </p>
@@ -2049,7 +2048,7 @@ function OTWorkstationContent(): React.ReactElement {
                     </label>
                     <textarea
                       rows={3}
-                      placeholder="Wanta yeroo baqaqsaa argame gabaasi..."
+                      placeholder="Document surgical findings, technique, blood loss, and closures..."
                       value={intraOpFindings}
                       onChange={(e) => setIntraOpFindings(e.target.value)}
                       className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-hidden focus:border-amber-400"
@@ -2103,14 +2102,14 @@ function OTWorkstationContent(): React.ReactElement {
                       onClick={() => setShowPostOpModal(false)}
                       className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium hover:bg-slate-700 transition-colors"
                     >
-                      Dhiisi
+                      Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={actionLoading}
                       className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold transition-all shadow-md shadow-amber-500/20"
                     >
-                      {actionLoading ? 'Qusataa jira...' : 'Galmee Qusadhu (Save Notes)'}
+                      {actionLoading ? 'Saving...' : 'Save Operative Notes'}
                     </button>
                   </div>
                 </form>
@@ -2139,7 +2138,7 @@ function OTWorkstationContent(): React.ReactElement {
 
                 <div className="space-y-3 text-xs">
                   <p className="text-slate-300">
-                    Beellama: <span className="font-bold text-amber-300">{selectedBooking.booking_code}</span>
+                    Booking: <span className="font-bold text-amber-300">{selectedBooking.booking_code}</span>
                     <br />
                     Dhukkubsataa: <span className="font-bold text-white">{selectedBooking.patient_name}</span>
                   </p>
@@ -2151,9 +2150,9 @@ function OTWorkstationContent(): React.ReactElement {
                       onChange={(e) => setTargetStatus(e.target.value)}
                       className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 focus:outline-hidden focus:border-amber-400"
                     >
-                      <option value="scheduled">Scheduled (Beellamame)</option>
+                      <option value="scheduled">Scheduled</option>
                       <option value="in_prep">In Preparation (Qophii Teessoo Irra)</option>
-                      <option value="in_surgery">In Surgery (Baqaqsaa Irra)</option>
+                      <option value="in_surgery">In Surgery</option>
                       <option value="in_recovery">In Recovery (Kutaa Bayyanachuu PACU)</option>
                       <option value="completed">Completed (Xumurame)</option>
                       <option value="cancelled">Cancelled (Haqame)</option>
@@ -2166,7 +2165,7 @@ function OTWorkstationContent(): React.ReactElement {
                       onClick={() => setShowStatusModal(false)}
                       className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium hover:bg-slate-700"
                     >
-                      Dhiisi
+                      Cancel
                     </button>
                     <button
                       type="button"
@@ -2191,7 +2190,7 @@ function OTWorkstationContent(): React.ReactElement {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <div className="flex items-center gap-2">
                     <Flame className="w-5 h-5 text-teal-400" />
-                    <h3 className="font-bold text-white text-base">Marsaa Otookilaavii Galmeessi</h3>
+                    <h3 className="font-bold text-white text-base">Log Autoclave Sterilization Cycle</h3>
                   </div>
                   <button
                     onClick={() => setShowBatchModal(false)}
@@ -2273,14 +2272,14 @@ function OTWorkstationContent(): React.ReactElement {
                       onClick={() => setShowBatchModal(false)}
                       className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium hover:bg-slate-700"
                     >
-                      Dhiisi
+                      Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={actionLoading}
                       className="px-5 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-950 font-bold transition-all shadow-md shadow-teal-500/20"
                     >
-                      {actionLoading ? 'Galmeessaa...' : 'Galmeessi'}
+                      {actionLoading ? 'Saving...' : 'Save Cycle'}
                     </button>
                   </div>
                 </form>
@@ -2297,7 +2296,7 @@ function OTWorkstationContent(): React.ReactElement {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <div className="flex items-center gap-2">
                     <Layers className="w-5 h-5 text-amber-400" />
-                    <h3 className="font-bold text-white text-base">Meeshaa Qulqullaa'e Galmeessi</h3>
+                    <h3 className="font-bold text-white text-base">Log Sterile Instrument Pack</h3>
                   </div>
                   <button
                     onClick={() => setShowPackModal(false)}
@@ -2358,14 +2357,14 @@ function OTWorkstationContent(): React.ReactElement {
                       onClick={() => setShowPackModal(false)}
                       className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium hover:bg-slate-700"
                     >
-                      Dhiisi
+                      Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={actionLoading}
                       className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold transition-all shadow-md shadow-amber-500/20"
                     >
-                      {actionLoading ? 'Galmeessaa...' : 'Galmeessi Setii'}
+                      {actionLoading ? 'Registering...' : 'Register Pack'}
                     </button>
                   </div>
                 </form>

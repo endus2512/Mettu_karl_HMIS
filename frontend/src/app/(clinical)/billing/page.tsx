@@ -256,7 +256,7 @@ export default function BillingPage(): React.ReactElement {
       console.error('Telebirr error:', err);
       notifications.show({
         title: 'Telebirr Error',
-        message: err.response?.data?.detail || 'Kaffaltii Telebirr jalqabsiisuu hin dandeenye.',
+        message: err.response?.data?.detail || 'Unable to initiate Telebirr payment transaction.',
         color: 'red',
       });
     } finally {
@@ -317,7 +317,7 @@ export default function BillingPage(): React.ReactElement {
       console.error('Cashier settlement error:', err);
       notifications.show({
         title: 'Settlement Error',
-        message: err.response?.data?.detail || 'Kaffaltii galmeessuu hin dandeenye.',
+        message: err.response?.data?.detail || 'Unable to create billing invoice.',
         color: 'red',
       });
     } finally {
@@ -339,7 +339,7 @@ export default function BillingPage(): React.ReactElement {
   const handleCreateInvoiceSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newInvoiceItems.length === 0) {
-      notifications.show({ title: 'Validation Error', message: 'Tajaajila yoo xiqqaate tokko dabalaa.', color: 'red' });
+      notifications.show({ title: 'Validation Error', message: 'Please add at least one billable service item.', color: 'red' });
       return;
     }
     try {

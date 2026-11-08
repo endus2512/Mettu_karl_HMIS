@@ -227,7 +227,7 @@ export function LabTechDashboardView(): React.ReactElement {
                 <th className="pb-2">Specimen ID / MRN</th>
                 <th className="pb-2">{lang === 'om' ? 'Dhukkubsataa' : 'Patient Name'}</th>
                 <th className="pb-2">{lang === 'om' ? 'Qorannoo Gaafatame' : 'Test Panel'}</th>
-                <th className="pb-2">Kutaa (Dept)</th>
+                <th className="pb-2">{lang === 'om' ? 'Kutaa (Dept)' : 'Department'}</th>
                 <th className="pb-2">Priority</th>
                 <th className="pb-2">Status</th>
                 <th className="pb-2 text-right">Action</th>
