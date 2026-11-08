@@ -471,7 +471,9 @@ export default function HomePage(): React.ReactElement {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-bold text-amber-400 font-mono">Main Campus</span>
-                      <h4 className="text-xs font-bold text-white">Ijaarsa Hospitaala Karl Mattuu</h4>
+                      <h4 className="text-xs font-bold text-white">
+                        {language === 'om' ? 'Ijaarsa Hospitaala Karl Mattuu' : 'Mettu Karl Main Hospital Complex'}
+                      </h4>
                     </div>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                       Operational 24/7
@@ -487,14 +489,14 @@ export default function HomePage(): React.ReactElement {
                   className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-[#141b29] hover:bg-[#1a2233] text-xs font-semibold text-slate-200 border border-[#2b374e] transition-all"
                 >
                   <Bed className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Kutaa Ciisichaa (IPD)</span>
+                  <span>{language === 'om' ? 'Kutaa Ciisichaa (IPD)' : language === 'am' ? 'የተኝቶ ታካሚ (IPD)' : 'Inpatient Wards (IPD)'}</span>
                 </Link>
                 <Link
                   href="/queue"
                   className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-[#141b29] hover:bg-[#1a2233] text-xs font-semibold text-slate-200 border border-[#2b374e] transition-all"
                 >
                   <Ticket className="w-3.5 h-3.5 text-teal-400" />
-                  <span>Dabaree Waamuu (Queue)</span>
+                  <span>{language === 'om' ? 'Dabaree Waamuu (Queue)' : language === 'am' ? 'የተራ መጥሪያ (Queue)' : 'OPD Queue System'}</span>
                 </Link>
               </div>
             </div>
@@ -511,15 +513,31 @@ export default function HomePage(): React.ReactElement {
             <div>
               <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">
                 <Layers className="w-3.5 h-3.5" />
-                <span>Kaartaa Kutaalee Hospitaalaa (Campus Architecture)</span>
+                <span>
+                  {language === 'om'
+                    ? 'Kaartaa Kutaalee Hospitaalaa (Campus Architecture)'
+                    : language === 'am'
+                    ? 'የሆስፒታሉ ግቢ ካርታ (Campus Architecture)'
+                    : 'Hospital Campus Complex & Facility Architecture'}
+                </span>
               </div>
-              <h3 className="text-2xl font-bold text-white">Kutaalee fi Ijaarsawwan Hospitaala Karl Mattuu</h3>
+              <h3 className="text-2xl font-bold text-white">
+                {language === 'om'
+                  ? 'Kutaalee fi Ijaarsawwan Hospitaala Karl Mattuu'
+                  : language === 'am'
+                  ? 'የመቱ ካርል ሆስፒታል ህንፃዎችና የስራ ክፍሎች'
+                  : 'Mettu Karl Hospital Specialized Buildings & Clinical Blocks'}
+              </h3>
               <p className="text-xs text-slate-400 mt-1">
-                Kutaalee armaan gadii filachuun tajaajiloota fi haala hojii isaanii battalatti qoradhaa
+                {language === 'om'
+                  ? 'Kutaalee armaan gadii filachuun tajaajiloota fi haala hojii isaanii battalatti qoradhaa'
+                  : language === 'am'
+                  ? 'ከዚህ በታች ያሉትን ክፍሎች በመምረጥ አገልግሎታቸውንና የቀጥታ የስራ ሁኔታቸውን ይመልከቱ'
+                  : 'Select a clinical facility below to review bed capacities, specialized units, and live operational readiness.'}
               </p>
             </div>
             <span className="text-xs text-slate-400 font-mono">
-              {filteredBlocks.length} Kutaalee Qindaa'an
+              {filteredBlocks.length} {language === 'om' ? "Kutaalee Qindaa'an" : 'Facilities Active'}
             </span>
           </div>
 
@@ -529,6 +547,8 @@ export default function HomePage(): React.ReactElement {
               {filteredBlocks.map((block) => {
                 const isSelected = activeBlock.id === block.id;
                 const IconComponent = block.icon;
+                const blockTitle = language === 'om' ? block.name_om : block.name_en;
+                const blockSub = language === 'om' ? block.name_en : block.name_om;
                 return (
                   <div
                     key={block.id}
@@ -548,8 +568,9 @@ export default function HomePage(): React.ReactElement {
                           {block.code}
                         </span>
                       </div>
-                      <h4 className="text-sm font-bold text-white mt-3">{block.name_om}</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">{block.name_en}</p>
+
+                      <h4 className="text-sm font-bold text-white mt-3">{blockTitle}</h4>
+                      <p className="text-xs text-slate-400 mt-0.5">{blockSub}</p>
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-[#1f293d] flex items-center justify-between text-[11px]">
@@ -575,7 +596,9 @@ export default function HomePage(): React.ReactElement {
                     </div>
                     <div>
                       <span className="text-[10px] uppercase font-bold font-mono text-amber-400">{activeBlock.code}</span>
-                      <h4 className="text-base font-bold text-white">{activeBlock.name_om}</h4>
+                      <h4 className="text-base font-bold text-white">
+                        {language === 'om' ? activeBlock.name_om : activeBlock.name_en}
+                      </h4>
                     </div>
                   </div>
                   <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#1a2233] text-emerald-300 border border-emerald-500/30">
@@ -585,11 +608,15 @@ export default function HomePage(): React.ReactElement {
 
                 <div className="mt-4 space-y-3 text-xs">
                   <div>
-                    <span className="text-slate-400 font-medium">Bakka (Location):</span>
+                    <span className="text-slate-400 font-medium">
+                      {language === 'om' ? 'Bakka (Location):' : 'Location:'}
+                    </span>
                     <p className="text-slate-200 font-semibold">{activeBlock.floor}</p>
                   </div>
                   <div>
-                    <span className="text-slate-400 font-medium">Ibsa Kutaichaa (Overview):</span>
+                    <span className="text-slate-400 font-medium">
+                      {language === 'om' ? 'Ibsa Kutaichaa (Overview):' : 'Department Overview:'}
+                    </span>
                     <p className="text-slate-300 leading-relaxed mt-0.5">{activeBlock.description}</p>
                   </div>
                 </div>
@@ -597,7 +624,7 @@ export default function HomePage(): React.ReactElement {
                 {/* Services list */}
                 <div className="mt-5">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                    Tajaajiloota Ijoo (Core Services):
+                    {language === 'om' ? 'Tajaajiloota Ijoo (Core Services):' : 'Core Clinical Services:'}
                   </span>
                   <div className="space-y-1.5">
                     {activeBlock.services.map((srv, idx) => (
@@ -616,7 +643,13 @@ export default function HomePage(): React.ReactElement {
                   href={activeBlock.link}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md transition-all hover:scale-[1.02]"
                 >
-                  <span>Gara Kutaa Kanaan Seeni (Open Workstation)</span>
+                  <span>
+                    {language === 'om'
+                      ? 'Gara Kutaa Kanaan Seeni (Open Workstation)'
+                      : language === 'am'
+                      ? 'ወደ ስራ ክፍሉ ግባ (Open Workstation)'
+                      : 'Open Clinical Workstation'}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -632,13 +665,17 @@ export default function HomePage(): React.ReactElement {
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-              Tajaajila Hatattamaa fi Klinikaalaa
+              {language === 'om' ? 'Tajaajila Hatattamaa fi Klinikaalaa' : language === 'am' ? 'አስቸኳይና ክሊኒካል አገልግሎቶች' : 'Emergency & Clinical Workstations'}
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
-              Kutaalee fi Moduulota HMIS
+              {language === 'om' ? 'Kutaalee fi Moduulota HMIS' : language === 'am' ? 'የኤች.ኤም.አይ.ኤስ ክፍሎችና ሞጁሎች' : 'Core Hospital Information System Modules'}
             </h3>
             <p className="text-xs sm:text-sm text-slate-400 mt-2">
-              Doktaroonni, narsiiwwan, ogeessonni laaboratorii, faarmaasiistoonni, fi dhukkubsattoonni kallattiin itti fayyadamuu danda'u
+              {language === 'om'
+                ? "Doktaroonni, narsiiwwan, ogeessonni laaboratorii, faarmaasiistoonni, fi dhukkubsattoonni kallattiin itti fayyadamuu danda'u"
+                : language === 'am'
+                ? 'ሀኪሞች፣ ነርሶች፣ የላቦራቶሪና የፋርማሲ ባለሙያዎች እንዲሁም ታካሚዎች በቀጥታ የሚገለገሉባቸው የስራ ክፍሎች'
+                : 'Empowering physicians, nurses, pharmacists, laboratory scientists, and patients with real-time digital care.'}
             </p>
           </div>
 
@@ -652,13 +689,15 @@ export default function HomePage(): React.ReactElement {
                 <AlertOctagon className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-white mt-4 group-hover:text-rose-300 transition-colors">
-                Balaa & Triage (START)
+                {language === 'om' ? 'Balaa & Triage (START)' : 'Emergency & START Triage'}
               </h4>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Sadarkaalee Triage (Diimaa, Keelloo, Magariisa, Gurraacha) fi balaa tasaa to'achuu.
+                {language === 'om'
+                  ? 'Sadarkaalee Triage (Diimaa, Keelloo, Magariisa, Gurraacha) fi balaa tasaa to\'achuu.'
+                  : 'Mass casualty START disaster triage classification (Red, Yellow, Green, Black) and acute resuscitation protocols.'}
               </p>
               <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-rose-400">
-                <span>Ilaali</span> <ChevronRight className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Ilaali' : 'Open'}</span> <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </Link>
 
@@ -671,13 +710,15 @@ export default function HomePage(): React.ReactElement {
                 <Ticket className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-white mt-4 group-hover:text-amber-300 transition-colors">
-                To'annoo Dabaree (Queue)
+                {language === 'om' ? 'To\'annoo Dabaree (Queue)' : 'OPD Smart Queue System'}
               </h4>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Tikeettii dabaree OPD, TV Display waamicha sagalee Afaan Oromootiin qindeessuu.
+                {language === 'om'
+                  ? 'Tikeettii dabaree OPD, TV Display waamicha sagalee Afaan Oromootiin qindeessuu.'
+                  : 'Automated ticket token dispensing, TV queue displays, audio voice announcements, and room routing.'}
               </p>
               <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-amber-400">
-                <span>Ilaali</span> <ChevronRight className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Ilaali' : 'Open'}</span> <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </Link>
 
@@ -690,13 +731,15 @@ export default function HomePage(): React.ReactElement {
                 <FlaskConical className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-white mt-4 group-hover:text-cyan-300 transition-colors">
-                Laabooratorii & Dhiiga (LIS)
+                {language === 'om' ? 'Laabooratorii & Dhiiga (LIS)' : 'Diagnostic Pathology (LIS)'}
               </h4>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Qorannoo dhiigaa, dhiiga wal-simsiisuu (Crossmatch), fi akeekkachiisa balaa hatattamaa.
+                {language === 'om'
+                  ? 'Qorannoo dhiigaa, dhiiga wal-simsiisuu (Crossmatch), fi akeekkachiisa balaa hatattamaa.'
+                  : 'CBC analyzer telemetry, immunohematology crossmatching, critical panic alerts, and QC validation.'}
               </p>
               <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-cyan-400">
-                <span>Ilaali</span> <ChevronRight className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Ilaali' : 'Open'}</span> <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </Link>
 
@@ -709,13 +752,15 @@ export default function HomePage(): React.ReactElement {
                 <Scan className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-white mt-4 group-hover:text-teal-300 transition-colors">
-                Raajii & DICOM (PACS)
+                {language === 'om' ? 'Raajii & DICOM (PACS)' : 'PACS Radiology & DICOM Viewer'}
               </h4>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Suuraa DICOM sakatta'uu, safartuu Caliper, Preset WW/WL, fi gabaasa doktooraa.
+                {language === 'om'
+                  ? 'Suuraa DICOM sakatta\'uu, safartuu Caliper, Preset WW/WL, fi gabaasa doktooraa.'
+                  : 'High-resolution DICOM web viewer, digital calipers, window/level presets, and radiologist diagnostic reporting.'}
               </p>
               <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-teal-400">
-                <span>Ilaali</span> <ChevronRight className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Ilaali' : 'Open'}</span> <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </Link>
 
@@ -728,13 +773,15 @@ export default function HomePage(): React.ReactElement {
                 <Bed className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-white mt-4 group-hover:text-emerald-300 transition-colors">
-                Kutaa Ciisichaa (IPD)
+                {language === 'om' ? 'Kutaa Ciisichaa (IPD)' : 'Inpatient Ward & Bed Census'}
               </h4>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Kaartaa siree (Bed Matrix), galmee ciisichaa, dabarsa siree, fi baasii dhukkubsataa.
+                {language === 'om'
+                  ? 'Kaartaa siree (Bed Matrix), galmee ciisichaa, dabarsa siree, fi baasii dhukkubsataa.'
+                  : 'Real-time bed occupancy grid, acute admissions, bed-to-bed transfers, and discharge summaries.'}
               </p>
               <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-emerald-400">
-                <span>Ilaali</span> <ChevronRight className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Ilaali' : 'Open'}</span> <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </Link>
 
@@ -747,13 +794,15 @@ export default function HomePage(): React.ReactElement {
                 <Pill className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-white mt-4 group-hover:text-blue-300 transition-colors">
-                Faarmaasii & Qoricha
+                {language === 'om' ? 'Faarmaasii & Qoricha' : 'Pharmacy & FEFO Inventory'}
               </h4>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Ajaja qorichaa dhiyeessuu, kuusaa FEFO to'achuu, fi akeekkachiisa wal-nyaatinsa qorichaa.
+                {language === 'om'
+                  ? 'Ajaja qorichaa dhiyeessuu, kuusaa FEFO to\'achuu, fi akeekkachiisa wal-nyaatinsa qorichaa.'
+                  : 'Prescription dispensing, batch expiry tracking (First-Expired, First-Out), and critical drug-drug interaction alerts.'}
               </p>
               <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-blue-400">
-                <span>Ilaali</span> <ChevronRight className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Ilaali' : 'Open'}</span> <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </Link>
 
@@ -766,13 +815,15 @@ export default function HomePage(): React.ReactElement {
                 <CreditCard className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-white mt-4 group-hover:text-amber-300 transition-colors">
-                Kaffaltii & CBHI
+                {language === 'om' ? 'Kaffaltii & CBHI' : 'Billing, Telebirr & CBHI Claims'}
               </h4>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Nagahee elektirooniksii, kaffaltii Telebirr, fi inshuraansii fayyaa hawaasaa (CBHI).
+                {language === 'om'
+                  ? 'Nagahee elektirooniksii, kaffaltii Telebirr, fi inshuraansii fayyaa hawaasaa (CBHI).'
+                  : 'Electronic fiscal invoicing, Telebirr digital gateway, and Community-Based Health Insurance claims adjudication.'}
               </p>
               <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-amber-400">
-                <span>Ilaali</span> <ChevronRight className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Ilaali' : 'Open'}</span> <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </Link>
 
@@ -785,13 +836,15 @@ export default function HomePage(): React.ReactElement {
                 <UserCheck className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-white mt-4 group-hover:text-teal-300 transition-colors">
-                Poortaalii Dhukkubsataa
+                {language === 'om' ? 'Poortaalii Dhukkubsataa' : 'Patient Self-Service Portal'}
               </h4>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Bu'aa qorannoo laaboratorii, ajaja qorichaa, fi lakkoofsa dabaree mobaayilaan hordofuu.
+                {language === 'om'
+                  ? 'Bu\'aa qorannoo laaboratorii, ajaja qorichaa, fi lakkoofsa dabaree mobaayilaan hordofuu.'
+                  : 'Direct mobile access to queue tokens, lab test results, prescription history, Telebirr payments, and telemedicine.'}
               </p>
               <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-teal-400">
-                <span>Ilaali</span> <ChevronRight className="w-3.5 h-3.5" />
+                <span>{language === 'om' ? 'Ilaali' : 'Open'}</span> <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </Link>
           </div>
@@ -805,14 +858,21 @@ export default function HomePage(): React.ReactElement {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 p-8 rounded-3xl border border-amber-500/30 bg-[#101624] shadow-2xl relative overflow-hidden">
           <div className="max-w-xl">
             <span className="text-xs font-bold font-mono text-amber-400 uppercase tracking-wider">
-              Tajaajila Dhukkubsataa Mobaayilaa (Patient Self-Service)
+              {language === 'om' ? 'Tajaajila Dhukkubsataa Mobaayilaa (Patient Self-Service)' : 'Mobile Patient Self-Service Experience'}
             </span>
             <h3 className="text-xl sm:text-2xl font-black text-white mt-1">
-              Bu'aa Qorannoo fi Tikeettii Dabaree Keessan Mobaayilaan Hordofaa
+              {language === 'om'
+                ? "Bu'aa Qorannoo fi Tikeettii Dabaree Keessan Mobaayilaan Hordofaa"
+                : language === 'am'
+                ? 'የምርመራ ውጤትዎንና የተራ ቁጥርዎን በሞባይልዎ ይከታተሉ'
+                : 'Track Your Lab Results, Queue Tokens & Prescriptions on Mobile'}
             </h3>
             <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-              Koodii Fayda NID, MRN, ykn lakk. bilbilaa keessaniin galmaa'uun bu'aa qorannoo laabooratorii, qoricha
-              ajajame, fi kaffaltii Telebirr salphaatti raawwadhaa.
+              {language === 'om'
+                ? "Koodii Fayda NID, MRN, ykn lakk. bilbilaa keessaniin galmaa'uun bu'aa qorannoo laabooratorii, qoricha ajajame, fi kaffaltii Telebirr salphaatti raawwadhaa."
+                : language === 'am'
+                ? 'በፋይዳ ዲጂታል መታወቂያ፣ በሆስፒታል MRN ወይም በስልክ ቁጥርዎ በመግባት የላቦራቶሪ ውጤቶችን ይመልከቱ፣ በቴሌብር ይክፈሉ።'
+                : 'Sign in with your Fayda National ID (FAN), Hospital MRN, or verified phone number to inspect pathology reports, pay via Telebirr, and book appointments.'}
             </p>
           </div>
 
@@ -822,14 +882,14 @@ export default function HomePage(): React.ReactElement {
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:scale-105"
             >
               <UserCheck className="w-4 h-4" />
-              <span>Poortaalii Dhukkubsataatti Seeni</span>
+              <span>{language === 'om' ? 'Poortaalii Dhukkubsataatti Seeni' : language === 'am' ? 'ወደ ታካሚ ፖርታል ግባ' : 'Access Patient Portal'}</span>
             </Link>
             <Link
               href="/login"
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-semibold bg-[#1a2233] hover:bg-[#253047] text-slate-200 border border-[#2b374e] transition-all"
             >
               <LogIn className="w-4 h-4 text-amber-400" />
-              <span>Seensa Hojjattootaa (Staff)</span>
+              <span>{language === 'om' ? 'Seensa Hojjattootaa (Staff)' : language === 'am' ? 'የሰራተኞች መግቢያ' : 'Clinician & Staff Login'}</span>
             </Link>
           </div>
         </div>
@@ -846,74 +906,85 @@ export default function HomePage(): React.ReactElement {
               <span>Mettu Karl Specialized Hospital</span>
             </div>
             <p className="text-[11px] leading-relaxed text-slate-400">
-              Hospitaala Waliigalaa Ispeeshaalaayizdii Karl Mattuu • Level 4 Licensed Tertiary Referral & Teaching Hospital.
+              Level 4 Licensed Tertiary Referral & Teaching Hospital • Ilu Aba Bor, Oromia, Ethiopia.
             </p>
             <p className="text-[10px] font-mono text-slate-500">TIN: 0038912401 • MOH HMIS Accredited</p>
           </div>
 
           <div>
-            <h5 className="font-bold text-white uppercase text-[11px] tracking-wider mb-3">Kutaalee Ijoo</h5>
+            <h5 className="font-bold text-white uppercase text-[11px] tracking-wider mb-3">
+              {language === 'om' ? 'Kutaalee Ijoo' : language === 'am' ? 'ዋና ዋና ክፍሎች' : 'Quick Workstations'}
+            </h5>
             <ul className="space-y-2 text-[11px]">
               <li>
                 <Link href="/wards" className="hover:text-amber-400 transition-colors">
-                  Kutaa Ciisichaa & Sireewwanii (IPD)
+                  {language === 'om' ? 'Kutaa Ciisichaa & Sireewwanii (IPD)' : 'Inpatient Wards & Beds (IPD)'}
                 </Link>
               </li>
               <li>
                 <Link href="/pacs" className="hover:text-amber-400 transition-colors">
-                  Qorannoo Raajii & DICOM (PACS)
+                  {language === 'om' ? 'Qorannoo Raajii & DICOM (PACS)' : 'PACS Radiology & DICOM'}
                 </Link>
               </li>
               <li>
                 <Link href="/laboratory" className="hover:text-amber-400 transition-colors">
-                  Laabooratorii & Dhiigaa (LIS)
+                  {language === 'om' ? 'Laabooratorii & Dhiigaa (LIS)' : 'Diagnostic Pathology (LIS)'}
                 </Link>
               </li>
               <li>
                 <Link href="/pharmacy" className="hover:text-amber-400 transition-colors">
-                  Faarmaasii & To'annoo Qorichaa
+                  {language === 'om' ? 'Faarmaasii & To\'annoo Qorichaa' : 'Hospital Pharmacy & FEFO'}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h5 className="font-bold text-white uppercase text-[11px] tracking-wider mb-3">Nageenya & Qajeelfama</h5>
+            <h5 className="font-bold text-white uppercase text-[11px] tracking-wider mb-3">
+              {language === 'om' ? 'Nageenya & Qajeelfama' : language === 'am' ? 'ደህንነትና ህግጋት' : 'Security & Compliance'}
+            </h5>
             <ul className="space-y-2 text-[11px]">
               <li>
                 <span className="flex items-center gap-1 text-slate-300">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Eegumsa Deetaa Dhukkubsataa (Privacy)
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  {language === 'om' ? 'Eegumsa Deetaa Dhukkubsataa (Privacy)' : 'Patient Data Privacy (FHIR R4)'}
                 </span>
               </li>
               <li>
                 <span className="flex items-center gap-1 text-slate-300">
-                  <Lock className="w-3.5 h-3.5 text-amber-400" /> Role-Based Access Control (RBAC)
+                  <Lock className="w-3.5 h-3.5 text-amber-400" />
+                  {language === 'om' ? 'Role-Based Access Control (RBAC)' : 'Strict RBAC Security Isolation'}
                 </span>
               </li>
               <li>
                 <span className="flex items-center gap-1 text-slate-300">
-                  <Zap className="w-3.5 h-3.5 text-cyan-400" /> 100% Offline Local LAN Edge Resilient
+                  <Zap className="w-3.5 h-3.5 text-cyan-400" />
+                  {language === 'om' ? '100% Offline Local LAN Edge Resilient' : '100% Offline LAN Edge Resilience'}
                 </span>
               </li>
             </ul>
           </div>
 
           <div>
-            <h5 className="font-bold text-white uppercase text-[11px] tracking-wider mb-3">Teessoo & Quunnamtii</h5>
+            <h5 className="font-bold text-white uppercase text-[11px] tracking-wider mb-3">
+              {language === 'om' ? 'Teessoo & Quunnamtii' : language === 'am' ? 'አድራሻና ግንኙነት' : 'Campus Location & Contact'}
+            </h5>
             <p className="text-[11px] text-slate-300 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" /> Mattuu, Godina Iluu Abbaa Booraa, Oromiyaa
+              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              {language === 'om' ? 'Mattuu, Godina Iluu Abbaa Booraa, Oromiyaa' : 'Mettu, Ilu Aba Bor Zone, Oromia, Ethiopia'}
             </p>
             <p className="text-[11px] text-slate-300 flex items-center gap-1.5 mt-2">
               <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> +251 47 441 2345 / +251 47 441 2688
             </p>
             <p className="text-[11px] text-rose-400 font-bold flex items-center gap-1.5 mt-2 font-mono">
-              <PhoneCall className="w-3.5 h-3.5 shrink-0" /> Balaa Hatattamaa: 907
+              <PhoneCall className="w-3.5 h-3.5 shrink-0" />
+              {language === 'om' ? 'Balaa Hatattamaa: 907' : '24/7 Hospital Hotline: 907'}
             </p>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto mt-8 pt-6 border-t border-[#1a2233] flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-500">
-          <p>© {new Date().getFullYear()} Mettu Karl Comprehensive Specialized Hospital HMIS. Mirgi qabiyyee seeraan eegamaadha.</p>
+          <p>© {new Date().getFullYear()} Mettu Karl Comprehensive Specialized Hospital HMIS. {language === 'om' ? 'Mirgi qabiyyee seeraan eegamaadha.' : 'All rights reserved.'}</p>
           <div className="flex items-center gap-4 font-mono">
             <span>Next.js 14 • FastAPI • PostgreSQL / SQLite</span>
             <span>FHIR R4 • ICD-10 • LOINC</span>
