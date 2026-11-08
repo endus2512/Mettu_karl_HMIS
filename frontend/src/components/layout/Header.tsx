@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
+import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
 import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
@@ -51,17 +52,43 @@ export function Header(): React.ReactElement {
   const router = useRouter();
   const { user, logout, activeRole, simulatedRole } = useAuth();
   const { t, language } = useTranslation();
+  const {
+    serverTime,
+    gregorian,
+    ethiopian,
+    shift,
+    ntpSynced,
+    overrideShift,
+    resetAutoShift,
+    isUpdating,
+  } = useHospitalTimeSync();
 
   const effectiveRole = activeRole || user?.role || 'doctor';
 
-  // Calendar & Shift State (with editable capability)
+  // Online Calendar & Shift Modal Configuration State
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
-  const [ethMonth, setEthMonth] = useState('Tikimt');
-  const [ethDay, setEthDay] = useState('17');
-  const [ethYear, setEthYear] = useState('2019');
-  const [gcDate, setGcDate] = useState('2026-10-27');
-  const [shiftName, setShiftName] = useState('Morning Shift (08:00–16:00)');
-  const [shiftType, setShiftType] = useState<'morning' | 'afternoon' | 'night'>('morning');
+  const [editEthMonth, setEditEthMonth] = useState('Tikimt');
+  const [editEthDay, setEditEthDay] = useState('29');
+  const [editEthYear, setEditEthYear] = useState('2019');
+  const [editShiftType, setEditShiftType] = useState<ShiftType>('morning');
+  const [editChargeNurse, setEditChargeNurse] = useState('');
+  const [editDutyPhysician, setEditDutyPhysician] = useState('');
+  const [editHandoverNotes, setEditHandoverNotes] = useState('');
+
+  // Sync modal values with backend data when modal opens
+  useEffect(() => {
+    if (ethiopian) {
+      setEditEthMonth(ethiopian.month_name_om || 'Tikimt');
+      setEditEthDay(String(ethiopian.day || 29));
+      setEditEthYear(String(ethiopian.year || 2019));
+    }
+    if (shift) {
+      setEditShiftType(shift.type || 'morning');
+      setEditChargeNurse(shift.charge_nurse || '');
+      setEditDutyPhysician(shift.duty_physician || '');
+      setEditHandoverNotes(shift.handover_notes || '');
+    }
+  }, [calendarModalOpen, ethiopian, shift]);
 
   // Pre-warm / prefetch all key routes on idle so clicking any link opens instantly
   useEffect(() => {
@@ -90,66 +117,37 @@ export function Header(): React.ReactElement {
     }
   };
 
-  // Load persisted calendar date or default
-  useEffect(() => {
-    try {
-      const savedDate = localStorage.getItem('mkh_header_date');
-      if (savedDate) {
-        const parsed = JSON.parse(savedDate);
-        if (parsed.ethMonth) setEthMonth(parsed.ethMonth);
-        if (parsed.ethDay) setEthDay(parsed.ethDay);
-        if (parsed.ethYear) setEthYear(parsed.ethYear);
-        if (parsed.gcDate) setGcDate(parsed.gcDate);
-        if (parsed.shiftName) setShiftName(parsed.shiftName);
-        if (parsed.shiftType) setShiftType(parsed.shiftType);
-      }
-    } catch {
-      // fallback to defaults
-    }
-  }, []);
-
-  const handleSaveCalendar = (e: React.FormEvent) => {
+  const handleSaveCalendar = async (e: React.FormEvent) => {
     e.preventDefault();
-    const config = {
-      ethMonth,
-      ethDay,
-      ethYear,
-      gcDate,
-      shiftName,
-      shiftType,
-    };
     try {
-      localStorage.setItem('mkh_header_date', JSON.stringify(config));
+      await overrideShift({
+        shift_type: editShiftType,
+        custom_eth_month: editEthMonth,
+        custom_eth_day: parseInt(editEthDay, 10) || 1,
+        custom_eth_year: parseInt(editEthYear, 10) || 2019,
+        charge_nurse: editChargeNurse,
+        duty_physician: editDutyPhysician,
+        handover_notes: editHandoverNotes,
+      });
+      setCalendarModalOpen(false);
     } catch {
-      // ignore
+      // handled
     }
-    setCalendarModalOpen(false);
   };
 
-  const handleResetToLive = () => {
-    const now = new Date();
-    const iso = now.toISOString().split('T')[0];
-    setEthMonth('Tikimt');
-    setEthDay('17');
-    setEthYear('2019');
-    setGcDate(iso);
-    setShiftName('Morning Shift (08:00–16:00)');
-    setShiftType('morning');
+  const handleResetToLive = async () => {
     try {
-      localStorage.removeItem('mkh_header_date');
+      await resetAutoShift();
+      setCalendarModalOpen(false);
     } catch {
-      // ignore
+      // handled
     }
-    setCalendarModalOpen(false);
   };
 
-  // Formatted date string
-  const formattedGc = new Date(gcDate).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-  const dateDisplay = `${ethMonth} ${ethDay}, ${ethYear} E.C. • ${formattedGc} G.C.`;
+  // Formatted date string from centralized backend time sync
+  const ethDateDisplay = language === 'am' ? ethiopian.formatted_am : ethiopian.formatted_om;
+  const dateDisplay = `${ethDateDisplay} E.C. • ${gregorian.formatted} G.C.`;
+  const shiftDisplay = language === 'om' ? shift.name_om : language === 'am' ? shift.name_am : shift.name_en;
 
   // Clinician profile based on dynamic role
   const getProfile = () => {
@@ -263,29 +261,49 @@ export function Header(): React.ReactElement {
 
       {/* RIGHT: COMMAND COCKPIT & GOLD PRIMARY ACTION (Matching Uploaded Image) */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Hospital Utilities Capsule (Calendar -> Shift -> Bell -> Lang -> Theme) */}
+        {/* Hospital Utilities Capsule (Time -> Calendar -> Shift -> Bell -> Lang -> Theme) */}
         <div className="flex items-center gap-1 sm:gap-1.5 rounded-xl border border-[#222b3d] bg-[#101624] px-2 py-1 shadow-xs">
-          {/* Calendar (Editable Modal) */}
+          {/* Live Online Server Clock & NTP Indicator */}
+          <div
+            className="flex items-center gap-1.5 text-xs font-mono font-bold text-teal-300 pr-2 border-r border-[#1e283c] select-none"
+            title={`Hospital NTP Server Clock: ${serverTime} EAT (${ethiopian.habasha_time_str})`}
+          >
+            <Clock className="h-3.5 w-3.5 text-teal-400 animate-pulse" />
+            <span>{serverTime}</span>
+            <span
+              className={`flex h-1.5 w-1.5 rounded-full ${ntpSynced ? 'bg-emerald-400 shadow-[0_0_6px_#34d399]' : 'bg-amber-400'}`}
+              title={ntpSynced ? 'Online NTP Synchronized' : 'Syncing'}
+            />
+          </div>
+
+          {/* Calendar (Online Editable Modal) */}
           <button
             type="button"
             onClick={() => setCalendarModalOpen(true)}
-            title="Click to configure hospital date (Kalandarii jijjiiruuf)"
+            title="Kalandarii fi shiftii online jijjiiri (Online Hospital Time/Shift Config)"
             className="hidden xl:flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-amber-300 transition-colors cursor-pointer select-none pr-2 border-r border-[#1e283c]"
           >
             <Calendar className="h-3.5 w-3.5 text-amber-400" />
             <span className="hover:underline underline-offset-2">{dateDisplay}</span>
+            {!shift.is_auto && (
+              <span className="px-1 py-0.2 text-[9px] bg-amber-500/20 text-amber-400 rounded-sm font-semibold border border-amber-500/40">
+                MANUAL
+              </span>
+            )}
           </button>
 
           {/* Shift indicator */}
           <div className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-amber-300 select-none pr-2 border-r border-[#1e283c]">
-            {shiftType === 'morning' ? (
+            {shift.type === 'morning' ? (
               <Sun className="h-3.5 w-3.5 text-amber-400" />
-            ) : shiftType === 'afternoon' ? (
+            ) : shift.type === 'afternoon' ? (
               <CloudSun className="h-3.5 w-3.5 text-sky-400" />
-            ) : (
+            ) : shift.type === 'night' ? (
               <Moon className="h-3.5 w-3.5 text-indigo-400" />
+            ) : (
+              <Clock className="h-3.5 w-3.5 text-emerald-400" />
             )}
-            <span>{shiftName}</span>
+            <span>{shiftDisplay}</span>
           </div>
 
           {/* Notification Bell */}
@@ -334,46 +352,83 @@ export function Header(): React.ReactElement {
         </button>
       </div>
 
-      {/* EDITABLE CALENDAR & SHIFT MODAL */}
+      {/* ONLINE EDITABLE CALENDAR & SHIFT MODAL */}
       {calendarModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-          <div className="flex w-full max-w-lg flex-col rounded-xl bg-white dark:bg-[#0f172a] shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 px-5 py-3.5">
-              <div className="flex items-center gap-2.5">
-                <Calendar className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-xs p-4">
+          <div className="flex w-full max-w-xl flex-col rounded-2xl bg-white dark:bg-[#0f172a] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-[#131d33] px-5 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                  <Calendar className="h-5 w-5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    Hospital Calendar & Shift Configuration
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    Hospital Calendar & Clinical Shift Online
+                    <span className="flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      LIVE API
+                    </span>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Guyyaa Kalandarii Itoophiyaa fi Shiftii Hojii Jijjiiri
+                    Kalandarii Itoophiyaa, Sa'aatii fi Shiftii yaalaa database giddugaleessaa irratti jijjiiri
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setCalendarModalOpen(false)}
-                className="rounded-md p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                aria-label="Close modal"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4.5 w-4.5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveCalendar} className="p-5 space-y-4">
+            <form onSubmit={handleSaveCalendar} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+              {/* Server Clock Telemetry Status */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-3 flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block tracking-wider">
+                    Server Clock (EAT UTC+3)
+                  </span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-teal-300 text-sm">
+                    {serverTime}
+                  </span>
+                  <span className="text-slate-500 dark:text-slate-400 ml-2">
+                    ({ethiopian.habasha_time_str})
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block tracking-wider">
+                    Auto-Switch Status
+                  </span>
+                  <span className={`font-semibold ${shift.is_auto ? 'text-emerald-500' : 'text-amber-400'}`}>
+                    {shift.is_auto ? '● Automatic NTP Active' : '▲ Manual Shift Override'}
+                  </span>
+                </div>
+              </div>
+
               {/* Ethiopian Calendar Controls */}
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-2.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
-                  1. Ethiopian Calendar (Kalandarii Itoophiyaa - E.C.)
-                </span>
+              <div className="rounded-xl border border-slate-200 dark:border-slate-700/80 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-300 flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-teal-500" />
+                    1. Ethiopian Calendar (Kalandarii Itoophiyaa - E.C.)
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    GC: {gregorian.formatted}
+                  </span>
+                </div>
                 <div className="grid grid-cols-3 gap-2.5">
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Ji'a (Month)
                     </label>
                     <select
-                      value={ethMonth}
-                      onChange={(e) => setEthMonth(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
+                      value={editEthMonth}
+                      onChange={(e) => setEditEthMonth(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
                     >
                       {ETH_MONTHS.map((m) => (
                         <option key={m.val} value={m.val}>
@@ -390,9 +445,9 @@ export function Header(): React.ReactElement {
                       type="number"
                       min="1"
                       max="30"
-                      value={ethDay}
-                      onChange={(e) => setEthDay(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
+                      value={editEthDay}
+                      onChange={(e) => setEditEthDay(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -401,106 +456,145 @@ export function Header(): React.ReactElement {
                     </label>
                     <input
                       type="number"
-                      value={ethYear}
-                      onChange={(e) => setEthYear(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
+                      value={editEthYear}
+                      onChange={(e) => setEditEthYear(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Gregorian Calendar Control */}
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
-                  2. Gregorian Calendar (G.C.)
+              {/* Active Clinical Shift Controls */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-700/80 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
+                  2. Active Clinical Duty Shift (Shiftii Hojii Yaalaa)
                 </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditShiftType('morning')}
+                    className={`rounded-xl border p-2.5 text-center text-xs font-medium transition-all cursor-pointer ${
+                      editShiftType === 'morning'
+                        ? 'border-amber-500 bg-amber-500/10 text-amber-300 font-bold shadow-xs'
+                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Sun className="h-4 w-4 mx-auto mb-1 text-amber-400" />
+                    <span className="block font-bold">Morning</span>
+                    <span className="text-[10px] opacity-75">08:00–16:00</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditShiftType('afternoon')}
+                    className={`rounded-xl border p-2.5 text-center text-xs font-medium transition-all cursor-pointer ${
+                      editShiftType === 'afternoon'
+                        ? 'border-sky-500 bg-sky-500/10 text-sky-300 font-bold shadow-xs'
+                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <CloudSun className="h-4 w-4 mx-auto mb-1 text-sky-400" />
+                    <span className="block font-bold">Afternoon</span>
+                    <span className="text-[10px] opacity-75">16:00–23:00</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditShiftType('night')}
+                    className={`rounded-xl border p-2.5 text-center text-xs font-medium transition-all cursor-pointer ${
+                      editShiftType === 'night'
+                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-300 font-bold shadow-xs'
+                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Moon className="h-4 w-4 mx-auto mb-1 text-indigo-400" />
+                    <span className="block font-bold">Night</span>
+                    <span className="text-[10px] opacity-75">23:00–08:00</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditShiftType('on_call')}
+                    className={`rounded-xl border p-2.5 text-center text-xs font-medium transition-all cursor-pointer ${
+                      editShiftType === 'on_call'
+                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300 font-bold shadow-xs'
+                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Clock className="h-4 w-4 mx-auto mb-1 text-emerald-400" />
+                    <span className="block font-bold">On-Call</span>
+                    <span className="text-[10px] opacity-75">24h Emerg</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Duty Staffing & Ward Handover Notes */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-700/80 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
+                  3. Duty Staffing & Ward Handover (Dabarsaa fi Hojjettoota)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Charge Nurse on Duty (Nurse Ittigaafatamaa)
+                    </label>
+                    <input
+                      type="text"
+                      value={editChargeNurse}
+                      onChange={(e) => setEditChargeNurse(e.target.value)}
+                      placeholder="e.g. Nurse Chaltu Daba"
+                      className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Duty Physician / Surgeon (Ogeessa Yaalaa)
+                    </label>
+                    <input
+                      type="text"
+                      value={editDutyPhysician}
+                      onChange={(e) => setEditDutyPhysician(e.target.value)}
+                      placeholder="e.g. Dr. Bekele Tadesse"
+                      className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
                 <div>
-                  <input
-                    type="date"
-                    value={gcDate}
-                    onChange={(e) => setGcDate(e.target.value)}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none"
+                  <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    Live Shift Handover Notes (Qabxii Dabarsaa Wardii)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={editHandoverNotes}
+                    onChange={(e) => setEditHandoverNotes(e.target.value)}
+                    placeholder="Enter ward notes, critical alerts, ICU/bed handovers..."
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-xs text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none resize-none"
                   />
                 </div>
               </div>
 
-              {/* Shift Configuration */}
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3.5 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300 block">
-                  3. Active Clinical Duty Shift (Shiftii Yaalaa)
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShiftName('Morning Shift (08:00–16:00)');
-                      setShiftType('morning');
-                    }}
-                    className={`rounded-lg border p-2 text-center text-xs font-medium transition-colors cursor-pointer ${
-                      shiftType === 'morning'
-                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/50 text-teal-900 dark:text-teal-300 font-semibold'
-                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <Sun className="h-4 w-4 mx-auto mb-1 text-amber-500" />
-                    <span>Morning</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShiftName('Afternoon Shift (16:00–23:00)');
-                      setShiftType('afternoon');
-                    }}
-                    className={`rounded-lg border p-2 text-center text-xs font-medium transition-colors cursor-pointer ${
-                      shiftType === 'afternoon'
-                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/50 text-teal-900 dark:text-teal-300 font-semibold'
-                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <CloudSun className="h-4 w-4 mx-auto mb-1 text-sky-500" />
-                    <span>Afternoon</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShiftName('Night Emergency (23:00–08:00)');
-                      setShiftType('night');
-                    }}
-                    className={`rounded-lg border p-2 text-center text-xs font-medium transition-colors cursor-pointer ${
-                      shiftType === 'night'
-                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/50 text-teal-900 dark:text-teal-300 font-semibold'
-                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <Moon className="h-4 w-4 mx-auto mb-1 text-indigo-500" />
-                    <span>Night</span>
-                  </button>
-                </div>
-              </div>
-
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={handleResetToLive}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  disabled={isUpdating}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
-                  <span>Reset to Live</span>
+                  <span>Reset to Live Auto NTP</span>
                 </button>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setCalendarModalOpen(false)}
-                    className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                    className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="rounded-lg bg-teal-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-teal-700 shadow-xs transition-colors cursor-pointer"
+                    disabled={isUpdating}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 px-5 py-2 text-xs font-bold text-white shadow-md shadow-teal-900/30 transition-all cursor-pointer disabled:opacity-50 active:scale-95"
                   >
-                    Save & Apply
+                    {isUpdating ? 'Saving Online...' : 'Save & Sync Online'}
                   </button>
                 </div>
               </div>

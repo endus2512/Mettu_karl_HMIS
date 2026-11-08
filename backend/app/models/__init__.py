@@ -79,6 +79,7 @@ from app.models.hrm import (
     Attendance,
     Employee,
     EmploymentType,
+    HospitalShiftConfig,
     LeaveRequest,
     LeaveStatus,
     LeaveType,

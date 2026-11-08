@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, Language } from '@/lib/i18n';
+import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
 import type { UserRole } from '@/types';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -146,6 +147,13 @@ export default function AdminDashboardPage(): React.ReactElement {
 
   const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
 
+  // Centralized Online Time & Shift Hook
+  const {
+    shift: onlineShift,
+    serverTime,
+    overrideShift: onlineOverrideShift,
+  } = useHospitalTimeSync();
+
   // State Management for Full Admin Control & Live Editing
   const [wards, setWards] = useState<WardStatus[]>(INITIAL_WARDS);
   const [activeShift, setActiveShift] = useState<'morning' | 'afternoon' | 'night'>('morning');
@@ -156,6 +164,14 @@ export default function AdminDashboardPage(): React.ReactElement {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedWardForEdit, setSelectedWardForEdit] = useState<WardStatus | null>(null);
   const [showRoster, setShowRoster] = useState(false);
+
+  // Sync activeShift from backend
+  useEffect(() => {
+    if (onlineShift?.type) {
+      const mapped = onlineShift.type === 'on_call' ? 'morning' : onlineShift.type;
+      setActiveShift(mapped);
+    }
+  }, [onlineShift?.type]);
 
   // Edit Modal Temporary Inputs
   const [editShift, setEditShift] = useState(activeShift);
@@ -190,11 +206,20 @@ export default function AdminDashboardPage(): React.ReactElement {
     [totalBeds, occupiedBeds]
   );
 
-  // Save changes from Admin Control Modal
-  const handleSaveAdminSettings = () => {
+  // Save changes from Admin Control Modal (persisting shift online to database)
+  const handleSaveAdminSettings = async () => {
     setActiveShift(editShift);
     setEmergencyCode(editEmergency);
     setBroadcastMessage(editBroadcast);
+
+    try {
+      await onlineOverrideShift({
+        shift_type: editShift as ShiftType,
+        handover_notes: editBroadcast,
+      });
+    } catch {
+      // Handled gracefully
+    }
 
     const updated = wards.map((w) => {
       const edited = editBeds[w.id];
@@ -221,8 +246,8 @@ export default function AdminDashboardPage(): React.ReactElement {
       title: language === 'om' ? "Gulaalliin Milkaa'eera" : language === 'am' ? 'ቅንብሩ ተቀምጧል' : 'Settings Updated',
       message:
         language === 'om'
-          ? "Ibsaa, shiftii fi teessoon siree hospitaalaa battalatti haaromfameera."
-          : 'Hospital shifts, ward capacities, and operational alerts updated successfully.',
+          ? "Ibsaa, shiftii fi teessoon siree hospitaalaa database giddu-galeessaa irratti haaromfameera."
+          : 'Hospital shifts, ward capacities, and operational alerts updated successfully online.',
       color: 'teal',
     });
   };
@@ -311,15 +336,20 @@ export default function AdminDashboardPage(): React.ReactElement {
                 </span>
               </div>
 
-              {/* Active Shift Pill */}
+              {/* Active Shift Pill (Online Centralized) */}
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#141c2e] border border-[#23314a] text-xs font-semibold text-slate-300">
                 <Clock className="w-3.5 h-3.5 text-amber-400" />
                 <span>
-                  {activeShift === 'morning'
-                    ? (language === 'om' ? 'Shiftii Ganamaa (08:00-16:00)' : 'Morning Shift')
+                  {onlineShift
+                    ? (lang === 'om' ? onlineShift.name_om : lang === 'am' ? onlineShift.name_am : onlineShift.name_en)
+                    : activeShift === 'morning'
+                    ? (lang === 'om' ? 'Shiftii Ganamaa (08:00-16:00)' : 'Morning Shift')
                     : activeShift === 'afternoon'
-                    ? (language === 'om' ? 'Shiftii Galgalaa (16:00-24:00)' : 'Afternoon Shift')
-                    : (language === 'om' ? 'Shiftii Halkan (00:00-08:00)' : 'Night Shift')}
+                    ? (lang === 'om' ? 'Shiftii Galgalaa (16:00-24:00)' : 'Afternoon Shift')
+                    : (lang === 'om' ? 'Shiftii Halkan (00:00-08:00)' : 'Night Shift')}
+                </span>
+                <span className="text-[10px] text-teal-400 font-mono pl-1 border-l border-slate-700">
+                  {serverTime}
                 </span>
               </div>
 

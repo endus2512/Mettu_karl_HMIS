@@ -73,7 +73,7 @@ const clinicalItems: NavItem[] = [
   { key: 'inpatient_wards', href: '/wards', icon: Bed, badge: 'IPD', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['doctor', 'nurse', 'super_admin'] },
   { key: 'queue_system', href: '/queue', icon: Ticket, badge: 'TV', badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40', allowedRoles: ['doctor', 'nurse', 'receptionist', 'super_admin'] },
   { key: 'billing', href: '/billing', icon: CreditCard, allowedRoles: ['billing', 'insurance_officer', 'admin', 'super_admin'] },
-  { key: 'pharmacy', href: '/pharmacy', icon: Pill, allowedRoles: ['pharmacist', 'doctor', 'super_admin'] },
+  { key: 'pharmacy', href: '/pharmacy', icon: Pill, allowedRoles: ['pharmacist', 'doctor', 'nurse', 'super_admin'] },
   { key: 'laboratory', href: '/laboratory', icon: FlaskConical, badge: 'LIS', badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40', allowedRoles: ['doctor', 'nurse', 'technician', 'lab_technician', 'super_admin'] },
   { key: 'telemedicine', href: '/telemed', icon: Stethoscope, allowedRoles: ['doctor', 'super_admin'] },
   { key: 'executive_bi', href: '/analytics', icon: TrendingUp, allowedRoles: ['admin', 'super_admin'] },
@@ -83,7 +83,7 @@ const erpItems: NavItem[] = [
   { key: 'hrm', href: '/hrm', icon: Briefcase, allowedRoles: ['admin', 'super_admin'] },
   { key: 'assets', href: '/assets', icon: Microscope, allowedRoles: ['technician', 'admin', 'super_admin'] },
   { key: 'ot_cssd', href: '/ot', icon: Syringe, allowedRoles: ['doctor', 'nurse', 'super_admin'] },
-  { key: 'pacs', href: '/pacs', icon: Scan, allowedRoles: ['doctor', 'technician', 'super_admin'] },
+  { key: 'pacs', href: '/pacs', icon: Scan, allowedRoles: ['doctor', 'nurse', 'technician', 'super_admin'] },
   { key: 'accounting', href: '/accounting', icon: FileSpreadsheet, allowedRoles: ['billing', 'admin', 'super_admin'] },
 ];
 
@@ -95,19 +95,19 @@ const specializedItems: NavItem[] = [
   { key: 'mortuary', href: '/mortuary', icon: Archive, allowedRoles: ['doctor', 'admin', 'super_admin'] },
   { key: 'patient_crm', href: '/crm', icon: HeartHandshake, allowedRoles: ['admin', 'insurance_officer', 'super_admin'] },
   { key: 'academic_research', href: '/academic', icon: GraduationCap, allowedRoles: ['doctor', 'super_admin'] },
-  { key: 'waste_management', href: '/waste', icon: Flame, allowedRoles: ['technician', 'admin', 'super_admin'] },
+  { key: 'waste_management', href: '/waste', icon: Flame, allowedRoles: ['technician', 'nurse', 'admin', 'super_admin'] },
   { key: 'procurement_tenders', href: '/procurement', icon: PackageCheck, allowedRoles: ['admin', 'pharmacist', 'super_admin'] },
 ];
 
 const resilienceItems: NavItem[] = [
-  { key: 'national_id_fayda', href: '/fayda', icon: Fingerprint, badge: 'FIN', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['insurance_officer', 'admin', 'receptionist', 'billing', 'super_admin'] },
+  { key: 'national_id_fayda', href: '/fayda', icon: Fingerprint, badge: 'FIN', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['insurance_officer', 'nurse', 'admin', 'receptionist', 'billing', 'super_admin'] },
   { key: 'efda_compliance', href: '/efda', icon: Scale, allowedRoles: ['pharmacist', 'admin', 'super_admin'] },
   { key: 'mci_disaster_triage', href: '/mci', icon: AlertOctagon, badge: 'START', badgeColor: 'bg-rose-500/20 text-rose-300 border border-rose-400/40', allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'] },
   { key: 'infection_epidemiology', href: '/infection', icon: ShieldAlert, allowedRoles: ['nurse', 'admin', 'super_admin'] },
   { key: 'insurance_claims', href: '/insurance', icon: BadgeCheck, allowedRoles: ['insurance_officer', 'admin', 'billing', 'super_admin'] },
   { key: 'clinical_audit_ehstg', href: '/audit', icon: ClipboardCheck, allowedRoles: ['admin', 'super_admin'] },
   { key: 'power_resilience', href: '/power', icon: Zap, allowedRoles: ['technician', 'admin', 'super_admin'] },
-  { key: 'sms_ussd_gateway', href: '/sms-ussd', icon: Smartphone, badge: '*907#', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['admin', 'super_admin'] },
+  { key: 'sms_ussd_gateway', href: '/sms-ussd', icon: Smartphone, badge: '*907#', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['admin', 'nurse', 'doctor', 'receptionist', 'super_admin'] },
   { key: 'barcode_qr_scanner', href: '/scanner', icon: QrCode, badge: 'GS1/QR', badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40', allowedRoles: ['doctor', 'nurse', 'pharmacist', 'billing', 'technician', 'admin', 'super_admin'] },
 ];
 

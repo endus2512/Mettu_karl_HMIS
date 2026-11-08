@@ -156,3 +156,30 @@ class PayrollSlip(Base):
     )
 
     employee: Mapped["Employee"] = relationship("Employee", back_populates="payrolls")
+
+
+class HospitalShiftConfig(Base):
+    """
+    Online Hospital Shift & Synchronization State.
+    Ensures active shift, charge nurse, on-duty physician, and handover countdown
+    are synchronized across all hospital clients and persisted in the database.
+    """
+    __tablename__ = "hospital_shift_configs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    active_shift: Mapped[ShiftType] = mapped_column(
+        Enum(ShiftType, name="shift_type_enum", native_enum=False),
+        default=ShiftType.MORNING,
+        nullable=False,
+    )
+    shift_name: Mapped[str] = mapped_column(String(100), default="Morning Shift (08:00–16:00)", nullable=False)
+    is_auto: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    charge_nurse: Mapped[str] = mapped_column(String(120), default="Nurse Chaltu Daba (BScN)", nullable=False)
+    duty_physician: Mapped[str] = mapped_column(String(120), default="Dr. Bekele Tadesse (MD, Surgeon)", nullable=False)
+    handover_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    custom_eth_month: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    custom_eth_day: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    custom_eth_year: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    last_switched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_by: Mapped[str] = mapped_column(String(100), default="System", nullable=False)
+
