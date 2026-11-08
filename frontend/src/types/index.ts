@@ -13,6 +13,7 @@ export type UserRole =
   | 'patient'
   | 'super_admin'
   | 'lab_technician'
+  | 'lab_tech'
   | 'receptionist'
   | 'billing'
   | 'auditor';

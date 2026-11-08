@@ -24,8 +24,10 @@ export function ProtectedRoute({
   moduleName = 'Workstation',
   category = 'administrative',
 }: ProtectedRouteProps): React.ReactElement {
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout, activeRole } = useAuth();
   const router = useRouter();
+
+  const effectiveRole = activeRole || user?.role || 'doctor';
 
   if (isLoading) {
     return (
@@ -47,14 +49,19 @@ export function ProtectedRoute({
     return <div />;
   }
 
-  // Super admin and Hospital Administrator have full oversight and governance across all hospital workstations
-  if (user.role === 'super_admin' || user.role === 'admin') {
+  // Super admin retains global emergency oversight across all hospital workstations
+  if (effectiveRole === 'super_admin') {
     return <>{children}</>;
   }
 
   // Check if role is authorized
-  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-    const roleName = user.role.replace('_', ' ').toUpperCase();
+  const effectiveAllowed = allowedRoles ? [...allowedRoles] : [];
+  if (effectiveAllowed.includes('technician') && !effectiveAllowed.includes('lab_technician')) {
+    effectiveAllowed.push('lab_technician');
+  }
+
+  if (effectiveAllowed.length > 0 && !effectiveAllowed.includes(effectiveRole)) {
+    const roleName = effectiveRole.replace('_', ' ').toUpperCase();
 
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-white select-none">
@@ -90,7 +97,7 @@ export function ProtectedRoute({
               <div className="flex items-center justify-between text-slate-400">
                 <span>Roolii Eeyyamaman (Allowed Roles):</span>
                 <span className="font-semibold text-amber-300 font-mono">
-                  {allowedRoles.map((r) => r.replace('_', ' ').toUpperCase()).join(', ')}
+                  {effectiveAllowed.map((r) => r.replace('_', ' ').toUpperCase()).join(', ')}
                 </span>
               </div>
             </div>
@@ -101,7 +108,16 @@ export function ProtectedRoute({
               <span className="font-semibold text-white">{moduleName}</span> seenuuf heeyyama hin qabu.
             </p>
 
-            {user.role === 'doctor' && (category === 'financial' || moduleName.toLowerCase().includes('account') || moduleName.toLowerCase().includes('billing')) && (
+            {effectiveRole === 'admin' && (category === 'clinical' || moduleName.toLowerCase().includes('patient') || moduleName.toLowerCase().includes('ward') || moduleName.toLowerCase().includes('consultation')) && (
+              <div className="flex items-start gap-2.5 rounded-xl border border-rose-500/40 bg-rose-950/40 p-3 text-xs text-rose-200">
+                <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
+                <p>
+                  <strong className="text-rose-300">Bulchiinsa Hospitaalaa (Admin Privacy Isolation):</strong> Dambii eegumsa iccitii yaalaatiin, bulchiinsi hospitaalaa ragaa dhukkubaa fi yaala dhukkubsattootaa qorachuu irraa guutummaatti dhorkamaadha.
+                </p>
+              </div>
+            )}
+
+            {effectiveRole === 'doctor' && (category === 'financial' || moduleName.toLowerCase().includes('account') || moduleName.toLowerCase().includes('billing') || moduleName.toLowerCase().includes('hrm')) && (
               <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/40 bg-amber-950/40 p-3 text-xs text-amber-200">
                 <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
                 <p>
@@ -110,7 +126,7 @@ export function ProtectedRoute({
               </div>
             )}
 
-            {user.role === 'patient' && (
+            {effectiveRole === 'patient' && (
               <div className="flex items-start gap-2.5 rounded-xl border border-sky-500/40 bg-sky-950/40 p-3 text-xs text-sky-200">
                 <UserIcon className="h-4 w-4 text-sky-400 shrink-0 mt-0.5" />
                 <p>
@@ -123,10 +139,10 @@ export function ProtectedRoute({
           {/* Action Navigation */}
           <div className="flex flex-col sm:flex-row items-center gap-3 border-t border-slate-700/80 pt-6">
             <Link
-              href={user.role === 'patient' ? '/patient-portal' : '/dashboard'}
+              href={effectiveRole === 'patient' ? '/patient-portal' : '/dashboard'}
               className="w-full sm:w-auto flex-1 rounded-xl bg-teal-600 hover:bg-teal-700 px-5 py-2.5 text-center text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer"
             >
-              {user.role === 'patient' ? '← Gara Patient Portal Deebi\'aa' : '← Gara Dashboard Deebi\'aa'}
+              {effectiveRole === 'patient' ? '← Gara Patient Portal Deebi\'aa' : '← Gara Dashboard Deebi\'aa'}
             </Link>
             <button
               type="button"

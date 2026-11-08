@@ -55,6 +55,7 @@ import {
   ChevronLeft,
   ShieldCheck,
   LogOut,
+  HeartPulse,
 } from 'lucide-react';
 
 interface NavItem {
@@ -68,14 +69,14 @@ interface NavItem {
 
 const clinicalItems: NavItem[] = [
   { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { key: 'patients', href: '/patients', icon: Users, badge: 'FHIR', badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40', allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'] },
-  { key: 'inpatient_wards', href: '/wards', icon: Bed, badge: 'IPD', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'] },
+  { key: 'patients', href: '/patients', icon: Users, badge: 'FHIR', badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40', allowedRoles: ['doctor', 'nurse', 'receptionist', 'super_admin'] },
+  { key: 'inpatient_wards', href: '/wards', icon: Bed, badge: 'IPD', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['doctor', 'nurse', 'super_admin'] },
   { key: 'queue_system', href: '/queue', icon: Ticket, badge: 'TV', badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40', allowedRoles: ['doctor', 'nurse', 'receptionist', 'super_admin'] },
   { key: 'billing', href: '/billing', icon: CreditCard, allowedRoles: ['billing', 'insurance_officer', 'admin', 'super_admin'] },
   { key: 'pharmacy', href: '/pharmacy', icon: Pill, allowedRoles: ['pharmacist', 'doctor', 'super_admin'] },
-  { key: 'laboratory', href: '/laboratory', icon: FlaskConical, badge: 'LIS', badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40', allowedRoles: ['doctor', 'nurse', 'technician', 'admin', 'super_admin'] },
+  { key: 'laboratory', href: '/laboratory', icon: FlaskConical, badge: 'LIS', badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40', allowedRoles: ['doctor', 'nurse', 'technician', 'lab_technician', 'super_admin'] },
   { key: 'telemedicine', href: '/telemed', icon: Stethoscope, allowedRoles: ['doctor', 'super_admin'] },
-  { key: 'executive_bi', href: '/analytics', icon: TrendingUp, allowedRoles: ['admin', 'doctor', 'super_admin'] },
+  { key: 'executive_bi', href: '/analytics', icon: TrendingUp, allowedRoles: ['admin', 'super_admin'] },
 ];
 
 const erpItems: NavItem[] = [
@@ -88,35 +89,42 @@ const erpItems: NavItem[] = [
 
 const specializedItems: NavItem[] = [
   { key: 'blood_bank', href: '/blood-bank', icon: Droplets, allowedRoles: ['doctor', 'nurse', 'technician', 'super_admin'] },
-  { key: 'ems_dispatch', href: '/ems', icon: Ambulance, badge: '907', badgeColor: 'bg-rose-500/20 text-rose-300 border border-rose-400/40', allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'] },
+  { key: 'ems_dispatch', href: '/ems', icon: Ambulance, badge: '907', badgeColor: 'bg-rose-500/20 text-rose-300 border border-rose-400/40', allowedRoles: ['nurse', 'receptionist', 'admin', 'super_admin'] },
   { key: 'iomt_telemetry', href: '/iomt', icon: Activity, allowedRoles: ['doctor', 'nurse', 'technician', 'super_admin'] },
   { key: 'dietary_kitchen', href: '/dietary', icon: UtensilsCrossed, allowedRoles: ['nurse', 'admin', 'super_admin'] },
   { key: 'mortuary', href: '/mortuary', icon: Archive, allowedRoles: ['doctor', 'admin', 'super_admin'] },
   { key: 'patient_crm', href: '/crm', icon: HeartHandshake, allowedRoles: ['admin', 'insurance_officer', 'super_admin'] },
-  { key: 'academic_research', href: '/academic', icon: GraduationCap, allowedRoles: ['doctor', 'admin', 'super_admin'] },
+  { key: 'academic_research', href: '/academic', icon: GraduationCap, allowedRoles: ['doctor', 'super_admin'] },
   { key: 'waste_management', href: '/waste', icon: Flame, allowedRoles: ['technician', 'admin', 'super_admin'] },
   { key: 'procurement_tenders', href: '/procurement', icon: PackageCheck, allowedRoles: ['admin', 'pharmacist', 'super_admin'] },
 ];
 
 const resilienceItems: NavItem[] = [
-  { key: 'national_id_fayda', href: '/fayda', icon: Fingerprint, badge: 'FIN', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['insurance_officer', 'admin', 'receptionist', 'super_admin'] },
+  { key: 'national_id_fayda', href: '/fayda', icon: Fingerprint, badge: 'FIN', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['insurance_officer', 'admin', 'receptionist', 'billing', 'super_admin'] },
   { key: 'efda_compliance', href: '/efda', icon: Scale, allowedRoles: ['pharmacist', 'admin', 'super_admin'] },
   { key: 'mci_disaster_triage', href: '/mci', icon: AlertOctagon, badge: 'START', badgeColor: 'bg-rose-500/20 text-rose-300 border border-rose-400/40', allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'] },
-  { key: 'infection_epidemiology', href: '/infection', icon: ShieldAlert, allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'] },
+  { key: 'infection_epidemiology', href: '/infection', icon: ShieldAlert, allowedRoles: ['nurse', 'admin', 'super_admin'] },
   { key: 'insurance_claims', href: '/insurance', icon: BadgeCheck, allowedRoles: ['insurance_officer', 'admin', 'billing', 'super_admin'] },
-  { key: 'clinical_audit_ehstg', href: '/audit', icon: ClipboardCheck, allowedRoles: ['admin', 'doctor', 'super_admin'] },
+  { key: 'clinical_audit_ehstg', href: '/audit', icon: ClipboardCheck, allowedRoles: ['admin', 'super_admin'] },
   { key: 'power_resilience', href: '/power', icon: Zap, allowedRoles: ['technician', 'admin', 'super_admin'] },
-  { key: 'sms_ussd_gateway', href: '/sms-ussd', icon: Smartphone, badge: '*907#', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['doctor', 'nurse', 'receptionist', 'billing', 'pharmacist', 'admin', 'super_admin'] },
+  { key: 'sms_ussd_gateway', href: '/sms-ussd', icon: Smartphone, badge: '*907#', badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40', allowedRoles: ['admin', 'super_admin'] },
   { key: 'barcode_qr_scanner', href: '/scanner', icon: QrCode, badge: 'GS1/QR', badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40', allowedRoles: ['doctor', 'nurse', 'pharmacist', 'billing', 'technician', 'admin', 'super_admin'] },
+];
+
+const patientItems: NavItem[] = [
+  { key: 'patient_portal', href: '/patient-portal', icon: HeartPulse, badge: 'PORTAL', badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40', allowedRoles: ['patient'] },
 ];
 
 export function Sidebar(): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname();
   const { t, language } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, logout, activeRole, simulatedRole, setSimulatedRole } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const effectiveRole: UserRole = activeRole || user?.role || 'doctor';
+  const isPatientRole = effectiveRole === 'patient';
 
   const handleSidebarLogout = () => {
     void logout();
@@ -169,14 +177,23 @@ export function Sidebar(): React.ReactElement {
   }, [pathname]);
 
   const filterByRole = (items: NavItem[]): NavItem[] => {
-    if (!user?.role || user.role === 'super_admin' || user.role === 'admin') return items;
-    return items.filter((item) => !item.allowedRoles || item.allowedRoles.includes(user.role));
+    if (effectiveRole === 'super_admin') return items;
+    if (effectiveRole === 'patient') return [];
+
+    return items.filter((item) => {
+      if (!item.allowedRoles) return true;
+      const roles: string[] = [...item.allowedRoles];
+      if (roles.includes('technician') && !roles.includes('lab_technician')) {
+        roles.push('lab_technician');
+      }
+      return roles.includes(effectiveRole);
+    });
   };
 
-  const filteredClinical = useMemo(() => filterByRole(clinicalItems), [user?.role]);
-  const filteredErp = useMemo(() => filterByRole(erpItems), [user?.role]);
-  const filteredSpecialized = useMemo(() => filterByRole(specializedItems), [user?.role]);
-  const filteredResilience = useMemo(() => filterByRole(resilienceItems), [user?.role]);
+  const filteredClinical = useMemo(() => filterByRole(clinicalItems), [effectiveRole]);
+  const filteredErp = useMemo(() => filterByRole(erpItems), [effectiveRole]);
+  const filteredSpecialized = useMemo(() => filterByRole(specializedItems), [effectiveRole]);
+  const filteredResilience = useMemo(() => filterByRole(resilienceItems), [effectiveRole]);
 
   // Pre-warm all workstation routes on idle
   useEffect(() => {
@@ -300,10 +317,24 @@ export function Sidebar(): React.ReactElement {
 
         {/* Navigation Groups */}
         <nav className={`flex-1 overflow-y-auto space-y-4 ${isCollapsed ? 'p-1.5' : 'p-3'} custom-scrollbar`}>
-          {renderNavGroup('Clinical & Patients', filteredClinical, isCollapsed)}
-          {renderNavGroup('Enterprise ERP', filteredErp, isCollapsed)}
-          {renderNavGroup('Specialized & IoMT', filteredSpecialized, isCollapsed)}
-          {renderNavGroup('Regulations & Resilience', filteredResilience, isCollapsed)}
+          {isPatientRole ? (
+            renderNavGroup(
+              language === 'om' ? 'Kutaa Dhukkubsataa' : language === 'am' ? 'የታካሚ ክፍል' : 'Patient Care Portal',
+              patientItems,
+              isCollapsed
+            )
+          ) : (
+            <>
+              {renderNavGroup(
+                effectiveRole === 'admin' ? 'Executive & Governance' : 'Clinical & Patients',
+                filteredClinical,
+                isCollapsed
+              )}
+              {renderNavGroup('Enterprise ERP', filteredErp, isCollapsed)}
+              {renderNavGroup('Specialized & IoMT', filteredSpecialized, isCollapsed)}
+              {renderNavGroup('Regulations & Resilience', filteredResilience, isCollapsed)}
+            </>
+          )}
         </nav>
 
         {/* Hospital Footer status & Collapse Toggle */}
@@ -314,7 +345,7 @@ export function Sidebar(): React.ReactElement {
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                   <span className="text-[10px] font-mono font-semibold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-600/30 truncate">
-                    {roleLabel}
+                    {effectiveRole.toUpperCase()} {simulatedRole ? '(SIM)' : ''}
                   </span>
                 </div>
                 <button
@@ -326,6 +357,48 @@ export function Sidebar(): React.ReactElement {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
+              </div>
+
+              {/* Interactive Role Switcher / RBAC Simulator */}
+              <div className="rounded-lg bg-[#0c121e] border border-[#1e293b] p-2 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-amber-400">
+                    {language === 'om' ? 'Gahee Hojii (RBAC):' : 'Role Simulator:'}
+                  </span>
+                  {simulatedRole && (
+                    <button
+                      type="button"
+                      onClick={() => setSimulatedRole(null)}
+                      className="text-[9px] text-rose-400 hover:underline cursor-pointer"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <select
+                  id="rbac-role-switcher"
+                  value={effectiveRole}
+                  onChange={(e) => {
+                    const nextRole = e.target.value as UserRole;
+                    setSimulatedRole(nextRole);
+                    if (nextRole === 'patient') {
+                      router.push('/patient-portal');
+                    } else if (pathname === '/patient-portal') {
+                      router.push('/dashboard');
+                    }
+                  }}
+                  className="w-full bg-[#06090f] border border-[#26354d] text-amber-200 text-[11px] rounded px-2 py-1 font-semibold focus:outline-none focus:border-amber-400 cursor-pointer"
+                >
+                  <option value="admin">🛡️ ADMIN (Hospital Ops & ERP)</option>
+                  <option value="doctor">🩺 DOCTOR (Clinical & EMR)</option>
+                  <option value="nurse">💉 NURSE (Wards & Vitals)</option>
+                  <option value="pharmacist">💊 PHARMACIST (FEFO & Drugs)</option>
+                  <option value="technician">🔬 LAB TECH (LIS Diagnostics)</option>
+                  <option value="billing">💳 BILLING (Cashier & CBHI)</option>
+                  <option value="receptionist">🎫 RECEPTIONIST (Intake & TV)</option>
+                  <option value="patient">👤 PATIENT (Health Portal)</option>
+                  <option value="super_admin">⚡ SUPER ADMIN (Full System)</option>
+                </select>
               </div>
 
               {/* Prominent Sidebar Logout Button */}
@@ -400,10 +473,22 @@ export function Sidebar(): React.ReactElement {
 
         {/* Scrollable Workstation Links */}
         <nav className="flex-1 overflow-y-auto space-y-4 p-3 custom-scrollbar">
-          {renderNavGroup('Clinical & Patients', filteredClinical)}
-          {renderNavGroup('Enterprise ERP', filteredErp)}
-          {renderNavGroup('Specialized & IoMT', filteredSpecialized)}
-          {renderNavGroup('Regulations & Resilience', filteredResilience)}
+          {isPatientRole ? (
+            renderNavGroup(
+              language === 'om' ? 'Kutaa Dhukkubsataa' : language === 'am' ? 'የታካሚ ክፍል' : 'Patient Care Portal',
+              patientItems
+            )
+          ) : (
+            <>
+              {renderNavGroup(
+                effectiveRole === 'admin' ? 'Executive & Governance' : 'Clinical & Patients',
+                filteredClinical
+              )}
+              {renderNavGroup('Enterprise ERP', filteredErp)}
+              {renderNavGroup('Specialized & IoMT', filteredSpecialized)}
+              {renderNavGroup('Regulations & Resilience', filteredResilience)}
+            </>
+          )}
         </nav>
 
         {/* Mobile Drawer Footer with Logout Button */}

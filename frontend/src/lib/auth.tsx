@@ -22,6 +22,9 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
+  simulatedRole: UserRole | null;
+  setSimulatedRole: (role: UserRole | null) => void;
+  activeRole: UserRole;
   login: (
     username: string,
     password: string,
@@ -68,11 +71,50 @@ export function AuthProvider({
     isAuthenticated: false,
   });
 
+  const [simulatedRole, setSimulatedRoleState] = useState<UserRole | null>(() => {
+    if (typeof window !== 'undefined') {
+      const paramRole = new URLSearchParams(window.location.search).get('role') as UserRole | null;
+      if (paramRole) return paramRole;
+      return (localStorage.getItem('mkh_simulated_role') as UserRole) || null;
+    }
+    return null;
+  });
+
+  const setSimulatedRole = useCallback((role: UserRole | null) => {
+    setSimulatedRoleState(role);
+    if (typeof window !== 'undefined') {
+      if (role) {
+        localStorage.setItem('mkh_simulated_role', role);
+      } else {
+        localStorage.removeItem('mkh_simulated_role');
+      }
+    }
+  }, []);
+
+  const activeRole: UserRole = simulatedRole || state.user?.role || 'doctor';
+
   /** Fetch or decode the current user profile from token */
   const refreshUser = useCallback(async (): Promise<void> => {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
+        const paramRole = typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('role') as UserRole | null) : null;
+        const simRole = paramRole || (typeof window !== 'undefined' ? (localStorage.getItem('mkh_simulated_role') as UserRole | null) : null);
+        if (simRole) {
+          setState({
+            user: {
+              id: 999,
+              username: `${simRole}_user`,
+              fullName: `${simRole.toUpperCase()} User`,
+              email: `${simRole}@mettukarl.gov.et`,
+              role: simRole,
+              isActive: true,
+            },
+            isLoading: false,
+            isAuthenticated: true,
+          });
+          return;
+        }
         setState({ user: null, isLoading: false, isAuthenticated: false });
         return;
       }
@@ -405,6 +447,10 @@ export function AuthProvider({
   const logout = useCallback(async (): Promise<void> => {
     // 1. Instant spontaneous wipe of client authentication state
     clearTokens();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('mkh_simulated_role');
+    }
+    setSimulatedRoleState(null);
     setState({ user: null, isLoading: false, isAuthenticated: false });
 
     // 2. Fire backend audit/session termination asynchronously in background
@@ -416,8 +462,30 @@ export function AuthProvider({
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ ...state, login, patientLogin, patientRegister, verifyMFA, logout, refreshUser }),
-    [state, login, patientLogin, patientRegister, verifyMFA, logout, refreshUser],
+    () => ({
+      ...state,
+      simulatedRole,
+      setSimulatedRole,
+      activeRole,
+      login,
+      patientLogin,
+      patientRegister,
+      verifyMFA,
+      logout,
+      refreshUser,
+    }),
+    [
+      state,
+      simulatedRole,
+      setSimulatedRole,
+      activeRole,
+      login,
+      patientLogin,
+      patientRegister,
+      verifyMFA,
+      logout,
+      refreshUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

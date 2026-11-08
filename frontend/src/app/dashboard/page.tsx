@@ -18,9 +18,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, Language } from '@/lib/i18n';
+import type { UserRole } from '@/types';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
+import { DoctorDashboardView } from '@/components/dashboard/DoctorDashboardView';
+import { NurseDashboardView } from '@/components/dashboard/NurseDashboardView';
+import { PharmacistDashboardView } from '@/components/dashboard/PharmacistDashboardView';
+import { LabTechDashboardView } from '@/components/dashboard/LabTechDashboardView';
+import { BillingDashboardView } from '@/components/dashboard/BillingDashboardView';
+import { ReceptionistDashboardView } from '@/components/dashboard/ReceptionistDashboardView';
+import { PatientDashboardView } from '@/components/dashboard/PatientDashboardView';
 import { notifications } from '@mantine/notifications';
 import {
   ShieldAlert,
@@ -130,9 +138,11 @@ const INITIAL_WARDS: WardStatus[] = [
 ];
 
 export default function AdminDashboardPage(): React.ReactElement {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading, user, activeRole, simulatedRole } = useAuth();
   const { t, language } = useTranslation();
   const router = useRouter();
+
+  const effectiveRole: UserRole = activeRole || user?.role || 'doctor';
 
   const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
 
@@ -153,40 +163,12 @@ export default function AdminDashboardPage(): React.ReactElement {
   const [editBroadcast, setEditBroadcast] = useState(broadcastMessage);
   const [editBeds, setEditBeds] = useState<{ [key: string]: { total: number; occupied: number } }>({});
 
-  // 1. STRICT RBAC ACCESS CONTROL GUARD: ONLY ADMIN & SUPER_ADMIN ALLOWED
+  // Auth Guard: Only redirect if definitely unauthenticated and no simulated role active
   useEffect(() => {
-    if (!isLoading) {
-      if (!isAuthenticated) {
-        router.replace('/login');
-        return;
-      }
-      if (user?.role !== 'admin' && user?.role !== 'super_admin') {
-        notifications.show({
-          title: language === 'om' ? "Eeyyama Hin Qabdan (Admin Only)" : "Restricted Access",
-          message:
-            language === 'om'
-              ? "Dashboard'n kun bulchitoota hospitaalaa qofaaf kan qophaa'eedha."
-              : 'The Executive Dashboard is strictly restricted to Hospital Administrators.',
-          color: 'red',
-        });
-
-        // Redirect non-admins to their respective designated workstations
-        if (user?.role === 'patient') {
-          router.replace('/patient-portal');
-        } else if (user?.role === 'pharmacist') {
-          router.replace('/pharmacy');
-        } else if (user?.role === 'billing' || user?.role === 'insurance_officer') {
-          router.replace('/billing');
-        } else if (user?.role === 'nurse') {
-          router.replace('/queue');
-        } else if (user?.role === 'technician') {
-          router.replace('/assets');
-        } else {
-          router.replace('/patients');
-        }
-      }
+    if (!isLoading && !isAuthenticated && !simulatedRole && typeof window !== 'undefined') {
+      router.replace('/login');
     }
-  }, [isAuthenticated, isLoading, user, router, language]);
+  }, [isLoading, isAuthenticated, simulatedRole, router]);
 
   // Sync edit beds inputs when opening modal
   useEffect(() => {
@@ -245,36 +227,24 @@ export default function AdminDashboardPage(): React.ReactElement {
     });
   };
 
-  // If not admin, show security barrier while redirecting
-  if (isLoading || !isAuthenticated || (user?.role !== 'admin' && user?.role !== 'super_admin')) {
+  // Loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0b0f17] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-[#101624] border border-[#222b3d] rounded-2xl p-6 text-center space-y-4 shadow-2xl">
-          <div className="h-14 w-14 rounded-2xl bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center border border-amber-500/30">
-            <ShieldAlert className="h-7 w-7" />
-          </div>
-          <h2 className="text-lg font-bold text-white">
-            {language === 'om' ? "Kutaa Bulchiinsaa Qofa (Restricted)" : language === 'am' ? 'የአስተዳደር ክፍል ብቻ' : 'Restricted Admin Console'}
-          </h2>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            {language === 'om'
-              ? "Dashboard'n kun bulchiinsa hospitaalaa (Hospital Administrators) qofaaf kan daanga'eedha. Gara workstation keessaniitti isin qajeelchaa jira..."
-              : language === 'am'
-              ? 'ይህ ማዕከል ለሆስፒታል የበላይ አስተዳዳሪዎች ብቻ የተፈቀደ ነው። ወደ ስራ ክፍልዎ እያቀና ነው...'
-              : 'Access to this executive dashboard is strictly restricted to authorized Hospital Administrators. Redirecting to your assigned workstation...'}
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+          <p className="text-xs font-bold uppercase tracking-wider text-amber-300">
+            Mettu Karl HIS • Daashboordii Fe'aa Jira...
           </p>
-          <div className="pt-2">
-            <Link
-              href="/patients"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-colors"
-            >
-              <span>{language === 'om' ? 'Gara Workstation Deemi' : 'Go to Assigned Workstation'}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
         </div>
       </div>
     );
+  }
+
+  // Not authenticated redirect to login
+  if (!isAuthenticated && !simulatedRole && typeof window !== 'undefined') {
+    router.replace('/login');
+    return <div />;
   }
 
   return (
@@ -284,9 +254,19 @@ export default function AdminDashboardPage(): React.ReactElement {
         <Header />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-7 space-y-5 max-w-[1600px] w-full mx-auto">
-          {/* ================================================================= */}
-          {/* 1. COMPACT EXECUTIVE COCKPIT HEADER WITH QUICK CONTROLS            */}
-          {/* ================================================================= */}
+          {effectiveRole === 'doctor' && <DoctorDashboardView />}
+          {effectiveRole === 'nurse' && <NurseDashboardView />}
+          {effectiveRole === 'pharmacist' && <PharmacistDashboardView />}
+          {(effectiveRole === 'technician' || effectiveRole === 'lab_technician' || effectiveRole === 'lab_tech') && <LabTechDashboardView />}
+          {(effectiveRole === 'billing' || effectiveRole === 'insurance_officer') && <BillingDashboardView />}
+          {effectiveRole === 'receptionist' && <ReceptionistDashboardView />}
+          {effectiveRole === 'patient' && <PatientDashboardView />}
+
+          {(effectiveRole === 'admin' || effectiveRole === 'super_admin') && (
+            <>
+              {/* ================================================================= */}
+              {/* 1. COMPACT EXECUTIVE COCKPIT HEADER WITH QUICK CONTROLS            */}
+              {/* ================================================================= */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#101624] border border-[#222b3d] rounded-2xl p-4 sm:p-5 shadow-lg">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -863,7 +843,9 @@ export default function AdminDashboardPage(): React.ReactElement {
               </div>
             </div>
           )}
-        </main>
+        </>
+      )}
+    </main>
       </div>
     </div>
   );

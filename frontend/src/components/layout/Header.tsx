@@ -49,8 +49,10 @@ const ETH_MONTHS = [
 
 export function Header(): React.ReactElement {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, activeRole, simulatedRole } = useAuth();
   const { t, language } = useTranslation();
+
+  const effectiveRole = activeRole || user?.role || 'doctor';
 
   // Calendar & Shift State (with editable capability)
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
@@ -222,7 +224,7 @@ export function Header(): React.ReactElement {
   };
 
   const profile = getProfile();
-  const roleLabel = user?.role ? user.role.replace('_', ' ').toUpperCase() : 'DOCTOR';
+  const roleLabel = `${effectiveRole.replace('_', ' ').toUpperCase()}${simulatedRole ? ' (SIM)' : ''}`;
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-[#1b2334] bg-[#0b0f17] px-3 sm:px-6 sticky top-0 z-30 shadow-md select-none text-white">
