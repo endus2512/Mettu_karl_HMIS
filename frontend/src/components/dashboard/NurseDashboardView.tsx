@@ -96,7 +96,7 @@ const INITIAL_BEDS: BedVital[] = [
 
 export function NurseDashboardView(): React.ReactElement {
   const { language } = useTranslation();
-  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   const {
     serverTime,

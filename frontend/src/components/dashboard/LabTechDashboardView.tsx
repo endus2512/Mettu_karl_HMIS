@@ -72,7 +72,7 @@ const INITIAL_SPECIMENS: SpecimenOrder[] = [
 
 export function LabTechDashboardView(): React.ReactElement {
   const { language } = useTranslation();
-  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   const [specimens, setSpecimens] = useState<SpecimenOrder[]>(INITIAL_SPECIMENS);
 

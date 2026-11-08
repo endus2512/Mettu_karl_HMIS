@@ -172,7 +172,7 @@ export default function BarcodeScannerPage(): React.ReactElement {
   const { t, language } = useTranslation();
 
   const currentLang: 'om' | 'am' | 'en' =
-    language === 'am' || language === 'en' ? language : 'om';
+    language === 'am' || language === 'om' ? language : 'en';
   const dict = SCANNER_DICT[currentLang];
 
   const [barcodeInput, setBarcodeInput] = useState('MED-AMX-625');

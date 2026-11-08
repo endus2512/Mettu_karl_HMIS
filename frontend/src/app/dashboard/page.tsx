@@ -145,7 +145,7 @@ export default function AdminDashboardPage(): React.ReactElement {
 
   const effectiveRole: UserRole = activeRole || user?.role || 'doctor';
 
-  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   // Centralized Online Time & Shift Hook
   const {

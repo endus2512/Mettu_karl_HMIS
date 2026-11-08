@@ -239,7 +239,9 @@ export default function HomePage(): React.ReactElement {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
             </span>
-            <span className="font-bold uppercase tracking-wider font-mono">Tajaajila Balaa Hatattamaa (24/7 Emergency):</span>
+            <span className="font-bold uppercase tracking-wider font-mono">
+              {language === 'om' ? 'Tajaajila Balaa Hatattamaa (24/7 Emergency):' : language === 'am' ? 'የ24/7 የድንገተኛ አደጋ ህክምና ጥሪ:' : '24/7 Emergency Medical Response:'}
+            </span>
             <span className="text-white font-extrabold flex items-center gap-1 font-mono">
               <PhoneCall className="w-3.5 h-3.5 text-rose-400" /> 907 (Toll-Free) • +251 47 441 2345
             </span>
@@ -251,21 +253,21 @@ export default function HomePage(): React.ReactElement {
               className="flex items-center gap-1 hover:text-amber-400 transition-colors font-mono"
             >
               <Calendar className="w-3 h-3 text-amber-400" />
-              <span>{useEthiopianCalendar ? 'Bara Biqilaa (EC)' : 'Gregorian (GC)'}</span>
+              <span>{useEthiopianCalendar ? 'Ethiopian Calendar (EC)' : 'Gregorian (GC)'}</span>
             </button>
             <span>•</span>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setLanguage('om')}
-                className={`font-semibold transition-colors ${language === 'om' ? 'text-amber-400 underline underline-offset-4' : 'hover:text-slate-200'}`}
-              >
-                Afaan Oromoo
-              </button>
               <button
                 onClick={() => setLanguage('en')}
                 className={`font-semibold transition-colors ${language === 'en' ? 'text-amber-400 underline underline-offset-4' : 'hover:text-slate-200'}`}
               >
                 English
+              </button>
+              <button
+                onClick={() => setLanguage('om')}
+                className={`font-semibold transition-colors ${language === 'om' ? 'text-amber-400 underline underline-offset-4' : 'hover:text-slate-200'}`}
+              >
+                Afaan Oromoo
               </button>
               <button
                 onClick={() => setLanguage('am')}
@@ -293,7 +295,7 @@ export default function HomePage(): React.ReactElement {
                 Mettu Karl Comprehensive Specialized Hospital
               </h1>
               <p className="text-[11px] text-amber-400/90 font-medium">
-                Hospitaala Waliigalaa Ispeeshaalaayizdii Karl Mattuu • Level 4 Referral
+                Level 4 Tertiary Referral Hospital • Ilu Aba Bor, Oromia
               </p>
             </div>
           </Link>
@@ -307,7 +309,11 @@ export default function HomePage(): React.ReactElement {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md shadow-amber-500/20 transition-all hover:scale-105"
                 >
                   <Activity className="w-3.5 h-3.5" />
-                  <span>{user?.role === 'patient' ? 'Poortaalii Dhukkubsataa' : 'Gara Daashboordii'}</span>
+                  <span>
+                    {user?.role === 'patient'
+                      ? (language === 'om' ? 'Poortaalii Dhukkubsataa' : language === 'am' ? 'የታካሚ ፖርታል' : 'Patient Portal')
+                      : (language === 'om' ? 'Gara Daashboordii' : language === 'am' ? 'ወደ ዳሽቦርድ' : 'Open Dashboard')}
+                  </span>
                 </Link>
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#141b29] border border-[#2b374e] text-xs">
                   <User className="w-3.5 h-3.5 text-amber-400" />
@@ -324,14 +330,14 @@ export default function HomePage(): React.ReactElement {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-md shadow-amber-500/20 transition-all hover:scale-105"
                 >
                   <LogIn className="w-3.5 h-3.5" />
-                  <span>Seeni (Login)</span>
+                  <span>{language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Staff & Patient Login'}</span>
                 </Link>
                 <Link
                   href="/login?tab=patient"
                   className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#141b29] hover:bg-[#1a2233] text-amber-400 border border-amber-500/30 transition-all"
                 >
                   <UserCheck className="w-3.5 h-3.5" />
-                  <span>Poortaalii Dhukkubsataa</span>
+                  <span>{language === 'om' ? 'Poortaalii Dhukkubsataa' : language === 'am' ? 'የታካሚ ፖርታል' : 'Patient Portal'}</span>
                 </Link>
               </div>
             )}
@@ -350,19 +356,46 @@ export default function HomePage(): React.ReactElement {
           <div className="max-w-2xl text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold mb-4 animate-fade-in">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Sirna Yaalaa fi Qorannoo Dijitaalaa • Advanced Hospital Information System</span>
+              <span>
+                {language === 'om'
+                  ? 'Sirna Yaalaa fi Qorannoo Dijitaalaa • Advanced Hospital Information System'
+                  : language === 'am'
+                  ? 'የዲጂታል ህክምናና መረጃ ስርዓት • Advanced Hospital Information System'
+                  : 'Digital Healthcare & Telemetry • Advanced Hospital Information System'}
+              </span>
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-              Tajaajila Fayyaa Ispeeshaalaayizdii fi{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">
-                Teknooloojii Ammayyaa
-              </span>
+              {language === 'om' ? (
+                <>
+                  Tajaajila Fayyaa Ispeeshaalaayizdii fi{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">
+                    Teknooloojii Ammayyaa
+                  </span>
+                </>
+              ) : language === 'am' ? (
+                <>
+                  ስፔሻላይዝድ የጤና አገልግሎትና{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">
+                    ዘመናዊ ቴክኖሎጂ
+                  </span>
+                </>
+              ) : (
+                <>
+                  Specialized Tertiary Healthcare &{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">
+                    Modern Medical Technology
+                  </span>
+                </>
+              )}
             </h2>
 
             <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed">
-              Hospitaalli Waliigalaa Ispeeshaalaayizdii Karl Mattuu dhiha Oromiyaa fi naannolee ollaa hundaaf tajaajila
-              yaalaa sadarkaa 4ffaa qulqullina olaanaa qabu kennaa jira.
+              {language === 'om'
+                ? 'Hospitaalli Waliigalaa Ispeeshaalaayizdii Karl Mattuu dhiha Oromiyaa fi naannolee ollaa hundaaf tajaajila yaalaa sadarkaa 4ffaa qulqullina olaanaa qabu kennaa jira.'
+                : language === 'am'
+                ? 'የመቱ ካርል ሪፈራል ሆስፒታል ለምዕራብ ኢትዮጵያና ለአጎራባች ክልሎች ጥራት ያለው የደረጃ 4 የሪፈራል ህክምና አገልግሎት ይሰጣል።'
+                : 'Mettu Karl Comprehensive Specialized Hospital provides accredited Level-4 tertiary clinical care, 24/7 acute resuscitation, and advanced diagnostics across Western Ethiopia.'}
             </p>
 
             {/* Hero Quick Search for Clinics / Services */}
@@ -370,7 +403,13 @@ export default function HomePage(): React.ReactElement {
               <div className="relative w-full sm:w-80">
                 <input
                   type="text"
-                  placeholder="Kutaa yaalaa ykn tajaajila barbaadi..."
+                  placeholder={
+                    language === 'om'
+                      ? 'Kutaa yaalaa ykn tajaajila barbaadi...'
+                      : language === 'am'
+                      ? 'የህክምና ክፍል ወይም አገልግሎት ይፈልጉ...'
+                      : 'Search clinical services, departments, or wards...'
+                  }
                   value={serviceSearch}
                   onChange={(e) => setServiceSearch(e.target.value)}
                   className="w-full bg-[#101624] border border-[#2b374e] rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 shadow-inner"
@@ -382,7 +421,7 @@ export default function HomePage(): React.ReactElement {
                 href="/login"
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:scale-105"
               >
-                <span>Gara Sirnaatti Seeni</span>
+                <span>{language === 'om' ? 'Gara Sirnaatti Seeni' : language === 'am' ? 'ወደ ሲስተም ግባ' : 'Enter Hospital System'}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -390,19 +429,27 @@ export default function HomePage(): React.ReactElement {
             {/* Quick Metrics Badge Strip */}
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-[#1a2233]">
               <div className="p-3 rounded-2xl bg-[#101624]/60 border border-[#1a2233] text-left">
-                <span className="text-xs text-slate-400 block">Sadarkaa (Level)</span>
+                <span className="text-xs text-slate-400 block">
+                  {language === 'om' ? 'Sadarkaa' : language === 'am' ? 'ደረጃ' : 'Accreditation'}
+                </span>
                 <strong className="text-base font-extrabold text-amber-400">Level 4 Tertiary</strong>
               </div>
               <div className="p-3 rounded-2xl bg-[#101624]/60 border border-[#1a2233] text-left">
-                <span className="text-xs text-slate-400 block">Kutaalee Ciisichaa</span>
+                <span className="text-xs text-slate-400 block">
+                  {language === 'om' ? 'Kutaalee Ciisichaa' : language === 'am' ? 'የተኝቶ ክፍሎች' : 'Inpatient Beds'}
+                </span>
                 <strong className="text-base font-extrabold text-emerald-400">6 Wards • 28 Beds</strong>
               </div>
               <div className="p-3 rounded-2xl bg-[#101624]/60 border border-[#1a2233] text-left">
-                <span className="text-xs text-slate-400 block">Raajii & Qorannoo</span>
+                <span className="text-xs text-slate-400 block">
+                  {language === 'om' ? 'Raajii & Qorannoo' : language === 'am' ? 'ራዲዮሎጂና ምስል' : 'Diagnostic Imaging'}
+                </span>
                 <strong className="text-base font-extrabold text-cyan-400">CT 64 & Web PACS</strong>
               </div>
               <div className="p-3 rounded-2xl bg-[#101624]/60 border border-[#1a2233] text-left">
-                <span className="text-xs text-slate-400 block">Laabooratorii</span>
+                <span className="text-xs text-slate-400 block">
+                  {language === 'om' ? 'Laabooratorii' : language === 'am' ? 'ላቦራቶሪ' : 'LIS Pathology'}
+                </span>
                 <strong className="text-base font-extrabold text-teal-400">ISO-15189 LIS</strong>
               </div>
             </div>

@@ -145,9 +145,19 @@ export function Header(): React.ReactElement {
   };
 
   // Formatted date string from centralized backend time sync
-  const ethDateDisplay = language === 'am' ? ethiopian.formatted_am : ethiopian.formatted_om;
+  const ethDateDisplay =
+    language === 'om'
+      ? ethiopian.formatted_om
+      : language === 'am'
+      ? ethiopian.formatted_am
+      : ethiopian.formatted_en;
   const dateDisplay = `${ethDateDisplay} E.C. • ${gregorian.formatted} G.C.`;
-  const shiftDisplay = language === 'om' ? shift.name_om : language === 'am' ? shift.name_am : shift.name_en;
+  const shiftDisplay =
+    language === 'om'
+      ? shift.name_om
+      : language === 'am'
+      ? shift.name_am
+      : shift.name_en;
 
   // Clinician profile based on dynamic role
   const getProfile = () => {

@@ -71,7 +71,7 @@ const INITIAL_INVOICES: InvoiceItem[] = [
 
 export function BillingDashboardView(): React.ReactElement {
   const { language } = useTranslation();
-  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   const [invoices, setInvoices] = useState<InvoiceItem[]>(INITIAL_INVOICES);
 

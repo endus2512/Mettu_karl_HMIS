@@ -23,20 +23,25 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  // Default language is English ('en') as requested by hospital administration
+  // Default language is strictly English ('en') across the hospital system
   const [language, setLanguageState] = useState<Language>('en');
 
   useEffect(() => {
-    const saved = localStorage.getItem('mkh_lang') as Language;
-    if (saved && (saved === 'om' || saved === 'am' || saved === 'en')) {
-      setLanguageState(saved);
+    // Check if the user has explicitly chosen an alternative language
+    const explicitChoice = localStorage.getItem('mkh_user_selected_lang') as Language;
+    if (explicitChoice && (explicitChoice === 'en' || explicitChoice === 'om' || explicitChoice === 'am')) {
+      setLanguageState(explicitChoice);
     } else {
+      // Default to English cleanly
       setLanguageState('en');
+      localStorage.setItem('mkh_user_selected_lang', 'en');
+      localStorage.setItem('mkh_lang', 'en');
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
+    localStorage.setItem('mkh_user_selected_lang', lang);
     localStorage.setItem('mkh_lang', lang);
   };
 

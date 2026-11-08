@@ -214,7 +214,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
   const { t, language } = useTranslation();
 
   const currentLang: 'om' | 'am' | 'en' =
-    language === 'am' || language === 'en' ? language : 'om';
+    language === 'am' || language === 'om' ? language : 'en';
   const dict = SMS_DICT[currentLang];
 
   // SMS Form State

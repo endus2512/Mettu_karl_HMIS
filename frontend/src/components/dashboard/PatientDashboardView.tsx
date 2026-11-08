@@ -23,7 +23,7 @@ import {
 
 export function PatientDashboardView(): React.ReactElement {
   const { language } = useTranslation();
-  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   return (
     <div className="space-y-6">

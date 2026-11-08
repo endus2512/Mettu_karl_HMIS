@@ -111,7 +111,7 @@ const INITIAL_OPD_PATIENTS: OpdPatient[] = [
 
 export function DoctorDashboardView(): React.ReactElement {
   const { language } = useTranslation();
-  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   const [patients, setPatients] = useState<OpdPatient[]>(INITIAL_OPD_PATIENTS);
   const [selectedPatient, setSelectedPatient] = useState<OpdPatient | null>(INITIAL_OPD_PATIENTS[0]);

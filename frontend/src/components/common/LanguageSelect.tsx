@@ -15,9 +15,9 @@ export interface LanguageSelectProps {
 }
 
 const LANGUAGES: { code: Language; label: string; nativeName: string }[] = [
+  { code: 'en', label: 'English', nativeName: 'English (US)' },
   { code: 'om', label: 'Afaan Oromoo', nativeName: 'Oromiffa' },
   { code: 'am', label: 'አማርኛ', nativeName: 'Amharic' },
-  { code: 'en', label: 'English', nativeName: 'English (US)' },
 ];
 
 export function LanguageSelect({ variant = 'dark', className = '' }: LanguageSelectProps): React.ReactElement {

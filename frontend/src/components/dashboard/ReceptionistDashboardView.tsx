@@ -67,7 +67,7 @@ const INITIAL_QUEUE: QueueItem[] = [
 
 export function ReceptionistDashboardView(): React.ReactElement {
   const { language } = useTranslation();
-  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   const [queue, setQueue] = useState<QueueItem[]>(INITIAL_QUEUE);
 

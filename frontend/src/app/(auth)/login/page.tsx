@@ -429,7 +429,7 @@ export default function LoginPage() {
     return cancel;
   }, [startRevealSequence]);
 
-  const t = copy[language] ?? copy.om;
+  const t = copy[language] ?? copy.en;
 
   // Password strength calculation helper for registration
   function getPasswordStrength(pwd: string): { score: number; label: string; color: string } {

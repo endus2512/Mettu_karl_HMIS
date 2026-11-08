@@ -76,7 +76,7 @@ const INITIAL_RX: RxItem[] = [
 
 export function PharmacistDashboardView(): React.ReactElement {
   const { language } = useTranslation();
-  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'om';
+  const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   const [rxList, setRxList] = useState<RxItem[]>(INITIAL_RX);
 
