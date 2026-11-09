@@ -53,6 +53,23 @@ class SecurityAuditLogResponse(BaseModel):
     ip_address: Optional[str] = None
     result: str
     detail: Optional[str] = None
+    entry_hash: Optional[str] = None
+    previous_hash: Optional[str] = None
+    chain_index: Optional[int] = None
+    signature_seal: Optional[str] = None
 
     model_config = {"from_attributes": True}
+
+
+class MerkleChainVerifyResponse(BaseModel):
+    is_valid: bool
+    total_records_checked: int
+    genesis_hash: Optional[str] = None
+    head_hash: Optional[str] = None
+    status: str
+    compliance_standard: str = "Ethiopian INSA National Cybersecurity & HIPAA Forensic Grade"
+    message: str
+    broken_at_id: Optional[int] = None
+    broken_at_chain_index: Optional[int] = None
+    tampering_type: Optional[str] = None
 

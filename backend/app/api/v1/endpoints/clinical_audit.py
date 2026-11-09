@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_client_ip, get_current_user
-from app.core.audit import record_audit_event
+from app.core.audit import record_audit_event, verify_audit_chain
 from app.core.database import get_db
 from app.models.audit_log import AuditLog
 from app.models.clinical_audit import (
@@ -24,6 +24,7 @@ from app.schemas.clinical_audit import (
     CAPAResponse,
     ClinicalAuditCreate,
     ClinicalAuditResponse,
+    MerkleChainVerifyResponse,
     SecurityAuditLogResponse,
 )
 
@@ -115,6 +116,25 @@ async def get_security_audit_logs(
     res = await db.execute(query)
     logs = list(res.scalars().all())
     return logs
+
+
+@router.get(
+    "/security/verify-chain",
+    response_model=MerkleChainVerifyResponse,
+    summary="Verify Ethiopian INSA & HIPAA Cryptographic Merkle Hash Chain",
+)
+async def verify_security_audit_chain(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    limit: int = Query(500, ge=1, le=5000),
+) -> MerkleChainVerifyResponse:
+    """
+    Forensic Verification Engine:
+    Validates cryptographic Merkle chain links, SHA-256 integrity hashes,
+    and HMAC signature seals to mathematically prove zero tampering across all audit logs.
+    """
+    res = await verify_audit_chain(db, max_records=limit)
+    return MerkleChainVerifyResponse(**res)
 
 
 @router.post("/security/simulate-intercept", summary="Simulate & Verify Zero-Trust Impersonation Defense")

@@ -31,3 +31,9 @@ class AuditLog(Base):
     ip_address: Mapped[Optional[str]] = mapped_column(String(45), nullable=True)
     result: Mapped[str] = mapped_column(String(20), default="success", nullable=False)
     detail: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Ethiopian INSA & HIPAA Cryptographic Merkle Hash-Chain Fields
+    entry_hash: Mapped[Optional[str]] = mapped_column(String(64), index=True, nullable=True)
+    previous_hash: Mapped[Optional[str]] = mapped_column(String(64), index=True, nullable=True)
+    chain_index: Mapped[Optional[int]] = mapped_column(Integer, index=True, nullable=True)
+    signature_seal: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)

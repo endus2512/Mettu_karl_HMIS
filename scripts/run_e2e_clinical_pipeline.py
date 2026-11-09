@@ -77,7 +77,7 @@ def main():
     # 2. Pytest Unit & Integration Suite
     passed, _ = run_command(
         "source backend/.venv/bin/activate && pytest backend/tests/ -k 'not test_e2e_clinical_flow'",
-        "Core Unit & Interoperability Test Suite (73 Tests)",
+        "Core Unit & Interoperability Test Suite (76 Tests)",
         cwd=project_root,
     )
     results.append(("Core Unit & Domain Tests", passed))
