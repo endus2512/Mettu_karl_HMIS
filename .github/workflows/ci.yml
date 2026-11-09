@@ -54,7 +54,7 @@ jobs:
           MINIO_SECRET_KEY: "minioadmin"
         run: |
           cd backend
-          pytest tests/ -v -k "not (test_accounting or test_assets or test_billing or test_blood_bank or test_cdss or test_ems or test_hrm_payroll or test_insurance_power or test_queue)"
+          pytest tests/ -v
 
   frontend-checks:
     name: Frontend Lint & Typecheck

@@ -177,3 +177,58 @@ def billing_auth_headers(test_billing_user: User) -> dict[str, str]:
         extra_claims={"role": test_billing_user.role.value, "username": test_billing_user.username},
     )
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest_asyncio.fixture(scope="function")
+async def test_nurse_user(db_session: AsyncSession) -> User:
+    """Create a test nurse user."""
+    user = User(
+        username="nurse_karl",
+        email="nurse.karl@mettukarl.gov.et",
+        full_name="Nurse Karl",
+        hashed_password=hash_password("NurseSecurePass123!"),
+        role=UserRole.NURSE,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture(scope="function")
+def nurse_auth_headers(test_nurse_user: User) -> dict[str, str]:
+    """Generate bearer authorization headers for nurse user."""
+    token = create_access_token(
+        subject=test_nurse_user.id,
+        extra_claims={"role": test_nurse_user.role.value, "username": test_nurse_user.username},
+    )
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest_asyncio.fixture(scope="function")
+async def test_pharmacist_user(db_session: AsyncSession) -> User:
+    """Create a test pharmacist user."""
+    user = User(
+        username="pharm_karl",
+        email="pharm.karl@mettukarl.gov.et",
+        full_name="Pharmacist Karl",
+        hashed_password=hash_password("PharmSecurePass123!"),
+        role=UserRole.PHARMACIST,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture(scope="function")
+def pharmacist_auth_headers(test_pharmacist_user: User) -> dict[str, str]:
+    """Generate bearer authorization headers for pharmacist user."""
+    token = create_access_token(
+        subject=test_pharmacist_user.id,
+        extra_claims={"role": test_pharmacist_user.role.value, "username": test_pharmacist_user.username},
+    )
+    return {"Authorization": f"Bearer {token}"}
+
