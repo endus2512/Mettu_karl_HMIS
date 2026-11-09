@@ -19,7 +19,7 @@ import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { ZenModeToggle } from '@/components/common/ZenModeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
-import { GlobalPatientSearch } from '@/components/common/GlobalPatientSearch';
+import { OmnisearchCommandCenter } from '@/components/common/OmnisearchCommandCenter';
 import { getPendingCount, triggerEdgeBatchSync } from '@/lib/offlineSync';
 import {
   Calendar,
@@ -340,9 +340,9 @@ export function Header(): React.ReactElement {
         </div>
       </div>
 
-      {/* CENTER: GLOBAL PATIENT & COMMAND SPOTLIGHT SEARCH (Ctrl+K) */}
+      {/* CENTER: OMNISEARCH COMMAND PALETTE (Ctrl+K) */}
       <div className="hidden md:flex items-center mx-2 lg:mx-4 shrink-0">
-        <GlobalPatientSearch />
+        <OmnisearchCommandCenter />
       </div>
 
       {/* RIGHT: COMMAND COCKPIT & GOLD PRIMARY ACTION (Matching Uploaded Image) */}

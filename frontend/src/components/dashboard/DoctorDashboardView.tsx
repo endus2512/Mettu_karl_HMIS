@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslation, Language } from '@/lib/i18n';
 import { useZenMode } from '@/lib/zenMode';
+import { ClinicalGuidedStepper } from '@/components/clinical/ClinicalGuidedStepper';
 import {
   Stethoscope,
   Users,
@@ -30,6 +31,8 @@ import {
   Sparkles,
   Leaf,
   BarChart2,
+  Route,
+  LayoutGrid,
 } from 'lucide-react';
 
 interface OpdPatient {
@@ -116,6 +119,7 @@ export function DoctorDashboardView(): React.ReactElement {
   const { language } = useTranslation();
   const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
   const { isZenMode, toggleZenMode } = useZenMode();
+  const [viewMode, setViewMode] = useState<'guided' | 'standard'>('guided');
 
   const [patients, setPatients] = useState<OpdPatient[]>(INITIAL_OPD_PATIENTS);
   const [selectedPatient, setSelectedPatient] = useState<OpdPatient | null>(INITIAL_OPD_PATIENTS[0]);
@@ -201,7 +205,48 @@ export function DoctorDashboardView(): React.ReactElement {
         </div>
       </div>
 
-      {/* 2. DOCTOR CLINICAL KPI TILES / PROGRESSIVE DISCLOSURE */}
+      {/* 2. DUAL INTERFACE SWITCHER: GUIDED STEPPER vs STANDARD QUEUE */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 sm:p-3 rounded-2xl bg-[#0e1422] border border-slate-800">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setViewMode('guided')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'guided'
+                ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-slate-950 shadow-md font-black'
+                : 'text-slate-400 hover:text-white bg-slate-800/60'
+            }`}
+          >
+            <Route className="w-3.5 h-3.5" />
+            <span>{lang === 'om' ? '🚶 Qajeelcha Yaalaa (Guided Stepper)' : '🚶 Guided Stepper Mode'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setViewMode('standard')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'standard'
+                ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-slate-950 shadow-md font-black'
+                : 'text-slate-400 hover:text-white bg-slate-800/60'
+            }`}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            <span>{lang === 'om' ? '📋 Tartiiba Baramaa (Standard Workstation)' : '📋 Standard Workstation'}</span>
+          </button>
+        </div>
+
+        <span className="text-[11px] text-slate-400 font-medium">
+          {viewMode === 'guided'
+            ? (lang === 'om' ? '⚡ Adeemsa salphaa sadarkaa 4n xumuru' : '⚡ Zero-confusion 4-step consultation flow')
+            : (lang === 'om' ? '📊 Wiirtuu guutuu dabaree fi vitals' : '📊 Full consultation worklist and vitals cards')}
+        </span>
+      </div>
+
+      {viewMode === 'guided' ? (
+        <ClinicalGuidedStepper onComplete={handleCompleteConsultation} />
+      ) : (
+        <>
+          {/* 3. DOCTOR CLINICAL KPI TILES / PROGRESSIVE DISCLOSURE */}
       {isZenMode ? (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#0e1422] border border-slate-800/80 shadow-sm transition-all">
           <div className="flex flex-wrap items-center gap-3 text-xs">
@@ -541,6 +586,8 @@ export function DoctorDashboardView(): React.ReactElement {
           )}
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }
