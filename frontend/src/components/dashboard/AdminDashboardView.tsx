@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, Language } from '@/lib/i18n';
 import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
+import { useZenMode } from '@/lib/zenMode';
 import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
@@ -46,6 +47,8 @@ import {
   Volume2,
   Eye,
   Ticket,
+  Leaf,
+  BarChart2,
 } from 'lucide-react';
 
 interface WardStatus {
@@ -137,6 +140,7 @@ export function AdminDashboardView(): React.ReactElement {
     serverTime,
     overrideShift: onlineOverrideShift,
   } = useHospitalTimeSync();
+  const { isZenMode, toggleZenMode } = useZenMode();
 
   // State Management for Full Admin Control & Live Editing
   const [wards, setWards] = useState<WardStatus[]>(INITIAL_WARDS);
@@ -148,6 +152,7 @@ export function AdminDashboardView(): React.ReactElement {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedWardForEdit, setSelectedWardForEdit] = useState<WardStatus | null>(null);
   const [showRoster, setShowRoster] = useState(true);
+  const [showWardTable, setShowWardTable] = useState(false);
 
   // Sync activeShift from backend
   useEffect(() => {
@@ -562,82 +567,119 @@ export function AdminDashboardView(): React.ReactElement {
           </div>
         </div>
 
-        {/* Wards Responsive Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="border-b border-[#1f293d] bg-[#0c121e] text-[11px] uppercase tracking-wider text-slate-400 font-mono">
-              <tr>
-                <th className="py-2.5 px-3">{language === 'om' ? 'Kutaa Yaalaa' : 'Department / Ward'}</th>
-                <th className="py-2.5 px-3">{language === 'om' ? 'Siree (Total / Occupied)' : 'Beds (Tot/Occ)'}</th>
-                <th className="py-2.5 px-3">{language === 'om' ? 'Dhibbeentaa' : 'Occupancy'}</th>
-                <th className="py-2.5 px-3">{language === 'om' ? 'Ogeeyyii Hojirra Jiran' : 'On-Duty Staff'}</th>
-                <th className="py-2.5 px-3">{language === 'om' ? 'Haala' : 'Status'}</th>
-                <th className="py-2.5 px-3 text-right">{language === 'om' ? 'Gulaali' : 'Action'}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#182133]">
-              {wards.map((ward) => {
-                const percent = Math.round((ward.occupiedBeds / ward.totalBeds) * 100);
-                const wardName = ward.name[lang] || ward.name.en;
-                return (
-                  <tr key={ward.id} className="hover:bg-[#141c2c] transition-colors">
-                    <td className="py-3 px-3 font-semibold text-white">
-                      <span>{wardName}</span>
-                    </td>
-                    <td className="py-3 px-3 font-mono">
-                      <span className="text-white font-bold">{ward.occupiedBeds}</span>
-                      <span className="text-slate-500"> / {ward.totalBeds}</span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-16 bg-[#1b2336] rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${percent > 85 ? 'bg-rose-500' : 'bg-emerald-500'}`}
-                            style={{ width: `${percent}%` }}
-                          />
+        {/* Wards Responsive Table / Zen Progressive Disclosure */}
+        {(!isZenMode || showWardTable) ? (
+          <div className="overflow-x-auto space-y-2">
+            {isZenMode && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowWardTable(false)}
+                  className="text-[11px] text-slate-400 hover:text-white cursor-pointer px-2 py-0.5 rounded bg-slate-800/60"
+                >
+                  {language === 'om' ? "Taabiloo Dhoysi (Minimize)" : "Minimize Table"}
+                </button>
+              </div>
+            )}
+            <table className="w-full text-left text-xs text-slate-300">
+              <thead className="border-b border-[#1f293d] bg-[#0c121e] text-[11px] uppercase tracking-wider text-slate-400 font-mono">
+                <tr>
+                  <th className="py-2.5 px-3">{language === 'om' ? 'Kutaa Yaalaa' : 'Department / Ward'}</th>
+                  <th className="py-2.5 px-3">{language === 'om' ? 'Siree (Total / Occupied)' : 'Beds (Tot/Occ)'}</th>
+                  <th className="py-2.5 px-3">{language === 'om' ? 'Dhibbeentaa' : 'Occupancy'}</th>
+                  <th className="py-2.5 px-3">{language === 'om' ? 'Ogeeyyii Hojirra Jiran' : 'On-Duty Staff'}</th>
+                  <th className="py-2.5 px-3">{language === 'om' ? 'Haala' : 'Status'}</th>
+                  <th className="py-2.5 px-3 text-right">{language === 'om' ? 'Gulaali' : 'Action'}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#182133]">
+                {wards.map((ward) => {
+                  const percent = Math.round((ward.occupiedBeds / ward.totalBeds) * 100);
+                  const wardName = ward.name[lang] || ward.name.en;
+                  return (
+                    <tr key={ward.id} className="hover:bg-[#141c2c] transition-colors">
+                      <td className="py-3 px-3 font-semibold text-white">
+                        <span>{wardName}</span>
+                      </td>
+                      <td className="py-3 px-3 font-mono">
+                        <span className="text-white font-bold">{ward.occupiedBeds}</span>
+                        <span className="text-slate-500"> / {ward.totalBeds}</span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-16 bg-[#1b2336] rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${percent > 85 ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                          <span className="font-mono text-[11px]">{percent}%</span>
                         </div>
-                        <span className="font-mono text-[11px]">{percent}%</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 text-slate-400">
-                      <span>{ward.onDutyStaff}</span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          ward.status === 'critical'
-                            ? 'bg-rose-950/70 text-rose-300 border border-rose-500/40'
+                      </td>
+                      <td className="py-3 px-3 text-slate-400">
+                        <span>{ward.onDutyStaff}</span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            ward.status === 'critical'
+                              ? 'bg-rose-950/70 text-rose-300 border border-rose-500/40'
+                              : ward.status === 'busy'
+                              ? 'bg-amber-950/70 text-amber-300 border border-amber-500/40'
+                              : 'bg-emerald-950/70 text-emerald-300 border border-emerald-500/40'
+                          }`}
+                        >
+                          {ward.status === 'critical'
+                            ? (language === 'om' ? 'DHIPHOO (Critical)' : 'Critical')
                             : ward.status === 'busy'
-                            ? 'bg-amber-950/70 text-amber-300 border border-amber-500/40'
-                            : 'bg-emerald-950/70 text-emerald-300 border border-emerald-500/40'
-                        }`}
-                      >
-                        {ward.status === 'critical'
-                          ? (language === 'om' ? 'DHIPHOO (Critical)' : 'Critical')
-                          : ward.status === 'busy'
-                          ? (language === 'om' ? 'HOJII BAAY\'EE' : 'Busy')
-                          : (language === 'om' ? 'GAARII' : 'Optimal')}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedWardForEdit(ward);
-                          setIsEditModalOpen(true);
-                        }}
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 rounded-lg border border-amber-500/30 transition-colors cursor-pointer"
-                      >
-                        <Edit3 className="w-3 h-3" />
-                        <span>{language === 'om' ? 'Gulaali' : 'Edit'}</span>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                            ? (language === 'om' ? 'HOJII BAAY\'EE' : 'Busy')
+                            : (language === 'om' ? 'GAARII' : 'Optimal')}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedWardForEdit(ward);
+                            setIsEditModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 rounded-lg border border-amber-500/30 transition-colors cursor-pointer"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          <span>{language === 'om' ? 'Gulaali' : 'Edit'}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-[#0c121e] border border-slate-800 text-xs">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-semibold text-white">
+                {language === 'om' ? 'Kutaalee Yaalaa 5 Hojirra Jiran' : '5 Hospital Wards Active'}
+              </span>
+              <span className="text-slate-500">•</span>
+              <span className="text-slate-300 font-mono">
+                {occupiedBeds}/{totalBeds} {language === 'om' ? 'Sireewwan Qabaman' : 'Beds Occupied'} ({occupancyPercent}%)
+              </span>
+              <span className="text-slate-500">•</span>
+              <span className="text-rose-400 font-semibold text-[11px]">
+                ICU: {language === 'om' ? 'Dhiphoo (Critical)' : 'Critical'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowWardTable(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141d2d] hover:bg-slate-800 border border-slate-700 text-amber-300 font-semibold text-xs cursor-pointer transition-all"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>{language === 'om' ? "Taabiloo Bal'aa Banadhu" : 'Show Full Ward Table'}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ================================================================= */}

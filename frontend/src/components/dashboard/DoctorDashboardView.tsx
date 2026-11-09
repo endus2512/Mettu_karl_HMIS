@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslation, Language } from '@/lib/i18n';
+import { useZenMode } from '@/lib/zenMode';
 import {
   Stethoscope,
   Users,
@@ -27,6 +28,8 @@ import {
   ShieldAlert,
   ArrowRight,
   Sparkles,
+  Leaf,
+  BarChart2,
 } from 'lucide-react';
 
 interface OpdPatient {
@@ -112,14 +115,28 @@ const INITIAL_OPD_PATIENTS: OpdPatient[] = [
 export function DoctorDashboardView(): React.ReactElement {
   const { language } = useTranslation();
   const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
+  const { isZenMode, toggleZenMode } = useZenMode();
 
   const [patients, setPatients] = useState<OpdPatient[]>(INITIAL_OPD_PATIENTS);
   const [selectedPatient, setSelectedPatient] = useState<OpdPatient | null>(INITIAL_OPD_PATIENTS[0]);
 
+  const handleCompleteConsultation = (mrn: string) => {
+    setPatients((prev) =>
+      prev.map((p) => (p.mrn === mrn ? { ...p, status: 'completed' as const } : p))
+    );
+    if (selectedPatient?.mrn === mrn) {
+      setSelectedPatient((prev) => (prev ? { ...prev, status: 'completed' as const } : null));
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* 1. CLINICAL HEADER WITH QUICK SHORTCUTS */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#101624] border border-[#222b3d] rounded-2xl p-4 sm:p-5 shadow-lg">
+      <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 rounded-2xl p-4 sm:p-5 shadow-lg transition-all ${
+        isZenMode
+          ? 'bg-[#0e1422] border border-slate-800/80'
+          : 'bg-[#101624] border border-[#222b3d]'
+      }`}>
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center border border-teal-500/30 shrink-0">
             <Stethoscope className="w-5 h-5" />
@@ -136,6 +153,12 @@ export function DoctorDashboardView(): React.ReactElement {
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40 font-mono font-semibold">
                 DOCTOR ACTIVE
               </span>
+              {isZenMode && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono font-medium flex items-center gap-1">
+                  <Leaf className="w-2.5 h-2.5" />
+                  <span>ZEN ACTIVE</span>
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-400">
               {lang === 'om'
@@ -178,81 +201,133 @@ export function DoctorDashboardView(): React.ReactElement {
         </div>
       </div>
 
-      {/* 2. DOCTOR CLINICAL KPI TILES */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1 */}
-        <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 flex items-center justify-between shadow-md">
-          <div className="space-y-1">
-            <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
-              {lang === 'om' ? "Dhukkubsattoota Har'aa" : 'Patients Today'}
+      {/* 2. DOCTOR CLINICAL KPI TILES / PROGRESSIVE DISCLOSURE */}
+      {isZenMode ? (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#0e1422] border border-slate-800/80 shadow-sm transition-all">
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <span className="flex items-center gap-1.5 font-semibold text-emerald-400">
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              {lang === 'om' ? "Har'a: 14 Dhukkubsattoota" : "Today: 14 Patients"} (8 {lang === 'om' ? 'Xumuraman' : 'Done'}, 6 {lang === 'om' ? 'Dabaree' : 'Waiting'})
             </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-white">14</span>
-              <span className="text-[11px] text-teal-400 font-medium">8 {lang === 'om' ? 'xumuraman' : 'done'}</span>
-            </div>
-            <p className="text-[10px] text-slate-500">6 {lang === 'om' ? 'dabaree eeggachaa jiru' : 'waiting in lobby'}</p>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="flex items-center gap-1.5 font-semibold text-rose-300">
+              <FlaskConical className="w-3.5 h-3.5 text-rose-400" />
+              3 {lang === 'om' ? "Akeekkachiisa Laabii (Panic Alert)" : "Panic Lab Alerts"}
+            </span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="flex items-center gap-1.5 text-amber-300 font-medium">
+              <Syringe className="w-3.5 h-3.5 text-amber-400" />
+              1 {lang === 'om' ? 'Baqaqsaa (11:30 AM)' : 'Surgery Scheduled'}
+            </span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="flex items-center gap-1.5 text-slate-300 font-medium">
+              <Bed className="w-3.5 h-3.5 text-teal-400" />
+              8 {lang === 'om' ? 'Marsaa Ciisichaa' : 'Ward Rounds'}
+            </span>
           </div>
-          <div className="h-10 w-10 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center">
-            <Users className="w-5 h-5" />
-          </div>
-        </div>
 
-        {/* KPI 2 */}
-        <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 flex items-center justify-between shadow-md">
-          <div className="space-y-1">
-            <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
-              {lang === 'om' ? "Bu'aa Laabii Eegamu" : 'Pending Lab Reviews'}
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-rose-400">3</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">
-                PANIC
-              </span>
-            </div>
-            <p className="text-[10px] text-rose-400/80">K+ 6.1, Troponin (+) alert</p>
-          </div>
-          <div className="h-10 w-10 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center">
-            <FlaskConical className="w-5 h-5" />
-          </div>
+          <button
+            type="button"
+            onClick={toggleZenMode}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#141b2a] hover:bg-slate-800 border border-slate-700/60 text-[11px] font-semibold text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0"
+          >
+            <BarChart2 className="w-3.5 h-3.5 text-amber-400" />
+            <span>{lang === 'om' ? "Bal'isi (Telemetry)" : 'Expand Metrics'}</span>
+          </button>
         </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-xs px-1 text-slate-400">
+            <span className="font-semibold">{lang === 'om' ? "Istaatiistiksii Bal'aa (Expanded Clinical Telemetry)" : "Expanded Clinical Telemetry"}</span>
+            <button
+              type="button"
+              onClick={toggleZenMode}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 cursor-pointer"
+            >
+              <Leaf className="w-3 h-3" />
+              <span>{lang === 'om' ? "Gara Salphaatti Deebi'i (Zen Mode)" : 'Back to Zen Mode'}</span>
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* KPI 1 */}
+            <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 flex items-center justify-between shadow-md">
+              <div className="space-y-1">
+                <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
+                  {lang === 'om' ? "Dhukkubsattoota Har'aa" : 'Patients Today'}
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-white">14</span>
+                  <span className="text-[11px] text-teal-400 font-medium">8 {lang === 'om' ? 'xumuraman' : 'done'}</span>
+                </div>
+                <p className="text-[10px] text-slate-500">6 {lang === 'om' ? 'dabaree eeggachaa jiru' : 'waiting in lobby'}</p>
+              </div>
+              <div className="h-10 w-10 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center">
+                <Users className="w-5 h-5" />
+              </div>
+            </div>
 
-        {/* KPI 3 */}
-        <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 flex items-center justify-between shadow-md">
-          <div className="space-y-1">
-            <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
-              {lang === 'om' ? 'Baqaqsanii Yaaluu (OT)' : 'Surgeries Scheduled'}
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-amber-400">1</span>
-              <span className="text-[11px] text-amber-400/90 font-medium">11:30 AM</span>
+            {/* KPI 2 */}
+            <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 flex items-center justify-between shadow-md">
+              <div className="space-y-1">
+                <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
+                  {lang === 'om' ? "Bu'aa Laabii Eegamu" : 'Pending Lab Reviews'}
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-rose-400">3</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">
+                    PANIC
+                  </span>
+                </div>
+                <p className="text-[10px] text-rose-400/80">K+ 6.1, Troponin (+) alert</p>
+              </div>
+              <div className="h-10 w-10 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center">
+                <FlaskConical className="w-5 h-5" />
+              </div>
             </div>
-            <p className="text-[10px] text-slate-500">Appendectomy • Theatre 01</p>
-          </div>
-          <div className="h-10 w-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center">
-            <Syringe className="w-5 h-5" />
-          </div>
-        </div>
 
-        {/* KPI 4 */}
-        <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 flex items-center justify-between shadow-md">
-          <div className="space-y-1">
-            <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
-              {lang === 'om' ? 'Marsaa Ciisichaa (IPD)' : 'Ward Rounds'}
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-emerald-400">8</span>
-              <span className="text-[11px] text-emerald-400/90 font-medium">Ward B</span>
+            {/* KPI 3 */}
+            <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 flex items-center justify-between shadow-md">
+              <div className="space-y-1">
+                <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
+                  {lang === 'om' ? 'Baqaqsanii Yaaluu (OT)' : 'Surgeries Scheduled'}
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-amber-400">1</span>
+                  <span className="text-[11px] text-amber-400/90 font-medium">11:30 AM</span>
+                </div>
+                <p className="text-[10px] text-slate-500">Appendectomy • Theatre 01</p>
+              </div>
+              <div className="h-10 w-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+                <Syringe className="w-5 h-5" />
+              </div>
             </div>
-            <p className="text-[10px] text-slate-500">2 ready for discharge</p>
-          </div>
-          <div className="h-10 w-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
-            <Bed className="w-5 h-5" />
+
+            {/* KPI 4 */}
+            <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 flex items-center justify-between shadow-md">
+              <div className="space-y-1">
+                <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
+                  {lang === 'om' ? 'Marsaa Ciisichaa (IPD)' : 'Ward Rounds'}
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-emerald-400">8</span>
+                  <span className="text-[11px] text-emerald-400/90 font-medium">Ward B</span>
+                </div>
+                <p className="text-[10px] text-slate-500">2 ready for discharge</p>
+              </div>
+              <div className="h-10 w-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                <Bed className="w-5 h-5" />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 3. CLINICAL ALERTS BANNER (CDSS & PANIC VALUES) */}
-      <div className="rounded-2xl bg-gradient-to-r from-rose-950/40 via-amber-950/30 to-[#101624] border border-rose-500/40 p-4 space-y-2">
+      <div className={`rounded-2xl p-4 space-y-2 transition-all ${
+        isZenMode
+          ? 'bg-[#0e1422] border border-slate-800'
+          : 'bg-gradient-to-r from-rose-950/40 via-amber-950/30 to-[#101624] border border-rose-500/40'
+      }`}>
         <div className="flex items-center gap-2 text-rose-300 font-bold text-xs uppercase tracking-wider">
           <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
           <span>Akeekkachiisa Yaalaa Hatattamaa (CDSS & Panic Lab Alerts)</span>
@@ -286,7 +361,9 @@ export function DoctorDashboardView(): React.ReactElement {
       {/* 4. ACTIVE OPD CONSULTATIONS WORKLIST */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Patient Queue Table (2 Cols) */}
-        <div className="lg:col-span-2 rounded-2xl bg-[#101624] border border-[#222b3d] p-4 sm:p-5 shadow-lg space-y-4">
+        <div className={`lg:col-span-2 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4 transition-all ${
+          isZenMode ? 'bg-[#0e1422] border border-slate-800/80' : 'bg-[#101624] border border-[#222b3d]'
+        }`}>
           <div className="flex items-center justify-between pb-3 border-b border-[#1f293d]">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-teal-400" />
@@ -361,7 +438,9 @@ export function DoctorDashboardView(): React.ReactElement {
         </div>
 
         {/* Right: Selected Patient Card & Quick Prescription Box */}
-        <div className="rounded-2xl bg-[#101624] border border-[#222b3d] p-4 sm:p-5 shadow-lg space-y-4">
+        <div className={`rounded-2xl p-4 sm:p-5 shadow-lg space-y-4 transition-all ${
+          isZenMode ? 'bg-[#0e1422] border border-slate-800/80' : 'bg-[#101624] border border-[#222b3d]'
+        }`}>
           <div className="flex items-center justify-between pb-3 border-b border-[#1f293d]">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Heart className="w-4 h-4 text-rose-400" />
@@ -411,26 +490,47 @@ export function DoctorDashboardView(): React.ReactElement {
 
               {/* Actions */}
               <div className="pt-2 space-y-2">
-                <Link
-                  href="/pharmacy"
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold transition"
+                <button
+                  type="button"
+                  onClick={() => selectedPatient && handleCompleteConsultation(selectedPatient.mrn)}
+                  disabled={selectedPatient.status === 'completed'}
+                  className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-bold transition cursor-pointer ${
+                    selectedPatient.status === 'completed'
+                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                      : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md'
+                  }`}
                 >
-                  <Pill className="w-3.5 h-3.5" />
-                  <span>{lang === 'om' ? 'Barreessi Resephii Qorichaa' : 'Write Prescription'}</span>
-                </Link>
-                <Link
-                  href="/laboratory"
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-semibold transition"
-                >
-                  <FlaskConical className="w-3.5 h-3.5" />
-                  <span>{lang === 'om' ? 'Ajaja Qorannoo Laabii Baasi' : 'Order Laboratory Panels'}</span>
-                </Link>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>
+                    {selectedPatient.status === 'completed'
+                      ? (lang === 'om' ? '✓ Yaalli Xumurameera' : '✓ Consultation Completed')
+                      : (lang === 'om' ? 'Yaala Xumuri (Finish Consultation)' : 'Complete Consultation')}
+                  </span>
+                </button>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/pharmacy"
+                    className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold transition text-center"
+                  >
+                    <Pill className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{lang === 'om' ? 'Resephii' : 'Prescribe'}</span>
+                  </Link>
+                  <Link
+                    href="/laboratory"
+                    className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 font-semibold transition text-center"
+                  >
+                    <FlaskConical className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{lang === 'om' ? 'Ajaji Laabii' : 'Order Lab'}</span>
+                  </Link>
+                </div>
+
                 <Link
                   href="/wards"
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-semibold transition"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 font-semibold transition"
                 >
                   <Bed className="w-3.5 h-3.5" />
-                  <span>{lang === 'om' ? 'Kutaa Ciisichaatti Galmeessi' : 'Admit to Inpatient Ward'}</span>
+                  <span>{lang === 'om' ? 'Kutaa Ciisichaatti Galmeessi (Admit)' : 'Admit to Inpatient Ward'}</span>
                 </Link>
               </div>
             </div>

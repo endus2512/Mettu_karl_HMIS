@@ -13,6 +13,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
 import { AuthProvider } from '@/lib/auth';
 import { I18nProvider } from '@/lib/i18n';
+import { ZenModeProvider } from '@/lib/zenMode';
 
 export function Providers({ children }: { children: React.ReactNode }): React.ReactElement {
   const [queryClient] = useState(
@@ -32,7 +33,9 @@ export function Providers({ children }: { children: React.ReactNode }): React.Re
       <MantineProvider>
         <Notifications position="top-right" />
         <I18nProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <ZenModeProvider>{children}</ZenModeProvider>
+          </AuthProvider>
         </I18nProvider>
       </MantineProvider>
       <ReactQueryDevtools initialIsOpen={false} />

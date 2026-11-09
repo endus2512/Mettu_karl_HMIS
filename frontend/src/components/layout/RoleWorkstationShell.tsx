@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import type { UserRole } from '@/types';
+import { useZenMode } from '@/lib/zenMode';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { getRoleDisplayName, getRolePortalPath } from '@/lib/roleRoutes';
@@ -40,6 +41,7 @@ export function RoleWorkstationShell({
 }: RoleWorkstationShellProps): React.ReactElement {
   const { isAuthenticated, isLoading, user, activeRole, simulatedRole } = useAuth();
   const { language } = useTranslation();
+  const { isZenMode } = useZenMode();
   const router = useRouter();
 
   const lang = (language === 'om' || language === 'am' || language === 'en') ? language : 'en';
@@ -94,12 +96,12 @@ export function RoleWorkstationShell({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0b0f17] text-white">
+    <div className={`flex min-h-screen text-white transition-colors duration-300 ${isZenMode ? 'bg-[#080d16]' : 'bg-[#0b0f17]'}`}>
       <Sidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-7 space-y-5 max-w-[1600px] w-full mx-auto">
+        <main className={`flex-1 p-4 sm:p-6 lg:p-7 space-y-5 max-w-[1600px] w-full mx-auto transition-all duration-300 ${isZenMode ? 'selection:bg-teal-500/30' : ''}`}>
           {/* Executive Supervisory Inspection Banner */}
           {isInspectingAsAdmin && (
             <div className="bg-gradient-to-r from-amber-500/20 via-[#161f30] to-amber-500/10 border border-amber-500/40 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
