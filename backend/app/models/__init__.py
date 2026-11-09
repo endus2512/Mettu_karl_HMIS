@@ -134,7 +134,13 @@ from app.models.mci import (
     STARTTriageCategory,
 )
 from app.models.mortuary import BodyVault, MortuaryRecord, VaultStatus
-from app.models.notification import NotificationChannel, NotificationStatus, SMSNotificationLog
+from app.models.notification import (
+    ClinicalNotification,
+    NotificationChannel,
+    NotificationStatus,
+    SMSGatewayConfig,
+    SMSNotificationLog,
+)
 from app.models.ot_cssd import (
     CSSDBatch,
     OperatingRoom,
@@ -330,4 +336,6 @@ __all__ = [
     "LabOrder",
     "LabOrderItem",
     "LabResult",
+    "ClinicalNotification",
+    "SMSGatewayConfig",
 ]

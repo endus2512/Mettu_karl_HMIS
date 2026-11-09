@@ -31,6 +31,9 @@ import {
   reactToNotification,
   clearAllNotifications,
   ReactionType,
+  connectClinicalEventBusWebSocket,
+  fetchLiveBackendNotifications,
+  EVENT_NAME,
 } from '@/lib/notifications';
 
 interface NotificationBellProps {
@@ -119,8 +122,24 @@ export function NotificationBell({ variant = 'dark', className = '' }: Notificat
 
   useEffect(() => {
     refreshNotifications();
-    const interval = setInterval(refreshNotifications, 5000);
-    return () => clearInterval(interval);
+    // Fetch live persistent notifications from PostgreSQL backend
+    fetchLiveBackendNotifications().then((live) => {
+      if (live && live.length > 0) setItems(live);
+    });
+
+    // Real-Time Event Bus WebSocket connection
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') || undefined : undefined;
+    const disconnectWs = connectClinicalEventBusWebSocket(token, () => {
+      refreshNotifications();
+    });
+
+    const handleUpdate = () => refreshNotifications();
+    window.addEventListener(EVENT_NAME, handleUpdate);
+
+    return () => {
+      disconnectWs();
+      window.removeEventListener(EVENT_NAME, handleUpdate);
+    };
   }, [user]);
 
   // Click outside to close drawer

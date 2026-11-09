@@ -198,6 +198,66 @@ export default function QueuePage(): React.ReactElement {
     return () => clearInterval(interval);
   }, []);
 
+  // Live WebSocket connection to Waiting Room TV Stream
+  const [wsConnected, setWsConnected] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.hostname || '127.0.0.1';
+    const dept = selectedDept === 'ALL' ? 'OPD_GEN' : selectedDept;
+    const wsUrl = `${protocol}//${host}:8000/api/v1/queue/ws/${dept}`;
+
+    let socket: WebSocket | null = null;
+    let keepAlive: NodeJS.Timeout | null = null;
+
+    try {
+      socket = new WebSocket(wsUrl);
+      socket.onopen = () => {
+        setWsConnected(true);
+        keepAlive = setInterval(() => {
+          if (socket?.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'PING' }));
+          }
+        }, 25000);
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.event === 'TICKET_CALLED') {
+            const calledTicket: TicketEvent = {
+              id: `ws-${Date.now()}`,
+              ticket_number: data.ticket_number,
+              room_counter: data.room_counter || 'Room 1',
+              department_name: data.department_name || 'Clinic',
+              department_code: data.department_code || dept,
+              triage_priority: 'urgent',
+              wait_time_minutes: 0,
+              status: 'serving',
+              called_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            };
+            setCurrentCall(calledTicket);
+            setRecentCalls((prev) => [calledTicket, ...prev.slice(0, 4)]);
+            speakToken(calledTicket.ticket_number, calledTicket.room_counter, calledTicket.department_name);
+          }
+        } catch {
+          // ignore parsing error
+        }
+      };
+
+      socket.onclose = () => setWsConnected(false);
+      socket.onerror = () => setWsConnected(false);
+    } catch {
+      setWsConnected(false);
+    }
+
+    return () => {
+      if (keepAlive) clearInterval(keepAlive);
+      if (socket) socket.close();
+    };
+  }, [selectedDept]);
+
   // Web Speech API Token Voice Announcement
   const speakToken = (ticket: string, room: string, dept: string) => {
     if (!soundEnabled) return;

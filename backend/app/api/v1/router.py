@@ -19,6 +19,7 @@ from app.api.v1.endpoints import (
     dietary,
     efda,
     ems,
+    events,
     fayda,
     fhir,
     health,
@@ -47,6 +48,7 @@ api_v1_router = APIRouter()
 
 # Core & Infrastructure
 api_v1_router.include_router(health.router, tags=["Health"])
+api_v1_router.include_router(events.router, prefix="/events", tags=["Clinical Real-Time Events & WebSockets"])
 api_v1_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_v1_router.include_router(system_time.router, prefix="/system", tags=["Hospital System Time & Online Shifts"])
 api_v1_router.include_router(patient_portal.router, prefix="/portal", tags=["Patient Portal"])

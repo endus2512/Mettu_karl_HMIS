@@ -11,6 +11,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 import { notifications } from '@mantine/notifications';
+import { connectClinicalEventBusWebSocket } from '@/lib/notifications';
 import {
   Siren,
   AlertTriangle,
@@ -71,8 +72,23 @@ export default function MCIPage(): React.ReactElement {
       }
     };
     void fetchMCIIncidents();
+
+    // Real-Time Event Bus for Emergency Disaster Broadcasts
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') || undefined : undefined;
+    const disconnectWs = connectClinicalEventBusWebSocket(token, (event) => {
+      if (event.type === 'EMERGENCY_BROADCAST') {
+        void fetchMCIIncidents();
+        notifications.show({
+          title: 'Emergency Broadcast Received',
+          message: `${event.payload ? (event.payload as any).title : 'MCI Alert active'}`,
+          color: 'red',
+        });
+      }
+    });
+
     return () => {
       isMounted = false;
+      disconnectWs();
     };
   }, []);
 

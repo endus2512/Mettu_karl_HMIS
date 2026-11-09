@@ -11,6 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import apiClient from '@/lib/api';
+import { connectClinicalEventBusWebSocket } from '@/lib/notifications';
 import {
   Activity,
   HeartPulse,
@@ -141,8 +142,18 @@ export default function IoMTPage(): React.ReactElement {
       }
     };
     void fetchIoMTData();
+
+    // Real-Time Event Bus for bedside vital desaturations and emergency broadcasts
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') || undefined : undefined;
+    const disconnectWs = connectClinicalEventBusWebSocket(token, (event) => {
+      if (event.type === 'EMERGENCY_BROADCAST' || event.type === 'IOMT_ALARM') {
+        void fetchIoMTData();
+      }
+    });
+
     return () => {
       isMounted = false;
+      disconnectWs();
     };
   }, []);
 

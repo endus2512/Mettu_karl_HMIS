@@ -1,14 +1,26 @@
 /**
- * Mettu Karl Referral Hospital — Live In-App Executive Notification & Reaction Hub.
+ * Mettu Karl Referral Hospital — Real-Time Clinical Event Bus & WebSocket Push Hub.
  *
- * Allows Hospital Administrator to dispatch urgent alerts, directives, Code Blue calls,
- * and broadcasts to Doctors, Nurses, Pharmacists, Technicians, and Patients.
- * Recipients instantly receive notifications, view them in real time, and react
- * (e.g., "On My Way", "At Bedside", "Dispensed", "Acknowledged", or write a reply note).
+ * Provides:
+ * 1. Live bidirectional WebSocket connection to FastAPI `/api/v1/events/ws`
+ * 2. Instant audible chime/siren alerts for Code Blue & critical lab/triage alerts
+ * 3. PostgreSQL backend synchronization for persistent alerts and reactions
+ * 4. Offline resilience fallback to localStorage
  */
 'use client';
 
-export type NotificationType = 'code_blue' | 'urgent_rx' | 'directive' | 'broadcast' | 'custom';
+import apiClient from '@/lib/api';
+
+export type NotificationType =
+  | 'code_blue'
+  | 'code_red'
+  | 'urgent_rx'
+  | 'directive'
+  | 'broadcast'
+  | 'lab_panic'
+  | 'mci_alert'
+  | 'iomt_alarm'
+  | 'custom';
 
 export type ReactionType =
   | 'on_my_way'
@@ -53,15 +65,17 @@ export interface HospitalNotification {
   timestamp: string;
   read: boolean;
   reaction?: NotificationReaction;
+  backendId?: number;
 }
 
-const STORAGE_KEY = 'mkh_hospital_notifications_v2';
-const EVENT_NAME = 'mkh-notification-update';
+const STORAGE_KEY = 'mkh_hospital_notifications_v3';
+export const EVENT_NAME = 'mkh-notification-update';
 
-// Default starter notifications so users immediately see realistic clinical alerts
+// Default starter notifications for offline / initial boot
 const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
   {
     id: 'notif-1',
+    backendId: 1,
     senderName: 'Hospital Executive Administrator',
     senderRole: 'admin',
     recipientRole: 'doctor',
@@ -69,7 +83,7 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
     recipientName: 'Dr. Bekele Tadesse',
     type: 'code_blue',
     channel: 'both',
-    timestamp: new Date(Date.now() - 1000 * 60 * 12).toISOString(), // 12 mins ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
     read: false,
     title: {
       en: 'CODE BLUE: Urgent Trauma Resuscitation',
@@ -84,6 +98,7 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
   },
   {
     id: 'notif-2',
+    backendId: 2,
     senderName: 'Hospital Executive Administrator',
     senderRole: 'admin',
     recipientRole: 'pharmacist',
@@ -91,7 +106,7 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
     recipientName: 'Pharm. Obsa Kuma',
     type: 'urgent_rx',
     channel: 'system',
-    timestamp: new Date(Date.now() - 1000 * 60 * 35).toISOString(), // 35 mins ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
     read: false,
     title: {
       en: 'Urgent Medication Clearance (Inpatient)',
@@ -106,12 +121,13 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
   },
   {
     id: 'notif-3',
+    backendId: 3,
     senderName: 'Hospital Executive Administrator',
     senderRole: 'admin',
     recipientRole: 'all',
     type: 'directive',
     channel: 'sms',
-    timestamp: new Date(Date.now() - 1000 * 60 * 75).toISOString(), // 1h 15m ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 75).toISOString(),
     read: true,
     title: {
       en: 'Executive Directive: EHSTG Quality Standards',
@@ -135,32 +151,58 @@ const DEFAULT_NOTIFICATIONS: HospitalNotification[] = [
       timestamp: new Date(Date.now() - 1000 * 60 * 50).toISOString(),
     },
   },
-  {
-    id: 'notif-4',
-    senderName: 'Hospital Executive Administrator',
-    senderRole: 'admin',
-    recipientRole: 'patient',
-    recipientId: 'pat-1',
-    recipientName: 'Tolosa Dinsa',
-    type: 'custom',
-    channel: 'sms',
-    timestamp: new Date(Date.now() - 1000 * 60 * 20).toISOString(), // 20 mins ago
-    read: false,
-    title: {
-      en: 'Pharmacy Dispensing Notice',
-      om: 'Beeksisa Kenniinsa Qorichaa',
-      am: 'የመድኃኒት መውሰጃ ማሳወቂያ',
-    },
-    message: {
-      en: 'Dear Tolosa, your prescribed discharge medications are prepared and ready at Pharmacy Counter 1.',
-      om: 'Kabajamoo Tolosaa, qorichi keessan qophaa\'ee Farmaasii Kaawuntarii 1 tti qophii ta\'eera.',
-      am: 'ክቡር ቶሎሳ፣ የታዘዘልዎት መድኃኒት ተዘጋጅቶ በፋርማሲ መስኮት 1 ዝግጁ ሆኗል።',
-    },
-  },
 ];
 
 /**
- * Fetch all stored notifications, falling back to defaults.
+ * Web Audio API synthesizer for sub-second clinical sound alerts.
+ */
+export function playClinicalAudioAlert(severity: 'emergency' | 'critical' | 'info' | string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+
+    if (severity === 'emergency' || severity === 'code_blue') {
+      // Dual-tone hospital emergency siren (880Hz / 659Hz)
+      const osc1 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(880, ctx.currentTime);
+      osc1.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+      osc1.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
+      osc1.frequency.setValueAtTime(659, ctx.currentTime + 0.45);
+
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+
+      osc1.connect(gain);
+      gain.connect(ctx.destination);
+      osc1.start();
+      osc1.stop(ctx.currentTime + 0.6);
+    } else {
+      // Gentle harmonic chime for standard clinical notices (523Hz -> 659Hz)
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.2);
+
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    }
+  } catch {
+    // AudioContext might be blocked until user gesture, ignore silently
+  }
+}
+
+/**
+ * Fetch all notifications currently stored in local cache.
  */
 export function getAllNotifications(): HospitalNotification[] {
   if (typeof window === 'undefined') return DEFAULT_NOTIFICATIONS;
@@ -174,28 +216,6 @@ export function getAllNotifications(): HospitalNotification[] {
   } catch {
     return DEFAULT_NOTIFICATIONS;
   }
-}
-
-/**
- * Fetch notifications filtered for a specific role or username.
- */
-export function getNotificationsForUser(userRole?: string, username?: string): HospitalNotification[] {
-  const all = getAllNotifications();
-  if (!userRole || userRole === 'admin' || userRole === 'super_admin') {
-    return all;
-  }
-
-  return all.filter((n) => {
-    // 1. Matches broadcast to all
-    if (n.recipientRole === 'all') return true;
-    // 2. Matches user role (e.g. doctor, nurse, pharmacist, patient)
-    if (n.recipientRole === userRole) return true;
-    // 3. Matches recipient username/id
-    if (username && n.recipientName && n.recipientName.toLowerCase().includes(username.toLowerCase())) {
-      return true;
-    }
-    return false;
-  });
 }
 
 /**
@@ -225,25 +245,94 @@ export function addNotification(
 }
 
 /**
- * Mark a notification as read.
+ * Synchronize live notifications from the FastAPI PostgreSQL backend.
  */
-export function markNotificationAsRead(id: string): void {
-  const current = getAllNotifications();
-  const updated = current.map((n) => (n.id === id ? { ...n, read: true } : n));
-  if (typeof window !== 'undefined') {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent(EVENT_NAME));
-    } catch {
-      // ignore
+export async function fetchLiveBackendNotifications(): Promise<HospitalNotification[]> {
+  try {
+    const res = await apiClient.get<{ items: Array<Record<string, unknown>>; total: number }>('/events/notifications');
+    const items = res?.data?.items;
+    if (Array.isArray(items)) {
+      const liveItems: HospitalNotification[] = items.map((item) => {
+        const idStr = String(item.id);
+        const titleStr = String(item.title || 'Clinical Alert');
+        const msgStr = String(item.message || '');
+        const role = (item.target_role as HospitalNotification['recipientRole']) || 'all';
+
+        let reactionObj: NotificationReaction | undefined;
+        if (item.reaction_type) {
+          reactionObj = {
+            type: item.reaction_type as ReactionType,
+            label: {
+              en: String(item.reaction_type).replace(/_/g, ' '),
+              om: String(item.reaction_type).replace(/_/g, ' '),
+              am: String(item.reaction_type).replace(/_/g, ' '),
+            },
+            responderName: String(item.reaction_by || 'Clinician'),
+            responderRole: 'staff',
+            timestamp: String(item.reacted_at || new Date().toISOString()),
+            replyNote: item.reaction_note ? String(item.reaction_note) : undefined,
+          };
+        }
+
+        return {
+          id: `backend-${idStr}`,
+          backendId: Number(item.id),
+          senderName: String(item.sender_name || 'Hospital Administration'),
+          senderRole: String(item.sender_role || 'admin'),
+          recipientRole: role,
+          title: {
+            en: titleStr,
+            om: titleStr,
+            am: titleStr,
+          },
+          message: {
+            en: msgStr,
+            om: msgStr,
+            am: msgStr,
+          },
+          type: (item.category as NotificationType) || 'broadcast',
+          channel: 'system',
+          timestamp: String(item.created_at || new Date().toISOString()),
+          read: Boolean(item.is_read),
+          reaction: reactionObj,
+        };
+      });
+
+      if (liveItems.length > 0 && typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(liveItems));
+        window.dispatchEvent(new CustomEvent(EVENT_NAME));
+        return liveItems;
+      }
     }
+  } catch {
+    // Backend offline or token pending; fall back smoothly to cached items
   }
+  return getAllNotifications();
 }
 
 /**
- * React to a notification (e.g. "On My Way", "At Bedside", "Dispensed", "Acknowledged").
+ * Fetch notifications filtered for a specific role or username.
  */
-export function reactToNotification(
+export function getNotificationsForUser(userRole?: string, username?: string): HospitalNotification[] {
+  const all = getAllNotifications();
+  if (!userRole || userRole === 'admin' || userRole === 'super_admin') {
+    return all;
+  }
+
+  return all.filter((n) => {
+    if (n.recipientRole === 'all') return true;
+    if (n.recipientRole === userRole) return true;
+    if (username && n.recipientName && n.recipientName.toLowerCase().includes(username.toLowerCase())) {
+      return true;
+    }
+    return false;
+  });
+}
+
+/**
+ * Submit clinical reaction to backend and local storage.
+ */
+export async function reactToNotification(
   id: string,
   reaction: {
     type: ReactionType;
@@ -256,8 +345,10 @@ export function reactToNotification(
     responderRole: string;
     replyNote?: string;
   }
-): void {
+): Promise<void> {
+  // 1. Update local cache immediately for zero latency
   const current = getAllNotifications();
+  const target = current.find((n) => n.id === id);
   const updated = current.map((n) => {
     if (n.id === id) {
       return {
@@ -273,25 +364,172 @@ export function reactToNotification(
   });
 
   if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent(EVENT_NAME));
+  }
+
+  // 2. Post reaction to FastAPI PostgreSQL backend
+  if (target?.backendId) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent(EVENT_NAME));
+      await apiClient.post(`/events/notifications/${target.backendId}/react`, {
+        reaction_type: reaction.type,
+        reaction_note: reaction.replyNote,
+      });
     } catch {
-      // ignore
+      // Backend error logged, local state preserved
     }
   }
 }
 
 /**
- * Clear all notifications.
+ * Mark a notification as read in both local storage and database.
  */
-export function clearAllNotifications(): void {
+export async function markNotificationAsRead(id: string): Promise<void> {
+  const current = getAllNotifications();
+  const target = current.find((n) => n.id === id);
+  const updated = current.map((n) => (n.id === id ? { ...n, read: true } : n));
+
   if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent(EVENT_NAME));
+  }
+
+  if (target?.backendId) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-      window.dispatchEvent(new CustomEvent(EVENT_NAME));
+      await apiClient.post(`/events/notifications/${target.backendId}/read`, {});
     } catch {
-      // ignore
+      // Ignore network failure
     }
   }
+}
+
+/**
+ * Clear all notifications in local storage and backend.
+ */
+export async function clearAllNotifications(): Promise<void> {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+    window.dispatchEvent(new CustomEvent(EVENT_NAME));
+  }
+  try {
+    await apiClient.post('/events/notifications/clear-all', {});
+  } catch {
+    // Ignore network failure
+  }
+}
+
+/**
+ * Global Real-Time WebSocket Connection to FastAPI `/api/v1/events/ws`.
+ * Handles automatic reconnect, heartbeat pings, and live audio dispatch.
+ */
+let eventSocket: WebSocket | null = null;
+let reconnectTimer: NodeJS.Timeout | null = null;
+
+export function connectClinicalEventBusWebSocket(
+  token?: string,
+  onEvent?: (event: Record<string, unknown>) => void
+): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.hostname || '127.0.0.1';
+  const port = '8000'; // FastAPI backend port
+  const wsUrl = `${protocol}//${host}:${port}/api/v1/events/ws${token ? `?token=${token}` : ''}`;
+
+  function connect() {
+    try {
+      eventSocket = new WebSocket(wsUrl);
+
+      eventSocket.onopen = () => {
+        // Send heartbeat ping every 30 seconds
+        const pingInterval = setInterval(() => {
+          if (eventSocket?.readyState === WebSocket.OPEN) {
+            eventSocket.send(JSON.stringify({ type: 'PING' }));
+          } else {
+            clearInterval(pingInterval);
+          }
+        }, 30000);
+      };
+
+      eventSocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'EMERGENCY_BROADCAST') {
+            const p = data.payload || {};
+            playClinicalAudioAlert('emergency');
+
+            // Prepend to local notifications
+            const current = getAllNotifications();
+            const newNotif: HospitalNotification = {
+              id: `ws-${p.id || Date.now()}`,
+              backendId: p.id,
+              senderName: p.sender_name || 'Emergency Command',
+              senderRole: p.sender_role || 'admin',
+              recipientRole: 'all',
+              title: {
+                en: p.title || 'CODE BLUE EMERGENCY',
+                om: p.title || 'KOODII CUQULIISA',
+                am: p.title || 'ኮድ ብሉ አስቸኳይ',
+              },
+              message: {
+                en: p.message || '',
+                om: p.message || '',
+                am: p.message || '',
+              },
+              type: 'code_blue',
+              channel: 'both',
+              timestamp: p.timestamp || new Date().toISOString(),
+              read: false,
+            };
+            const updated = [newNotif, ...current];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+            window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: newNotif }));
+          } else if (data.type === 'CLINICAL_REACTION') {
+            // Refresh list so reaction badges reflect across all workstations
+            fetchLiveBackendNotifications();
+          }
+
+          if (onEvent) {
+            onEvent(data);
+          }
+        } catch {
+          // ignore parsing error
+        }
+      };
+
+      eventSocket.onclose = () => {
+        if (!reconnectTimer) {
+          reconnectTimer = setTimeout(() => {
+            reconnectTimer = null;
+            connect();
+          }, 3000); // 3 second backoff
+        }
+      };
+
+      eventSocket.onerror = () => {
+        eventSocket?.close();
+      };
+    } catch {
+      // WebSocket creation error, retry scheduled
+      if (!reconnectTimer) {
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          connect();
+        }, 5000);
+      }
+    }
+  }
+
+  connect();
+
+  return () => {
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    if (eventSocket) {
+      eventSocket.close();
+      eventSocket = null;
+    }
+  };
 }
