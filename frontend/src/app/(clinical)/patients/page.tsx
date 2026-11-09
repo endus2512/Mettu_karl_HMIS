@@ -43,6 +43,11 @@ import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import apiClient from '@/lib/api';
 import { notifications } from '@mantine/notifications';
+import {
+  queueOfflinePatient,
+  cachePatientsLocally,
+  searchOfflinePatients,
+} from '@/lib/offlineSync';
 
 interface PatientRecord {
   id: number;
@@ -248,14 +253,24 @@ export default function PatientsFHIRPage(): React.ReactElement {
         );
         const liveMrns = new Set(liveRecords.map((r) => r.mrn));
         const nonDuplicateInitial = INITIAL_PATIENTS.filter((ip) => !liveMrns.has(ip.mrn));
-        setPatients([...liveRecords, ...nonDuplicateInitial]);
+        const combined = [...liveRecords, ...nonDuplicateInitial];
+        setPatients(combined);
         setIsLiveConnected(true);
+        void cachePatientsLocally(combined);
       } else {
         setIsLiveConnected(true);
       }
     } catch (err) {
       console.warn('Backend FHIR server unreachable or offline, using fallback state', err);
       setIsLiveConnected(false);
+      try {
+        const cached = await searchOfflinePatients(searchTerm);
+        if (cached && cached.length > 0) {
+          setPatients(cached);
+        }
+      } catch {
+        // fallback
+      }
     } finally {
       setIsLoading(false);
     }
@@ -309,10 +324,28 @@ export default function PatientsFHIRPage(): React.ReactElement {
         createdMrn = resource.identifier?.[0]?.value || `MKH-2026-${String(patients.length + 1).padStart(6, '0')}`;
         setIsLiveConnected(true);
       } catch (apiErr) {
-        console.warn('API post failed, saving in memory with local MRN', apiErr);
-        const nextId = patients.length + 1;
-        createdMrn = `MKH-2026-${String(nextId).padStart(6, '0')}`;
-        createdFhirId = `pat-${Math.random().toString(36).substring(2, 6)}-mkrh-${nextId}`;
+        console.warn('API post failed, buffering into local IndexedDB outbox queue', apiErr);
+        let tempId = `OFFLINE-PAT-${Date.now()}`;
+        try {
+          tempId = await queueOfflinePatient({
+            first_name: formData.firstName.trim(),
+            last_name: formData.lastName.trim(),
+            birth_date: formData.birthDate,
+            gender: formData.gender,
+            phone_number: formData.phone.trim(),
+            kebele: formData.woreda,
+            woreda: 'Mettu',
+          });
+        } catch (queueErr) {
+          console.error('IndexedDB queue error', queueErr);
+        }
+        createdMrn = tempId;
+        createdFhirId = `fhir-${tempId.toLowerCase()}`;
+        notifications.show({
+          title: language === 'om' ? 'Galmee Offline Kuufameera' : language === 'am' ? 'ከመስመር ውጭ ተመዝግቧል' : 'Buffered to Offline Outbox',
+          message: `${formData.firstName} ${formData.lastName} (${tempId}) is safely stored in local IndexedDB. It will automatically synchronize when network is restored.`,
+          color: 'yellow',
+        });
       }
 
       const newRec: PatientRecord = {

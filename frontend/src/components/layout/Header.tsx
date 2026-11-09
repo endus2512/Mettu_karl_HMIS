@@ -19,6 +19,7 @@ import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { GlobalPatientSearch } from '@/components/common/GlobalPatientSearch';
+import { getPendingCount, triggerEdgeBatchSync } from '@/lib/offlineSync';
 import {
   Calendar,
   Sun,
@@ -30,6 +31,8 @@ import {
   LogOut,
   Building2,
   Clock,
+  WifiOff,
+  RefreshCw,
 } from 'lucide-react';
 
 const ETH_MONTHS = [
@@ -89,6 +92,78 @@ export function Header(): React.ReactElement {
       setEditHandoverNotes(shift.handover_notes || '');
     }
   }, [calendarModalOpen, ethiopian, shift]);
+
+  // Edge Data Sync & Offline-First State
+  const [isOnline, setIsOnline] = useState(true);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setIsOnline(navigator.onLine);
+
+    const updatePending = async () => {
+      try {
+        const count = await getPendingCount();
+        setPendingSyncCount(count);
+      } catch {
+        // fallback
+      }
+    };
+
+    void updatePending();
+
+    const handleOnline = async () => {
+      setIsOnline(true);
+      setSyncStatusMsg('Online restored. Auto-syncing...');
+      setIsSyncing(true);
+      const res = await triggerEdgeBatchSync();
+      setIsSyncing(false);
+      setSyncStatusMsg(res.message);
+      await updatePending();
+      setTimeout(() => setSyncStatusMsg(null), 4000);
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      setSyncStatusMsg('Operating offline (Local IndexedDB cache)');
+      setTimeout(() => setSyncStatusMsg(null), 4000);
+    };
+
+    const handleSyncChange = () => {
+      void updatePending();
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('mkh-offline-change', handleSyncChange);
+    window.addEventListener('mkh-offline-synced', handleSyncChange);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('mkh-offline-change', handleSyncChange);
+      window.removeEventListener('mkh-offline-synced', handleSyncChange);
+    };
+  }, []);
+
+  const handleManualSync = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    setSyncStatusMsg('Syncing edge outbox with central DB...');
+    try {
+      const res = await triggerEdgeBatchSync();
+      setSyncStatusMsg(res.message);
+      const count = await getPendingCount();
+      setPendingSyncCount(count);
+    } catch {
+      setSyncStatusMsg('Sync error occurred');
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setSyncStatusMsg(null), 4000);
+    }
+  };
 
   // Pre-warm / prefetch all key routes on idle so clicking any link opens instantly
   useEffect(() => {
@@ -314,6 +389,54 @@ export function Header(): React.ReactElement {
               <Clock className="h-3.5 w-3.5 text-emerald-400" />
             )}
             <span>{shiftDisplay}</span>
+          </div>
+
+          {/* Edge Offline / Online Connectivity & Sync Capsule */}
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-[#1e283c] bg-[#101726] text-xs">
+            {isOnline ? (
+              <span className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]" title="Central DB Online">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="hidden xl:inline font-mono">ONLINE</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 text-amber-400 font-semibold text-[11px]" title="Edge Offline Mode (IndexedDB Active)">
+                <WifiOff className="h-3 w-3 text-amber-400 animate-pulse" />
+                <span className="hidden xl:inline font-mono">OFFLINE</span>
+              </span>
+            )}
+
+            {/* Outbox Pending Counter & Sync Button */}
+            {pendingSyncCount > 0 ? (
+              <button
+                type="button"
+                onClick={handleManualSync}
+                disabled={isSyncing || !isOnline}
+                title={isOnline ? `${pendingSyncCount} offline records ready to sync. Click to push now.` : `${pendingSyncCount} records buffered offline.`}
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-mono text-[10px] font-bold transition-all cursor-pointer"
+              >
+                <RefreshCw className={`h-2.5 w-2.5 ${isSyncing ? 'animate-spin text-amber-400' : ''}`} />
+                <span>{pendingSyncCount} PENDING</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleManualSync}
+                disabled={isSyncing || !isOnline}
+                title="Central database synced. Click to check for edge batch updates."
+                className="hidden xl:flex items-center gap-1 px-1 py-0.5 rounded text-slate-400 hover:text-slate-200 text-[10px] cursor-pointer"
+              >
+                <RefreshCw className={`h-2.5 w-2.5 ${isSyncing ? 'animate-spin text-teal-400' : ''}`} />
+              </button>
+            )}
+
+            {syncStatusMsg && (
+              <span className="hidden 2xl:inline text-[10px] text-teal-300 font-medium truncate max-w-[130px]" title={syncStatusMsg}>
+                {syncStatusMsg}
+              </span>
+            )}
           </div>
 
           {/* Notification Bell */}
