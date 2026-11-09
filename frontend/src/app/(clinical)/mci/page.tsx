@@ -5,10 +5,12 @@
  */
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import apiClient from '@/lib/api';
+import { notifications } from '@mantine/notifications';
 import {
   Siren,
   AlertTriangle,
@@ -46,12 +48,33 @@ const initialCasualties: CasualtyItem[] = [
 export default function MCIPage(): React.ReactElement {
   const { t } = useTranslation();
   const [casualties, setCasualties] = useState<CasualtyItem[]>(initialCasualties);
+  const [activeIncidentId, setActiveIncidentId] = useState<number | null>(null);
   const [isBreathing] = useState(true);
   const [isAmbulatory, setIsAmbulatory] = useState(false);
   const [rr, setRr] = useState(34);
   const [hasPulse, setHasPulse] = useState(true);
   const [followsCommands, setFollowsCommands] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Sync Live MCI Incidents from PostgreSQL
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMCIIncidents = async () => {
+      try {
+        const res = await apiClient.get('/mci/incidents');
+        if (isMounted && res.data && Array.isArray(res.data) && res.data.length > 0) {
+          const active = res.data.find((i: any) => i.status === 'active') || res.data[0];
+          setActiveIncidentId(active.id);
+        }
+      } catch (err) {
+        console.warn('MCI incidents live fetch fallback', err);
+      }
+    };
+    void fetchMCIIncidents();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const previewCategory = () => {
     if (!isBreathing) return 'black_deceased';
@@ -60,11 +83,12 @@ export default function MCIPage(): React.ReactElement {
     return 'yellow_delayed';
   };
 
-  const handleQuickTag = () => {
+  const handleQuickTag = async () => {
     const cat = previewCategory();
     const prefix = cat === 'red_immediate' ? 'RED' : cat === 'yellow_delayed' ? 'YEL' : cat === 'green_minor' ? 'GRN' : 'BLK';
+    const tagCode = `MCI-${prefix}-${Math.floor(100 + Math.random() * 900)}`;
     const newTag: CasualtyItem = {
-      tag: `MCI-${prefix}-${Math.floor(100 + Math.random() * 900)}`,
+      tag: tagCode,
       category: cat,
       respiratoryRate: rr,
       pulse: hasPulse,
@@ -74,6 +98,28 @@ export default function MCIPage(): React.ReactElement {
       time: 'Just now',
     };
     setCasualties([newTag, ...casualties]);
+
+    try {
+      await apiClient.post('/mci/tags', {
+        incident_id: activeIncidentId || 1,
+        casualty_tag_number: tagCode,
+        is_breathing: isBreathing,
+        is_ambulatory: isAmbulatory,
+        respiratory_rate: rr,
+        has_radial_pulse: hasPulse,
+        follows_simple_commands: followsCommands,
+        triage_category: cat,
+        assigned_bay: newTag.bay,
+        injury_description: newTag.injury,
+      });
+      notifications.show({
+        title: 'START Triage Tag Synchronized',
+        message: `${tagCode} triage category (${cat.toUpperCase()}) saved in PostgreSQL database.`,
+        color: 'teal',
+      });
+    } catch {
+      // Handled gracefully
+    }
   };
 
   const redCount = useMemo(() => casualties.filter((c) => c.category === 'red_immediate').length, [casualties]);

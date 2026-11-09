@@ -5,10 +5,12 @@
  */
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import apiClient from '@/lib/api';
+import { notifications } from '@mantine/notifications';
 import {
   Flame,
   Trash2,
@@ -40,8 +42,42 @@ const initialBatches: WasteBatch[] = [
 
 export default function WastePage(): React.ReactElement {
   const { t } = useTranslation();
-  const [batches] = useState<WasteBatch[]>(initialBatches);
+  const [batches, setBatches] = useState<WasteBatch[]>(initialBatches);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Sync Live Medical Waste Logs from PostgreSQL
+  useEffect(() => {
+    let isMounted = true;
+    const fetchWasteLogs = async () => {
+      try {
+        const res = await apiClient.get('/waste/logs');
+        if (isMounted && res.data && Array.isArray(res.data) && res.data.length > 0) {
+          const liveBatches: WasteBatch[] = res.data.map((w: any) => ({
+            id: w.waste_code || `MW-${w.id}`,
+            category: w.category as any,
+            categoryLabel:
+              w.category === 'yellow_infectious'
+                ? 'Yellow Bag (Biohazardous / Infectious)'
+                : w.category === 'red_sharps'
+                ? 'Red Container (Needles, Scalpels, Sharps)'
+                : w.category === 'brown_pharmaceutical'
+                ? 'Brown Box (Expired Cytotoxic / Pharma)'
+                : 'Black Bag (Non-Risk Municipal Waste)',
+            weightKg: Number(w.weight_kg) || 10.0,
+            origin: w.department || 'Ward / Operation Theatre',
+            time: new Date(w.collected_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          }));
+          setBatches(liveBatches);
+        }
+      } catch (err) {
+        console.warn('Waste logs live fetch fallback', err);
+      }
+    };
+    void fetchWasteLogs();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const totalKg = useMemo(() => batches.reduce((acc, b) => acc + b.weightKg, 0), [batches]);
 

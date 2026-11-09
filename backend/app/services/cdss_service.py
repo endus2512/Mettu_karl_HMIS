@@ -25,7 +25,7 @@ async def evaluate_prescription_safety(
     1. Pairwise Drug-Drug Interactions (DDI)
     2. Documented Patient Allergies
     """
-    clean_drugs = [d.strip().lower() for d in drug_names if d.strip()]
+    clean_drugs = [d.strip().lower().split()[0] for d in drug_names if d.strip()]
     interactions: List[CDSSInteractionWarning] = []
     allergies: List[CDSSAllergyWarning] = []
     has_critical = False
@@ -66,14 +66,15 @@ async def evaluate_prescription_safety(
 
     for allergy in patient_allergies:
         substance = allergy.substance.lower()
-        for drug in clean_drugs:
-            if substance in drug or drug in substance:
+        for orig_drug in [d.strip() for d in drug_names if d.strip()]:
+            drug_lower = orig_drug.lower()
+            if substance in drug_lower or any(token in substance for token in drug_lower.replace('(', ' ').replace(')', ' ').split()):
                 if allergy.severity in (SeverityLevel.SEVERE, SeverityLevel.CRITICAL):
                     has_critical = True
 
                 allergies.append(
                     CDSSAllergyWarning(
-                        drug_name=drug.title(),
+                        drug_name=orig_drug,
                         allergen_substance=allergy.substance,
                         reaction=allergy.reaction,
                         severity=allergy.severity,

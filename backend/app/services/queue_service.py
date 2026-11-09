@@ -8,7 +8,7 @@ import logging
 from typing import Dict, List, Optional, Set
 
 from fastapi import WebSocket
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.queue import (
@@ -131,7 +131,12 @@ async def call_next_patient(
     if not department:
         return None
 
-    # Priority ordering: EMERGENCY (desc), then created_at (asc)
+    # Priority ordering: EMERGENCY (1), URGENT (2), ROUTINE (3), then created_at (asc)
+    priority_rank = case(
+        (QueueTicket.priority == TicketPriority.EMERGENCY, 1),
+        (QueueTicket.priority == TicketPriority.URGENT, 2),
+        else_=3,
+    )
     next_stmt = (
         select(QueueTicket)
         .where(
@@ -139,7 +144,7 @@ async def call_next_patient(
             QueueTicket.status == TicketStatus.WAITING,
         )
         .order_by(
-            QueueTicket.priority.desc(),
+            priority_rank.asc(),
             QueueTicket.created_at.asc(),
         )
         .limit(1)

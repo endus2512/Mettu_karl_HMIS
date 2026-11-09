@@ -96,3 +96,84 @@ def doctor_auth_headers(test_doctor_user: User) -> dict[str, str]:
         extra_claims={"role": test_doctor_user.role.value, "username": test_doctor_user.username},
     )
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest_asyncio.fixture(scope="function")
+async def test_admin_user(db_session: AsyncSession) -> User:
+    """Create a test admin user."""
+    user = User(
+        username="admin_karl",
+        email="admin.karl@mettukarl.gov.et",
+        full_name="Admin Karl Mettu",
+        hashed_password=hash_password("AdminSecurePass123!"),
+        role=UserRole.ADMIN,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture(scope="function")
+def admin_auth_headers(test_admin_user: User) -> dict[str, str]:
+    """Generate bearer authorization headers for the admin user."""
+    token = create_access_token(
+        subject=test_admin_user.id,
+        extra_claims={"role": test_admin_user.role.value, "username": test_admin_user.username},
+    )
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest_asyncio.fixture(scope="function")
+async def test_technician_user(db_session: AsyncSession) -> User:
+    """Create a test technician user."""
+    user = User(
+        username="tech_karl",
+        email="tech.karl@mettukarl.gov.et",
+        full_name="Technician Karl",
+        hashed_password=hash_password("TechSecurePass123!"),
+        role=UserRole.TECHNICIAN,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture(scope="function")
+def technician_auth_headers(test_technician_user: User) -> dict[str, str]:
+    """Generate bearer authorization headers for technician user."""
+    token = create_access_token(
+        subject=test_technician_user.id,
+        extra_claims={"role": test_technician_user.role.value, "username": test_technician_user.username},
+    )
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest_asyncio.fixture(scope="function")
+async def test_billing_user(db_session: AsyncSession) -> User:
+    """Create a test billing user."""
+    user = User(
+        username="billing_karl",
+        email="billing.karl@mettukarl.gov.et",
+        full_name="Billing Officer Karl",
+        hashed_password=hash_password("BillingSecurePass123!"),
+        role=UserRole.BILLING,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture(scope="function")
+def billing_auth_headers(test_billing_user: User) -> dict[str, str]:
+    """Generate bearer authorization headers for billing user."""
+    token = create_access_token(
+        subject=test_billing_user.id,
+        extra_claims={"role": test_billing_user.role.value, "username": test_billing_user.username},
+    )
+    return {"Authorization": f"Bearer {token}"}

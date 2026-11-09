@@ -11,7 +11,7 @@ from app.models.patient import Gender, Patient
 
 
 @pytest.mark.asyncio
-async def test_create_invoice_standard(client: AsyncClient, doctor_auth_headers: dict[str, str], db_session: AsyncSession):
+async def test_create_invoice_standard(client: AsyncClient, billing_auth_headers: dict[str, str], db_session: AsyncSession):
     """Test standard private invoice calculation."""
     # Create patient
     p = Patient(
@@ -34,7 +34,7 @@ async def test_create_invoice_standard(client: AsyncClient, doctor_auth_headers:
         "apply_cbhi": False,
     }
 
-    res = await client.post("/api/v1/billing/invoices", json=invoice_payload, headers=doctor_auth_headers)
+    res = await client.post("/api/v1/billing/invoices", json=invoice_payload, headers=billing_auth_headers)
     assert res.status_code == 201
     data = res.json()
     assert data["total_amount"] == 350.0
@@ -43,7 +43,7 @@ async def test_create_invoice_standard(client: AsyncClient, doctor_auth_headers:
 
 
 @pytest.mark.asyncio
-async def test_create_invoice_with_cbhi(client: AsyncClient, doctor_auth_headers: dict[str, str], db_session: AsyncSession):
+async def test_create_invoice_with_cbhi(client: AsyncClient, billing_auth_headers: dict[str, str], db_session: AsyncSession):
     """Test CBHI health insurance co-pay discount calculation."""
     p = Patient(
         mrn="MKH-TEST-002",
@@ -77,7 +77,7 @@ async def test_create_invoice_with_cbhi(client: AsyncClient, doctor_auth_headers
         "apply_cbhi": True,
     }
 
-    res = await client.post("/api/v1/billing/invoices", json=invoice_payload, headers=doctor_auth_headers)
+    res = await client.post("/api/v1/billing/invoices", json=invoice_payload, headers=billing_auth_headers)
     assert res.status_code == 201
     data = res.json()
     assert data["total_amount"] == 1000.0

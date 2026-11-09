@@ -124,8 +124,8 @@ async def create_fhir_patient(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Dict[str, Any]:
     """Create a new Patient and return the created FHIR R4 Patient resource."""
-    # RBAC Guard: Clinical write restricted to clinical/reception staff
-    if current_user.role not in (UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST, UserRole.SUPER_ADMIN):
+    # RBAC Guard: Clinical write restricted to clinical/reception staff and system admin
+    if current_user.role not in (UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST, UserRole.SUPER_ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied (Eeyyama hin qabdan). Only clinical and front-desk staff can create patient medical records.",
@@ -156,8 +156,8 @@ async def update_fhir_patient(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Dict[str, Any]:
     """Update patient demographics by FHIR ID."""
-    # RBAC Guard: Clinical write restricted to clinical/reception staff
-    if current_user.role not in (UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST, UserRole.SUPER_ADMIN):
+    # RBAC Guard: Clinical write restricted to clinical/reception staff and system admin
+    if current_user.role not in (UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST, UserRole.SUPER_ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied (Eeyyama hin qabdan). Only clinical practitioners can update patient medical charts.",

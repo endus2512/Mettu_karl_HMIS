@@ -25,7 +25,7 @@ def test_ethiopian_tax_brackets():
 
 
 @pytest.mark.asyncio
-async def test_payroll_slip_generation(client: AsyncClient, doctor_auth_headers: dict[str, str], db_session: AsyncSession):
+async def test_payroll_slip_generation(client: AsyncClient, admin_auth_headers: dict[str, str], db_session: AsyncSession):
     """Test full payslip calculation with pension, income tax, and net pay."""
     emp = Employee(
         employee_code="EMP-TEST-01",
@@ -50,7 +50,7 @@ async def test_payroll_slip_generation(client: AsyncClient, doctor_auth_headers:
         "overtime_etb": 0.0,
     }
 
-    res = await client.post("/api/v1/hrm/payroll/calculate", json=payroll_payload, headers=doctor_auth_headers)
+    res = await client.post("/api/v1/hrm/payroll/calculate", json=payroll_payload, headers=admin_auth_headers)
     assert res.status_code == 200
     data = res.json()
     assert data["base_salary_etb"] == 10000.0

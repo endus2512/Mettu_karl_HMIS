@@ -5,10 +5,12 @@
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import apiClient from '@/lib/api';
+import { notifications } from '@mantine/notifications';
 import {
   Zap,
   BatteryCharging,
@@ -59,8 +61,42 @@ export default function PowerPage(): React.ReactElement {
   const [power, setPower] = useState<PowerStatus>(mockStatus);
   const [simulatedBlackout, setSimulatedBlackout] = useState(false);
 
-  const toggleBlackoutSim = () => {
-    if (!simulatedBlackout) {
+  useEffect(() => {
+    let isMounted = true;
+    const fetchPowerSummary = async () => {
+      try {
+        const res = await apiClient.get('/power-grid/summary');
+        if (isMounted && res.data) {
+          const s = res.data;
+          setPower((prev) => ({
+            ...prev,
+            activeSource:
+              s.current_source === 'eeu_grid'
+                ? 'Ethiopian Electric Utility (EEU Grid 33kV)'
+                : 'Primary Diesel Generator 1 (Cummins 500kVA)',
+            eeuOnline: s.current_source === 'eeu_grid',
+            eeuVoltage: s.current_source === 'eeu_grid' ? 382.4 : 0.0,
+            atsState:
+              s.ats_state === 'main_grid_engaged'
+                ? 'Main Utility Engaged'
+                : 'Emergency Generator Engaged (< 8s switch)',
+            solarSOC: s.solar_battery_soc_percent || prev.solarSOC,
+          }));
+        }
+      } catch (err) {
+        console.warn('Power grid summary fallback', err);
+      }
+    };
+    void fetchPowerSummary();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const toggleBlackoutSim = async () => {
+    const isNowBlackout = !simulatedBlackout;
+    setSimulatedBlackout(isNowBlackout);
+    if (isNowBlackout) {
       setPower({
         ...power,
         activeSource: 'Primary Diesel Generator 1 (Cummins 500kVA)',
@@ -71,10 +107,54 @@ export default function PowerPage(): React.ReactElement {
         solarSOC: 93.0,
         loadKW: 154.0,
       });
-      setSimulatedBlackout(true);
+      try {
+        await apiClient.post('/power-grid/telemetry', {
+          active_source: 'diesel_gen1',
+          eeu_grid_online: false,
+          eeu_grid_voltage: 0.0,
+          gen1_running: true,
+          gen1_fuel_percent: power.gen1Fuel,
+          gen2_running: false,
+          gen2_fuel_percent: power.gen2Fuel,
+          ats_state: 'generator_engaged',
+          solar_battery_soc_percent: 93.0,
+          total_hospital_load_kw: 154.0,
+          server_room_ups_soc_percent: 100.0,
+          cold_chain_alarm: false,
+        });
+        notifications.show({
+          title: 'Power Telemetry Persisted',
+          message: 'Blackout drill recorded and synchronized with PostgreSQL telemetry.',
+          color: 'teal',
+        });
+      } catch (e) {
+        console.warn('Failed to post power telemetry', e);
+      }
     } else {
       setPower(mockStatus);
-      setSimulatedBlackout(false);
+      try {
+        await apiClient.post('/power-grid/telemetry', {
+          active_source: 'eeu_grid',
+          eeu_grid_online: true,
+          eeu_grid_voltage: 382.4,
+          gen1_running: false,
+          gen1_fuel_percent: mockStatus.gen1Fuel,
+          gen2_running: false,
+          gen2_fuel_percent: mockStatus.gen2Fuel,
+          ats_state: 'main_grid_engaged',
+          solar_battery_soc_percent: 96.0,
+          total_hospital_load_kw: 148.5,
+          server_room_ups_soc_percent: 100.0,
+          cold_chain_alarm: false,
+        });
+        notifications.show({
+          title: 'EEU Grid Restored',
+          message: 'Nominal grid state synchronized with PostgreSQL.',
+          color: 'teal',
+        });
+      } catch (e) {
+        console.warn('Failed to post power telemetry', e);
+      }
     }
   };
 

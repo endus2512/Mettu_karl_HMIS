@@ -26,7 +26,7 @@ from app.services.claims_service import adjudicate_insurance_claim, create_insur
 
 router = APIRouter()
 
-insurance_guard = require_roles(UserRole.INSURANCE_OFFICER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+insurance_guard = require_roles(UserRole.INSURANCE_OFFICER, UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR)
 
 
 @router.post("/batches", response_model=InsuranceClaimBatchResponse, status_code=status.HTTP_201_CREATED, summary="Create Insurance Batch")

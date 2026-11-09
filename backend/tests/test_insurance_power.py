@@ -75,7 +75,7 @@ async def test_cbhi_claims_batch_and_adjudication(
 @pytest.mark.asyncio
 async def test_hospital_power_resilience_telemetry(
     client: AsyncClient,
-    doctor_auth_headers: dict[str, str],
+    technician_auth_headers: dict[str, str],
     db_session: AsyncSession,
 ):
     """Test facilities power telemetry ingestion and emergency power resilience alerts."""
@@ -94,11 +94,11 @@ async def test_hospital_power_resilience_telemetry(
         "server_room_ups_soc_percent": 98.0,
         "cold_chain_alarm": False,
     }
-    t_res = await client.post("/api/v1/power-grid/telemetry", json=telemetry_payload, headers=doctor_auth_headers)
+    t_res = await client.post("/api/v1/power-grid/telemetry", json=telemetry_payload, headers=technician_auth_headers)
     assert t_res.status_code == 201
 
     # 2. Query Power Summary
-    summary_res = await client.get("/api/v1/power-grid/summary", headers=doctor_auth_headers)
+    summary_res = await client.get("/api/v1/power-grid/summary", headers=technician_auth_headers)
     assert summary_res.status_code == 200
     summary = summary_res.json()
     assert summary["current_source"] == "diesel_generator_1"

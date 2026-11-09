@@ -31,6 +31,7 @@ import { BillingDashboardView } from '@/components/dashboard/BillingDashboardVie
 import { ReceptionistDashboardView } from '@/components/dashboard/ReceptionistDashboardView';
 import { PatientDashboardView } from '@/components/dashboard/PatientDashboardView';
 import { notifications } from '@mantine/notifications';
+import apiClient from '@/lib/api';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -172,6 +173,38 @@ export default function AdminDashboardPage(): React.ReactElement {
       setActiveShift(mapped);
     }
   }, [onlineShift?.type]);
+
+  // Sync Live Ward Bed Census from PostgreSQL Database
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLiveWardCensus = async () => {
+      try {
+        const res = await apiClient.get('/inpatient/wards');
+        if (isMounted && res.data && Array.isArray(res.data) && res.data.length > 0) {
+          const liveWards: WardStatus[] = res.data.map((w: any) => ({
+            id: String(w.id || w.ward_code || '').toLowerCase(),
+            name: {
+              en: w.name_en || w.ward_code || 'Ward',
+              om: w.name_om || w.name_en || 'Ward',
+              am: w.name_en || 'ክፍል',
+            },
+            totalBeds: w.total_beds || 0,
+            occupiedBeds: w.occupied_beds || 0,
+            onDutyStaff: w.head_nurse || 'Ward Duty Staff',
+            avgWait: (w.occupancy_rate || 0) > 85 ? 'Immediate triage' : '15 min',
+            status: (w.occupancy_rate || 0) > 85 ? 'critical' : (w.occupancy_rate || 0) > 65 ? 'busy' : 'optimal',
+          }));
+          setWards(liveWards);
+        }
+      } catch (err) {
+        console.warn('Live ward census fetch fallback', err);
+      }
+    };
+    void fetchLiveWardCensus();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Edit Modal Temporary Inputs
   const [editShift, setEditShift] = useState(activeShift);

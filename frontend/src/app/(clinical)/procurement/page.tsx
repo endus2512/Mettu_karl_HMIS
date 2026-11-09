@@ -5,10 +5,11 @@
  */
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import apiClient from '@/lib/api';
 import {
   ShoppingBag,
   FileText,
@@ -41,8 +42,36 @@ const initialTenders: TenderItem[] = [
 
 export default function ProcurementPage(): React.ReactElement {
   const { t } = useTranslation();
-  const [tenders] = useState<TenderItem[]>(initialTenders);
+  const [tenders, setTenders] = useState<TenderItem[]>(initialTenders);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Sync Live Public Procurement Tenders from PostgreSQL
+  useEffect(() => {
+    let isMounted = true;
+    const fetchTenders = async () => {
+      try {
+        const res = await apiClient.get('/procurement/tenders');
+        if (isMounted && res.data && Array.isArray(res.data) && res.data.length > 0) {
+          const liveTenders: TenderItem[] = res.data.map((t: any) => ({
+            id: t.tender_code || ('TND-MKH-' + t.id),
+            title: t.title || 'Procurement Package',
+            category: t.category ? t.category.replace('_', ' ').toUpperCase() : 'Medical Supplies',
+            budgetETB: (Number(t.estimated_budget_etb || 1000000).toLocaleString() + ' ETB'),
+            deadline: t.submission_deadline ? t.submission_deadline.split('T')[0] : '2026-11-30',
+            bidsCount: t.bids ? t.bids.length : 3,
+            status: t.status === 'published' ? 'published' : t.status === 'awarded' ? 'awarded' : 'in_evaluation',
+          }));
+          setTenders(liveTenders);
+        }
+      } catch (err) {
+        console.warn('Procurement tenders live fetch fallback', err);
+      }
+    };
+    void fetchTenders();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredTenders = useMemo(() => {
     if (!searchTerm) return tenders;

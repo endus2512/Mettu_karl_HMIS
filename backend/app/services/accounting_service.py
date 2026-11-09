@@ -7,6 +7,7 @@ from typing import List, Optional
 import uuid
 
 from sqlalchemy import func, select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.accounting import (
@@ -67,8 +68,13 @@ async def post_journal_entry(
         db.add(item)
 
     await db.commit()
-    await db.refresh(entry)
-    return entry
+    stmt = (
+        select(JournalEntry)
+        .options(selectinload(JournalEntry.items))
+        .where(JournalEntry.id == entry.id)
+    )
+    res = await db.execute(stmt)
+    return res.scalar_one()
 
 
 async def generate_trial_balance(db: AsyncSession, as_of_date: date) -> TrialBalanceReport:

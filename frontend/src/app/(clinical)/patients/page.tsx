@@ -336,6 +336,11 @@ export default function PatientsFHIRPage(): React.ReactElement {
 
       setPatients([newRec, ...patients]);
       setIsRegisterOpen(false);
+      try {
+        await fetchLivePatients();
+      } catch {
+        // Fallback already displayed
+      }
       notifications.show({
         title: language === 'om' ? "Galmeen Milkaa'eera" : language === 'am' ? 'ምዝገባው ተሳክቷል' : 'Patient Registered',
         message: `${newRec.name} (${newRec.mrn}) FHIR R4 profile permanently saved in database.`,

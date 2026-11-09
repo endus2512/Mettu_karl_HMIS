@@ -21,7 +21,7 @@ from app.services.asset_service import check_ppm_due_assets, create_maintenance_
 
 router = APIRouter()
 
-technician_guard = require_roles(UserRole.TECHNICIAN, UserRole.LAB_TECH, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+technician_guard = require_roles(UserRole.TECHNICIAN, UserRole.LAB_TECH, UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR)
 
 
 @router.get("/biomedical", response_model=List[BiomedicalAssetResponse], summary="List Biomedical Equipment")
