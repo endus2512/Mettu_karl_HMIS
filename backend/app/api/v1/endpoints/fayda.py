@@ -12,12 +12,17 @@ from app.core.database import get_db
 from app.models.fayda import FaydaRecord
 from app.models.user import User
 from app.schemas.fayda import (
+    BiometricVerificationRequest,
     FaydaLookupRequest,
     FaydaRecordCreate,
     FaydaRecordResponse,
     FaydaVerificationResponse,
 )
-from app.services.fayda_service import link_fayda_to_patient, verify_fayda_identity
+from app.services.fayda_service import (
+    link_fayda_to_patient,
+    verify_fayda_biometric,
+    verify_fayda_identity,
+)
 
 router = APIRouter()
 
@@ -29,6 +34,15 @@ async def verify_fayda(
 ) -> FaydaVerificationResponse:
     """eKYC query against Ethiopian National ID Program (NIDP) Fayda gateway."""
     return await verify_fayda_identity(lookup.fin_number)
+
+
+@router.post("/verify-biometric", response_model=FaydaVerificationResponse, summary="Biometric eKYC Fingerprint Verification")
+async def verify_fayda_biometric_endpoint(
+    req: BiometricVerificationRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> FaydaVerificationResponse:
+    """Live USB biometric scanner capture & minutiae verification against Fayda NID gateway."""
+    return await verify_fayda_biometric(req)
 
 
 @router.post("/link", response_model=FaydaRecordResponse, status_code=status.HTTP_201_CREATED, summary="Link Fayda to Patient")

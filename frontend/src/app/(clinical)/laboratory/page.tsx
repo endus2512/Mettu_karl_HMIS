@@ -16,6 +16,7 @@ import React, { useState, useEffect, useMemo, useId } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
+import apiClient from '@/lib/api';
 import {
   FlaskConical,
   TestTube,
@@ -43,6 +44,8 @@ import {
   Stethoscope,
   Info,
   Check,
+  Cpu,
+  Radio,
 } from 'lucide-react';
 
 interface ParameterDef {
@@ -147,7 +150,9 @@ export default function LaboratoryPage(): React.ReactElement {
   const [orders, setOrders] = useState<LabOrder[]>([]);
   const [catalog, setCatalog] = useState<TestCatalog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'queue' | 'orders' | 'catalog' | 'blood_match'>('queue');
+  const [activeTab, setActiveTab] = useState<'queue' | 'orders' | 'catalog' | 'blood_match' | 'hl7_analyzers'>('queue');
+  const [hl7IngestLog, setHl7IngestLog] = useState<any | null>(null);
+  const [hl7Simulating, setHl7Simulating] = useState(false);
 
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -177,6 +182,23 @@ export default function LaboratoryPage(): React.ReactElement {
   const [compatDonorGroup, setCompatDonorGroup] = useState('O_NEG');
   const [compatRecipientGroup, setCompatRecipientGroup] = useState('A_POS');
   const [crossmatchResult, setCrossmatchResult] = useState<string | null>(null);
+
+  const handleSimulateHL7Run = async () => {
+    setHl7Simulating(true);
+    try {
+      const res = await apiClient.post('/hl7/simulate-analyzer-run', null, {
+        params: { mrn: 'MKH-2026-000101', analyzer_model: 'Sysmex XN-550 Hematology' },
+      });
+      if (res.data) {
+        setHl7IngestLog(res.data);
+        setActionSuccess('HL7 v2.5 ORU^R01 packet processed & MLLP ACK returned successfully!');
+      }
+    } catch {
+      setActionError('Failed to communicate with MLLP socket');
+    } finally {
+      setHl7Simulating(false);
+    }
+  };
 
   // Fetch all laboratory data from live backend
   const fetchAllLabData = async () => {
@@ -645,6 +667,17 @@ export default function LaboratoryPage(): React.ReactElement {
             >
               <Droplets className="w-4 h-4 text-red-400" />
               4. Baankii Dhiigaa & Wal-simannoo (Cross-Match)
+            </button>
+            <button
+              onClick={() => setActiveTab('hl7_analyzers')}
+              className={`px-4 py-3 text-xs md:text-sm font-semibold border-b-2 flex items-center gap-2 transition-all ${
+                activeTab === 'hl7_analyzers'
+                  ? 'border-amber-400 text-amber-400 bg-amber-400/5'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Cpu className="w-4 h-4 text-teal-400" />
+              5. HL7 v2 Meeshaalee Laabii (Automated Analyzers)
             </button>
           </div>
 
@@ -1247,6 +1280,179 @@ export default function LaboratoryPage(): React.ReactElement {
                     <span className="font-bold text-rose-400 block mb-0.5">3. Qorannoo Jarmootaa (TTIs):</span>
                     Dhiigni hundi HIV 1/2, Hepatitis B (HBsAg), Hepatitis C (HCV), fi Syphilis (RPR/VDRL) irraa bilisa ta'uun mirkanaa'eera.
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: HL7 v2.x MLLP AUTOMATED ANALYZERS INTEGRATION */}
+          {activeTab === 'hl7_analyzers' && (
+            <div className="space-y-6">
+              {/* Instrument Status Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  {
+                    id: 'LAB-SYS-01',
+                    name: 'Sysmex XN-550',
+                    modality: 'Hematology 5-Part Diff',
+                    ip: '192.168.10.41:2100',
+                    status: 'Online (MLLP)',
+                    packets: '1,420 pkts',
+                  },
+                  {
+                    id: 'LAB-MIN-02',
+                    name: 'Mindray BS-430',
+                    modality: 'Clinical Chemistry',
+                    ip: '192.168.10.42:2101',
+                    status: 'Online (MLLP)',
+                    packets: '982 pkts',
+                  },
+                  {
+                    id: 'LAB-XPT-03',
+                    name: 'GeneXpert IV',
+                    modality: 'Molecular PCR (TB MTB)',
+                    ip: '192.168.10.43:2102',
+                    status: 'Online (MLLP)',
+                    packets: '315 pkts',
+                  },
+                  {
+                    id: 'LAB-COB-04',
+                    name: 'Roche Cobas e411',
+                    modality: 'Immunology & Hormones',
+                    ip: '192.168.10.44:2103',
+                    status: 'Online (MLLP)',
+                    packets: '640 pkts',
+                  },
+                ].map((analyzer) => (
+                  <div
+                    key={analyzer.id}
+                    className="p-5 rounded-2xl bg-[#101624] border border-[#1a2233] shadow-sm space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-mono text-slate-400">{analyzer.id}</span>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        {analyzer.status}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{analyzer.name}</h4>
+                      <p className="text-xs text-slate-400">{analyzer.modality}</p>
+                    </div>
+                    <div className="pt-2 border-t border-[#1a2233] flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                      <span>{analyzer.ip}</span>
+                      <span className="text-amber-400">{analyzer.packets}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Live Analyzer Simulation & Raw Packet Inspector */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-4 bg-[#101624] border border-[#1a2233] p-6 rounded-2xl space-y-4">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Radio className="w-4 h-4 text-teal-400" />
+                    Automated Specimen Ingestion (MLLP Bridge)
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Trigger a live specimen run on Sysmex XN-550. Generates standard HL7 v2.5 ORU^R01 packet over TCP socket, parses analytes, and stores into PostgreSQL.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleSimulateHL7Run}
+                    disabled={hl7Simulating}
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/20 transition cursor-pointer disabled:opacity-50"
+                  >
+                    <Cpu className="w-4 h-4" />
+                    {hl7Simulating ? 'Processing MLLP Stream...' : 'Simulate Live Sysmex XN-550 Run'}
+                  </button>
+
+                  <div className="p-3.5 rounded-xl bg-[#141b2b] border border-[#1f293d] space-y-2 text-xs">
+                    <span className="font-bold text-amber-400 block">Instrument Protocol:</span>
+                    <p className="text-slate-300 font-mono text-[11px]">Framing: MLLP (VT ... FS CR)</p>
+                    <p className="text-slate-300 font-mono text-[11px]">Standard: HL7 v2.5 ORU^R01</p>
+                    <p className="text-slate-300 font-mono text-[11px]">Encoding: ASCII / UTF-8</p>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-8 bg-[#101624] border border-[#1a2233] p-6 rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-[#1a2233] pb-3">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-amber-400" />
+                      HL7 v2.5 Ingestion Telemetry & Parsed Results
+                    </h3>
+                    {hl7IngestLog && (
+                      <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+                        ACK: MSA|AA|{hl7IngestLog.message_control_id}
+                      </span>
+                    )}
+                  </div>
+
+                  {hl7IngestLog ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-[#141b2b] p-3 rounded-xl border border-[#1f293d]">
+                        <div>
+                          <span className="text-slate-400 block">Patient MRN:</span>
+                          <span className="font-bold text-white font-mono">{hl7IngestLog.patient_mrn}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block">Patient Name:</span>
+                          <span className="font-bold text-white">{hl7IngestLog.patient_name}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block">Analyzer:</span>
+                          <span className="font-bold text-teal-400">{hl7IngestLog.sending_analyzer}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block">Test Profile:</span>
+                          <span className="font-bold text-amber-400">{hl7IngestLog.order_test_name}</span>
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-[#1f293d] overflow-hidden">
+                        <table className="w-full text-xs text-left">
+                          <thead className="bg-[#141b2b] text-slate-400 uppercase font-mono text-[10px]">
+                            <tr>
+                              <th className="p-2.5">Analyte Parameter</th>
+                              <th className="p-2.5">Observed Value</th>
+                              <th className="p-2.5">Unit</th>
+                              <th className="p-2.5">Reference Interval</th>
+                              <th className="p-2.5">Flag</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#1a2233]">
+                            {hl7IngestLog.parameters?.map((p: any, idx: number) => (
+                              <tr key={idx} className="hover:bg-[#161d2d]/60">
+                                <td className="p-2.5 font-semibold text-white">{p.parameter_name} ({p.parameter_code})</td>
+                                <td className="p-2.5 font-bold font-mono text-cyan-400">{p.value}</td>
+                                <td className="p-2.5 text-slate-400 font-mono">{p.unit}</td>
+                                <td className="p-2.5 text-slate-400 font-mono">{p.reference_range}</td>
+                                <td className="p-2.5">
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                      p.flag === 'PANIC'
+                                        ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                                        : p.flag === 'H'
+                                        ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                                        : p.flag === 'L'
+                                        ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                                        : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                    }`}
+                                  >
+                                    {p.flag === 'N' ? 'NORMAL' : p.flag}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-10 text-center text-xs text-slate-400 border border-dashed border-[#1a2233] rounded-2xl">
+                      No live packet received yet. Click &quot;Simulate Live Sysmex XN-550 Run&quot; to test MLLP packet parsing.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

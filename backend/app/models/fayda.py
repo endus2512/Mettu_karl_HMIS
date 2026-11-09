@@ -6,7 +6,7 @@ from datetime import date, datetime, timezone
 import enum
 from typing import Optional
 
-from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import Date, DateTime, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -19,8 +19,15 @@ class FaydaVerificationStatus(str, enum.Enum):
     EXPIRED = "expired"
 
 
+class BiometricModality(str, enum.Enum):
+    FINGERPRINT = "fingerprint"
+    IRIS = "iris"
+    FACE = "face"
+    DEMOGRAPHIC = "demographic"
+
+
 class FaydaRecord(Base):
-    """Fayda National Digital ID record linked to hospital patient registry."""
+    """Fayda National Digital ID record linked to hospital patient registry with biometric verification."""
     __tablename__ = "fayda_records"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -35,6 +42,12 @@ class FaydaRecord(Base):
     
     photo_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     auth_token_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    
+    # Biometric hardware verification fields (SecuGen, Morpho, Mantra USB scanners)
+    biometric_modality: Mapped[str] = mapped_column(String(30), default="fingerprint", nullable=False)
+    biometric_match_score: Mapped[Optional[float]] = mapped_column(Float, default=95.0, nullable=True)
+    scanner_device_model: Mapped[Optional[str]] = mapped_column(String(100), default="SecuGen Hamster Pro 20", nullable=True)
+    biometric_captured_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     
     verification_status: Mapped[FaydaVerificationStatus] = mapped_column(
         Enum(FaydaVerificationStatus, name="fayda_verification_status_enum", native_enum=False),

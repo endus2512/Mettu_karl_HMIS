@@ -23,6 +23,7 @@ from app.api.v1.endpoints import (
     fayda,
     fhir,
     health,
+    hl7_interface,
     hrm,
     infection_control,
     inpatient,
@@ -38,6 +39,7 @@ from app.api.v1.endpoints import (
     power_grid,
     procurement,
     queue,
+    signatures,
     sms_gateway,
     system_time,
     telemed,
@@ -95,3 +97,5 @@ api_v1_router.include_router(power_grid.router, prefix="/power-grid", tags=["Pow
 # Module 6: Telecommunications & Hardware Traceability (SMS/USSD & Barcode/QR)
 api_v1_router.include_router(sms_gateway.router, prefix="/sms", tags=["SMS & USSD Gateway (*907#)"])
 api_v1_router.include_router(barcode.router, prefix="/barcode", tags=["Barcode & QR Scanner"])
+api_v1_router.include_router(signatures.router, prefix="/signatures", tags=["Clinical PKI Digital Signatures (Procl. 1072/2018)"])
+api_v1_router.include_router(hl7_interface.router, prefix="/hl7", tags=["HL7 v2.x MLLP Lab Instrument Interface"])

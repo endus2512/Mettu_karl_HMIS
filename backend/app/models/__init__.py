@@ -72,8 +72,13 @@ from app.models.ems import (
     TriageLevel,
 )
 from app.models.fayda import (
+    BiometricModality,
     FaydaRecord,
     FaydaVerificationStatus,
+)
+from app.models.signature import (
+    ClinicalDigitalSignature,
+    ClinicalDocumentType,
 )
 from app.models.hrm import (
     Attendance,
@@ -338,4 +343,7 @@ __all__ = [
     "LabResult",
     "ClinicalNotification",
     "SMSGatewayConfig",
+    "ClinicalDigitalSignature",
+    "ClinicalDocumentType",
+    "BiometricModality",
 ]
