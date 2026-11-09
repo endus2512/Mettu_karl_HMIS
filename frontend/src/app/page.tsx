@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, type Language } from '@/lib/i18n';
+import { getRolePortalPath } from '@/lib/roleRoutes';
 
 interface BuildingBlock {
   id: string;
@@ -305,14 +306,14 @@ export default function HomePage(): React.ReactElement {
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <Link
-                  href={user?.role === 'patient' ? '/patient-portal' : '/dashboard'}
+                  href={getRolePortalPath(user?.role)}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md shadow-amber-500/20 transition-all hover:scale-105"
                 >
                   <Activity className="w-3.5 h-3.5" />
                   <span>
                     {user?.role === 'patient'
                       ? (language === 'om' ? 'Poortaalii Dhukkubsataa' : language === 'am' ? 'የታካሚ ፖርታል' : 'Patient Portal')
-                      : (language === 'om' ? 'Gara Daashboordii' : language === 'am' ? 'ወደ ዳሽቦርድ' : 'Open Dashboard')}
+                      : (language === 'om' ? 'Gara Wiirtuu Hojii' : language === 'am' ? 'ወደ ስራ ክፍሌ' : 'Open Workstation')}
                   </span>
                 </Link>
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#141b29] border border-[#2b374e] text-xs">
@@ -375,7 +376,7 @@ export default function HomePage(): React.ReactElement {
 
             <div className="flex items-center gap-2 shrink-0">
               <Link
-                href={user?.role === 'patient' ? '/patient-portal' : '/dashboard'}
+                href={getRolePortalPath(user?.role)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 shadow-md shadow-amber-500/25 transition-all hover:scale-105"
               >
                 <span>{language === 'om' ? 'Gara Wiirtuu Hojii Seeni' : language === 'am' ? 'ወደ ስራ ክፍሌ ግባ' : 'Enter My Workstation'}</span>

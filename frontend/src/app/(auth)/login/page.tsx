@@ -28,6 +28,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { notifications } from '@mantine/notifications';
+import { getRolePortalPath } from '@/lib/roleRoutes';
 import {
   User,
   Lock,
@@ -585,14 +586,7 @@ export default function LoginPage() {
       });
 
       setIsFormOpen(false);
-      const destination = ((): string => {
-        const r = (response?.role as string) || '';
-        if (r === 'patient') {
-          return '/patient-portal';
-        }
-        // All staff roles land directly on their specialized Operational Cockpit at /dashboard
-        return '/dashboard';
-      })();
+      const destination = getRolePortalPath(response?.role);
       if (typeof window !== 'undefined') {
         window.location.href = destination;
       } else {
@@ -630,11 +624,7 @@ export default function LoginPage() {
         color: 'teal',
       });
       setIsFormOpen(false);
-      const mfaDestination = ((): string => {
-        const r = (user?.role as string) || '';
-        if (r === 'patient') return '/patient-portal';
-        return '/dashboard';
-      })();
+      const mfaDestination = getRolePortalPath(user?.role);
       if (typeof window !== 'undefined') {
         window.location.href = mfaDestination;
       } else {
@@ -642,11 +632,7 @@ export default function LoginPage() {
       }
     } catch {
       setIsFormOpen(false);
-      const mfaDestination = ((): string => {
-        const r = (user?.role as string) || '';
-        if (r === 'patient') return '/patient-portal';
-        return '/dashboard';
-      })();
+      const mfaDestination = getRolePortalPath(user?.role);
       if (typeof window !== 'undefined') {
         window.location.href = mfaDestination;
       } else {

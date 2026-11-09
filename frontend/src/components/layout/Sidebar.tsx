@@ -1,16 +1,21 @@
 /**
  * Mettu Karl Comprehensive Specialized Hospital — Unified Clinical Operating System Sidebar.
  *
- * Domain-Driven Architecture (Filannoo 1ffaa):
- * - Domain 1: Tajaajila Yaalaa (Clinical Journey & Patient Care)
- * - Domain 2: Qorannoo & Qoricha (Diagnostics & Pharmacy)
- * - Domain 3: Sochii & Qabeenya Hospitaalaa (Operations & Facilities)
- * - Domain 4: Faayinaansii & Nageenya INSA (Finance & Governance)
+ * Dedicated Role-Isolated Portals & Domain-Driven Navigation:
+ * - Dedicated Role Portals:
+ *   * /portal/doctor (Doctor Workstation)
+ *   * /portal/nurse (Nurse & Ward Station)
+ *   * /portal/pharmacy (Pharmacy FEFO Dispensary)
+ *   * /portal/lab (Laboratory LIS Bench)
+ *   * /portal/billing (Billing, Cashier & POS)
+ *   * /portal/reception (Reception, Fayda & Queue)
+ *   * /portal/admin (Executive Command Center)
+ *   * /patient-portal (Patient Care Portal)
  *
  * Key Capabilities:
- * - Strict Role-Based Visibility: Doctors, Nurses, Pharmacists, and Lab Techs see ONLY their relevant tools.
- * - Administrative Supervisory Authority: Admins have complete oversight over all 4 domains with collapsible accordions.
- * - Integrated Workstation Inspector: Admins can inspect and preview any staff role workstation with 1 click.
+ * - Strict Role Isolation: Non-admin staff only see their own assigned tools.
+ * - Executive Supervisory Authority: Admins have dedicated Staff Portals accordion to inspect any role.
+ * - Dynamic Dashboard Resolution: The Dashboard link dynamically maps to each user's dedicated portal.
  * - Full Tri-Lingual Localization: Afaan Oromoo ('om'), Amharic ('am'), English ('en').
  */
 'use client';
@@ -20,6 +25,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
+import { getRolePortalPath } from '@/lib/roleRoutes';
 import type { UserRole } from '@/types';
 import {
   LayoutDashboard,
@@ -63,7 +69,6 @@ import {
   LogOut,
   HeartPulse,
   Eye,
-  Sliders,
   RotateCcw,
 } from 'lucide-react';
 
@@ -83,6 +88,66 @@ interface NavDomain {
   icon: React.ComponentType<{ className?: string }>;
   items: NavItem[];
 }
+
+/** 0. DEDICATED ROLE PORTALS (SUPERVISOR ACCESS) */
+const staffWorkstationPortals: NavItem[] = [
+  {
+    key: 'portal_doctor',
+    href: '/portal/doctor',
+    icon: Stethoscope,
+    badge: 'OPD',
+    badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40',
+    allowedRoles: ['admin', 'super_admin'],
+  },
+  {
+    key: 'portal_nurse',
+    href: '/portal/nurse',
+    icon: Bed,
+    badge: 'IPD',
+    badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40',
+    allowedRoles: ['admin', 'super_admin'],
+  },
+  {
+    key: 'portal_pharmacy',
+    href: '/portal/pharmacy',
+    icon: Pill,
+    badge: 'FEFO',
+    badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40',
+    allowedRoles: ['admin', 'super_admin'],
+  },
+  {
+    key: 'portal_lab',
+    href: '/portal/lab',
+    icon: FlaskConical,
+    badge: 'LIS',
+    badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40',
+    allowedRoles: ['admin', 'super_admin'],
+  },
+  {
+    key: 'portal_billing',
+    href: '/portal/billing',
+    icon: CreditCard,
+    badge: 'POS',
+    badgeColor: 'bg-blue-500/20 text-blue-300 border border-blue-400/40',
+    allowedRoles: ['admin', 'super_admin'],
+  },
+  {
+    key: 'portal_reception',
+    href: '/portal/reception',
+    icon: Ticket,
+    badge: 'Fayda',
+    badgeColor: 'bg-purple-500/20 text-purple-300 border border-purple-400/40',
+    allowedRoles: ['admin', 'super_admin'],
+  },
+  {
+    key: 'portal_admin',
+    href: '/portal/admin',
+    icon: ShieldCheck,
+    badge: 'CEO',
+    badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
+    allowedRoles: ['admin', 'super_admin'],
+  },
+];
 
 /** 1. DOMAIN: CLINICAL JOURNEY & PATIENT CARE */
 const clinicalJourneyItems: NavItem[] = [
@@ -349,12 +414,17 @@ export function Sidebar(): React.ReactElement {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Collapsible Accordion State for the 4 Domains
+  const effectiveRole: UserRole = activeRole || user?.role || 'doctor';
+  const isPatientRole = effectiveRole === 'patient';
+  const isSupervisorRole = effectiveRole === 'admin' || effectiveRole === 'super_admin';
+
+  // Collapsible Accordion State for the Domains
   const [openDomains, setOpenDomains] = useState<{ [key: string]: boolean }>({
+    portals: true,
     clinical: true,
     diagnostics: true,
-    operations: true,
-    finance: true,
+    operations: false,
+    finance: false,
   });
 
   const toggleDomain = (domainId: string) => {
@@ -363,10 +433,6 @@ export function Sidebar(): React.ReactElement {
       [domainId]: !prev[domainId],
     }));
   };
-
-  const effectiveRole: UserRole = activeRole || user?.role || 'doctor';
-  const isPatientRole = effectiveRole === 'patient';
-  const isSupervisorRole = effectiveRole === 'admin' || effectiveRole === 'super_admin';
 
   const handleSidebarLogout = () => {
     void logout();
@@ -434,46 +500,61 @@ export function Sidebar(): React.ReactElement {
     });
   };
 
+  const filteredPortals = useMemo(() => filterByRole(staffWorkstationPortals), [effectiveRole]);
   const filteredClinical = useMemo(() => filterByRole(clinicalJourneyItems), [effectiveRole]);
   const filteredDiagnostics = useMemo(() => filterByRole(diagnosticsPharmaItems), [effectiveRole]);
   const filteredOperations = useMemo(() => filterByRole(operationsFacilitiesItems), [effectiveRole]);
   const filteredFinance = useMemo(() => filterByRole(financeGovernanceItems), [effectiveRole]);
 
   // All structured domains
-  const domains: NavDomain[] = useMemo(() => [
-    {
-      id: 'clinical',
-      titleKey: 'domain_clinical_care',
-      fallbackTitle: 'Clinical Journey & Care',
-      icon: Stethoscope,
-      items: filteredClinical,
-    },
-    {
-      id: 'diagnostics',
-      titleKey: 'domain_diagnostics_pharma',
-      fallbackTitle: 'Diagnostics & Pharmacy',
-      icon: FlaskConical,
-      items: filteredDiagnostics,
-    },
-    {
-      id: 'operations',
-      titleKey: 'domain_operations_facilities',
-      fallbackTitle: 'Operations & Facilities',
-      icon: Building2,
-      items: filteredOperations,
-    },
-    {
-      id: 'finance',
-      titleKey: 'domain_finance_governance',
-      fallbackTitle: 'Finance & INSA Governance',
-      icon: ShieldCheck,
-      items: filteredFinance,
-    },
-  ], [filteredClinical, filteredDiagnostics, filteredOperations, filteredFinance]);
+  const domains: NavDomain[] = useMemo(() => {
+    const list: NavDomain[] = [];
+    if (isSupervisorRole) {
+      list.push({
+        id: 'portals',
+        titleKey: 'domain_portals_supervision',
+        fallbackTitle: 'Staff Portals (Supervisor)',
+        icon: Eye,
+        items: filteredPortals,
+      });
+    }
+    list.push(
+      {
+        id: 'clinical',
+        titleKey: 'domain_clinical_care',
+        fallbackTitle: 'Clinical Journey & Care',
+        icon: Stethoscope,
+        items: filteredClinical,
+      },
+      {
+        id: 'diagnostics',
+        titleKey: 'domain_diagnostics_pharma',
+        fallbackTitle: 'Diagnostics & Pharmacy',
+        icon: FlaskConical,
+        items: filteredDiagnostics,
+      },
+      {
+        id: 'operations',
+        titleKey: 'domain_operations_facilities',
+        fallbackTitle: 'Operations & Facilities',
+        icon: Building2,
+        items: filteredOperations,
+      },
+      {
+        id: 'finance',
+        titleKey: 'domain_finance_governance',
+        fallbackTitle: 'Finance & INSA Governance',
+        icon: ShieldCheck,
+        items: filteredFinance,
+      }
+    );
+    return list;
+  }, [isSupervisorRole, filteredPortals, filteredClinical, filteredDiagnostics, filteredOperations, filteredFinance]);
 
   // Pre-warm / prefetch all key routes on idle
   useEffect(() => {
     const allRoutes = [
+      ...staffWorkstationPortals,
       ...clinicalJourneyItems,
       ...diagnosticsPharmaItems,
       ...operationsFacilitiesItems,
@@ -530,18 +611,22 @@ export function Sidebar(): React.ReactElement {
         {(isOpen || collapsed) && (
           <div className="space-y-0.5">
             {items.map((item) => {
-              const isActive = pathname === item.href;
+              // Dynamically map dashboard key to dedicated role portal path
+              const itemHref = item.key === 'dashboard' ? getRolePortalPath(effectiveRole) : item.href;
+              const isActive =
+                pathname === itemHref ||
+                (item.key === 'dashboard' && pathname === getRolePortalPath(effectiveRole));
               const IconComponent = item.icon;
               const itemLabel = t(item.key);
 
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={itemHref}
                   prefetch={true}
                   onClick={() => setIsMobileOpen(false)}
-                  onMouseEnter={() => router.prefetch(item.href)}
-                  onFocus={() => router.prefetch(item.href)}
+                  onMouseEnter={() => router.prefetch(itemHref)}
+                  onFocus={() => router.prefetch(itemHref)}
                   title={collapsed ? itemLabel : undefined}
                   className={`group relative flex items-center ${
                     collapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2'
@@ -598,7 +683,7 @@ export function Sidebar(): React.ReactElement {
       >
         {/* Brand Header */}
         <Link
-          href="/dashboard"
+          href={getRolePortalPath(effectiveRole)}
           className={`flex h-16 items-center ${
             isCollapsed ? 'justify-center px-2' : 'gap-3 px-4'
           } border-b border-[#1a2233] flex-shrink-0 bg-[#080c14] hover:bg-[#101622] transition-colors group cursor-pointer`}
@@ -679,7 +764,7 @@ export function Sidebar(): React.ReactElement {
                         type="button"
                         onClick={() => {
                           setSimulatedRole(null);
-                          router.push('/dashboard');
+                          router.push('/portal/admin');
                         }}
                         className="flex items-center gap-1 text-[9px] font-bold text-rose-400 hover:text-rose-300 hover:underline cursor-pointer"
                       >
@@ -701,11 +786,11 @@ export function Sidebar(): React.ReactElement {
                     onChange={(e) => {
                       const nextRole = e.target.value as UserRole;
                       setSimulatedRole(nextRole === 'admin' ? null : nextRole);
-                      router.push('/dashboard');
+                      router.push(getRolePortalPath(nextRole));
                     }}
                     className="w-full bg-[#06090f] border border-amber-500/40 text-amber-200 text-[11px] rounded-lg px-2 py-1.5 font-semibold focus:outline-none focus:border-amber-400 cursor-pointer"
                   >
-                    <option value="admin">🛡️ ADMIN (Executive Cockpit)</option>
+                    <option value="admin">🛡️ ADMIN (Executive)</option>
                     <option value="doctor">🩺 DOCTOR (Clinical & EMR)</option>
                     <option value="nurse">💉 NURSE (Wards & Vitals)</option>
                     <option value="pharmacist">💊 PHARMACIST (FEFO & Drugs)</option>
@@ -821,7 +906,7 @@ export function Sidebar(): React.ReactElement {
                 const nextRole = e.target.value as UserRole;
                 setSimulatedRole(nextRole === 'admin' ? null : nextRole);
                 setIsMobileOpen(false);
-                router.push('/dashboard');
+                router.push(getRolePortalPath(nextRole));
               }}
               className="w-full bg-[#0c121e] border border-amber-500/40 text-amber-200 text-xs rounded-lg p-2 font-semibold"
             >
