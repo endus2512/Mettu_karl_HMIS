@@ -346,6 +346,47 @@ export default function HomePage(): React.ReactElement {
       </header>
 
       {/* ========================================================================= */}
+      {/* 2.1 SMART CLINICAL WORKSTATION LAUNCHPAD (AUTHENTICATED STAFF / PATIENT)  */}
+      {/* ========================================================================= */}
+      {isAuthenticated && (
+        <div className="bg-gradient-to-r from-amber-500/15 via-[#131d2e] to-teal-500/15 border-b border-amber-500/30 px-4 sm:px-8 py-3.5">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center shrink-0">
+                <Stethoscope className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-white">
+                    {language === 'om' ? 'Baga nagaan dhufte,' : language === 'am' ? 'እንኳን ደህና መጡ፣' : 'Welcome back,'}{' '}
+                    <span className="text-amber-300 font-extrabold">{user?.fullName || user?.username}</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold uppercase">
+                    {user?.role}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  {language === 'om'
+                    ? "Wiirtuun hojii keessanii qophaa'era. Tajaajila keessan itti fufuuf qajeelatti seenaa."
+                    : 'Your clinical operational workstation is live. Click to launch your dedicated tools.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href={user?.role === 'patient' ? '/patient-portal' : '/dashboard'}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 shadow-md shadow-amber-500/25 transition-all hover:scale-105"
+              >
+                <span>{language === 'om' ? 'Gara Wiirtuu Hojii Seeni' : language === 'am' ? 'ወደ ስራ ክፍሌ ግባ' : 'Enter My Workstation'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
       {/* 3. HERO SHOWCASE & SEARCH                                                 */}
       {/* ========================================================================= */}
       <section className="relative overflow-hidden border-b border-[#1a2233] bg-gradient-to-b from-[#101624] via-[#0b0f17] to-[#0b0f17] py-12 md:py-16 px-4 sm:px-8">

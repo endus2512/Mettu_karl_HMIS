@@ -53,6 +53,7 @@ import {
   Zap,
   Radio,
   Pill,
+  FlaskConical,
   CreditCard,
   ArrowRight,
   MoreHorizontal,
@@ -164,7 +165,7 @@ export default function AdminDashboardPage(): React.ReactElement {
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedWardForEdit, setSelectedWardForEdit] = useState<WardStatus | null>(null);
-  const [showRoster, setShowRoster] = useState(false);
+  const [showRoster, setShowRoster] = useState(true);
 
   // Sync activeShift from backend
   useEffect(() => {
@@ -538,10 +539,10 @@ export default function AdminDashboardPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setShowRoster(!showRoster)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#222b3d] bg-[#141b29] hover:bg-slate-800 text-xs text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/15 hover:bg-amber-500/25 text-xs text-amber-300 font-semibold transition-colors cursor-pointer"
                 >
                   <Users className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{showRoster ? (language === 'om' ? 'Roster Dhoysi' : 'Hide Roster') : (language === 'om' ? 'Ogeeyyii Ilaali' : 'Staff Roster')}</span>
+                  <span>{showRoster ? (language === 'om' ? "To'annoo Dhoysi" : 'Hide Oversight') : (language === 'om' ? "To'annoo Ogeessotaa" : 'Staff Oversight')}</span>
                 </button>
                 <button
                   type="button"
@@ -639,96 +640,122 @@ export default function AdminDashboardPage(): React.ReactElement {
           {/* 4. CONCISE WORKSTATION DOMAIN HUBS (QUICK 1-CLICK LAUNCHERS)       */}
           {/* ================================================================= */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
-            {/* Domain 1: Clinical */}
+            {/* Domain 1: Clinical Care */}
             <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-4 flex flex-col justify-between space-y-3">
               <div>
                 <div className="flex items-center gap-2 text-teal-400 mb-1">
                   <Stethoscope className="w-4 h-4" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider">Clinical Care & MPI</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider">
+                    {language === 'om' ? '1. Tajaajila Yaalaa' : '1. Clinical Care'}
+                  </h3>
                 </div>
-                <p className="text-xs text-slate-400">Patients, Queue, Telemedicine, and BI Analytics.</p>
+                <p className="text-xs text-slate-400">Patients, Queue, Inpatient Wards, OT, and 907 EMS.</p>
               </div>
               <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#1b2336]">
                 <Link href="/patients" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
                   + Patients
                 </Link>
                 <Link href="/queue" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
-                  Queue TV
+                  Queue
                 </Link>
-                <Link href="/telemed" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
-                  Telemed
+                <Link href="/wards" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  Wards
+                </Link>
+                <Link href="/ot" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  OT Surgery
+                </Link>
+                <Link href="/ems" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  907 EMS
                 </Link>
               </div>
             </div>
 
-            {/* Domain 2: ERP & Finance */}
+            {/* Domain 2: Diagnostics & Pharma */}
             <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-4 flex flex-col justify-between space-y-3">
               <div>
-                <div className="flex items-center gap-2 text-amber-400 mb-1">
-                  <Briefcase className="w-4 h-4" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider">Enterprise ERP</h3>
+                <div className="flex items-center gap-2 text-cyan-400 mb-1">
+                  <FlaskConical className="w-4 h-4" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider">
+                    {language === 'om' ? '2. Qorannoo & Qoricha' : '2. Diagnostics & Pharma'}
+                  </h3>
                 </div>
-                <p className="text-xs text-slate-400">Billing, Pharmacy FEFO, HRM, Assets, and Accounting.</p>
+                <p className="text-xs text-slate-400">Laboratory LIS, Blood Bank, PACS DICOM, and FEFO Pharmacy.</p>
               </div>
               <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#1b2336]">
-                <Link href="/billing" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
-                  Billing
+                <Link href="/laboratory" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  Laboratory
+                </Link>
+                <Link href="/blood-bank" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  Blood Bank
+                </Link>
+                <Link href="/pacs" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  PACS
                 </Link>
                 <Link href="/pharmacy" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
                   Pharmacy
                 </Link>
+                <Link href="/efda" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  EFDA
+                </Link>
+              </div>
+            </div>
+
+            {/* Domain 3: Operations & Facilities */}
+            <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-4 flex flex-col justify-between space-y-3">
+              <div>
+                <div className="flex items-center gap-2 text-amber-400 mb-1">
+                  <Building2 className="w-4 h-4" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider">
+                    {language === 'om' ? '3. Sochii & Qabeenya' : '3. Operations & Facilities'}
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400">Staff HRM, Biomedical Assets, IoMT, Power, and Waste.</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#1b2336]">
                 <Link href="/hrm" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
                   HRM
                 </Link>
                 <Link href="/assets" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
                   Assets
                 </Link>
-              </div>
-            </div>
-
-            {/* Domain 3: Specialized & Telemetry */}
-            <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-4 flex flex-col justify-between space-y-3">
-              <div>
-                <div className="flex items-center gap-2 text-rose-400 mb-1">
-                  <Activity className="w-4 h-4" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider">Specialized & IoMT</h3>
-                </div>
-                <p className="text-xs text-slate-400">Blood Bank, 907 EMS, Bedside Telemetry, OT Surgery.</p>
-              </div>
-              <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#1b2336]">
-                <Link href="/blood-bank" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
-                  Blood Bank
-                </Link>
-                <Link href="/ems" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
-                  907 EMS
-                </Link>
                 <Link href="/iomt" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
                   IoMT
                 </Link>
-                <Link href="/ot" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
-                  OT Hub
+                <Link href="/power" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  Power
+                </Link>
+                <Link href="/mortuary" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  Mortuary
                 </Link>
               </div>
             </div>
 
-            {/* Domain 4: Resilience & Compliance */}
+            {/* Domain 4: Finance & INSA Governance */}
             <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-4 flex flex-col justify-between space-y-3">
               <div>
                 <div className="flex items-center gap-2 text-indigo-400 mb-1">
-                  <Scale className="w-4 h-4" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider">Resilience & Regulations</h3>
+                  <ShieldCheck className="w-4 h-4" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider">
+                    {language === 'om' ? '4. Faayinaansii & INSA' : '4. Finance & Governance'}
+                  </h3>
                 </div>
-                <p className="text-xs text-slate-400">Fayda NID, EFDA Recalls, EHSTG Audit, Power Grid.</p>
+                <p className="text-xs text-slate-400">Telebirr Billing, CBHI Claims, Fayda NID, and INSA Hash-Chain.</p>
               </div>
               <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#1b2336]">
+                <Link href="/billing" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  Billing
+                </Link>
+                <Link href="/insurance" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  CBHI Claims
+                </Link>
                 <Link href="/fayda" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
                   Fayda NID
                 </Link>
                 <Link href="/audit" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
-                  EHSTG Audit
+                  INSA Audit
                 </Link>
-                <Link href="/power" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
-                  Power ATS
+                <Link href="/analytics" className="px-2 py-1 rounded-md bg-[#151d2e] hover:bg-amber-500/20 text-xs text-slate-300 hover:text-amber-300 border border-[#222d42]">
+                  BI KPI
                 </Link>
               </div>
             </div>

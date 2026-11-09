@@ -97,5 +97,12 @@
   "emergency_action": "የአደጋ ጊዜ እርምጃ",
   "no_workstations_found": "ምንም ክፍል አልተገኘም",
   "role_governance_active": "የአመራር ቁጥጥር በርቷል",
-  "workstations_scoped": "የተገኙ ክፍሎች"
+  "workstations_scoped": "የተገኙ ክፍሎች",
+  "domain_clinical_care": "የህክምና አገልግሎትና የታካሚዎች ጉዞ",
+  "domain_diagnostics_pharma": "የላቦራቶሪ ምርመራና መድኃኒት",
+  "domain_operations_facilities": "የሆስፒታል ስራ አመራርና ግብዓቶች",
+  "domain_finance_governance": "ፋይናንስና የኢንሳ (INSA) ደህንነት",
+  "oversight_command_center": "የባለሙያዎች ስራ ክትትልና አመራር",
+  "live_staff_oversight": "በስራ ላይ ያሉ ባለሙያዎች የቀጥታ ክትትል",
+  "switch_workstation": "የስራ ክፍሉን ተመልከት"
 }

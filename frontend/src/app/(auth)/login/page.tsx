@@ -587,29 +587,11 @@ export default function LoginPage() {
       setIsFormOpen(false);
       const destination = ((): string => {
         const r = (response?.role as string) || '';
-        switch (r) {
-          case 'patient':
-            return '/patient-portal';
-          case 'pharmacist':
-            return '/pharmacy';
-          case 'billing':
-          case 'insurance_officer':
-            return '/billing';
-          case 'technician':
-          case 'lab_tech':
-          case 'lab_technician':
-            return '/laboratory';
-          case 'receptionist':
-            return '/queue';
-          case 'doctor':
-            return '/patients';
-          case 'nurse':
-            return '/wards';
-          case 'admin':
-          case 'super_admin':
-          default:
-            return '/dashboard';
+        if (r === 'patient') {
+          return '/patient-portal';
         }
+        // All staff roles land directly on their specialized Operational Cockpit at /dashboard
+        return '/dashboard';
       })();
       if (typeof window !== 'undefined') {
         window.location.href = destination;
@@ -650,29 +632,8 @@ export default function LoginPage() {
       setIsFormOpen(false);
       const mfaDestination = ((): string => {
         const r = (user?.role as string) || '';
-        switch (r) {
-          case 'patient':
-            return '/patient-portal';
-          case 'pharmacist':
-            return '/pharmacy';
-          case 'billing':
-          case 'insurance_officer':
-            return '/billing';
-          case 'technician':
-          case 'lab_tech':
-          case 'lab_technician':
-            return '/laboratory';
-          case 'receptionist':
-            return '/queue';
-          case 'doctor':
-            return '/patients';
-          case 'nurse':
-            return '/wards';
-          case 'admin':
-          case 'super_admin':
-          default:
-            return '/dashboard';
-        }
+        if (r === 'patient') return '/patient-portal';
+        return '/dashboard';
       })();
       if (typeof window !== 'undefined') {
         window.location.href = mfaDestination;
@@ -683,29 +644,8 @@ export default function LoginPage() {
       setIsFormOpen(false);
       const mfaDestination = ((): string => {
         const r = (user?.role as string) || '';
-        switch (r) {
-          case 'patient':
-            return '/patient-portal';
-          case 'pharmacist':
-            return '/pharmacy';
-          case 'billing':
-          case 'insurance_officer':
-            return '/billing';
-          case 'technician':
-          case 'lab_tech':
-          case 'lab_technician':
-            return '/laboratory';
-          case 'receptionist':
-            return '/queue';
-          case 'doctor':
-            return '/patients';
-          case 'nurse':
-            return '/wards';
-          case 'admin':
-          case 'super_admin':
-          default:
-            return '/dashboard';
-        }
+        if (r === 'patient') return '/patient-portal';
+        return '/dashboard';
       })();
       if (typeof window !== 'undefined') {
         window.location.href = mfaDestination;

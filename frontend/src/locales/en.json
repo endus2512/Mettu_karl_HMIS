@@ -97,5 +97,12 @@
   "emergency_action": "Emergency Action",
   "no_workstations_found": "No workstations found matching",
   "role_governance_active": "Executive Governance Active",
-  "workstations_scoped": "Workstations Available"
+  "workstations_scoped": "Workstations Available",
+  "domain_clinical_care": "Clinical Journey & Patient Care",
+  "domain_diagnostics_pharma": "Diagnostics & Pharmacy",
+  "domain_operations_facilities": "Operations & Hospital Infrastructure",
+  "domain_finance_governance": "Finance & INSA Governance",
+  "oversight_command_center": "Executive Staff Oversight & Control",
+  "live_staff_oversight": "Live On-Duty Staff Supervision",
+  "switch_workstation": "Inspect Workstation"
 }

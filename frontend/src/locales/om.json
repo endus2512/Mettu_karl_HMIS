@@ -97,5 +97,12 @@
   "emergency_action": "Tarkaanfii Hatattamaa",
   "no_workstations_found": "Kutaan walsimu hin argamne",
   "role_governance_active": "Hoggansi Bulchiinsaa Hojjira",
-  "workstations_scoped": "Kutaalee Argaman"
+  "workstations_scoped": "Kutaalee Argaman",
+  "domain_clinical_care": "Tajaajila Yaalaa & Dhukkubsattoota",
+  "domain_diagnostics_pharma": "Qorannoo Laabii & Qoricha",
+  "domain_operations_facilities": "Sochii & Qabeenya Hospitaalaa",
+  "domain_finance_governance": "Faayinaansii & Nageenya INSA",
+  "oversight_command_center": "To'annoo Ogeessotaa & Wiirtuu Hoggansaa",
+  "live_staff_oversight": "Hordoffii Hojjettoota Hojirra Jiranii",
+  "switch_workstation": "Kutaa Hojii Daawwadhu"
 }
