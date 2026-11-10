@@ -816,14 +816,14 @@ export default function LoginPage() {
         {/* =================================================================== */}
         <div className="relative z-30 w-full px-3 pt-3 sm:px-6 sm:pt-5 lg:px-8 shrink-0">
           <div className="flex items-center justify-between gap-2">
-            {/* Left: Branding Shield */}
-            <div className="inline-flex items-center gap-2 sm:gap-3.5 bg-slate-950/80 backdrop-blur-xl px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-2xl border border-white/20 shadow-xl min-w-0 max-w-[calc(100%-85px)] sm:max-w-xl">
+            {/* Left: Branding Shield (Ultra-Transparent Crystalline Glass) */}
+            <div className="inline-flex items-center gap-2 sm:gap-3.5 bg-black/20 hover:bg-black/30 backdrop-blur-2xl px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-white/25 hover:border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.37)] ring-1 ring-white/10 min-w-0 max-w-[calc(100%-85px)] sm:max-w-xl transition-all duration-300">
               <img
                 src="/hospital-logo-white.png"
                 alt="Mettu Karl Referral Hospital Emblem"
-                className="h-8 w-8 sm:h-11 sm:w-11 rounded-full bg-white/95 p-0.5 shadow-md shrink-0 object-contain ring-2 ring-teal-500/30"
+                className="h-8 w-8 sm:h-11 sm:w-11 rounded-full bg-white/90 p-0.5 shadow-md shrink-0 object-contain ring-2 ring-teal-400/40"
               />
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                 <h1 className="text-xs sm:text-base lg:text-lg font-bold text-white tracking-tight leading-tight truncate">
                   {t.hospitalName}
                 </h1>
@@ -832,26 +832,26 @@ export default function LoginPage() {
                   <span>{t.hmisTitle}</span>
                   <span className="hidden sm:inline">• {t.hmisSubtitle}</span>
                 </p>
-                <p className="hidden md:block text-[9px] sm:text-[11px] italic text-slate-300 font-medium truncate">
+                <p className="hidden md:block text-[9px] sm:text-[11px] italic text-slate-200 font-medium truncate">
                   {t.tagline}
                 </p>
               </div>
             </div>
 
-            {/* Right: Controls Capsule (Telemetry + Lang) */}
+            {/* Right: Controls Capsule (Telemetry + Lang in Ultra-Transparent Glass) */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {/* System Operational Badge */}
-              <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#080d1a]/85 backdrop-blur-md border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold shadow-lg">
+              <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/20 hover:bg-emerald-950/30 backdrop-blur-2xl border border-emerald-400/35 text-emerald-300 text-[11px] font-semibold shadow-[0_4px_20px_rgba(0,0,0,0.3)] ring-1 ring-emerald-500/10">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>{t.systemOperational}</span>
               </div>
 
-              {/* Language Selector Dropdown */}
+              {/* Language Selector Dropdown (Ultra-Transparent Glass Pill) */}
               <div className="relative" ref={langMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                  className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-[#0b0f17]/90 hover:bg-[#131824] text-white border border-[#222b3d] hover:border-amber-500/50 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold shadow-lg backdrop-blur-md transition-all cursor-pointer"
+                  className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-black/20 hover:bg-black/35 backdrop-blur-2xl text-white border border-white/25 hover:border-amber-400/60 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold shadow-[0_8px_32px_rgba(0,0,0,0.3)] ring-1 ring-white/10 transition-all cursor-pointer"
                   aria-expanded={isLangMenuOpen}
                   aria-label="Select Language"
                 >
@@ -867,16 +867,16 @@ export default function LoginPage() {
 
                 {/* Language Dropdown Menu */}
                 {isLangMenuOpen && (
-                  <div className="absolute right-0 mt-1.5 w-44 rounded-2xl bg-[#0e131f] border border-[#222b3d] shadow-[0_16px_40px_rgba(0,0,0,0.8)] py-1.5 z-50 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute right-0 mt-1.5 w-44 rounded-2xl bg-slate-950/70 backdrop-blur-2xl border border-white/20 shadow-[0_16px_50px_rgba(0,0,0,0.8)] ring-1 ring-white/10 py-1.5 z-50 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150">
                     <button
                       type="button"
                       onClick={() => {
                         setLanguage('en');
                         setIsLangMenuOpen(false);
                       }}
-                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
+                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-white/10 transition cursor-pointer ${
                         language === 'en'
-                          ? 'text-amber-400 font-bold bg-amber-500/10'
+                          ? 'text-amber-400 font-bold bg-amber-500/15'
                           : 'text-slate-300'
                       }`}
                     >
@@ -889,9 +889,9 @@ export default function LoginPage() {
                         setLanguage('om');
                         setIsLangMenuOpen(false);
                       }}
-                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
+                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-white/10 transition cursor-pointer ${
                         language === 'om'
-                          ? 'text-amber-400 font-bold bg-amber-500/10'
+                          ? 'text-amber-400 font-bold bg-amber-500/15'
                           : 'text-slate-300'
                       }`}
                     >
@@ -904,9 +904,9 @@ export default function LoginPage() {
                         setLanguage('am');
                         setIsLangMenuOpen(false);
                       }}
-                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
+                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-white/10 transition cursor-pointer ${
                         language === 'am'
-                          ? 'text-amber-400 font-bold bg-amber-500/10'
+                          ? 'text-amber-400 font-bold bg-amber-500/15'
                           : 'text-slate-300'
                       }`}
                     >
@@ -926,12 +926,12 @@ export default function LoginPage() {
         <div className="relative z-20 w-full flex flex-col items-center justify-center px-3 sm:px-4 mt-auto mb-4 sm:mb-8 shrink-0">
           
           {/* Ultra-transparent Crystalline Frosted Glass Card with Living Glow */}
-          <div className="w-full max-w-sm sm:max-w-lg backdrop-blur-2xl bg-black/25 hover:bg-black/35 rounded-2xl p-2 sm:p-2.5 border border-white/20 hover:border-amber-400/50 shadow-[0_16px_50px_rgba(0,0,0,0.65)] ring-1 ring-white/10 animate-glass-glow transition-all duration-500">
+          <div className="w-full max-w-sm sm:max-w-lg backdrop-blur-2xl bg-white/[0.04] hover:bg-white/[0.08] rounded-2xl p-2 sm:p-2.5 border border-white/20 hover:border-amber-400/50 shadow-[0_16px_50px_rgba(0,0,0,0.5)] ring-1 ring-white/10 animate-glass-glow transition-all duration-500">
             <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full">
-              {/* Login Button with High-Transparency Amber Glass & Shimmer Sweep */}
+              {/* Login Button with High-Transparency Luminous Amber Glass & Shimmer Sweep */}
               <div className="relative group">
                 <div
-                  className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-500/40 via-yellow-400/50 to-amber-500/40 blur-md opacity-70 group-hover:opacity-100 transition-all duration-300 ${
+                  className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-500/30 via-yellow-400/40 to-amber-500/30 blur-md opacity-60 group-hover:opacity-100 transition-all duration-300 ${
                     isFormOpen ? 'opacity-0 pointer-events-none' : ''
                   }`}
                 />
@@ -941,13 +941,13 @@ export default function LoginPage() {
                     setFormType('login');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-500/80 via-amber-400/85 to-yellow-500/80 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-xl shadow-amber-500/30 border border-amber-200/90 hover:border-white transition-all duration-300 cursor-pointer touch-manipulation hover:scale-[1.03] active:scale-[0.98]"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-500/25 via-amber-400/35 to-yellow-500/25 hover:from-amber-500/45 hover:to-amber-400/50 backdrop-blur-2xl text-amber-200 hover:text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-amber-500/20 border border-amber-300/50 hover:border-white transition-all duration-300 cursor-pointer touch-manipulation hover:scale-[1.03] active:scale-[0.98]"
                 >
                   {/* Continuous Animated Shimmer Sweep */}
-                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-shimmer-continuous pointer-events-none" />
+                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-shimmer-continuous pointer-events-none" />
 
-                  <LogIn className="w-4 h-4 text-slate-950 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:scale-110" />
-                  <span className="tracking-wide font-extrabold whitespace-nowrap drop-shadow-xs">
+                  <LogIn className="w-4 h-4 text-amber-400 group-hover:text-amber-300 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:scale-110" />
+                  <span className="tracking-wide font-extrabold whitespace-nowrap drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                     <span className="sm:hidden">
                       {language === 'om' ? 'Seeni' : language === 'am' ? 'ግባ' : 'Login'}
                     </span>
@@ -958,10 +958,10 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* Sign Up Button with High-Transparency Frosted Glass & Shimmer Sweep */}
+              {/* Sign Up Button with High-Transparency Frosted Crystal Glass & Shimmer Sweep */}
               <div className="relative group">
                 <div
-                  className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-white/10 via-amber-400/20 to-white/10 blur-md opacity-40 group-hover:opacity-90 transition-all duration-300 ${
+                  className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-white/10 via-amber-400/15 to-white/10 blur-md opacity-30 group-hover:opacity-80 transition-all duration-300 ${
                     isFormOpen ? 'opacity-0 pointer-events-none' : ''
                   }`}
                 />
@@ -971,13 +971,13 @@ export default function LoginPage() {
                     setFormType('signup');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-white/[0.08] hover:bg-white/[0.18] backdrop-blur-xl text-amber-100 hover:text-white font-bold text-xs sm:text-sm border border-white/25 hover:border-amber-300/80 shadow-lg backdrop-blur-md transition-all duration-300 cursor-pointer touch-manipulation hover:scale-[1.03] active:scale-[0.98]"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-white/[0.05] hover:bg-white/[0.12] backdrop-blur-2xl text-slate-100 hover:text-white font-bold text-xs sm:text-sm border border-white/20 hover:border-amber-300/70 shadow-lg transition-all duration-300 cursor-pointer touch-manipulation hover:scale-[1.03] active:scale-[0.98]"
                 >
                   {/* Continuous Animated Shimmer Sweep */}
                   <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-shimmer-continuous pointer-events-none" />
 
                   <UserPlus className="w-4 h-4 text-amber-400 shrink-0 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
-                  <span className="tracking-wide font-bold whitespace-nowrap drop-shadow-xs">
+                  <span className="tracking-wide font-bold whitespace-nowrap drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                     <span className="sm:hidden">
                       {language === 'om' ? 'Galmaa\'i' : language === 'am' ? 'ተመዝገብ' : 'Sign Up'}
                     </span>
@@ -994,7 +994,7 @@ export default function LoginPage() {
         {/* =================================================================== */}
         {/* 3. BOTTOM SECTION: DIRECT OFFICIAL CONTACT CHANNELS & EMERGENCY DOCK */}
         {/* =================================================================== */}
-        <div className="relative z-20 w-full backdrop-blur-xl bg-[#080d1a]/90 border-t border-[#222b3d] px-3 sm:px-6 py-2.5 sm:py-3 shrink-0 shadow-[0_-8px_30px_rgba(0,0,0,0.7)]">
+        <div className="relative z-20 w-full backdrop-blur-2xl bg-black/30 hover:bg-black/40 border-t border-white/15 px-3 sm:px-6 py-2.5 sm:py-3 shrink-0 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] transition-all duration-300">
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center sm:justify-between gap-2.5 sm:gap-4">
             
             {/* 1. Emergency Toll-Free 907 Hotline */}
