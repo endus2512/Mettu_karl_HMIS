@@ -8,7 +8,7 @@
  */
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { notifications } from '@mantine/notifications';
 import { useTranslation, Language } from '@/lib/i18n';
@@ -34,6 +34,10 @@ import {
   Send,
   AlertTriangle,
   User,
+  UserCheck,
+  ArrowUpDown,
+  ChevronRight,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 interface LocalizedText {
@@ -581,13 +585,19 @@ const OVERSIGHT_I18N: Record<Language, {
   sendSuccessMsg: string;
   broadcastSuccessTitle: string;
   broadcastSuccessMsg: string;
+  sortByAlpha: string;
+  sortByCode: string;
+  sortByStatus: string;
+  expandRole: string;
+  collapseRole: string;
+  roleDirectoryNotice: string;
 }> = {
   en: {
     badge: 'Executive Oversight',
     title: 'Staff, Pharmacy & Patient Command',
     subtitle: 'Universal monitoring and direct SMS / Alert contact across all departments.',
     broadcastBtn: 'Broadcast Announcement',
-    tabAll: 'All',
+    tabAll: 'All Categories',
     tabDoctor: 'Doctors',
     tabNurse: 'Nurses',
     tabPharmacy: 'Pharmacy',
@@ -624,13 +634,19 @@ const OVERSIGHT_I18N: Record<Language, {
     sendSuccessMsg: 'Sent via SMS and System Alert.',
     broadcastSuccessTitle: 'Broadcast Dispatched!',
     broadcastSuccessMsg: 'Administrative announcement dispatched to all recipients.',
+    sortByAlpha: 'Name (A-Z)',
+    sortByCode: 'Code ID',
+    sortByStatus: 'Duty Status',
+    expandRole: 'Open Roster',
+    collapseRole: 'Collapse',
+    roleDirectoryNotice: 'Click any department below to view its organized roster. Keeps your command center clean and space-efficient.',
   },
   om: {
     badge: "To'annoo Bulchiinsaa",
     title: "Wiirtuu To'annoo Ogeeyyii fi Dhukkubsattootaa",
     subtitle: "To'annoo fi quunnamtii kallattii ogeeyyii fi dhukkubsattoota hospitaalaa.",
     broadcastBtn: 'Ergaa Waliigalaa (Broadcast)',
-    tabAll: 'Hunda',
+    tabAll: 'Kutaalee Hunda',
     tabDoctor: 'Doktoorota',
     tabNurse: 'Narsitoota',
     tabPharmacy: 'Faarmaasii',
@@ -667,13 +683,19 @@ const OVERSIGHT_I18N: Record<Language, {
     sendSuccessMsg: 'Ergaan karaa SMS fi System Alert ergameera.',
     broadcastSuccessTitle: 'Ergaan Daddarfeera!',
     broadcastSuccessMsg: 'Ergaan bulchiinsaa garee filatameef kallattiin ergameera.',
+    sortByAlpha: 'Maqaan (A-Z)',
+    sortByCode: 'Koodii ID',
+    sortByStatus: 'Haala Hojiin',
+    expandRole: 'Tarree Banadhu',
+    collapseRole: 'Dhadhahi (Cufi)',
+    roleDirectoryNotice: "Kutaa barbaaddan tuquun tarree ogeeyyii qindaa’ee jiru banaa. Iddoo qusachuufi dubbisuuf salphaa taasisameera.",
   },
   am: {
     badge: 'አመራር ቁጥጥር',
     title: 'የሰራተኞችና ታካሚዎች ቁጥጥር',
     subtitle: 'የሆስፒታል ሰራተኞችና ታካሚዎች የቀጥታ ቁጥጥርና ግንኙነት።',
     broadcastBtn: 'አጠቃላይ መልዕክት (Broadcast)',
-    tabAll: 'ሁሉም',
+    tabAll: 'ሁሉም ክፍሎች',
     tabDoctor: 'ዶክተሮች',
     tabNurse: 'ነርሶች',
     tabPharmacy: 'ፋርማሲ',
@@ -710,6 +732,12 @@ const OVERSIGHT_I18N: Record<Language, {
     sendSuccessMsg: 'መልዕክቱ በኤስኤምኤስ እና በሲስተም ተልኳል።',
     broadcastSuccessTitle: 'አጠቃላይ መልዕክት ተሰራጭቷል!',
     broadcastSuccessMsg: 'የአስተዳደር መግለጫው ለሁሉም ሰራተኞች ደርሷል።',
+    sortByAlpha: 'በስም (A-Z)',
+    sortByCode: 'መለያ ቁጥር',
+    sortByStatus: 'የስራ ሁኔታ',
+    expandRole: 'ዝርዝር ክፈት',
+    collapseRole: 'አሳጥር',
+    roleDirectoryNotice: 'የሚፈልጉትን ክፍል በመጫን የተደራጀውን የሰራተኞች ዝርዝር ይመልከቱ። ቦታን የሚቆጥብና ለማንበብ ምቹ ተደርጓል።',
   },
 };
 
@@ -721,6 +749,162 @@ export function AdminOversightHub(): React.ReactElement {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [roleFilter, setRoleFilter] = useState<'all' | 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'patient'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Departmental Categorized Accordions State:
+  // Starts collapsed by default for maximum space savings and clean order!
+  const [expandedRoles, setExpandedRoles] = useState<Record<string, boolean>>({
+    doctor: false,
+    nurse: false,
+    pharmacist: false,
+    technician: false,
+    patient: false,
+  });
+
+  const [sortBy, setSortBy] = useState<'name' | 'code' | 'status'>('name');
+
+  // Toggle single category
+  const toggleRole = (roleKey: string) => {
+    setExpandedRoles((prev) => ({
+      ...prev,
+      [roleKey]: !prev[roleKey],
+    }));
+  };
+
+  // If user searches, automatically open the categories with matching results
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setExpandedRoles({
+        doctor: true,
+        nurse: true,
+        pharmacist: true,
+        technician: true,
+        patient: true,
+      });
+    }
+  }, [searchQuery]);
+
+  // When user clicks a role filter tab, focus and open that role's category
+  const handleRoleTabClick = (key: 'all' | 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'patient') => {
+    setRoleFilter(key);
+    if (key === 'all') {
+      // Toggle all closed or open
+    } else {
+      setExpandedRoles({
+        doctor: key === 'doctor',
+        nurse: key === 'nurse',
+        pharmacist: key === 'pharmacist',
+        technician: key === 'technician',
+        patient: key === 'patient',
+      });
+    }
+  };
+
+  // Sort members within a category according to selected ordering
+  const sortMembers = (members: HospitalPerson[]) => {
+    return [...members].sort((a, b) => {
+      if (sortBy === 'name') {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortBy === 'code') {
+        return a.code.localeCompare(b.code);
+      }
+      if (sortBy === 'status') {
+        const sA = (a.statusText[lang] || a.statusText.en).toLowerCase();
+        const sB = (b.statusText[lang] || b.statusText.en).toLowerCase();
+        return sA.localeCompare(sB);
+      }
+      return 0;
+    });
+  };
+
+  // 5 Canonical Departmental Role Categories
+  const categories = useMemo(() => [
+    {
+      key: 'doctor',
+      icon: Stethoscope,
+      title: {
+        en: 'Doctors & Medical Consultants',
+        om: 'Doktoorota fi Ogeeyyii Yaalaa',
+        am: 'ዶክተሮች እና የህክምና አማካሪዎች',
+      },
+      subtitle: {
+        en: 'General Surgery, Pediatrics, Trauma & Clinical OPD',
+        om: 'Baqaqsaa Waliigalaa, Daa’imman, Tasaa fi OPD',
+        am: 'አጠቃላይ ቀዶ ጥገና፣ ህጻናት፣ ድንገተኛና OPD',
+      },
+      badgeColor: 'border-teal-500/40 bg-teal-500/10 text-teal-400',
+      iconBg: 'bg-teal-500/15 text-teal-400 border-teal-500/30',
+      members: HOSPITAL_ROSTER.filter((r) => r.role === 'doctor'),
+    },
+    {
+      key: 'nurse',
+      icon: Activity,
+      title: {
+        en: 'Nursing Staff & ICU Care',
+        om: 'Narsitoota fi Tajaajila ICU',
+        am: 'ነርሶች እና የፅኑ ህክምና ክብካቤ',
+      },
+      subtitle: {
+        en: 'Head Nurses, Ward Care, Triage & Critical Care',
+        om: 'Hoggantoota Narsii, Kutaa Siree fi Triage',
+        am: 'ዋና ነርሶች፣ የዋርድ ክብካቤ እና ትሪያጅ',
+      },
+      badgeColor: 'border-blue-500/40 bg-blue-500/10 text-blue-400',
+      iconBg: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+      members: HOSPITAL_ROSTER.filter((r) => r.role === 'nurse'),
+    },
+    {
+      key: 'pharmacist',
+      icon: Pill,
+      title: {
+        en: 'Pharmacists & FEFO Dispensary',
+        om: 'Ogeeyyii Faarmaasistii & Raabsaa Qorichaa',
+        am: 'ፋርማሲስቶች እና የመድኃኒት አደላዮች',
+      },
+      subtitle: {
+        en: 'Inpatient Stock, FEFO Dispensary & Clinical ART',
+        om: 'Kutaa Raabsaa FEFO, Kuusaa fi Qoricha ART',
+        am: 'የFEFO መድኃኒት ማከፋፈያና ክምችት',
+      },
+      badgeColor: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400',
+      iconBg: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+      members: HOSPITAL_ROSTER.filter((r) => r.role === 'pharmacist'),
+    },
+    {
+      key: 'technician',
+      icon: Scan,
+      title: {
+        en: 'Laboratory & Diagnostic Technicians',
+        om: 'Teeknishiyaanota Laboraatorii & Raadiyooloojii',
+        am: 'የላቦራቶሪ እና ራዲዮሎጂ ቴክኒሻኖች',
+      },
+      subtitle: {
+        en: 'Diagnostic Pathology, Blood Bank & PACS Imaging',
+        om: 'LIS Paatooloojii, Kuusaa Dhiigaa fi PACS',
+        am: 'LIS ፓቶሎጂ፣ የደም ባንክ እና ራዲዮሎጂ',
+      },
+      badgeColor: 'border-indigo-500/40 bg-indigo-500/10 text-indigo-400',
+      iconBg: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
+      members: HOSPITAL_ROSTER.filter((r) => r.role === 'technician'),
+    },
+    {
+      key: 'patient',
+      icon: UserCheck,
+      title: {
+        en: 'Inpatient Census & Admitted Patients',
+        om: 'Dhukkubsattoota Ciisanii Yaalaman',
+        am: 'ተኝተው የሚታከሙ ታካሚዎች',
+      },
+      subtitle: {
+        en: 'Emergency Admissions, Surgical Wards & Bedside Care',
+        om: 'Galmee Tasaa, Kutaalee Siree fi ICU',
+        am: 'የድንገተኛና ተኝተው የሚታከሙ ታካሚዎች መዝገብ',
+      },
+      badgeColor: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
+      iconBg: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+      members: HOSPITAL_ROSTER.filter((r) => r.role === 'patient'),
+    },
+  ], []);
 
   // Contact Modal State
   const [contactModalOpen, setContactModalOpen] = useState(false);
@@ -1034,7 +1218,7 @@ export function AdminOversightHub(): React.ReactElement {
 
           {/* 3. Search Bar & Role Filter Tabs */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-1">
-            {/* Role Tabs */}
+            {/* Role Category Tabs */}
             <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#0e131f] rounded-xl border border-slate-200 dark:border-[#222b3d]">
               {[
                 { key: 'all', label: txt.tabAll, count: HOSPITAL_ROSTER.length },
@@ -1047,7 +1231,7 @@ export function AdminOversightHub(): React.ReactElement {
                 <button
                   key={tab.key}
                   type="button"
-                  onClick={() => setRoleFilter(tab.key as any)}
+                  onClick={() => handleRoleTabClick(tab.key as any)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     roleFilter === tab.key
                       ? 'border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.12)]'
@@ -1072,82 +1256,241 @@ export function AdminOversightHub(): React.ReactElement {
             </div>
           </div>
 
-          {/* 4. Live Roster Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredRoster.map((person) => {
-              const roleTitle = person.roleTitle[lang] || person.roleTitle.en;
-              const statusText = person.statusText[lang] || person.statusText.en;
-              const dept = person.dept[lang] || person.dept.en;
-              const location = person.location[lang] || person.location.en;
-              const workstationName = person.workstationName[lang] || person.workstationName.en;
+          {/* Directory Notice */}
+          <div className="px-3 py-2 rounded-xl bg-slate-100/70 dark:bg-[#0c121e] border border-slate-200/60 dark:border-[#1e273a] text-xs text-slate-600 dark:text-slate-400 flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <SlidersHorizontal className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+              <span>{txt.roleDirectoryNotice}</span>
+            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setExpandedRoles({ doctor: true, nurse: true, pharmacist: true, technician: true, patient: true })}
+                className="text-[11px] font-semibold text-amber-500 dark:text-amber-400 hover:underline cursor-pointer"
+              >
+                {lang === 'om' ? 'Hunda Bani' : lang === 'am' ? 'ሁሉንም ክፈት' : 'Expand All'}
+              </button>
+              <span className="text-slate-400">•</span>
+              <button
+                type="button"
+                onClick={() => setExpandedRoles({ doctor: false, nurse: false, pharmacist: false, technician: false, patient: false })}
+                className="text-[11px] font-semibold text-slate-500 hover:underline cursor-pointer"
+              >
+                {lang === 'om' ? 'Hunda Cufi' : lang === 'am' ? 'ሁሉንም ዝጋ' : 'Collapse All'}
+              </button>
+            </div>
+          </div>
 
-              return (
-                <div
-                  key={person.id}
-                  className="flex flex-col justify-between p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500/80 hover:shadow-sm transition-all"
-                >
-                  {/* Top Person Info */}
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-200/60 dark:border-teal-800/60 text-teal-700 dark:text-teal-400">
-                          <User className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white leading-tight">
-                            {person.name}
-                          </h3>
-                          <p className="text-[11px] font-medium text-teal-700 dark:text-teal-400">{roleTitle}</p>
-                          <span className="font-mono text-[10px] text-slate-400">{person.code}</span>
-                        </div>
-                      </div>
+          {/* 4. Categorized & Ordered Department Roster Accordions */}
+          <div className="space-y-3">
+            {categories
+              .filter((cat) => roleFilter === 'all' || roleFilter === cat.key)
+              .map((cat) => {
+                const matchingMembers = cat.members.filter((p) => {
+                  const q = searchQuery.toLowerCase().trim();
+                  return (
+                    !q ||
+                    p.name.toLowerCase().includes(q) ||
+                    p.code.toLowerCase().includes(q) ||
+                    p.dept[lang].toLowerCase().includes(q) ||
+                    p.location[lang].toLowerCase().includes(q) ||
+                    p.phone.includes(q)
+                  );
+                });
 
-                      {/* Status Badge */}
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium border ${person.statusColor} shrink-0`}>
-                        {statusText.replace(/[^\w\s()\-–+]/g, '').trim()}
-                      </span>
-                    </div>
+                const isExpanded = !!expandedRoles[cat.key];
+                const sortedMembers = sortMembers(matchingMembers);
+                const CatIcon = cat.icon;
 
-                    {/* Department & Location Details */}
-                    <div className="space-y-1 bg-slate-50/80 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300">
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400">{txt.labelDept}</span>
-                        <span className="font-medium text-slate-800 dark:text-slate-200">{dept}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400">{txt.labelLocation}</span>
-                        <span className="font-normal text-slate-600 dark:text-slate-400">{location}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400">{txt.labelPhone}</span>
-                        <span className="font-mono font-medium text-teal-700 dark:text-teal-400">{person.phone}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Actions: Contact & Inspect Workstation */}
-                  <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800 mt-3">
+                return (
+                  <div
+                    key={cat.key}
+                    className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                      isExpanded
+                        ? 'border-amber-500/40 bg-white dark:bg-[#101625] shadow-md ring-1 ring-amber-500/20'
+                        : 'border-slate-200/80 dark:border-[#222b3d] bg-white dark:bg-[#131927] hover:border-teal-500/60'
+                    }`}
+                  >
+                    {/* Category Clickable Accordion Header */}
                     <button
                       type="button"
-                      onClick={() => handleOpenContact(person)}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-1.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                      onClick={() => toggleRole(cat.key)}
+                      className="w-full flex items-center justify-between p-3 sm:p-4 text-left cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-[#172033]"
+                      aria-expanded={isExpanded}
                     >
-                      <PhoneCall className="h-3.5 w-3.5" />
-                      <span>{txt.contactBtn}</span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-xs ${cat.iconBg}`}>
+                          <CatIcon className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+                              {cat.title[lang] || cat.title.en}
+                            </h3>
+                            <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold border ${cat.badgeColor}`}>
+                              {matchingMembers.length} {lang === 'om' ? 'Qophii' : lang === 'am' ? 'ዝግጁ' : 'Active'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                            {cat.subtitle[lang] || cat.subtitle.en}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0 ml-3">
+                        <span className={`hidden sm:inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all ${
+                          isExpanded
+                            ? 'border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-300'
+                            : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800'
+                        }`}>
+                          {isExpanded ? txt.collapseRole : txt.expandRole}
+                        </span>
+                        <div className={`p-1 rounded-lg transition-transform duration-200 text-slate-400 ${isExpanded ? 'rotate-180 text-amber-500 dark:text-amber-400' : ''}`}>
+                          <ChevronDown className="h-4 w-4" />
+                        </div>
+                      </div>
                     </button>
 
-                    <Link
-                      href={person.workstationUrl}
-                      className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-teal-500 bg-slate-50 dark:bg-slate-800 hover:bg-teal-50 text-slate-700 dark:text-slate-300 hover:text-teal-900 text-xs font-medium transition-colors"
-                      title={`${txt.inspectBtn}: ${workstationName}`}
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                      <span>{txt.inspectBtn}</span>
-                    </Link>
+                    {/* Expanded Ordered Roster View */}
+                    {isExpanded && (
+                      <div className="border-t border-slate-200 dark:border-[#1e273a] p-3.5 sm:p-4 bg-slate-50/50 dark:bg-[#0c121e] space-y-3 animate-in fade-in duration-150">
+                        {/* Order Controls Bar */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-200/80 dark:border-[#1e273a]">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex-wrap">
+                            <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                              <ArrowUpDown className="w-3.5 h-3.5 text-amber-500" />
+                              <span>{lang === 'om' ? 'Tartiba (Order):' : lang === 'am' ? 'ቅደም ተከተል:' : 'Order by:'}</span>
+                            </span>
+                            <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-0.5">
+                              <button
+                                type="button"
+                                onClick={() => setSortBy('name')}
+                                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+                                  sortBy === 'name'
+                                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40'
+                                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                                }`}
+                              >
+                                {txt.sortByAlpha}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setSortBy('code')}
+                                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+                                  sortBy === 'code'
+                                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40'
+                                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                                }`}
+                              >
+                                {txt.sortByCode}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setSortBy('status')}
+                                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+                                  sortBy === 'status'
+                                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40'
+                                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                                }`}
+                              >
+                                {txt.sortByStatus}
+                              </button>
+                            </div>
+                          </div>
+
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                            {sortedMembers.length} {lang === 'om' ? 'Garee kana keessa jiran' : lang === 'am' ? 'በዚህ ክፍል ውስጥ ያሉ' : 'roster members listed'}
+                          </span>
+                        </div>
+
+                        {/* Ordered Members List */}
+                        {sortedMembers.length === 0 ? (
+                          <div className="py-6 text-center text-xs text-slate-500">
+                            {lang === 'om' ? 'Namni barbaaddan hin argamne.' : lang === 'am' ? 'ምንም አልተገኘም።' : 'No matching personnel found.'}
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {sortedMembers.map((person) => {
+                              const roleTitle = person.roleTitle[lang] || person.roleTitle.en;
+                              const statusText = person.statusText[lang] || person.statusText.en;
+                              const dept = person.dept[lang] || person.dept.en;
+                              const location = person.location[lang] || person.location.en;
+                              const workstationName = person.workstationName[lang] || person.workstationName.en;
+
+                              return (
+                                <div
+                                  key={person.id}
+                                  className="flex flex-col justify-between p-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#121824] hover:border-amber-500/60 hover:shadow-md transition-all space-y-2.5"
+                                >
+                                  {/* Member Header */}
+                                  <div>
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-200/60 dark:border-teal-800/60 text-teal-700 dark:text-teal-400 font-bold text-xs">
+                                          {person.avatar}
+                                        </div>
+                                        <div className="min-w-0">
+                                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
+                                            {person.name}
+                                          </h4>
+                                          <p className="text-[11px] font-medium text-teal-600 dark:text-teal-400 truncate">{roleTitle}</p>
+                                          <span className="font-mono text-[10px] text-slate-400">{person.code}</span>
+                                        </div>
+                                      </div>
+
+                                      {/* Status Badge */}
+                                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${person.statusColor} shrink-0`}>
+                                        {statusText.replace(/[^\w\s()\-–+]/g, '').trim()}
+                                      </span>
+                                    </div>
+
+                                    {/* Dept & Location Details */}
+                                    <div className="mt-2.5 space-y-1 bg-slate-50/80 dark:bg-slate-900/60 p-2 rounded-lg border border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-600 dark:text-slate-300">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-slate-400">{txt.labelDept}</span>
+                                        <span className="font-medium text-slate-800 dark:text-slate-200 truncate ml-2">{dept}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-slate-400">{txt.labelLocation}</span>
+                                        <span className="font-normal text-slate-600 dark:text-slate-400 truncate ml-2">{location}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-slate-400">{txt.labelPhone}</span>
+                                        <span className="font-mono font-medium text-teal-600 dark:text-teal-400">{person.phone}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Actions */}
+                                  <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenContact(person)}
+                                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-1.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                                    >
+                                      <PhoneCall className="h-3.5 w-3.5" />
+                                      <span>{txt.contactBtn}</span>
+                                    </button>
+
+                                    <Link
+                                      href={person.workstationUrl}
+                                      className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-amber-500 bg-slate-50 dark:bg-slate-800 hover:bg-amber-500/10 text-slate-700 dark:text-slate-300 hover:text-amber-300 text-xs font-medium transition-colors"
+                                      title={`${txt.inspectBtn}: ${workstationName}`}
+                                    >
+                                      <Eye className="h-3.5 w-3.5" />
+                                      <span>{txt.inspectBtn}</span>
+                                    </Link>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </>
       )}
