@@ -817,22 +817,22 @@ export default function LoginPage() {
         <div className="relative z-30 w-full px-3 pt-3 sm:px-6 sm:pt-5 lg:px-8 shrink-0">
           <div className="flex items-center justify-between gap-2">
             {/* Left: Branding Shield (Ultra-Transparent Crystalline Glass) */}
-            <div className="inline-flex items-center gap-2 sm:gap-3.5 bg-black/20 hover:bg-black/30 backdrop-blur-2xl px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-white/25 hover:border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.37)] ring-1 ring-white/10 min-w-0 max-w-[calc(100%-85px)] sm:max-w-xl transition-all duration-300">
+            <div className="inline-flex items-center gap-2.5 sm:gap-4 bg-black/20 hover:bg-black/30 backdrop-blur-2xl px-3 sm:px-4.5 py-2 sm:py-2.5 rounded-2xl border border-white/25 hover:border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.37)] ring-1 ring-white/10 min-w-0 max-w-[calc(100%-85px)] sm:max-w-2xl transition-all duration-300">
               <img
                 src="/hospital-logo-white.png"
                 alt="Mettu Karl Referral Hospital Emblem"
-                className="h-8 w-8 sm:h-11 sm:w-11 rounded-full bg-white/90 p-0.5 shadow-md shrink-0 object-contain ring-2 ring-teal-400/40"
+                className="h-9 w-9 sm:h-12 sm:w-12 rounded-full bg-white/95 p-0.5 shadow-lg shrink-0 object-contain ring-2 ring-teal-400/50"
               />
-              <div className="min-w-0 flex-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-                <h1 className="text-xs sm:text-base lg:text-lg font-bold text-white tracking-tight leading-tight truncate">
+              <div className="min-w-0 flex-1 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+                <h1 className="text-sm sm:text-lg lg:text-xl font-black text-white tracking-tight leading-tight truncate">
                   {t.hospitalName}
                 </h1>
-                <p className="text-[10px] sm:text-xs font-semibold text-teal-300 tracking-wide truncate flex items-center gap-1 sm:gap-1.5">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse shrink-0" />
+                <p className="text-[11px] sm:text-xs lg:text-sm font-bold text-teal-300 tracking-wide truncate flex items-center gap-1 sm:gap-1.5 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+                  <span className="inline-block w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0" />
                   <span>{t.hmisTitle}</span>
                   <span className="hidden sm:inline">• {t.hmisSubtitle}</span>
                 </p>
-                <p className="hidden md:block text-[9px] sm:text-[11px] italic text-slate-200 font-medium truncate">
+                <p className="hidden md:block text-[10px] sm:text-xs italic text-slate-100 font-semibold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
                   {t.tagline}
                 </p>
               </div>
