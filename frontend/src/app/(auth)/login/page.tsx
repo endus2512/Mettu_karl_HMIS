@@ -925,21 +925,13 @@ export default function LoginPage() {
         {/* =================================================================== */}
         <div className="relative z-20 w-full flex flex-col items-center justify-center px-3 sm:px-4 mt-auto mb-4 sm:mb-8 shrink-0">
           
-          {/* Prominent Mettu Karl Facility Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#0b0f17]/90 backdrop-blur-md border border-amber-500/40 text-amber-100 text-xs sm:text-sm font-semibold shadow-[0_0_15px_rgba(245,158,11,0.15)] mb-2.5">
-            <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
-            <span className="tracking-wide">Mettu Karl Referral Hospital</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-[10px] sm:text-[11px] text-amber-200/90 font-normal">Level 4 Referral Center</span>
-          </div>
-
-          {/* Slight frosted glass pill grouping buttons cleanly */}
-          <div className="w-full max-w-sm sm:max-w-lg backdrop-blur-xl bg-[#0b0f17]/90 rounded-2xl p-2 sm:p-3 border border-[#222b3d] shadow-[0_12px_40px_rgba(0,0,0,0.85)] ring-1 ring-amber-500/20">
+          {/* Ultra-transparent Crystalline Frosted Glass Card with Living Glow */}
+          <div className="w-full max-w-sm sm:max-w-lg backdrop-blur-2xl bg-black/25 hover:bg-black/35 rounded-2xl p-2 sm:p-2.5 border border-white/20 hover:border-amber-400/50 shadow-[0_16px_50px_rgba(0,0,0,0.65)] ring-1 ring-white/10 animate-glass-glow transition-all duration-500">
             <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full">
-              {/* Login Button */}
+              {/* Login Button with High-Transparency Amber Glass & Shimmer Sweep */}
               <div className="relative group">
                 <div
-                  className={`absolute -inset-0.5 rounded-xl bg-amber-500/30 opacity-75 blur-sm group-hover:opacity-100 transition-all duration-300 ${
+                  className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-500/40 via-yellow-400/50 to-amber-500/40 blur-md opacity-70 group-hover:opacity-100 transition-all duration-300 ${
                     isFormOpen ? 'opacity-0 pointer-events-none' : ''
                   }`}
                 />
@@ -949,10 +941,13 @@ export default function LoginPage() {
                     setFormType('login');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/25 border border-amber-300 transition-all duration-200 cursor-pointer touch-manipulation"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-500/80 via-amber-400/85 to-yellow-500/80 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-xl shadow-amber-500/30 border border-amber-200/90 hover:border-white transition-all duration-300 cursor-pointer touch-manipulation hover:scale-[1.03] active:scale-[0.98]"
                 >
-                  <LogIn className="w-4 h-4 text-slate-950 shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="tracking-wide font-bold whitespace-nowrap">
+                  {/* Continuous Animated Shimmer Sweep */}
+                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-shimmer-continuous pointer-events-none" />
+
+                  <LogIn className="w-4 h-4 text-slate-950 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:scale-110" />
+                  <span className="tracking-wide font-extrabold whitespace-nowrap drop-shadow-xs">
                     <span className="sm:hidden">
                       {language === 'om' ? 'Seeni' : language === 'am' ? 'ግባ' : 'Login'}
                     </span>
@@ -963,18 +958,26 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* Sign Up Button */}
+              {/* Sign Up Button with High-Transparency Frosted Glass & Shimmer Sweep */}
               <div className="relative group">
+                <div
+                  className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-white/10 via-amber-400/20 to-white/10 blur-md opacity-40 group-hover:opacity-90 transition-all duration-300 ${
+                    isFormOpen ? 'opacity-0 pointer-events-none' : ''
+                  }`}
+                />
                 <button
                   type="button"
                   onClick={() => {
                     setFormType('signup');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#131824]/90 hover:bg-[#1a2233] text-amber-200 hover:text-white font-semibold text-xs sm:text-sm border border-amber-500/30 hover:border-amber-400 shadow-lg backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-white/[0.08] hover:bg-white/[0.18] backdrop-blur-xl text-amber-100 hover:text-white font-bold text-xs sm:text-sm border border-white/25 hover:border-amber-300/80 shadow-lg backdrop-blur-md transition-all duration-300 cursor-pointer touch-manipulation hover:scale-[1.03] active:scale-[0.98]"
                 >
-                  <UserPlus className="w-4 h-4 text-amber-400 shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="tracking-wide font-semibold whitespace-nowrap">
+                  {/* Continuous Animated Shimmer Sweep */}
+                  <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-shimmer-continuous pointer-events-none" />
+
+                  <UserPlus className="w-4 h-4 text-amber-400 shrink-0 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
+                  <span className="tracking-wide font-bold whitespace-nowrap drop-shadow-xs">
                     <span className="sm:hidden">
                       {language === 'om' ? 'Galmaa\'i' : language === 'am' ? 'ተመዝገብ' : 'Sign Up'}
                     </span>
