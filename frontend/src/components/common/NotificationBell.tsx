@@ -247,7 +247,13 @@ export function NotificationBell({ variant = 'dark', className = '' }: Notificat
 
       {/* Downward Dropdown Drawer */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <>
+          {/* Mobile Backdrop overlay */}
+          <div
+            className="sm:hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-40 animate-in fade-in duration-150"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-96 max-w-[calc(100vw-24px)] rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-900 px-4 py-3 text-white">
             <div className="flex items-center gap-2">
@@ -524,6 +530,7 @@ export function NotificationBell({ variant = 'dark', className = '' }: Notificat
             )}
           </div>
         </div>
+        </>
       )}
     </div>
   );

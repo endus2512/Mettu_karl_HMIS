@@ -136,6 +136,16 @@ main {
   animation: shimmerContinuous 3.2s ease-in-out infinite;
 }
 
+/* Mobile Notification Safe Ergonomics (Never cutoff to the left or right) */
+@media (max-width: 640px) {
+  .mantine-Notifications-root {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+}
+
 /* Card & Interactive Micro-Transitions */
 .smooth-card {
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
