@@ -791,13 +791,13 @@ export default function LoginPage() {
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
           {/* Direct, reliable HTML image rendering with crisp-edges & zero blur */}
           <picture className="w-full h-full block">
-            <source srcSet="/hospital-building.webp?v=5" type="image/webp" />
+            <source srcSet="/hospital-building.webp?v=6" type="image/webp" />
             <img
-              src="/hospital-building.jpg?v=5"
+              src="/hospital-building.jpg?v=6"
               alt="Mettu Karl Comprehensive Specialized Hospital Building"
               loading="eager"
               decoding="sync"
-              className="w-full h-full object-cover object-[37%_38%] sm:object-[center_36%] transform scale-100"
+              className="w-full h-full object-cover object-[41%_26%] sm:object-[center_28%] transform scale-100"
               style={{
                 imageRendering: 'crisp-edges',
                 WebkitBackfaceVisibility: 'hidden',
