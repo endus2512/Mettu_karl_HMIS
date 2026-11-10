@@ -389,14 +389,14 @@ export function OmnisearchCommandCenter(): React.ReactElement {
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-20 p-4">
           {/* Backdrop Blur */}
           <div
-            className="fixed inset-0 bg-slate-950/85 backdrop-blur-md transition-opacity animate-in fade-in"
+            className="fixed inset-0 bg-slate-950/85 backdrop-blur-md transition-opacity duration-300 animate-in fade-in"
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />
 
           <div
             onKeyDown={handleKeyDown}
-            className="relative w-full max-w-2xl rounded-3xl bg-[#0e1422] border border-slate-700/80 shadow-2xl overflow-hidden z-10 text-white animate-in zoom-in-95 duration-150 flex flex-col max-h-[80vh]"
+            className="relative w-full max-w-2xl rounded-3xl bg-[#0e1422] border border-slate-700/80 shadow-2xl overflow-hidden z-10 text-white animate-smooth-scale flex flex-col max-h-[80vh]"
           >
             {/* Input Bar */}
             <div className="flex items-center gap-3 border-b border-slate-800 px-4 sm:px-5 py-3.5 bg-[#090d15]">

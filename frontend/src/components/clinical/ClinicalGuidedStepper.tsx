@@ -348,7 +348,7 @@ export function ClinicalGuidedStepper({ onComplete, onClose }: ClinicalGuidedSte
       {/* STEP 1: PATIENT SELECTION                                         */}
       {/* ================================================================= */}
       {currentStep === 1 && (
-        <div className="space-y-4 animate-in fade-in duration-200">
+        <div className="space-y-4 animate-smooth-in">
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -430,7 +430,7 @@ export function ClinicalGuidedStepper({ onComplete, onClose }: ClinicalGuidedSte
       {/* STEP 2: REVIEW VITALS & PRESENTING COMPLAINT                       */}
       {/* ================================================================= */}
       {currentStep === 2 && (
-        <div className="space-y-5 animate-in fade-in duration-200">
+        <div className="space-y-5 animate-smooth-in">
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -525,7 +525,7 @@ export function ClinicalGuidedStepper({ onComplete, onClose }: ClinicalGuidedSte
       {/* STEP 3: 1-TAP CLINICAL ACTIONS (PRESCRIPTIONS & LABS)             */}
       {/* ================================================================= */}
       {currentStep === 3 && (
-        <div className="space-y-5 animate-in fade-in duration-200">
+        <div className="space-y-5 animate-smooth-in">
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -671,7 +671,7 @@ export function ClinicalGuidedStepper({ onComplete, onClose }: ClinicalGuidedSte
       {/* STEP 4: REVIEW & FINALIZE CONSULTATION                            */}
       {/* ================================================================= */}
       {currentStep === 4 && (
-        <div className="space-y-5 animate-in fade-in duration-200">
+        <div className="space-y-5 animate-smooth-in">
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">

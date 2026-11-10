@@ -598,7 +598,7 @@ export function Sidebar(): React.ReactElement {
                 {items.length}
               </span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
+                className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-300 ease-out ${
                   isOpen ? 'rotate-0' : '-rotate-90'
                 }`}
               />
@@ -608,8 +608,12 @@ export function Sidebar(): React.ReactElement {
           <div className="my-2 border-t border-slate-800/80 mx-2" title={domainTitle} />
         )}
 
-        {(isOpen || collapsed) && (
-          <div className="space-y-0.5">
+        <div
+          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+            isOpen || collapsed ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+          }`}
+        >
+          <div className="overflow-hidden space-y-0.5 pt-0.5">
             {items.map((item) => {
               // Dynamically map dashboard key to dedicated role portal path
               const itemHref = item.key === 'dashboard' ? getRolePortalPath(effectiveRole) : item.href;
@@ -630,7 +634,7 @@ export function Sidebar(): React.ReactElement {
                   title={collapsed ? itemLabel : undefined}
                   className={`group relative flex items-center ${
                     collapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2'
-                  } rounded-xl text-xs transition-all duration-150 cursor-pointer ${
+                  } rounded-xl text-xs transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'bg-amber-500/15 text-amber-300 font-semibold border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.12)]'
                       : 'text-slate-400 hover:text-slate-100 hover:bg-[#141b29] font-medium'
@@ -668,7 +672,7 @@ export function Sidebar(): React.ReactElement {
               );
             })}
           </div>
-        )}
+        </div>
       </div>
     );
   };

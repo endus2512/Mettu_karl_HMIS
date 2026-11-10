@@ -13,12 +13,117 @@
   --background-rgb: 8, 11, 17; /* #080b11 refined midnight obsidian */
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global button and link micro-interactions */
+button:not(:disabled),
+a:not(:disabled) {
+  transition-property: color, background-color, border-color, transform, box-shadow, opacity;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 180ms;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* =========================================================================
+   Ultra-Smooth Transitions, Fluid Micro-Interactions & Animations
+   ========================================================================= */
+
+@keyframes smoothFadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes smoothScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes smoothSlideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes smoothSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fluid Animation Classes */
+.animate-smooth-in {
+  animation: smoothFadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+main {
+  animation: smoothFadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-smooth-scale {
+  animation: smoothScaleIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-smooth-slide {
+  animation: smoothSlideInRight 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-smooth-down {
+  animation: smoothSlideDown 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Card & Interactive Micro-Transitions */
+.smooth-card {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.smooth-card:hover {
+  transform: translateY(-2px);
+}
+
+.smooth-press {
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.smooth-press:active {
+  transform: scale(0.97);
 }
 
 /* =========================================================================

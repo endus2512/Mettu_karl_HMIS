@@ -243,9 +243,11 @@ export function DoctorDashboardView(): React.ReactElement {
       </div>
 
       {viewMode === 'guided' ? (
-        <ClinicalGuidedStepper onComplete={handleCompleteConsultation} />
+        <div className="animate-smooth-in">
+          <ClinicalGuidedStepper onComplete={handleCompleteConsultation} />
+        </div>
       ) : (
-        <>
+        <div className="animate-smooth-in space-y-5">
           {/* 3. DOCTOR CLINICAL KPI TILES / PROGRESSIVE DISCLOSURE */}
       {isZenMode ? (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#0e1422] border border-slate-800/80 shadow-sm transition-all">
@@ -586,7 +588,7 @@ export function DoctorDashboardView(): React.ReactElement {
           )}
         </div>
       </div>
-        </>
+        </div>
       )}
     </div>
   );

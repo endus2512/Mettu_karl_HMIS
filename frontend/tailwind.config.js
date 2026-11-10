@@ -93,6 +93,14 @@ module.exports = {
         'xl': '0.75rem',
         '2xl': '1rem',
       },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'spring': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      },
+      transitionDuration: {
+        '250': '250ms',
+        '350': '350ms',
+      },
     },
   },
   plugins: [],

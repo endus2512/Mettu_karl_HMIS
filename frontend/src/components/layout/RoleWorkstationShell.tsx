@@ -18,6 +18,7 @@ import type { UserRole } from '@/types';
 import { useZenMode } from '@/lib/zenMode';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { getRoleDisplayName, getRolePortalPath } from '@/lib/roleRoutes';
 import { notifications } from '@mantine/notifications';
 import {
@@ -138,7 +139,9 @@ export function RoleWorkstationShell({
             </div>
           )}
 
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
         </main>
       </div>
     </div>
