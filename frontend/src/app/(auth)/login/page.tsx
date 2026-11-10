@@ -778,87 +778,6 @@ export default function LoginPage() {
   return (
     <div className="w-screen h-screen min-h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden bg-[#0a3a78] dark:bg-[#061426] font-sans select-none m-0 p-0 relative">
       {/* ======================================================================= */}
-      {/* TOP-RIGHT CONTROLS: SYSTEM TELEMETRY & LANGUAGE DROPDOWN              */}
-      {/* ======================================================================= */}
-      <div className="absolute top-4 sm:top-6 right-3.5 sm:right-8 z-40 flex items-center gap-2 sm:gap-2.5">
-        {/* System Operational Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#080d1a]/85 backdrop-blur-md border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold shadow-lg shadow-emerald-950/40">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="hidden xs:inline">{t.systemOperational}</span>
-        </div>
-
-        {/* Language Selector Dropdown */}
-        <div className="relative" ref={langMenuRef}>
-          <button
-            type="button"
-            onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-            className="flex items-center gap-1.5 rounded-full bg-[#0b0f17]/90 hover:bg-[#131824] text-white border border-[#222b3d] hover:border-amber-500/50 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold shadow-lg backdrop-blur-md transition-all cursor-pointer"
-            aria-expanded={isLangMenuOpen}
-            aria-label="Select Language"
-          >
-            <Globe className="h-3.5 w-3.5 text-amber-400" />
-            <span>{currentLangLabel}</span>
-            <ChevronDown
-              className={`h-3.5 w-3.5 text-amber-400/80 transition-transform duration-200 ${
-                isLangMenuOpen ? 'rotate-180' : ''
-              }`}
-            />
-          </button>
-
-          {/* Language Dropdown Menu */}
-          {isLangMenuOpen && (
-            <div className="absolute right-0 mt-1.5 w-44 rounded-2xl bg-[#0e131f] border border-[#222b3d] shadow-[0_16px_40px_rgba(0,0,0,0.8)] py-1.5 z-50 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150">
-              <button
-                type="button"
-                onClick={() => {
-                  setLanguage('en');
-                  setIsLangMenuOpen(false);
-                }}
-                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
-                  language === 'en'
-                    ? 'text-amber-400 font-bold bg-amber-500/10'
-                    : 'text-slate-300'
-                }`}
-              >
-                <span>English</span>
-                {language === 'en' && <Check className="h-3.5 w-3.5 text-amber-400" />}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLanguage('om');
-                  setIsLangMenuOpen(false);
-                }}
-                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
-                  language === 'om'
-                    ? 'text-amber-400 font-bold bg-amber-500/10'
-                    : 'text-slate-300'
-                }`}
-              >
-                <span>Afaan Oromoo</span>
-                {language === 'om' && <Check className="h-3.5 w-3.5 text-amber-400" />}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLanguage('am');
-                  setIsLangMenuOpen(false);
-                }}
-                className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
-                  language === 'am'
-                    ? 'text-amber-400 font-bold bg-amber-500/10'
-                    : 'text-slate-300'
-                }`}
-              >
-                <span>አማርኛ</span>
-                {language === 'am' && <Check className="h-3.5 w-3.5 text-amber-400" />}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ======================================================================= */}
       {/* HOSPITAL BUILDING HERO VIEW (EDGE-TO-EDGE FULL SCREEN BACKGROUND)       */}
       {/* ======================================================================= */}
       <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none bg-slate-950">
@@ -872,10 +791,10 @@ export default function LoginPage() {
             <source srcSet="/hospital-building.webp" type="image/webp" />
             <img
               src="/hospital-building.jpg"
-              alt="Mettu Karl Referral Hospital Building"
+              alt="Mettu Karl Comprehensive Specialized Hospital Building"
               loading="eager"
               decoding="sync"
-              className="w-full h-full object-cover object-[center_32%] transform scale-100"
+              className="w-full h-full object-cover object-[center_42%] sm:object-[center_35%] transform scale-100"
               style={{
                 imageRendering: 'crisp-edges',
                 WebkitBackfaceVisibility: 'hidden',
@@ -884,32 +803,116 @@ export default function LoginPage() {
           </picture>
 
           {/* Clarity Atmospheric Scrims: Enhances text legibility while keeping the building 100% sharp & vibrant */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/45 via-transparent to-slate-950/70 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-transparent to-slate-950/75 pointer-events-none" />
           <div className="hidden lg:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-slate-950/35 to-transparent pointer-events-none" />
           <div className="hidden lg:block absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-slate-950/35 to-transparent pointer-events-none" />
         </div>
 
         {/* =================================================================== */}
-        {/* 1. TOP BRANDING SECTION (High-Contrast Frosted Glass Shield)        */}
+        {/* 1. TOP RESPONSIVE HEADER BAR (Logo on Left, Controls on Right)      */}
         {/* =================================================================== */}
-        <div className="relative z-20 px-3.5 pt-4 sm:px-8 sm:pt-6 shrink-0">
-          <div className="inline-flex items-center gap-3 sm:gap-4 bg-slate-950/75 backdrop-blur-xl px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border border-white/20 shadow-2xl ring-1 ring-white/10 max-w-[92vw] sm:max-w-xl">
-            <img
-              src="/hospital-logo-white.png"
-              alt="Mettu Karl Referral Hospital Emblem"
-              className="h-10 w-10 sm:h-12 sm:w-12 lg:h-13 lg:w-13 rounded-full bg-white/95 p-0.5 shadow-lg shrink-0 object-contain ring-2 ring-teal-500/30"
-            />
-            <div className="min-w-0">
-              <h1 className="text-base sm:text-lg lg:text-xl font-bold text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] truncate sm:whitespace-normal">
-                {t.hospitalName}
-              </h1>
-              <p className="text-[11px] sm:text-xs font-semibold text-teal-300 mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
-                <span>{t.hmisTitle} • {t.hmisSubtitle}</span>
-              </p>
-              <p className="text-[10px] sm:text-xs italic text-slate-300 font-medium mt-0.5 tracking-wide drop-shadow-sm truncate sm:whitespace-normal">
-                {t.tagline}
-              </p>
+        <div className="relative z-30 w-full px-3 pt-3 sm:px-6 sm:pt-5 lg:px-8 shrink-0">
+          <div className="flex items-center justify-between gap-2">
+            {/* Left: Branding Shield */}
+            <div className="inline-flex items-center gap-2 sm:gap-3.5 bg-slate-950/80 backdrop-blur-xl px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-2xl border border-white/20 shadow-xl min-w-0 max-w-[calc(100%-85px)] sm:max-w-xl">
+              <img
+                src="/hospital-logo-white.png"
+                alt="Mettu Karl Referral Hospital Emblem"
+                className="h-8 w-8 sm:h-11 sm:w-11 rounded-full bg-white/95 p-0.5 shadow-md shrink-0 object-contain ring-2 ring-teal-500/30"
+              />
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xs sm:text-base lg:text-lg font-bold text-white tracking-tight leading-tight truncate">
+                  {t.hospitalName}
+                </h1>
+                <p className="text-[10px] sm:text-xs font-semibold text-teal-300 tracking-wide truncate flex items-center gap-1 sm:gap-1.5">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse shrink-0" />
+                  <span>{t.hmisTitle}</span>
+                  <span className="hidden sm:inline">• {t.hmisSubtitle}</span>
+                </p>
+                <p className="hidden md:block text-[9px] sm:text-[11px] italic text-slate-300 font-medium truncate">
+                  {t.tagline}
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Controls Capsule (Telemetry + Lang) */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* System Operational Badge */}
+              <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#080d1a]/85 backdrop-blur-md border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold shadow-lg">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>{t.systemOperational}</span>
+              </div>
+
+              {/* Language Selector Dropdown */}
+              <div className="relative" ref={langMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                  className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-[#0b0f17]/90 hover:bg-[#131824] text-white border border-[#222b3d] hover:border-amber-500/50 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold shadow-lg backdrop-blur-md transition-all cursor-pointer"
+                  aria-expanded={isLangMenuOpen}
+                  aria-label="Select Language"
+                >
+                  <Globe className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                  <span className="hidden sm:inline">{currentLangLabel}</span>
+                  <span className="sm:hidden font-bold">{language.toUpperCase()}</span>
+                  <ChevronDown
+                    className={`h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-400/80 transition-transform duration-200 ${
+                      isLangMenuOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {/* Language Dropdown Menu */}
+                {isLangMenuOpen && (
+                  <div className="absolute right-0 mt-1.5 w-44 rounded-2xl bg-[#0e131f] border border-[#222b3d] shadow-[0_16px_40px_rgba(0,0,0,0.8)] py-1.5 z-50 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLanguage('en');
+                        setIsLangMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
+                        language === 'en'
+                          ? 'text-amber-400 font-bold bg-amber-500/10'
+                          : 'text-slate-300'
+                      }`}
+                    >
+                      <span>English</span>
+                      {language === 'en' && <Check className="h-3.5 w-3.5 text-amber-400" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLanguage('om');
+                        setIsLangMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
+                        language === 'om'
+                          ? 'text-amber-400 font-bold bg-amber-500/10'
+                          : 'text-slate-300'
+                      }`}
+                    >
+                      <span>Afaan Oromoo</span>
+                      {language === 'om' && <Check className="h-3.5 w-3.5 text-amber-400" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLanguage('am');
+                        setIsLangMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-3.5 py-2 flex items-center justify-between hover:bg-[#151c2c] transition cursor-pointer ${
+                        language === 'am'
+                          ? 'text-amber-400 font-bold bg-amber-500/10'
+                          : 'text-slate-300'
+                      }`}
+                    >
+                      <span>አማርኛ</span>
+                      {language === 'am' && <Check className="h-3.5 w-3.5 text-amber-400" />}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -917,21 +920,21 @@ export default function LoginPage() {
         {/* =================================================================== */}
         {/* 2. ACTION BUTTONS SECTION (FLOATING OVER LOWER DRIVEWAY)            */}
         {/* =================================================================== */}
-        <div className="relative z-20 w-full flex flex-col items-center justify-center px-4 mt-auto mb-6 sm:mb-8 shrink-0">
+        <div className="relative z-20 w-full flex flex-col items-center justify-center px-3 sm:px-4 mt-auto mb-4 sm:mb-8 shrink-0">
           
           {/* Prominent Mettu Karl Facility Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0b0f17]/90 backdrop-blur-md border border-amber-500/40 text-amber-100 text-xs sm:text-sm font-semibold shadow-[0_0_15px_rgba(245,158,11,0.15)] mb-3">
-            <Building2 className="w-4 h-4 text-amber-400 shrink-0" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#0b0f17]/90 backdrop-blur-md border border-amber-500/40 text-amber-100 text-xs sm:text-sm font-semibold shadow-[0_0_15px_rgba(245,158,11,0.15)] mb-2.5">
+            <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
             <span className="tracking-wide">Mettu Karl Referral Hospital</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-[11px] text-amber-200/90 font-normal">Level 4 Referral Center</span>
+            <span className="text-[10px] sm:text-[11px] text-amber-200/90 font-normal">Level 4 Referral Center</span>
           </div>
 
           {/* Slight frosted glass pill grouping buttons cleanly */}
-          <div className="w-full max-w-md sm:max-w-lg backdrop-blur-xl bg-[#0b0f17]/90 rounded-2xl p-2.5 sm:p-3 border border-[#222b3d] shadow-[0_12px_40px_rgba(0,0,0,0.85)] ring-1 ring-amber-500/20">
-            <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-3 w-full">
+          <div className="w-full max-w-sm sm:max-w-lg backdrop-blur-xl bg-[#0b0f17]/90 rounded-2xl p-2 sm:p-3 border border-[#222b3d] shadow-[0_12px_40px_rgba(0,0,0,0.85)] ring-1 ring-amber-500/20">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full">
               {/* Login Button */}
-              <div className="relative group flex-1">
+              <div className="relative group">
                 <div
                   className={`absolute -inset-0.5 rounded-xl bg-amber-500/30 opacity-75 blur-sm group-hover:opacity-100 transition-all duration-300 ${
                     isFormOpen ? 'opacity-0 pointer-events-none' : ''
@@ -943,28 +946,38 @@ export default function LoginPage() {
                     setFormType('login');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/25 border border-amber-300 transition-all duration-200 cursor-pointer touch-manipulation"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/25 border border-amber-300 transition-all duration-200 cursor-pointer touch-manipulation"
                 >
                   <LogIn className="w-4 h-4 text-slate-950 shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="tracking-wide truncate font-bold">
-                    {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Staff & Patient Login'}
+                  <span className="tracking-wide font-bold whitespace-nowrap">
+                    <span className="sm:hidden">
+                      {language === 'om' ? 'Seeni' : language === 'am' ? 'ግባ' : 'Login'}
+                    </span>
+                    <span className="hidden sm:inline">
+                      {language === 'om' ? 'Seeni (Login)' : language === 'am' ? 'ግባ (Login)' : 'Staff & Patient Login'}
+                    </span>
                   </span>
                 </button>
               </div>
 
               {/* Sign Up Button */}
-              <div className="relative group flex-1">
+              <div className="relative group">
                 <button
                   type="button"
                   onClick={() => {
                     setFormType('signup');
                     setIsFormOpen(true);
                   }}
-                  className="relative overflow-hidden w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#131824]/90 hover:bg-[#1a2233] text-amber-200 hover:text-white font-semibold text-xs sm:text-sm border border-amber-500/30 hover:border-amber-400 shadow-lg backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
+                  className="relative overflow-hidden w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#131824]/90 hover:bg-[#1a2233] text-amber-200 hover:text-white font-semibold text-xs sm:text-sm border border-amber-500/30 hover:border-amber-400 shadow-lg backdrop-blur-md transition-all duration-200 cursor-pointer touch-manipulation"
                 >
                   <UserPlus className="w-4 h-4 text-amber-400 shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="tracking-wide truncate font-semibold">
-                    {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up / Enroll'}
+                  <span className="tracking-wide font-semibold whitespace-nowrap">
+                    <span className="sm:hidden">
+                      {language === 'om' ? 'Galmaa\'i' : language === 'am' ? 'ተመዝገብ' : 'Sign Up'}
+                    </span>
+                    <span className="hidden sm:inline">
+                      {language === 'om' ? 'Galmaa\'i (Sign Up)' : language === 'am' ? 'ተመዝገብ (Sign Up)' : 'Sign Up / Enroll'}
+                    </span>
                   </span>
                 </button>
               </div>
