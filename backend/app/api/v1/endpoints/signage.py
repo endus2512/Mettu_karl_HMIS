@@ -7,7 +7,7 @@ import os
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -109,15 +109,34 @@ async def _get_or_create_signage_config(db: AsyncSession) -> HospitalSignageConf
     summary="Get Active Digital LED Marquee Signboard Configuration (Public)",
 )
 async def get_led_signage_config(
+    request: Request,
     response: Response,
-    db: AsyncSession = Depends(get_db),
-) -> SignageConfigResponse | HospitalSignageConfig:
+) -> SignageConfigResponse:
     """Return the currently configured hospital Digital LED marquee state."""
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     blob_state = await _read_signage_from_blob()
     if blob_state is not None:
         return blob_state
-    return await _get_or_create_signage_config(db)
+
+    override = request.app.dependency_overrides.get(get_db)
+    if override is not None:
+        agen = override()
+        db = await anext(agen)
+        try:
+            config = await _get_or_create_signage_config(db)
+            await db.commit()
+            return SignageConfigResponse.model_validate(config)
+        finally:
+            await agen.aclose()
+
+    from app.core.bootstrap import ensure_database_ready
+    from app.core.database import AsyncSessionLocal
+
+    await ensure_database_ready()
+    async with AsyncSessionLocal() as db:
+        config = await _get_or_create_signage_config(db)
+        await db.commit()
+        return SignageConfigResponse.model_validate(config)
 
 
 @router.put(

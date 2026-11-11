@@ -41,10 +41,13 @@ export function AdminLedControlPanel(): React.ReactElement {
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [syncStatus, setSyncStatus] = useState<ServerSyncStatus>('checking');
+  const syncStatusRef = React.useRef<ServerSyncStatus>('checking');
+  syncStatusRef.current = syncStatus;
 
   useEffect(() => {
     let active = true;
-    void fetchLedSignageWithStatus().then(({ config, backendConnected }) => {
+    const syncInitial = async () => {
+      const { config, backendConnected } = await fetchLedSignageWithStatus();
       if (!active) return;
       setDraft(config);
       if (!backendConnected) {
@@ -54,9 +57,19 @@ export function AdminLedControlPanel(): React.ReactElement {
       } else {
         setSyncStatus('all_devices');
       }
-    });
+    };
+    void syncInitial();
+    const timer = window.setInterval(() => {
+      if (syncStatusRef.current === 'backend_offline' || syncStatusRef.current === 'checking') {
+        void fetchLedSignageWithStatus().then(({ backendConnected }) => {
+          if (!active || !backendConnected) return;
+          setSyncStatus(hasServerAuthSession() ? 'all_devices' : 'demo_session');
+        });
+      }
+    }, 8000);
     return () => {
       active = false;
+      window.clearInterval(timer);
     };
   }, []);
 

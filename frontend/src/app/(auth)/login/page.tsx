@@ -1186,8 +1186,8 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'superadmin');
-                          loginForm.setValue('password', 'password');
+                          loginForm.setValue('username', 'admin');
+                          loginForm.setValue('password', 'AdminSecurePassword2026!');
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 transition cursor-pointer shadow-xs"
                       >

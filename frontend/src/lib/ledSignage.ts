@@ -257,7 +257,7 @@ export async function fetchLedSignageWithStatus(): Promise<{
   const local = readCachedLedSignage();
   try {
     const res = await apiClient.get<ApiSignagePayload>('/signage', {
-      timeout: 3500,
+      timeout: 15000,
       params: { _t: Date.now() },
     });
     if (res.data?.message) {
@@ -307,7 +307,7 @@ export async function saveLedSignageConfig(draft: LedSignageConfig): Promise<{
 
   try {
     const res = await apiClient.put<ApiSignagePayload>('/signage', toApiPayload(normalized), {
-      timeout: 5000,
+      timeout: 15000,
     });
     if (res.data?.message) {
       const serverCfg = fromApiPayload(res.data);
