@@ -7,15 +7,18 @@ import {
   DEFAULT_LED_SIGNAGE_CONFIG,
   LED_COLOR_PALETTE,
   LED_MESSAGE_PRESETS,
-  fetchLedSignageConfig,
+  fetchLedSignageWithStatus,
+  hasServerAuthSession,
   normalizeLedConfig,
   saveLedSignageConfig,
   type LedSignageConfig,
 } from '@/lib/ledSignage';
 import { useTranslation, type Language } from '@/lib/i18n';
 import {
+  AlertTriangle,
   ArrowLeftRight,
   Check,
+  Globe,
   Monitor,
   Palette,
   Pause,
@@ -27,6 +30,8 @@ import {
   Zap,
 } from 'lucide-react';
 
+type ServerSyncStatus = 'checking' | 'all_devices' | 'demo_session' | 'backend_offline';
+
 export function AdminLedControlPanel(): React.ReactElement {
   const { language } = useTranslation();
   const lang: Language =
@@ -35,12 +40,19 @@ export function AdminLedControlPanel(): React.ReactElement {
   const [draft, setDraft] = useState<LedSignageConfig>(DEFAULT_LED_SIGNAGE_CONFIG);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<ServerSyncStatus>('checking');
 
   useEffect(() => {
     let active = true;
-    void fetchLedSignageConfig().then((cfg) => {
-      if (active) {
-        setDraft(cfg);
+    void fetchLedSignageWithStatus().then(({ config, backendConnected }) => {
+      if (!active) return;
+      setDraft(config);
+      if (!backendConnected) {
+        setSyncStatus('backend_offline');
+      } else if (!hasServerAuthSession()) {
+        setSyncStatus('demo_session');
+      } else {
+        setSyncStatus('all_devices');
       }
     });
     return () => {
@@ -56,24 +68,59 @@ export function AdminLedControlPanel(): React.ReactElement {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const { config, syncedToServer } = await saveLedSignageConfig(draft);
+      const { config, syncedToServer, syncReason } = await saveLedSignageConfig(draft);
       setDraft(config);
       setHasUnsavedChanges(false);
+
+      if (syncedToServer) {
+        setSyncStatus('all_devices');
+        notifications.show({
+          title:
+            lang === 'om'
+              ? 'Boordiin LED Device Hundumaarratti Haaromfameera'
+              : lang === 'am'
+              ? 'ዲጂታል የLED ሰሌዳ በሁሉም መሣሪያዎች ተዘምኗል'
+              : 'LED Board Published to All Devices',
+          message:
+            lang === 'om'
+              ? 'Barreeffamni, halluun, safartuu fi saffisni server database irratti ol-kaa\'amee device hundumaarratti kallattiin mul\'achaa jira.'
+              : 'Saved to server database and propagated live across all hospital screens and devices.',
+          color: 'teal',
+        });
+        return;
+      }
+
+      if (syncReason === 'demo_session' || syncReason === 'unauthorized') {
+        setSyncStatus('demo_session');
+        notifications.show({
+          title:
+            lang === 'om'
+              ? "Hubachiisa: Browser Kana Qofarratti Ol-kaa'ame"
+              : lang === 'am'
+              ? 'ማስጠንቀቂያ፡ በዚህ መሣሪያ ብቻ ተቀምጧል'
+              : 'Warning: Saved Locally Only (Single Browser)',
+          message:
+            lang === 'om'
+              ? 'Session Demo/Offline irra waan jirtuuf device biroorratti hin mul\'atu. Device hundumaarratti jijjiiruuf Sign Out godhii Admin sirriitiin backend waliin seeni.'
+              : 'You are using an offline/demo token. Sign out and log in again with a live server Admin session to sync across all devices.',
+          color: 'orange',
+        });
+        return;
+      }
+
+      setSyncStatus('backend_offline');
       notifications.show({
         title:
           lang === 'om'
-            ? "Boordiin Digital LED Haaromfameera"
+            ? 'Serveriin Hin Argamne: Browser Kana Qofatti Ol-kaa\'ame'
             : lang === 'am'
-            ? 'ዲጂታል የLED ሰሌዳ ተቀምጧል'
-            : 'Digital LED Board Updated',
-        message: syncedToServer
-          ? lang === 'om'
-            ? 'Barreeffamni, halluun, safartuu fi saffisni fuula seensaa (Login) irratti database waliin milkaa\'inaan jijjiirameera.'
-            : 'Message, colors, scale, and speed published live to the hospital login signboard.'
-          : lang === 'om'
-          ? 'Jijjiiramni boordii LED browser kana irratti ol-kaa\'amee jira (Live Preview & Login).'
-          : 'LED signboard settings applied locally and live on the login hero.',
-        color: 'teal',
+            ? 'ሰርቨር አልተገኘም፡ በዚህ መሣሪያ ብቻ ተቀምጧል'
+            : 'Backend Unreachable: Saved Locally Only',
+        message:
+          lang === 'om'
+            ? 'Backend API wal-qunnamuu waan hin dandeenyeef browser kana qofarratti ol-kaa\'ame. Device biroo waliin sync gochuuf server backend (NEXT_PUBLIC_API_URL) qopheessi.'
+            : 'Could not reach the backend server, so changes only saved in this browser. Connect the FastAPI server for cross-device sync.',
+        color: 'orange',
       });
     } finally {
       setIsSaving(false);
@@ -109,6 +156,47 @@ export function AdminLedControlPanel(): React.ReactElement {
               </h2>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                 {draft.isPlaying ? 'LIVE SCROLL' : 'PAUSED'}
+              </span>
+              <span
+                data-testid="led-sync-status-badge"
+                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border inline-flex items-center gap-1 ${
+                  syncStatus === 'all_devices'
+                    ? 'bg-sky-500/15 text-sky-300 border-sky-500/35'
+                    : syncStatus === 'checking'
+                    ? 'bg-slate-700/40 text-slate-300 border-slate-600/40'
+                    : 'bg-orange-500/15 text-orange-300 border-orange-500/40'
+                }`}
+              >
+                {syncStatus === 'all_devices' ? (
+                  <>
+                    <Globe className="w-3 h-3" />
+                    <span>
+                      {lang === 'om'
+                        ? 'Device Hundumaa (Server DB Sync)'
+                        : 'All Devices Synced (Server DB)'}
+                    </span>
+                  </>
+                ) : syncStatus === 'demo_session' ? (
+                  <>
+                    <AlertTriangle className="w-3 h-3" />
+                    <span>
+                      {lang === 'om'
+                        ? 'Browser Tokko Qofa (Demo Session — Re-login Admin)'
+                        : 'Local Only (Demo Session — Re-login Admin)'}
+                    </span>
+                  </>
+                ) : syncStatus === 'backend_offline' ? (
+                  <>
+                    <AlertTriangle className="w-3 h-3" />
+                    <span>
+                      {lang === 'om'
+                        ? 'Browser Tokko Qofa (Backend Offline)'
+                        : 'Local Only (Backend Offline)'}
+                    </span>
+                  </>
+                ) : (
+                  <span>{lang === 'om' ? 'Sync Mirkaneeffamaa jira...' : 'Checking Sync...'}</span>
+                )}
               </span>
               {hasUnsavedChanges && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">

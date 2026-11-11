@@ -74,6 +74,7 @@ import { DigitalLedBoard } from '@/components/common/DigitalLedBoard';
 import {
   DEFAULT_LED_SIGNAGE_CONFIG,
   fetchLedSignageConfig,
+  isSameLedConfig,
   readCachedLedSignage,
   subscribeLedSignage,
   type LedSignageConfig,
@@ -499,21 +500,45 @@ export default function LoginPage() {
     setThemeMode(shouldBeDark);
   }, []);
 
-  // Digital LED Marquee Signboard live state (synced with Admin Studio & backend)
+  // Digital LED Marquee Signboard live state (synced across all devices via backend + polling)
   const [ledConfig, setLedConfig] = useState<LedSignageConfig>(DEFAULT_LED_SIGNAGE_CONFIG);
 
   useEffect(() => {
     setLedConfig(readCachedLedSignage());
     let active = true;
-    void fetchLedSignageConfig().then((cfg) => {
-      if (active) setLedConfig(cfg);
-    });
+    const syncRemote = () => {
+      void fetchLedSignageConfig().then((cfg) => {
+        if (!active) return;
+        setLedConfig((prev) => (isSameLedConfig(prev, cfg) ? prev : cfg));
+      });
+    };
+
+    syncRemote();
     const unsubscribe = subscribeLedSignage((updated) => {
-      if (active) setLedConfig(updated);
+      if (!active) return;
+      setLedConfig((prev) => (isSameLedConfig(prev, updated) ? prev : updated));
     });
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        syncRemote();
+      }
+    }, 6000);
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        syncRemote();
+      }
+    };
+    window.addEventListener('focus', syncRemote);
+    document.addEventListener('visibilitychange', onVisibility);
+
     return () => {
       active = false;
       unsubscribe();
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', syncRemote);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
 

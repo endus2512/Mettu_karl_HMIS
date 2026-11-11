@@ -48,7 +48,12 @@ class Settings(BaseSettings):
     SENTRY_DSN: str = ""
 
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000"]
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://mettu-karl-hospital.vercel.app",
+        "https://endus2512.github.io",
+    ]
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

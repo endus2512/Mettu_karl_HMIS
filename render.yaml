@@ -16,3 +16,5 @@ services:
         generateValue: true
       - key: DATABASE_URL
         value: sqlite+aiosqlite:///./mettu_his.db
+      - key: CORS_ORIGINS
+        value: https://mettu-karl-hospital.vercel.app,https://endus2512.github.io,http://localhost:3000

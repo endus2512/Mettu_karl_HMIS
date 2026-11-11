@@ -13,6 +13,27 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 
+/** Resolve the API origin safely at runtime (uses same-origin Next.js proxy on local/LAN servers). */
+export function getApiOrigin(): string {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (configured) {
+    return configured.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      /^192\.168\./.test(host) ||
+      /^10\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host)
+    ) {
+      return '';
+    }
+  }
+  return 'http://localhost:8000';
+}
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 /** Retrieve the access token from localStorage (client-side only) */
@@ -45,9 +66,10 @@ const apiClient: AxiosInstance = axios.create({
   timeout: 15000,
 });
 
-// Request interceptor: inject Bearer token
+// Request interceptor: set runtime baseURL & inject Bearer token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    config.baseURL = `${getApiOrigin()}/api/v1`;
     const token = getAccessToken();
     if (token && config.headers) {
       config.headers['Authorization'] = `Bearer ${token}`;
@@ -129,7 +151,7 @@ apiClient.interceptors.response.use(
         const response = await axios.post<{
           access_token: string;
           refresh_token: string;
-        }>(`${BASE_URL}/api/v1/auth/refresh`, {
+        }>(`${getApiOrigin()}/api/v1/auth/refresh`, {
           refresh_token: refreshToken,
         });
 

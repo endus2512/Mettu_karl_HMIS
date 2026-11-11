@@ -69,6 +69,7 @@ def create_application() -> FastAPI:
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
+        allow_origin_regex=r"^(https://.*\.vercel\.app|http://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?)$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -96,12 +97,30 @@ app = create_application()
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    """Application startup: initialize connections."""
+    """Application startup: ensure tables and required schema columns exist."""
+    from sqlalchemy import inspect, text
     from app.core.database import engine
     from app.models import Base  # noqa: F401 - ensures models are registered
-    # In production, run alembic migrations instead
-    # async with engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.create_all)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+        def _ensure_audit_columns(sync_conn) -> None:
+            inspector = inspect(sync_conn)
+            if not inspector.has_table("audit_logs"):
+                return
+            existing = {col["name"] for col in inspector.get_columns("audit_logs")}
+            additions = [
+                ("entry_hash", "VARCHAR(64)"),
+                ("previous_hash", "VARCHAR(64)"),
+                ("chain_index", "INTEGER"),
+                ("signature_seal", "VARCHAR(128)"),
+            ]
+            for col_name, col_type in additions:
+                if col_name not in existing:
+                    sync_conn.execute(text(f"ALTER TABLE audit_logs ADD COLUMN {col_name} {col_type}"))
+
+        await conn.run_sync(_ensure_audit_columns)
 
 
 @app.on_event("shutdown")

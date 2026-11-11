@@ -209,37 +209,101 @@ function writeCachedLedSignage(cfg: LedSignageConfig): void {
   }
 }
 
-export async function fetchLedSignageConfig(): Promise<LedSignageConfig> {
+export type SignageSyncReason =
+  | 'synced'
+  | 'demo_session'
+  | 'unauthorized'
+  | 'backend_unreachable';
+
+/**
+ * Returns true only when the browser holds a live FastAPI JWT (not an offline
+ * fallback `.demo-sig` / `.demo-patient-sig` token).
+ */
+export function hasServerAuthSession(): boolean {
+  if (typeof window === 'undefined') return false;
+  const token = localStorage.getItem('access_token');
+  if (!token) return false;
+  return (
+    !token.includes('demo') &&
+    !token.includes('registered')
+  );
+}
+
+/** Value equality check used by polling subscribers to prevent animation re-renders. */
+export function isSameLedConfig(a: LedSignageConfig, b: LedSignageConfig): boolean {
+  return (
+    a.message === b.message &&
+    a.colorPreset === b.colorPreset &&
+    a.colorHex === b.colorHex &&
+    a.speed === b.speed &&
+    a.fontScale === b.fontScale &&
+    a.letterSpacing === b.letterSpacing &&
+    a.glowIntensity === b.glowIntensity &&
+    a.showGridDots === b.showGridDots &&
+    a.showScanlines === b.showScanlines &&
+    a.isPlaying === b.isPlaying &&
+    a.direction === b.direction &&
+    a.offsetY === b.offsetY &&
+    a.updatedAt === b.updatedAt &&
+    a.updatedBy === b.updatedBy &&
+    a.syncedRemote === b.syncedRemote
+  );
+}
+
+export async function fetchLedSignageWithStatus(): Promise<{
+  config: LedSignageConfig;
+  backendConnected: boolean;
+}> {
   const local = readCachedLedSignage();
   try {
-    const res = await apiClient.get<ApiSignagePayload>('/signage', { timeout: 3000 });
+    const res = await apiClient.get<ApiSignagePayload>('/signage', {
+      timeout: 3500,
+      params: { _t: Date.now() },
+    });
     if (res.data?.message) {
       const remote = fromApiPayload(res.data);
       const localEdited = local.syncedRemote === false && local.updatedBy !== 'System Default';
       const localTs = Date.parse(local.updatedAt) || 0;
       const remoteTs = Date.parse(remote.updatedAt) || 0;
-      if (localEdited && (remote.updatedBy === 'System Default' || localTs >= remoteTs)) {
-        return local;
+      if (localEdited && (remote.updatedBy === 'System Default' || localTs > remoteTs)) {
+        return { config: local, backendConnected: true };
       }
-      writeCachedLedSignage(remote);
-      return remote;
+      if (!isSameLedConfig(local, remote)) {
+        writeCachedLedSignage(remote);
+      }
+      return { config: remote, backendConnected: true };
     }
   } catch {
     // Graceful fallback when running standalone without backend
   }
-  return local;
+  return { config: local, backendConnected: false };
 }
 
-export async function saveLedSignageConfig(
-  draft: LedSignageConfig,
-): Promise<{ config: LedSignageConfig; syncedToServer: boolean }> {
+export async function fetchLedSignageConfig(): Promise<LedSignageConfig> {
+  const { config } = await fetchLedSignageWithStatus();
+  return config;
+}
+
+export async function saveLedSignageConfig(draft: LedSignageConfig): Promise<{
+  config: LedSignageConfig;
+  syncedToServer: boolean;
+  syncReason: SignageSyncReason;
+}> {
   const normalized = normalizeLedConfig({
     ...draft,
     updatedAt: new Date().toISOString(),
     updatedBy: 'Admin',
   });
 
-  writeCachedLedSignage({ ...normalized, syncedRemote: false });
+  if (typeof window !== 'undefined' && !hasServerAuthSession()) {
+    const hasToken = Boolean(localStorage.getItem('access_token'));
+    writeCachedLedSignage({ ...normalized, syncedRemote: false });
+    return {
+      config: { ...normalized, syncedRemote: false },
+      syncedToServer: false,
+      syncReason: hasToken ? 'demo_session' : 'unauthorized',
+    };
+  }
 
   try {
     const res = await apiClient.put<ApiSignagePayload>('/signage', toApiPayload(normalized), {
@@ -248,13 +312,31 @@ export async function saveLedSignageConfig(
     if (res.data?.message) {
       const serverCfg = fromApiPayload(res.data);
       writeCachedLedSignage(serverCfg);
-      return { config: serverCfg, syncedToServer: true };
+      return { config: serverCfg, syncedToServer: true, syncReason: 'synced' };
     }
-  } catch {
-    // Offline or demo token mode keeps localStorage persistence intact
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    writeCachedLedSignage({ ...normalized, syncedRemote: false });
+    if (status === 401 || status === 403) {
+      return {
+        config: { ...normalized, syncedRemote: false },
+        syncedToServer: false,
+        syncReason: 'unauthorized',
+      };
+    }
+    return {
+      config: { ...normalized, syncedRemote: false },
+      syncedToServer: false,
+      syncReason: 'backend_unreachable',
+    };
   }
 
-  return { config: { ...normalized, syncedRemote: false }, syncedToServer: false };
+  writeCachedLedSignage({ ...normalized, syncedRemote: false });
+  return {
+    config: { ...normalized, syncedRemote: false },
+    syncedToServer: false,
+    syncReason: 'backend_unreachable',
+  };
 }
 
 export function subscribeLedSignage(onUpdate: (cfg: LedSignageConfig) => void): () => void {
