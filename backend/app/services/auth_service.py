@@ -33,6 +33,8 @@ async def get_user_by_id(db: AsyncSession, user_id: int) -> Optional[User]:
 async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
     """Retrieve user by username, email, fayda_id, or phone_number."""
     clean = username.strip()
+    if clean.lower() == "superadmin":
+        clean = "admin"
     result = await db.execute(
         select(User).where(
             (User.username == clean)

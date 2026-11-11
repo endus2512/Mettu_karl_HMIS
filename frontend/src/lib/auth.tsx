@@ -12,7 +12,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import apiClient, { clearTokens, saveTokens } from '@/lib/api';
+import apiClient, { clearTokens, getApiOrigin, saveTokens } from '@/lib/api';
 import type { User, UserRole } from '@/types';
 
 interface AuthState {
@@ -162,6 +162,31 @@ export function AuthProvider({
           isLoading: false,
           isAuthenticated: true,
         });
+
+        // If the browser holds a legacy offline `.demo-sig` token while the live server is now reachable,
+        // clear the stale demo session and prompt re-authentication so cross-device edits sync globally.
+        if (
+          typeof window !== 'undefined' &&
+          (token.endsWith('.demo-sig') || token.endsWith('.demo-patient-sig'))
+        ) {
+          const origin = getApiOrigin();
+          const healthUrl = origin ? `${origin}/health` : '/api/v1/signage';
+          void fetch(healthUrl, { cache: 'no-store' })
+            .then((res) => {
+              if (!res.ok) return;
+              clearTokens();
+              setState({ user: null, isLoading: false, isAuthenticated: false });
+              if (window.location.pathname.includes('/portal')) {
+                const base = window.location.pathname.startsWith('/Mettu_karl_HMIS')
+                  ? '/Mettu_karl_HMIS'
+                  : '';
+                window.location.replace(`${base}/login`);
+              }
+            })
+            .catch(() => {
+              // Server remains unreachable; keep offline demo mode active
+            });
+        }
         return;
       }
       clearTokens();
@@ -279,10 +304,15 @@ export function AuthProvider({
       }
 
       try {
-        const response = await apiClient.post<TokenPair | MFAChallengeResponse>('/auth/login', {
-          username: cleanUser,
-          password,
-        });
+        const apiUsername = lower === 'superadmin' ? 'admin' : cleanUser;
+        const response = await apiClient.post<TokenPair | MFAChallengeResponse>(
+          '/auth/login',
+          {
+            username: apiUsername,
+            password,
+          },
+          { timeout: 25000 },
+        );
 
         if ('mfa_required' in response.data && response.data.mfa_required) {
           return { mfaRequired: true, mfaToken: response.data.mfa_token };

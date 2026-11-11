@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import { DigitalLedBoard } from '@/components/common/DigitalLedBoard';
+import { clearTokens } from '@/lib/api';
 import {
   DEFAULT_LED_SIGNAGE_CONFIG,
   LED_COLOR_PALETTE,
@@ -253,6 +254,34 @@ export function AdminLedControlPanel(): React.ReactElement {
           </button>
         </div>
       </div>
+
+      {syncStatus === 'demo_session' && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-orange-500/40 bg-orange-500/10 px-3.5 py-2.5 text-xs text-orange-200">
+          <div className="flex items-start sm:items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5 sm:mt-0" />
+            <span>
+              {lang === 'om'
+                ? "Offline/Demo token moofaa irra jirtu — device biroorratti hin mul'atu. Device hundumaatti wal-qabsiisuuf haaraa seenaa:"
+                : 'You are on an offline demo token, so saves stay in this browser only. Re-login with your live server Admin session to publish across all devices.'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              clearTokens();
+              if (typeof window !== 'undefined') {
+                const base = window.location.pathname.startsWith('/Mettu_karl_HMIS')
+                  ? '/Mettu_karl_HMIS'
+                  : '';
+                window.location.href = `${base}/login`;
+              }
+            }}
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold text-[11px] transition cursor-pointer"
+          >
+            {lang === 'om' ? 'Ba\'i & Haaraa Seeni (Admin)' : 'Sign Out & Re-Login Admin'}
+          </button>
+        </div>
+      )}
 
       {/* Live Physical LED Board Preview */}
       <div className="space-y-2 rounded-xl bg-[#090e18] border border-[#1d2638] p-3 sm:p-4">

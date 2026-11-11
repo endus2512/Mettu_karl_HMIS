@@ -224,8 +224,9 @@ export function hasServerAuthSession(): boolean {
   const token = localStorage.getItem('access_token');
   if (!token) return false;
   return (
-    !token.includes('demo') &&
-    !token.includes('registered')
+    !token.endsWith('.demo-sig') &&
+    !token.endsWith('.demo-patient-sig') &&
+    !token.endsWith('.registered-sig')
   );
 }
 
