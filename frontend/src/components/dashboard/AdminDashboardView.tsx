@@ -18,6 +18,7 @@ import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
 import { useZenMode } from '@/lib/zenMode';
 import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
 import { AdminLedControlPanel } from '@/components/admin/AdminLedControlPanel';
+import { AdminStaffApprovalPanel } from '@/components/admin/AdminStaffApprovalPanel';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
 import {
@@ -334,6 +335,19 @@ export function AdminDashboardView(): React.ReactElement {
             </span>
           </div>
 
+          {/* Quick Jump to Staff Approval & Impersonation Guard */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('admin-staff-approval-queue');
+              el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#141c2e] hover:bg-rose-500/15 border border-rose-500/40 text-rose-300 font-bold text-xs transition-all cursor-pointer"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+            <span>{language === 'om' ? 'Mirkaneessa Hojjettootaa' : 'Staff Approvals'}</span>
+          </button>
+
           {/* Quick Jump to Digital LED Signboard Studio */}
           <button
             type="button"
@@ -378,7 +392,12 @@ export function AdminDashboardView(): React.ReactElement {
       )}
 
       {/* ================================================================= */}
-      {/* 1B. HOSPITAL DIGITAL LED MARQUEE SIGNBOARD CONTROLLER (ADMIN)     */}
+      {/* 1B. STAFF SIGN-UP VERIFICATION & ANTI-IMPERSONATION GUARD         */}
+      {/* ================================================================= */}
+      <AdminStaffApprovalPanel />
+
+      {/* ================================================================= */}
+      {/* 1C. HOSPITAL DIGITAL LED MARQUEE SIGNBOARD CONTROLLER (ADMIN)     */}
       {/* ================================================================= */}
       <AdminLedControlPanel />
 

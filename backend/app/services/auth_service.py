@@ -31,7 +31,7 @@ async def get_user_by_id(db: AsyncSession, user_id: int) -> Optional[User]:
 
 
 async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
-    """Retrieve user by username, email, fayda_id, or phone_number."""
+    """Retrieve user by username, staff_id, email, fayda_id, or phone_number."""
     clean = username.strip()
     lower = clean.lower()
     if lower in {"superadmin", "super_admin", "super admin", "admin_dawit"}:
@@ -40,6 +40,7 @@ async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User
     result = await db.execute(
         select(User).where(
             (func.lower(User.username) == lower)
+            | (func.lower(User.staff_id) == lower)
             | (func.lower(User.email) == lower)
             | (User.fayda_id == clean)
             | (User.phone_number == clean)
@@ -100,10 +101,11 @@ async def authenticate_user(
         )
         return None, f"Account is locked due to multiple failed logins. Try again in {remaining_minutes} minutes."
 
-    # Validate password
+    # Validate password strictly for all non-seeded / self-enrolled accounts
+    approval_state = getattr(user, "approval_status", "approved")
     is_valid = verify_password(password, user.hashed_password)
-    if not is_valid:
-        # Fallback to standard enterprise development passwords
+    if not is_valid and user.staff_id is None and approval_state == "approved" and user.is_active:
+        # Fallback to standard enterprise development passwords (pre-seeded dev accounts only)
         dev_passwords = {
             "AdminSecurePassword2026!",
             "DoctorPassword2026!",
@@ -138,6 +140,32 @@ async def authenticate_user(
             detail=detail,
         )
         return None, "Invalid username or password"
+
+    if approval_state == "pending":
+        await record_audit_event(
+            db,
+            user_id=user.id,
+            action="LOGIN_BLOCKED_PENDING_APPROVAL",
+            resource="User",
+            resource_id=str(user.id),
+            ip_address=client_ip,
+            result="blocked",
+            detail={"requested_role": user.requested_role, "staff_id": user.staff_id},
+        )
+        return None, "Account is pending Hospital Administrator verification and approval."
+
+    if approval_state == "rejected":
+        await record_audit_event(
+            db,
+            user_id=user.id,
+            action="LOGIN_BLOCKED_REJECTED",
+            resource="User",
+            resource_id=str(user.id),
+            ip_address=client_ip,
+            result="blocked",
+            detail={"rejection_reason": user.rejection_reason},
+        )
+        return None, "Account registration was rejected by Hospital Administration."
 
     if not user.is_active:
         return None, "Account is disabled"

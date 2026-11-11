@@ -86,9 +86,69 @@ class UserResponse(BaseModel):
     email: str
     full_name: str
     role: UserRole
+    staff_id: Optional[str] = None
+    department: Optional[str] = None
+    license_number: Optional[str] = None
+    approval_status: str = "approved"
+    requested_role: Optional[str] = None
+    risk_flag: Optional[str] = None
     is_active: bool
     is_mfa_enabled: bool
     created_at: datetime
     last_login_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
+
+
+class StaffRegisterRequest(BaseModel):
+    """Public staff self-registration request routed to Admin verification queue."""
+    full_name: str = Field(..., min_length=2, max_length=255)
+    staff_id: str = Field(..., min_length=3, max_length=64)
+    email: Optional[EmailStr] = None
+    phone_number: Optional[str] = Field(None, max_length=20)
+    department: str = Field(..., min_length=2, max_length=100)
+    requested_role: str = Field(..., min_length=2, max_length=50)
+    license_number: Optional[str] = Field(None, max_length=100)
+    password: str = Field(..., min_length=8, max_length=128)
+
+
+class StaffRegistrationResponse(BaseModel):
+    """Confirmation payload returned without auth tokens while pending Admin review."""
+    id: int
+    username: str
+    staff_id: str
+    full_name: str
+    requested_role: str
+    department: str
+    approval_status: str
+    risk_flag: Optional[str] = None
+    message: str
+
+
+class PendingStaffUserResponse(BaseModel):
+    """Admin oversight view of self-registered staff enrollment requests."""
+    id: int
+    username: str
+    email: str
+    full_name: str
+    staff_id: Optional[str] = None
+    department: Optional[str] = None
+    license_number: Optional[str] = None
+    role: UserRole
+    requested_role: Optional[str] = None
+    approval_status: str
+    risk_flag: Optional[str] = None
+    rejection_reason: Optional[str] = None
+    requested_ip: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    approved_at: Optional[datetime] = None
+    approved_by: Optional[int] = None
+
+    model_config = {"from_attributes": True}
+
+
+class StaffApprovalDecisionRequest(BaseModel):
+    """Admin payload for approving or rejecting a pending staff enrollment request."""
+    assigned_role: Optional[UserRole] = None
+    rejection_reason: Optional[str] = Field(None, max_length=255)

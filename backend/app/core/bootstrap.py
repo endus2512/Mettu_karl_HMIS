@@ -50,6 +50,29 @@ async def ensure_database_ready() -> None:
 
             await conn.run_sync(_ensure_audit_columns)
 
+            def _ensure_user_columns(sync_conn) -> None:
+                inspector = inspect(sync_conn)
+                if not inspector.has_table("users"):
+                    return
+                existing = {col["name"] for col in inspector.get_columns("users")}
+                additions = [
+                    ("staff_id", "VARCHAR(64)"),
+                    ("department", "VARCHAR(100)"),
+                    ("license_number", "VARCHAR(100)"),
+                    ("approval_status", "VARCHAR(20) NOT NULL DEFAULT 'approved'"),
+                    ("requested_role", "VARCHAR(50)"),
+                    ("rejection_reason", "VARCHAR(255)"),
+                    ("risk_flag", "VARCHAR(100)"),
+                    ("approved_by", "INTEGER"),
+                    ("approved_at", "TIMESTAMP"),
+                    ("requested_ip", "VARCHAR(64)"),
+                ]
+                for col_name, col_type in additions:
+                    if col_name not in existing:
+                        sync_conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+
+            await conn.run_sync(_ensure_user_columns)
+
         async with AsyncSessionLocal() as db:
             try:
                 existing_user = (await db.execute(select(User.id).limit(1))).scalar_one_or_none()

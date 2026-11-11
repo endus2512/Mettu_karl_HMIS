@@ -68,6 +68,8 @@ import {
   Send,
   PhoneCall,
 } from 'lucide-react';
+import axios from 'axios';
+import apiClient from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, type Language } from '@/lib/i18n';
 import { DigitalLedBoard } from '@/components/common/DigitalLedBoard';
@@ -383,13 +385,21 @@ export default function LoginPage() {
   const [signupLicenseNumber, setSignupLicenseNumber] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
+  const [signupError, setSignupError] = useState<string | null>(null);
+  const [signupNotice, setSignupNotice] = useState<string | null>(null);
 
   const isClinicalSignup =
     signupDept === 'doctor' ||
     signupRole === 'doctor' ||
     signupRole === 'specialist' ||
     signupRole === 'consultant' ||
-    signupRole === 'nurse';
+    signupRole === 'nurse' ||
+    signupRole === 'pharmacist' ||
+    signupRole === 'lab_tech' ||
+    signupRole === 'radiographer';
+
+  const isPrivilegedSignup =
+    signupRole === 'admin' || signupRole === 'ict_admin' || signupRole === 'auditor';
 
   // Formal Patient Registration state
   const [patientFullName, setPatientFullName] = useState('');
@@ -770,66 +780,124 @@ export default function LoginPage() {
     }
   }
 
-  // Handle Staff Sign Up Submit
-  function handleSignupSubmit(e: React.FormEvent) {
+  // Handle Staff Sign Up Submit (Always enters LOCKED Pending Admin Approval state)
+  async function handleSignupSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
+    setSignupError(null);
+    setSignupNotice(null);
+
     if (!signupFullName.trim() || !signupStaffId.trim() || !signupPassword) {
+      const msg =
+        language === 'om'
+          ? 'Maaloo dirreewwan barbaachisan hunda guutaa.'
+          : 'Please complete all required fields.';
+      setSignupError(msg);
       notifications.show({
         title: language === 'om' ? 'Dirree Hin Guutamne' : 'Missing Information',
-        message:
-          language === 'om'
-            ? 'Maaloo dirreewwan barbaachisan hunda guutaa.'
-            : 'Please complete all required fields.',
+        message: msg,
         color: 'red',
       });
       return;
     }
     if (isClinicalSignup && !signupLicenseNumber.trim()) {
+      const msg =
+        language === 'om'
+          ? 'Ogeessi yaalaa hayyama boordii (EFDA / Medical License Number) galchuun dirqama eegumsa iccitii ti.'
+          : 'Clinical staff must provide an official Medical License or EFDA Board Registration number.';
+      setSignupError(msg);
       notifications.show({
         title: language === 'om' ? 'Hayyama Ogummaa Barbaachisa' : 'Medical License Required',
-        message:
-          language === 'om'
-            ? 'Ogeessi yaalaa hayyama boordii (EFDA / Medical License Number) galchuun dirqama eegumsa iccitii ti.'
-            : 'Clinical staff must provide an official Medical License or EFDA Board Registration number.',
+        message: msg,
+        color: 'red',
+      });
+      return;
+    }
+    if (signupPassword.length < 8) {
+      const msg =
+        language === 'om'
+          ? 'Jechi icchitii hojjataa yoo xiqqaate qubee fi lakkoofsa 8 qabaachuu qaba.'
+          : 'Staff password must be at least 8 characters long.';
+      setSignupError(msg);
+      notifications.show({
+        title: language === 'om' ? 'Jecha Icchitii Gabaabaa' : 'Weak Password',
+        message: msg,
         color: 'red',
       });
       return;
     }
     if (signupPassword !== signupConfirmPassword) {
+      const msg =
+        language === 'om'
+          ? 'Jechi icchitii lachuu wal hin simne.'
+          : 'The two passwords do not match.';
+      setSignupError(msg);
       notifications.show({
         title: language === 'om' ? 'Jecha Icchitii' : 'Password Mismatch',
-        message:
-          language === 'om'
-            ? 'Jechi icchitii lachuu wal hin simne.'
-            : 'The two passwords do not match.',
+        message: msg,
         color: 'red',
       });
       return;
     }
+
     setIsSubmittingSignup(true);
-    setTimeout(() => {
-      setIsSubmittingSignup(false);
+    try {
+      const res = await apiClient.post<{
+        staff_id: string;
+        approval_status: string;
+        risk_flag?: string | null;
+        message: string;
+      }>('/auth/staff/register', {
+        full_name: signupFullName.trim(),
+        staff_id: signupStaffId.trim(),
+        department: signupDept,
+        requested_role: signupRole,
+        license_number: signupLicenseNumber.trim() || undefined,
+        password: signupPassword,
+      });
+
+      const pendingMsg =
+        language === 'om'
+          ? `Galmeen keessan (${res.data.staff_id}) haala Eegama Bulchiinsaa (PENDING APPROVAL) keessa jira. Hanga Admin Hospitaalaa mirkaneessutti seenuun hin danda'amu.`
+          : `Registration (${res.data.staff_id}) saved as PENDING ADMIN APPROVAL. Access stays locked until verified by the Hospital Administrator.`;
+
+      setLoginError(null);
+      setSignupNotice(pendingMsg);
+      setSignupPassword('');
+      setSignupConfirmPassword('');
+      setSignupLicenseNumber('');
+
       notifications.show({
         title:
           language === 'om'
-            ? isClinicalSignup
-              ? "Galmee Ogeessa Yaalaa (Qorannoon Eegama)"
-              : 'Galmeen Ergameera!'
-            : isClinicalSignup
-            ? 'Clinical Registration Submitted (Verification Pending)'
-            : 'Registration Submitted!',
-        message:
-          language === 'om'
-            ? isClinicalSignup
-              ? "Ragaan hayyama ogummaa fi gaaffiin keessan Daarektara Yaalaa fi ICT Hospitaalaaf ergameera. Qorannoon boordii erga xumuramee booda akkaawuntiin keessan ni banama."
-              : "Gaaffiin galmee keessanii qorannoof kutaa ICTtti ergameera. Yeroo muraasa keessatti mirkanaa'a."
-            : isClinicalSignup
-            ? 'Your medical license credentials have been submitted to the Medical Director & ICT. Access will be granted after credential verification.'
-            : 'Your registration request has been submitted to the ICT Department for verification.',
-        color: 'teal',
+            ? "Galmeen Eeyyama Admin Eegama Jira (Pending Approval)"
+            : 'Pending Administrator Verification',
+        message: pendingMsg,
+        color: res.data.risk_flag ? 'amber' : 'teal',
       });
       setFormType('login');
-    }, 800);
+    } catch (err: unknown) {
+      let errMsg =
+        language === 'om'
+          ? 'Galmeen hin milkoofne. Maaloo ragaan keessan sirrii ta’uu mirkaneessaa.'
+          : 'Staff registration could not be submitted.';
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const data = err.response.data as { detail?: string | Array<{ msg?: string }> };
+        if (typeof data.detail === 'string' && data.detail.trim()) {
+          errMsg = data.detail;
+        } else if (Array.isArray(data.detail)) {
+          const joined = data.detail.map((d) => d?.msg).filter(Boolean).join(', ');
+          if (joined) errMsg = joined;
+        }
+      }
+      setSignupError(errMsg);
+      notifications.show({
+        title: language === 'om' ? 'Dhorkame / Dogoggora Galmee' : 'Registration Blocked',
+        message: errMsg,
+        color: 'red',
+      });
+    } finally {
+      setIsSubmittingSignup(false);
+    }
   }
 
   const currentLangLabel =
@@ -1424,6 +1492,17 @@ export default function LoginPage() {
                       </button>
                     </div>
 
+                    {/* Pending Staff Approval Notice */}
+                    {signupNotice && (
+                      <div
+                        data-testid="signup-pending-alert"
+                        className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2.5 text-xs font-medium text-amber-800 dark:text-amber-300 flex items-start gap-2"
+                      >
+                        <ShieldAlert className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                        <span>{signupNotice}</span>
+                      </div>
+                    )}
+
                     {/* Inline Authentication Error Alert */}
                     {loginError && (
                       <div
@@ -1882,6 +1961,18 @@ export default function LoginPage() {
                     </div>
 
                     <form onSubmit={handleSignupSubmit} className="space-y-3">
+                      {signupError && (
+                        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 flex items-start gap-2 text-xs text-rose-200">
+                          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                          <span>{signupError}</span>
+                        </div>
+                      )}
+                      {signupNotice && (
+                        <div className="rounded-xl border border-teal-500/40 bg-teal-500/10 p-3 flex items-start gap-2 text-xs text-teal-200">
+                          <ShieldCheck className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+                          <span>{signupNotice}</span>
+                        </div>
+                      )}
                       {/* FULL NAME */}
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -2068,6 +2159,24 @@ export default function LoginPage() {
                                   : "Clinical accounts remain locked in Pending Verification status until physical license verification by the Medical Director & ICT before patient charts can be opened."}
                               </p>
                             </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {isPrivilegedSignup && (
+                        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 dark:bg-[#120912] p-3 flex items-start gap-2.5 text-xs text-rose-200 shadow-xs animate-in fade-in duration-200">
+                          <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-bold text-[12px] text-rose-300">
+                              {language === 'om'
+                                ? 'Akeekkachiisa Nageenya Admin (Privileged Role Quarantine)'
+                                : 'Security Notice: Privileged Admin Claims Quarantined'}
+                            </p>
+                            <p className="mt-0.5 text-[11px] leading-relaxed text-rose-200/80">
+                              {language === 'om'
+                                ? "Gaaffiin ga'ee Bulchiinsaa (Admin / ICT / Audit) ofumaan hin banamu — galmeen kun qorannoo Root Admin fi Audit Log keessatti cufamee eegama."
+                                : 'Self-registered Administrative claims start LOCKED with zero privileges, trigger an Executive Security Alert, and require explicit Root Super Admin approval.'}
+                            </p>
                           </div>
                         </div>
                       )}

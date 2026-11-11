@@ -1,13 +1,16 @@
 """
 Authentication endpoints: login, 2-step MFA, token refresh, logout, and profile.
 """
-from typing import Annotated
+from datetime import datetime, timezone
+import re
+from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from jose import JWTError
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_client_ip, get_current_user, require_roles
+from app.api.deps import get_client_ip, get_current_user, require_admin, require_roles
 from app.core.audit import record_audit_event
 from app.core.database import get_db
 from app.core.rate_limiter import (
@@ -21,8 +24,9 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    hash_password,
 )
-from app.models.user import User, UserRole
+from app.models.user import ApprovalStatus, User, UserRole
 from app.schemas.auth import (
     LoginRequest,
     MFALoginRequest,
@@ -30,7 +34,11 @@ from app.schemas.auth import (
     MFAVerifyRequest,
     PatientLoginRequest,
     PatientRegisterRequest,
+    PendingStaffUserResponse,
     RefreshTokenRequest,
+    StaffApprovalDecisionRequest,
+    StaffRegisterRequest,
+    StaffRegistrationResponse,
     TokenResponse,
     UserCreate,
     UserResponse,
@@ -66,8 +74,18 @@ async def login(
     )
 
     if error_msg or not user:
+        lower_err = (error_msg or "").lower()
+        is_approval_or_lock_block = (
+            "pending" in lower_err
+            or "rejected" in lower_err
+            or "disabled" in lower_err
+        )
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=(
+                status.HTTP_403_FORBIDDEN
+                if is_approval_or_lock_block
+                else status.HTTP_401_UNAUTHORIZED
+            ),
             detail=error_msg or "Invalid username or password",
         )
 
@@ -467,6 +485,11 @@ async def login_mfa(
     user = await get_user_by_id(db, user_id)
     if not user or not user.mfa_secret:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="MFA not configured for user")
+    if not user.is_active or getattr(user, "approval_status", "approved") != ApprovalStatus.APPROVED.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is inactive or awaiting Administrator approval",
+        )
 
     if not verify_totp_code(user.mfa_secret, mfa_data.totp_code):
         await record_audit_event(
@@ -531,8 +554,11 @@ async def refresh_access_token(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token has been revoked")
 
     user = await get_user_by_id(db, user_id)
-    if not user or not user.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User account disabled")
+    if not user or not user.is_active or getattr(user, "approval_status", "approved") != ApprovalStatus.APPROVED.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is disabled or pending approval",
+        )
 
     access_token = create_access_token(
         subject=user.id,
@@ -605,3 +631,392 @@ async def create_staff_user(
 ) -> User:
     """Admin endpoint to create user accounts."""
     return await create_user(db, user_in)
+
+
+_RESERVED_STAFF_IDENTIFIERS = {
+    "admin",
+    "superadmin",
+    "super_admin",
+    "super admin",
+    "administrator",
+    "root",
+    "system",
+    "admin_dawit",
+    "dr_bekele",
+    "nurse_chaltu",
+    "lab_tech_gemechu",
+    "pharm_solomon",
+    "reception_almaz",
+    "pat_gudeta",
+    "pat_chaltu",
+}
+
+_CLINICAL_SIGNUP_ROLES = {
+    "doctor",
+    "specialist",
+    "consultant",
+    "nurse",
+    "pharmacist",
+    "lab_tech",
+    "radiographer",
+}
+
+_ROLE_REQUEST_MAP: dict[str, UserRole] = {
+    "doctor": UserRole.DOCTOR,
+    "specialist": UserRole.DOCTOR,
+    "consultant": UserRole.DOCTOR,
+    "nurse": UserRole.NURSE,
+    "paramedic": UserRole.NURSE,
+    "pharmacist": UserRole.PHARMACIST,
+    "lab_tech": UserRole.LAB_TECH,
+    "radiographer": UserRole.LAB_TECH,
+    "technician": UserRole.TECHNICIAN,
+    "biomedical": UserRole.TECHNICIAN,
+    "receptionist": UserRole.RECEPTIONIST,
+    "billing": UserRole.BILLING,
+    "auditor": UserRole.BILLING,
+    "insurance_officer": UserRole.INSURANCE_OFFICER,
+    "admin": UserRole.ADMIN,
+    "ict_admin": UserRole.ADMIN,
+}
+
+
+def _detect_impersonation_risk(full_name: str, requested_role: str) -> Optional[str]:
+    """Flag self-registrations claiming privileged roles or mimicking executive titles."""
+    flags: list[str] = []
+    if requested_role in {"admin", "ict_admin", "auditor"}:
+        flags.append("PRIVILEGED_ROLE_CLAIM")
+    lower_name = full_name.lower()
+    executive_keywords = (
+        "system administrator",
+        "super admin",
+        "hospital administrator",
+        "chief executive",
+        "medical director",
+    )
+    if any(kw in lower_name for kw in executive_keywords) or lower_name.strip() == "admin":
+        flags.append("EXECUTIVE_NAME_IMPERSONATION_RISK")
+    return ",".join(flags) if flags else None
+
+
+@router.post(
+    "/staff/register",
+    response_model=StaffRegistrationResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Staff Self-Registration (Always Quarantined in Pending Admin Approval State)",
+)
+async def register_staff_request(
+    payload: StaffRegisterRequest,
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> StaffRegistrationResponse:
+    """
+    Enroll a new staff account in locked PENDING_APPROVAL state (`is_active=False`).
+
+    Anti-impersonation guarantees:
+    - Never issues JWT tokens upon sign-up.
+    - Blocks `super_admin` self-escalation attempts (HTTP 403) and reserved IDs (HTTP 409).
+    - Assigns least-privilege provisional role (`RECEPTIONIST`) with `is_active=False` until Admin approval.
+    - Flags privileged claims (e.g. `admin` / `ict_admin`) for executive audit inspection.
+    """
+    client_ip = get_client_ip(request)
+    rl_key = f"staff_signup_rl:{client_ip}"
+    current_rl = await redis_get(rl_key)
+    rl_count = int(current_rl) if current_rl and current_rl.isdigit() else 0
+    if rl_count >= 15:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many staff registration requests from this IP. Try again later.",
+        )
+    await redis_set(rl_key, str(rl_count + 1), expire_seconds=900)
+
+    clean_staff_id = payload.staff_id.strip()
+    clean_full_name = payload.full_name.strip()
+    clean_dept = payload.department.strip()
+    req_role_lower = payload.requested_role.strip().lower()
+    username_slug = re.sub(r"[^a-z0-9._-]+", "_", clean_staff_id.lower()).strip("._-")
+
+    if len(username_slug) < 3 or len(username_slug) > 50:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Staff ID must produce a valid 3-50 character identifier.",
+        )
+
+    # Reject root/Super Admin self-escalation unconditionally
+    if req_role_lower in {"super_admin", "superadmin", "root"}:
+        await record_audit_event(
+            db,
+            user_id=None,
+            action="STAFF_SIGNUP_PRIVILEGE_ESCALATION_BLOCKED",
+            resource="User",
+            resource_id=clean_staff_id,
+            ip_address=client_ip,
+            result="blocked",
+            detail={"requested_role": req_role_lower, "full_name": clean_full_name},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Root Super Admin privileges cannot be self-requested via public sign-up.",
+        )
+
+    # Validate role selection is in allowed catalog
+    if req_role_lower not in _ROLE_REQUEST_MAP:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Unsupported staff role requested: {payload.requested_role}",
+        )
+
+    # Block reserved system identifiers / impersonation collisions
+    staff_email = (
+        payload.email.strip().lower()
+        if payload.email
+        else f"{username_slug}@pending.mettukarl.gov.et"
+    )
+    if (
+        clean_staff_id.lower() in _RESERVED_STAFF_IDENTIFIERS
+        or username_slug in _RESERVED_STAFF_IDENTIFIERS
+    ):
+        await record_audit_event(
+            db,
+            user_id=None,
+            action="STAFF_SIGNUP_IMPERSONATION_ATTEMPT",
+            resource="User",
+            resource_id=clean_staff_id,
+            ip_address=client_ip,
+            result="blocked",
+            detail={"reason": "reserved_identifier", "requested_role": req_role_lower},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Reserved hospital staff identifier cannot be self-registered. Incident logged for ICT Security.",
+        )
+
+    existing_stmt = select(User).where(
+        (func.lower(User.username) == username_slug)
+        | (func.lower(User.staff_id) == clean_staff_id.lower())
+        | (func.lower(User.email) == staff_email)
+    )
+    existing_user = (await db.execute(existing_stmt)).scalar_one_or_none()
+    if existing_user:
+        await record_audit_event(
+            db,
+            user_id=None,
+            action="STAFF_SIGNUP_IMPERSONATION_ATTEMPT",
+            resource="User",
+            resource_id=clean_staff_id,
+            ip_address=client_ip,
+            result="blocked",
+            detail={"reason": "duplicate_identity", "requested_role": req_role_lower},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Staff ID, username, or email is already registered or awaiting review.",
+        )
+
+    clean_license = payload.license_number.strip() if payload.license_number else None
+    if req_role_lower in _CLINICAL_SIGNUP_ROLES and not clean_license:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Medical License / EFDA Board registration number is mandatory for clinical roles.",
+        )
+
+    risk_flag = _detect_impersonation_risk(clean_full_name, req_role_lower)
+
+    # Zero-privilege pending state: account is inactive and defaults to minimal non-admin role until Admin acts
+    new_staff = User(
+        username=username_slug,
+        email=staff_email,
+        full_name=clean_full_name,
+        hashed_password=hash_password(payload.password),
+        role=UserRole.RECEPTIONIST,
+        staff_id=clean_staff_id,
+        department=clean_dept,
+        license_number=clean_license,
+        phone_number=payload.phone_number.strip() if payload.phone_number else None,
+        approval_status=ApprovalStatus.PENDING.value,
+        requested_role=req_role_lower,
+        risk_flag=risk_flag,
+        requested_ip=client_ip,
+        is_active=False,
+    )
+    db.add(new_staff)
+    await db.commit()
+    await db.refresh(new_staff)
+
+    await record_audit_event(
+        db,
+        user_id=new_staff.id,
+        action="STAFF_SIGNUP_HIGH_RISK" if risk_flag else "STAFF_SIGNUP_PENDING",
+        resource="User",
+        resource_id=str(new_staff.id),
+        ip_address=client_ip,
+        result="pending_review",
+        detail={
+            "staff_id": clean_staff_id,
+            "requested_role": req_role_lower,
+            "department": clean_dept,
+            "risk_flag": risk_flag,
+        },
+    )
+
+    return StaffRegistrationResponse(
+        id=new_staff.id,
+        username=new_staff.username,
+        staff_id=clean_staff_id,
+        full_name=new_staff.full_name,
+        requested_role=req_role_lower,
+        department=clean_dept,
+        approval_status=ApprovalStatus.PENDING.value,
+        risk_flag=risk_flag,
+        message=(
+            "Account created in PENDING ADMIN APPROVAL status. Access remains locked until verified by the Hospital Administrator."
+        ),
+    )
+
+
+@router.get(
+    "/staff/requests",
+    response_model=List[PendingStaffUserResponse],
+    summary="List Self-Registered Staff Enrollment Requests (Admin Only)",
+)
+async def list_staff_enrollment_requests(
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    status_filter: str = Query("all", pattern="^(all|pending|approved|rejected)$"),
+) -> List[User]:
+    """List pending, flagged, approved, or rejected staff self-enrollment requests."""
+    stmt = select(User).where(
+        (User.role != UserRole.PATIENT)
+        & ((User.staff_id.is_not(None)) | (User.approval_status != ApprovalStatus.APPROVED.value))
+    )
+    if status_filter != "all":
+        stmt = stmt.where(User.approval_status == status_filter)
+
+    rows = list((await db.execute(stmt)).scalars().all())
+    priority_order = {
+        ApprovalStatus.PENDING.value: 0,
+        ApprovalStatus.REJECTED.value: 1,
+        ApprovalStatus.APPROVED.value: 2,
+    }
+    rows.sort(
+        key=lambda u: (
+            priority_order.get(u.approval_status, 3),
+            0 if u.risk_flag else 1,
+            -u.id,
+        )
+    )
+    return rows
+
+
+@router.post(
+    "/staff/requests/{user_id}/approve",
+    response_model=PendingStaffUserResponse,
+    summary="Approve Pending Staff Registration & Assign Verified Role (Admin Only)",
+)
+async def approve_staff_request(
+    user_id: int,
+    decision: StaffApprovalDecisionRequest,
+    request: Request,
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> User:
+    """Verify and activate a pending staff applicant with an explicit RBAC role."""
+    target = await get_user_by_id(db, user_id)
+    if not target or target.role == UserRole.PATIENT:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Staff request not found")
+
+    if target.username == "admin":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify root admin account here")
+
+    target_role = decision.assigned_role or _ROLE_REQUEST_MAP.get(
+        (target.requested_role or "").lower(),
+        UserRole.RECEPTIONIST,
+    )
+
+    if target_role in {UserRole.ADMIN, UserRole.SUPER_ADMIN} and current_user.role != UserRole.SUPER_ADMIN:
+        await record_audit_event(
+            db,
+            user_id=current_user.id,
+            action="ADMIN_PRIVILEGE_PROMOTION_BLOCKED",
+            resource="User",
+            resource_id=str(target.id),
+            ip_address=get_client_ip(request),
+            result="blocked",
+            detail={"attempted_role": target_role.value},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Root Super Admin can approve an Administrator role grant.",
+        )
+
+    target.role = target_role
+    target.is_active = True
+    target.approval_status = ApprovalStatus.APPROVED.value
+    target.rejection_reason = None
+    target.approved_by = current_user.id
+    target.approved_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(target)
+
+    await record_audit_event(
+        db,
+        user_id=current_user.id,
+        action="STAFF_SIGNUP_APPROVED",
+        resource="User",
+        resource_id=str(target.id),
+        ip_address=get_client_ip(request),
+        result="success",
+        detail={
+            "approved_username": target.username,
+            "staff_id": target.staff_id,
+            "assigned_role": target_role.value,
+        },
+    )
+    return target
+
+
+@router.post(
+    "/staff/requests/{user_id}/reject",
+    response_model=PendingStaffUserResponse,
+    summary="Reject / Block Suspected or Unauthorized Staff Registration (Admin Only)",
+)
+async def reject_staff_request(
+    user_id: int,
+    decision: StaffApprovalDecisionRequest,
+    request: Request,
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> User:
+    """Reject a staff enrollment request and permanently keep access disabled."""
+    target = await get_user_by_id(db, user_id)
+    if not target or target.role == UserRole.PATIENT:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Staff request not found")
+
+    if target.id == current_user.id or target.username == "admin":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot reject primary administrator account")
+
+    reason = (decision.rejection_reason or "").strip() or "Credentials could not be verified by Hospital Administration."
+    target.is_active = False
+    target.approval_status = ApprovalStatus.REJECTED.value
+    target.rejection_reason = reason
+    target.approved_by = current_user.id
+    target.approved_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(target)
+    await redis_delete(f"refresh_token:{target.id}")
+
+    await record_audit_event(
+        db,
+        user_id=current_user.id,
+        action="STAFF_SIGNUP_REJECTED",
+        resource="User",
+        resource_id=str(target.id),
+        ip_address=get_client_ip(request),
+        result="blocked",
+        detail={
+            "rejected_username": target.username,
+            "staff_id": target.staff_id,
+            "reason": reason,
+        },
+    )
+    return target

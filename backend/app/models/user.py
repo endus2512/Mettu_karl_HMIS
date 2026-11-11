@@ -26,8 +26,15 @@ class UserRole(str, enum.Enum):
     BILLING = "billing"
 
 
+class ApprovalStatus(str, enum.Enum):
+    """Enrollment verification states for hospital staff accounts."""
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
 class User(Base):
-    """User account entity with security lockout and MFA fields."""
+    """User account entity with security lockout, approval workflow, and MFA fields."""
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -40,6 +47,18 @@ class User(Base):
         default=UserRole.RECEPTIONIST,
         nullable=False,
     )
+
+    # Staff enrollment & credential verification fields
+    staff_id: Mapped[Optional[str]] = mapped_column(String(64), unique=True, index=True, nullable=True)
+    department: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    license_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    approval_status: Mapped[str] = mapped_column(String(20), default="approved", index=True, nullable=False)
+    requested_role: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    rejection_reason: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    risk_flag: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    approved_by: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    approved_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    requested_ip: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
 
     # Patient Portal linkage
     patient_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)

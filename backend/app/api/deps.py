@@ -51,10 +51,10 @@ async def get_current_user(
     user = await get_user_by_id(db, int(user_id_str))
     if user is None:
         raise credentials_exception
-    if not user.is_active:
+    if not user.is_active or getattr(user, "approval_status", "approved") != "approved":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account is inactive",
+            detail="Account is inactive or pending Administrator approval",
         )
     return user
 

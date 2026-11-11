@@ -308,12 +308,12 @@ export function AuthProvider({
       const cleanUser = username.trim();
       const lower = cleanUser.toLowerCase();
 
-      // Check if user entered a patient identifier (Fayda FAN, MRN, phone number, or patient username)
+      // Check if user entered a patient identifier (Fayda FAN, patient MRN `MKH-YYYY-...`, phone number, or patient username)
       let isPatientIdentifier =
         lower.includes('patient') ||
         lower.startsWith('pat_') ||
         cleanUser.toUpperCase().startsWith('FAN') ||
-        cleanUser.toUpperCase().startsWith('MKH') ||
+        /^MKH-\d{4}-/i.test(cleanUser) ||
         /^\+?251|^09\d{8}/.test(cleanUser.replace(/\s+/g, ''));
 
       if (!isPatientIdentifier && typeof window !== 'undefined') {
