@@ -34,6 +34,19 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./mettu_his.db"
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def normalize_database_url(cls, v: str) -> str:
+        """Convert postgres:// or postgresql:// URLs to SQLAlchemy asyncpg driver format."""
+        if not isinstance(v, str):
+            return v
+        url = v.strip()
+        if url.startswith("postgres://"):
+            return "postgresql+asyncpg://" + url[len("postgres://") :]
+        if url.startswith("postgresql://"):
+            return "postgresql+asyncpg://" + url[len("postgresql://") :]
+        return url
+
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
 
