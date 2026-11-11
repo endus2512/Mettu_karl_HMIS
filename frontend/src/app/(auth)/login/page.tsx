@@ -70,6 +70,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, type Language } from '@/lib/i18n';
+import { DigitalLedBoard } from '@/components/common/DigitalLedBoard';
+import {
+  DEFAULT_LED_SIGNAGE_CONFIG,
+  fetchLedSignageConfig,
+  readCachedLedSignage,
+  subscribeLedSignage,
+  type LedSignageConfig,
+} from '@/lib/ledSignage';
 
 // ---------------------------------------------------------------------------
 // Validation Schemas
@@ -491,6 +499,24 @@ export default function LoginPage() {
     setThemeMode(shouldBeDark);
   }, []);
 
+  // Digital LED Marquee Signboard live state (synced with Admin Studio & backend)
+  const [ledConfig, setLedConfig] = useState<LedSignageConfig>(DEFAULT_LED_SIGNAGE_CONFIG);
+
+  useEffect(() => {
+    setLedConfig(readCachedLedSignage());
+    let active = true;
+    void fetchLedSignageConfig().then((cfg) => {
+      if (active) setLedConfig(cfg);
+    });
+    const unsubscribe = subscribeLedSignage((updated) => {
+      if (active) setLedConfig(updated);
+    });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+
   // Load remember-me username if previously saved
   useEffect(() => {
     const savedUsername = localStorage.getItem('mettu_his_remember_username');
@@ -791,9 +817,9 @@ export default function LoginPage() {
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
           {/* Direct, reliable HTML image rendering with crisp-edges & zero blur */}
           <picture className="w-full h-full block">
-            <source srcSet="/hospital-building.webp?v=8" type="image/webp" />
+            <source srcSet="/hospital-building.webp?v=9" type="image/webp" />
             <img
-              src="/hospital-building.jpg?v=8"
+              src="/hospital-building.jpg?v=9"
               alt="Mettu Karl Comprehensive Specialized Hospital Building"
               loading="eager"
               decoding="sync"
@@ -809,6 +835,17 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-transparent to-slate-950/75 pointer-events-none" />
           <div className="hidden lg:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-slate-950/35 to-transparent pointer-events-none" />
           <div className="hidden lg:block absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-slate-950/35 to-transparent pointer-events-none" />
+        </div>
+
+        {/* =================================================================== */}
+        {/* 1A. HOSPITAL ARCHITECTURAL DIGITAL LED MARQUEE BOARD (ADMIN-EDITABLE) */}
+        {/* Positioned lowered down onto the upper facade below the roofline sky */}
+        {/* =================================================================== */}
+        <div
+          className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-20 flex justify-center w-full px-3 sm:px-6 transition-[top] duration-300"
+          style={{ top: `calc(23.5% + ${ledConfig.offsetY}px)` }}
+        >
+          <DigitalLedBoard config={ledConfig} variant="hero" />
         </div>
 
         {/* =================================================================== */}

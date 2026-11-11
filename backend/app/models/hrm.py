@@ -183,3 +183,37 @@ class HospitalShiftConfig(Base):
     last_switched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_by: Mapped[str] = mapped_column(String(100), default="System", nullable=False)
 
+
+class HospitalSignageConfig(Base):
+    """
+    Digital LED Marquee Signboard Configuration.
+    Stores admin-editable message, LED color, scrolling speed, typography scale,
+    and visual effects rendered on the public hospital login hero signboard.
+    """
+    __tablename__ = "hospital_signage_configs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    message: Mapped[str] = mapped_column(
+        Text,
+        default="METTU KARL COMPREHENSIVE SPECIALIZED HOSPITAL",
+        nullable=False,
+    )
+    color_preset: Mapped[str] = mapped_column(String(40), default="amber_yellow", nullable=False)
+    color_hex: Mapped[str] = mapped_column(String(20), default="#ffb800", nullable=False)
+    speed: Mapped[float] = mapped_column(Float, default=1.0, nullable=False)
+    font_scale: Mapped[float] = mapped_column(Float, default=1.0, nullable=False)
+    letter_spacing: Mapped[float] = mapped_column(Float, default=0.12, nullable=False)
+    glow_intensity: Mapped[int] = mapped_column(Integer, default=80, nullable=False)
+    show_grid_dots: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    show_scanlines: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_playing: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    direction: Mapped[str] = mapped_column(String(10), default="rtl", nullable=False)
+    offset_y: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+    updated_by: Mapped[str] = mapped_column(String(100), default="Admin", nullable=False)
+
+

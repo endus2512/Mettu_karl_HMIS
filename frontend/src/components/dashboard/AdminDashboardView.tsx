@@ -17,6 +17,7 @@ import { useTranslation, Language } from '@/lib/i18n';
 import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
 import { useZenMode } from '@/lib/zenMode';
 import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
+import { AdminLedControlPanel } from '@/components/admin/AdminLedControlPanel';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
 import {
@@ -49,6 +50,7 @@ import {
   Ticket,
   Leaf,
   BarChart2,
+  Monitor,
 } from 'lucide-react';
 
 interface WardStatus {
@@ -332,6 +334,19 @@ export function AdminDashboardView(): React.ReactElement {
             </span>
           </div>
 
+          {/* Quick Jump to Digital LED Signboard Studio */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('admin-led-signage-studio');
+              el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#141c2e] hover:bg-teal-500/15 border border-teal-500/40 text-teal-300 font-bold text-xs transition-all cursor-pointer"
+          >
+            <Monitor className="w-3.5 h-3.5 text-teal-400" />
+            <span>{language === 'om' ? 'Boordii LED Gulaali' : 'LED Signboard'}</span>
+          </button>
+
           {/* THE PRIMARY EDIT & CONTROL BUTTON */}
           <button
             type="button"
@@ -361,6 +376,11 @@ export function AdminDashboardView(): React.ReactElement {
           </button>
         </div>
       )}
+
+      {/* ================================================================= */}
+      {/* 1B. HOSPITAL DIGITAL LED MARQUEE SIGNBOARD CONTROLLER (ADMIN)     */}
+      {/* ================================================================= */}
+      <AdminLedControlPanel />
 
       {/* ================================================================= */}
       {/* 2. DEDICATED ROLE PORTAL INSPECTION TILES (DIRECT SUPERVISOR JUMP) */}
