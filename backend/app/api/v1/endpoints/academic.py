@@ -8,10 +8,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_roles
 from app.core.database import get_db
 from app.models.academic import AcademicLogbook, IRBProtocol, IRBStatus
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.academic import (
     AcademicLogbookCreate,
     AcademicLogbookResponse,
@@ -21,12 +21,14 @@ from app.schemas.academic import (
 
 router = APIRouter()
 
+academic_guard = require_roles(UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+
 
 @router.post("/irb-protocols", response_model=IRBProtocolResponse, status_code=status.HTTP_201_CREATED, summary="Submit IRB Protocol")
 async def submit_irb_protocol(
     protocol_in: IRBProtocolCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(academic_guard)],
 ) -> IRBProtocol:
     """Submit clinical research protocol to the Institutional Review Board (IRB)."""
     protocol = IRBProtocol(
@@ -43,7 +45,7 @@ async def submit_irb_protocol(
 @router.get("/irb-protocols", response_model=List[IRBProtocolResponse], summary="List IRB Protocols")
 async def list_irb_protocols(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(academic_guard)],
     status_filter: Optional[IRBStatus] = Query(None, alias="status", description="Filter by ethical review status"),
 ) -> List[IRBProtocol]:
     """List hospital-approved or under-review research clinical trials."""
@@ -58,7 +60,7 @@ async def list_irb_protocols(
 async def approve_irb_protocol(
     protocol_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(academic_guard)],
 ) -> IRBProtocol:
     """IRB Committee approval for ethical human subject trial."""
     result = await db.execute(select(IRBProtocol).where(IRBProtocol.id == protocol_id))
@@ -77,7 +79,7 @@ async def approve_irb_protocol(
 async def log_procedure(
     log_in: AcademicLogbookCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(academic_guard)],
 ) -> AcademicLogbook:
     """Log surgical or diagnostic procedure performed by medical resident or intern."""
     entry = AcademicLogbook(
@@ -94,7 +96,7 @@ async def log_procedure(
 @router.get("/logbooks", response_model=List[AcademicLogbookResponse], summary="List Procedure Logbooks")
 async def list_logbooks(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(academic_guard)],
     trainee_id: Optional[int] = Query(None, description="Filter procedures by medical student/resident ID"),
 ) -> List[AcademicLogbook]:
     """Retrieve verified and pending academic training logbook entries."""
@@ -109,7 +111,7 @@ async def list_logbooks(
 async def verify_logbook_entry(
     entry_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(academic_guard)],
 ) -> AcademicLogbook:
     """Consultant or attending physician clinical sign-off on procedure performed by trainee."""
     result = await db.execute(select(AcademicLogbook).where(AcademicLogbook.id == entry_id))

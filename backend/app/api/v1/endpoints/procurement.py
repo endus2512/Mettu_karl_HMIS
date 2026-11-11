@@ -9,10 +9,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_roles
 from app.core.database import get_db
 from app.models.procurement import BidStatus, HospitalTender, PurchaseOrder, TenderStatus, VendorBid
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.procurement import (
     HospitalTenderCreate,
     HospitalTenderResponse,
@@ -24,12 +24,14 @@ from app.schemas.procurement import (
 
 router = APIRouter()
 
+procurement_guard = require_roles(UserRole.ADMIN, UserRole.PHARMACIST, UserRole.SUPER_ADMIN)
+
 
 @router.post("/tenders", response_model=HospitalTenderResponse, status_code=status.HTTP_201_CREATED, summary="Publish Procurement Tender")
 async def publish_tender(
     tender_in: HospitalTenderCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(procurement_guard)],
 ) -> HospitalTender:
     """Publish open or restricted hospital procurement tender."""
     tender = HospitalTender(
@@ -46,7 +48,7 @@ async def publish_tender(
 @router.get("/tenders", response_model=List[HospitalTenderResponse], summary="List Procurement Tenders")
 async def list_tenders(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(procurement_guard)],
     status_filter: Optional[TenderStatus] = Query(None, alias="status", description="Filter by tender state"),
 ) -> List[HospitalTender]:
     """Retrieve hospital procurement tenders."""
@@ -61,7 +63,7 @@ async def list_tenders(
 async def submit_vendor_bid(
     bid_in: VendorBidCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(procurement_guard)],
 ) -> VendorBid:
     """Submit commercial quote and technical proposal for open tender."""
     # Ensure tender exists and is accepting bids
@@ -84,7 +86,7 @@ async def submit_vendor_bid(
 @router.get("/bids", response_model=List[VendorBidResponse], summary="List Vendor Bids")
 async def list_vendor_bids(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(procurement_guard)],
     tender_id: Optional[int] = Query(None, description="Filter bids by tender ID"),
 ) -> List[VendorBid]:
     """Retrieve submitted vendor quotations for tender evaluation committee."""
@@ -99,7 +101,7 @@ async def list_vendor_bids(
 async def issue_purchase_order(
     po_in: PurchaseOrderCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(procurement_guard)],
 ) -> PurchaseOrder:
     """Issue formal Purchase Order (PO) to awarded vendor."""
     po_number = f"PO-{datetime.now(timezone.utc).year}-{uuid.uuid4().hex[:6].upper()}"
@@ -117,7 +119,7 @@ async def issue_purchase_order(
 @router.get("/purchase-orders", response_model=List[PurchaseOrderResponse], summary="List Purchase Orders")
 async def list_purchase_orders(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(procurement_guard)],
 ) -> List[PurchaseOrder]:
     """Retrieve issued purchase orders."""
     result = await db.execute(select(PurchaseOrder).order_by(PurchaseOrder.issued_date.desc()))

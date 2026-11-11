@@ -98,7 +98,7 @@ async def get_document_signature(
     document_type: str,
     document_id: str,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(signing_guard)],
 ):
     """Fetch the active cryptographic signature seal for a document."""
     stmt = select(ClinicalDigitalSignature).where(

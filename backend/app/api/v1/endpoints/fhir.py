@@ -7,7 +7,7 @@ from typing import Annotated, Any, Dict, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_client_ip, get_current_user
+from app.api.deps import get_client_ip, require_roles
 from app.core.audit import record_audit_event
 from app.core.config import settings
 from app.core.database import get_db
@@ -32,11 +32,25 @@ from app.services.patient_service import (
 
 router = APIRouter()
 
+fhir_read_guard = require_roles(
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.RECEPTIONIST,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
+fhir_write_guard = require_roles(
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.RECEPTIONIST,
+    UserRole.SUPER_ADMIN,
+)
+
 
 @router.get("/Patient", response_model=FHIRPatientBundle, summary="FHIR R4 Patient Search")
 async def search_fhir_patients(
     request: Request,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(fhir_read_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
     name: Optional[str] = Query(None, description="Search by patient name or MRN"),
     gender: Optional[Gender] = Query(None, description="Filter by gender (male, female, other, unknown)"),
@@ -86,7 +100,7 @@ async def search_fhir_patients(
 async def get_fhir_patient_by_id(
     fhir_id: str,
     request: Request,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(fhir_read_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Dict[str, Any]:
     """Retrieve an individual Patient by FHIR UUID in FHIR R4 JSON format."""
@@ -120,16 +134,10 @@ async def get_fhir_patient_by_id(
 async def create_fhir_patient(
     patient_in: PatientCreate,
     request: Request,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(fhir_write_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Dict[str, Any]:
     """Create a new Patient and return the created FHIR R4 Patient resource."""
-    # RBAC Guard: Clinical write restricted to clinical/reception staff and system admin
-    if current_user.role not in (UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST, UserRole.SUPER_ADMIN):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied (Eeyyama hin qabdan). Only clinical and front-desk staff can create patient medical records.",
-        )
 
     patient = await create_patient(db, patient_in)
 
@@ -152,16 +160,10 @@ async def update_fhir_patient(
     fhir_id: str,
     patient_update: PatientUpdate,
     request: Request,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(fhir_write_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Dict[str, Any]:
     """Update patient demographics by FHIR ID."""
-    # RBAC Guard: Clinical write restricted to clinical/reception staff and system admin
-    if current_user.role not in (UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST, UserRole.SUPER_ADMIN):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied (Eeyyama hin qabdan). Only clinical practitioners can update patient medical charts.",
-        )
 
     patient = await get_patient_by_fhir_id(db, fhir_id)
     if not patient:

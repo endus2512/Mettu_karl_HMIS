@@ -12,7 +12,7 @@ from sqlalchemy import case, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_optional_current_user
+from app.api.deps import require_lab_clinical
 from app.core.database import get_db
 from app.models.pacs import (
     DICOMInstance,
@@ -118,7 +118,7 @@ def _build_study_response(study: DICOMStudy) -> DICOMStudyResponse:
 @router.get("/stats", response_model=PACSStatsResponse, summary="PACS Real-Time KPIs")
 async def get_pacs_stats(
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> PACSStatsResponse:
     """Calculates operational metrics across imaging modalities and reporting queues."""
     total_q = select(func.count(DICOMStudy.id))
@@ -152,7 +152,7 @@ async def list_radiology_orders(
     priority_filter: Optional[str] = Query(None, alias="priority"),
     search: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> List[RadiologyOrderResponse]:
     """Retrieve radiology orders prioritized with STAT and URGENT first."""
     priority_rank = case(
@@ -201,7 +201,7 @@ async def list_radiology_orders(
 async def place_radiology_order(
     payload: RadiologyOrderCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> RadiologyOrderResponse:
     """Physician requests an X-Ray, CT, MRI, or Ultrasound study."""
     pat_res = await db.execute(select(Patient).where(Patient.id == payload.patient_id))
@@ -252,7 +252,7 @@ async def list_dicom_studies(
     modality: Optional[ModalityType] = None,
     search: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> List[DICOMStudyResponse]:
     """Retrieve indexed radiology imaging studies with radiologist impressions."""
     query = (
@@ -291,7 +291,7 @@ async def list_dicom_studies(
 async def get_dicom_study(
     study_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> DICOMStudyResponse:
     """Retrieve complete metadata and radiologist findings for a specific study."""
     stmt = (
@@ -314,7 +314,7 @@ async def get_dicom_study(
 async def create_study(
     payload: DICOMStudyCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> DICOMStudyResponse:
     """Ingest metadata and image reference from an X-Ray, CT, or Ultrasound scanner."""
     study_uid = f"1.2.826.0.1.3680043.9.7129.{uuid.uuid4().int % 100000000000}"
@@ -363,7 +363,7 @@ async def record_radiologist_report(
     study_id: int,
     payload: RadiologyReportSubmit,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> DICOMStudyResponse:
     """Radiologist logs narrative report, clinical impression, flags critical findings, and signs off."""
     stmt = (
@@ -380,7 +380,7 @@ async def record_radiologist_report(
     if not study:
         raise HTTPException(status_code=404, detail="DICOM Study not found")
 
-    doctor_id = current_user.id if current_user else 2 # Dr. Bekele
+    doctor_id = current_user.id
     now = datetime.now(timezone.utc)
 
     study.radiologist_report = payload.radiologist_report
@@ -413,7 +413,7 @@ async def record_radiologist_report(
 async def get_imaging_report_voucher(
     study_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ):
     """Generates official structured diagnostic imaging report suitable for hospital discharge and referral."""
     stmt = (

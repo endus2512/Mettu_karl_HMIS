@@ -25,7 +25,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
-import { getRolePortalPath } from '@/lib/roleRoutes';
+import { getRolePortalPath, isAdminRole } from '@/lib/roleRoutes';
 import type { UserRole } from '@/types';
 import {
   LayoutDashboard,
@@ -414,9 +414,10 @@ export function Sidebar(): React.ReactElement {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const effectiveRole: UserRole = activeRole || user?.role || 'doctor';
+  const realRole: UserRole = user?.role || 'patient';
+  const isSupervisorRole = isAdminRole(realRole);
+  const effectiveRole: UserRole = isSupervisorRole ? activeRole : realRole;
   const isPatientRole = effectiveRole === 'patient';
-  const isSupervisorRole = effectiveRole === 'admin' || effectiveRole === 'super_admin';
 
   // Collapsible Accordion State for the Domains
   const [openDomains, setOpenDomains] = useState<{ [key: string]: boolean }>({
@@ -486,7 +487,7 @@ export function Sidebar(): React.ReactElement {
 
   // Strict Role Filtering
   const filterByRole = (items: NavItem[]): NavItem[] => {
-    if (effectiveRole === 'super_admin' || effectiveRole === 'admin') return items;
+    if (isSupervisorRole && (effectiveRole === 'super_admin' || effectiveRole === 'admin')) return items;
     if (effectiveRole === 'patient') return [];
 
     return items.filter((item) => {
@@ -754,7 +755,7 @@ export function Sidebar(): React.ReactElement {
               </div>
 
               {/* Administrative Supervisory Authority & Workstation Inspector */}
-              {(isSupervisorRole || simulatedRole) && (
+              {isSupervisorRole && (
                 <div className="rounded-xl bg-[#0c121e] border border-amber-500/30 p-2.5 space-y-2 shadow-inner">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-amber-400">

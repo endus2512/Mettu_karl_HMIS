@@ -8,10 +8,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSock
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_roles
 from app.core.database import get_db
 from app.models.iomt import AlarmSeverity, IoMTDevice, TelemetryAlarm, VitalTelemetry
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.iomt import (
     IoMTDeviceCreate,
     IoMTDeviceResponse,
@@ -23,12 +23,21 @@ from app.services.iomt_service import ingest_patient_vitals, iomt_stream_manager
 
 router = APIRouter()
 
+iomt_guard = require_roles(
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.TECHNICIAN,
+    UserRole.LAB_TECH,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
+
 
 @router.post("/devices", response_model=IoMTDeviceResponse, status_code=status.HTTP_201_CREATED, summary="Register IoMT Device")
 async def register_iomt_device(
     device_in: IoMTDeviceCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(iomt_guard)],
 ) -> IoMTDevice:
     """Register bedside patient monitor, pulse oximeter, or ECG telemetry unit."""
     device = IoMTDevice(
@@ -45,7 +54,7 @@ async def register_iomt_device(
 @router.get("/devices", response_model=List[IoMTDeviceResponse], summary="List IoMT Devices")
 async def list_iomt_devices(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(iomt_guard)],
     ward: Optional[str] = Query(None, description="Filter devices by hospital ward (e.g. ICU, NICU)"),
 ) -> List[IoMTDevice]:
     """Retrieve connected bedside telemetry monitors."""
@@ -60,7 +69,7 @@ async def list_iomt_devices(
 async def ingest_telemetry(
     telemetry_in: VitalTelemetryCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(iomt_guard)],
 ) -> VitalTelemetry:
     """Ingest bedside vital sign telemetry datapoint and evaluate clinical threshold alarms."""
     # Ensure device exists
@@ -98,7 +107,7 @@ async def ingest_telemetry(
 @router.get("/alarms", response_model=List[TelemetryAlarmResponse], summary="List Telemetry Alarms")
 async def list_telemetry_alarms(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(iomt_guard)],
     severity: Optional[AlarmSeverity] = Query(None, description="Filter alarms by severity level"),
     unacknowledged_only: bool = Query(True, description="Filter for unacknowledged alarms"),
 ) -> List[TelemetryAlarm]:
@@ -116,7 +125,7 @@ async def list_telemetry_alarms(
 async def acknowledge_alarm(
     alarm_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(iomt_guard)],
 ) -> TelemetryAlarm:
     """Nurse or clinician sign-off / acknowledgment of clinical vital alert."""
     result = await db.execute(select(TelemetryAlarm).where(TelemetryAlarm.id == alarm_id))

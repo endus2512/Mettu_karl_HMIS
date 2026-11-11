@@ -10,7 +10,7 @@ from sqlalchemy import func, select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_current_user, get_optional_current_user
+from app.api.deps import require_reception_clinical
 from app.core.database import get_db
 from app.models.ems import Ambulance, EmergencyCall, DispatchStatus, TriageLevel
 from app.models.user import User
@@ -88,7 +88,7 @@ def _map_call_response(call: EmergencyCall, amb: Optional[Ambulance] = None) -> 
 @router.get("/stats", summary="EMS Fleet & Hotline 907 Statistics")
 async def get_ems_stats(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_reception_clinical)],
 ):
     """Retrieve real-time metrics for ambulance fleet and emergency response."""
     # Ambulances count
@@ -122,7 +122,7 @@ async def get_ems_stats(
 @router.get("/ambulances", response_model=List[AmbulanceResponse], summary="List Ambulance Fleet")
 async def list_ambulances(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_reception_clinical)],
 ) -> List[AmbulanceResponse]:
     """Retrieve hospital ambulance fleet with current GPS location and readiness."""
     res = await db.execute(select(Ambulance).order_by(Ambulance.id.asc()))
@@ -134,7 +134,7 @@ async def list_ambulances(
 async def register_ambulance(
     amb_in: AmbulanceCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_reception_clinical)],
 ) -> AmbulanceResponse:
     """Register a new emergency response vehicle."""
     c_lat = amb_in.current_latitude if amb_in.current_latitude is not None else amb_in.current_lat
@@ -168,7 +168,7 @@ async def register_ambulance(
 @router.get("/calls", response_model=List[EmergencyCallResponse], summary="List 907 Emergency Calls")
 async def list_emergency_calls(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_reception_clinical)],
     triage: Optional[str] = Query(None, description="Filter by triage level (RED, YELLOW, GREEN, BLACK)"),
 ) -> List[EmergencyCallResponse]:
     """Retrieve all 907 emergency hotline requests with assigned ambulance status."""
@@ -186,7 +186,7 @@ async def list_emergency_calls(
 async def log_emergency_call(
     call_in: EmergencyCallCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_reception_clinical)],
 ) -> EmergencyCallResponse:
     """Log incoming 907 community emergency call with field triage classification."""
     loc = call_in.incident_location or call_in.location_address or "Mettu City Center"
@@ -211,7 +211,7 @@ async def log_emergency_call(
 async def dispatch_unit(
     req: DispatchAmbulanceRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_reception_clinical)],
 ) -> EmergencyCallResponse:
     """Dispatch ambulance unit and alert paramedic team."""
     inc_id = req.emergency_call_id or req.incident_id
@@ -232,8 +232,8 @@ async def dispatch_unit(
 async def update_call_status(
     call_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_reception_clinical)],
     target_status: str = Query(..., description="Target status: en_route, on_scene, patient_loaded, arrived_hospital"),
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
 ) -> EmergencyCallResponse:
     """Transition ambulance mission status as patient is triaged, loaded, and transported."""
     stmt = select(EmergencyCall).options(selectinload(EmergencyCall.ambulance)).where(EmergencyCall.id == call_id)
@@ -264,7 +264,7 @@ async def update_call_status(
 async def get_dispatch_voucher(
     call_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_reception_clinical)],
 ) -> AmbulanceDispatchVoucherResponse:
     """Retrieve printable ambulance run sheet with TIN 0038912401, QR verification, and crew sign-off."""
     stmt = select(EmergencyCall).options(selectinload(EmergencyCall.ambulance)).where(EmergencyCall.id == call_id)

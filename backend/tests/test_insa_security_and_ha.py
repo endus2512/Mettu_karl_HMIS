@@ -15,6 +15,7 @@ from app.models.audit_log import AuditLog
 @pytest.mark.asyncio
 async def test_insa_merkle_audit_hash_chain_creation_and_verification(
     client: AsyncClient,
+    admin_auth_headers: dict[str, str],
     doctor_auth_headers: dict[str, str],
     db_session: AsyncSession,
 ):
@@ -76,8 +77,11 @@ async def test_insa_merkle_audit_hash_chain_creation_and_verification(
     assert verify_result["status"] == "VERIFIED_TAMPER_FREE"
     assert verify_result["total_records_checked"] >= 3
 
-    # 3. Verify via HTTP API endpoint
-    api_res = await client.get("/api/v1/clinical-audit/security/verify-chain", headers=doctor_auth_headers)
+    # 3. Verify via HTTP API endpoint (Admin only; clinicians blocked)
+    denied = await client.get("/api/v1/clinical-audit/security/verify-chain", headers=doctor_auth_headers)
+    assert denied.status_code == 403
+
+    api_res = await client.get("/api/v1/clinical-audit/security/verify-chain", headers=admin_auth_headers)
     assert api_res.status_code == 200
     api_data = api_res.json()
     assert api_data["is_valid"] is True

@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
+import { getRolePortalPath, isAdminRole, isRoleAllowed } from '@/lib/roleRoutes';
 import type { UserRole } from '@/types';
 import { ShieldAlert, AlertTriangle, User as UserIcon } from 'lucide-react';
 
@@ -29,7 +30,9 @@ export function ProtectedRoute({
   const { language } = useTranslation();
   const router = useRouter();
 
-  const effectiveRole = activeRole || user?.role || 'doctor';
+  const realRole = user?.role;
+  const isRealSupervisor = isAdminRole(realRole);
+  const effectiveRole: UserRole = (isRealSupervisor ? activeRole : realRole) || 'patient';
 
   if (isLoading) {
     return (
@@ -44,25 +47,20 @@ export function ProtectedRoute({
     );
   }
 
-  if (!isAuthenticated || !user) {
+  if (!isAuthenticated || !user || !realRole) {
     if (typeof window !== 'undefined') {
       router.replace('/login');
     }
-    return <div />;
+    return <div className="min-h-screen bg-[#0b0f17]" />;
   }
 
-  // Super admin retains global emergency oversight across all hospital workstations
-  if (effectiveRole === 'super_admin') {
+  // Verified real super_admin retains global emergency oversight
+  if (realRole === 'super_admin' && effectiveRole === 'super_admin') {
     return <>{children}</>;
   }
 
-  // Check if role is authorized
-  const effectiveAllowed = allowedRoles ? [...allowedRoles] : [];
-  if (effectiveAllowed.includes('technician') && !effectiveAllowed.includes('lab_technician')) {
-    effectiveAllowed.push('lab_technician');
-  }
-
-  if (effectiveAllowed.length > 0 && !effectiveAllowed.includes(effectiveRole)) {
+  const effectiveAllowed: UserRole[] = allowedRoles && allowedRoles.length > 0 ? [...allowedRoles] : ['admin', 'super_admin'];
+  if (!isRoleAllowed(effectiveRole, effectiveAllowed)) {
     const roleName = effectiveRole.replace('_', ' ').toUpperCase();
 
     return (
@@ -170,7 +168,7 @@ export function ProtectedRoute({
           {/* Action Navigation */}
           <div className="flex flex-col sm:flex-row items-center gap-3 border-t border-slate-700/80 pt-6">
             <Link
-              href={effectiveRole === 'patient' ? '/patient-portal' : '/dashboard'}
+              href={getRolePortalPath(realRole)}
               className="w-full sm:w-auto flex-1 rounded-xl bg-teal-600 hover:bg-teal-700 px-5 py-2.5 text-center text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer"
             >
               {effectiveRole === 'patient'

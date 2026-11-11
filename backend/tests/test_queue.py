@@ -21,14 +21,26 @@ async def test_queue_ticket_lifecycle(client: AsyncClient, doctor_auth_headers: 
     db_session.add(dept)
     await db_session.commit()
 
+    # Unauthenticated ticket issuance strictly rejected
+    unauth = await client.post("/api/v1/queue/tickets", json={"department_code": "OPD_1", "priority": "routine"})
+    assert unauth.status_code == 401
+
     # 1. Issue normal ticket
-    t1_res = await client.post("/api/v1/queue/tickets", json={"department_code": "OPD_1", "priority": "routine"})
+    t1_res = await client.post(
+        "/api/v1/queue/tickets",
+        json={"department_code": "OPD_1", "priority": "routine"},
+        headers=doctor_auth_headers,
+    )
     assert t1_res.status_code == 201
     t1_data = t1_res.json()
     assert t1_data["ticket_number"] == "A-001"
 
     # 2. Issue emergency ticket
-    t2_res = await client.post("/api/v1/queue/tickets", json={"department_code": "OPD_1", "priority": "emergency"})
+    t2_res = await client.post(
+        "/api/v1/queue/tickets",
+        json={"department_code": "OPD_1", "priority": "emergency"},
+        headers=doctor_auth_headers,
+    )
     assert t2_res.status_code == 201
     t2_data = t2_res.json()
     assert t2_data["ticket_number"] == "A-002"

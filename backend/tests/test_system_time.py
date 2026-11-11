@@ -42,9 +42,12 @@ async def test_get_online_time_sync(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_get_shift_roster(client: AsyncClient):
-    """Test retrieving ward shift roster."""
-    res = await client.get("/api/v1/system/shifts/roster")
+async def test_get_shift_roster(client: AsyncClient, doctor_auth_headers: dict[str, str]):
+    """Test retrieving ward shift roster (Staff only; unauth rejected)."""
+    unauth = await client.get("/api/v1/system/shifts/roster")
+    assert unauth.status_code == 401
+
+    res = await client.get("/api/v1/system/shifts/roster", headers=doctor_auth_headers)
     assert res.status_code == 200
     data = res.json()
     assert data["on_duty_staff_count"] > 0

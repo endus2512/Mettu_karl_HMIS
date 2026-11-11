@@ -4,17 +4,27 @@ Integrates Ethio Telecom Bulk SMS, Twilio Global SMS, Android GSM SIM Gateway, a
 """
 from datetime import datetime, timezone
 import os
-from typing import List, Optional, Dict, Any
+from typing import Annotated, List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.deps import require_admin, require_roles, require_staff
 from app.core.database import get_db
 from app.models.notification import SMSNotificationLog, NotificationStatus, SMSGatewayConfig
+from app.models.user import User, UserRole
 from app.services.sms_service import sms_service, TEMPLATES, format_ethiopian_phone
 
 router = APIRouter()
+
+sms_dispatch_guard = require_roles(
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.RECEPTIONIST,
+)
 
 
 class SMSDispatchRequest(BaseModel):
@@ -108,9 +118,8 @@ def _mask(s: Optional[str]) -> Optional[str]:
     return f"{s[:4]}...{s[-4:]}"
 
 
-@router.get("/config", response_model=SMSGatewayConfigResponse, summary="Get Active SMS Gateway Configuration")
-async def get_gateway_config(db: AsyncSession = Depends(get_db)) -> SMSGatewayConfigResponse:
-    """Retrieve current active carrier configuration (passwords masked for security)."""
+async def _build_gateway_config_response(db: AsyncSession) -> SMSGatewayConfigResponse:
+    """Build masked active SMS carrier configuration response."""
     stmt = select(SMSGatewayConfig).where(SMSGatewayConfig.is_active == True).order_by(desc(SMSGatewayConfig.id))
     res = await db.execute(stmt)
     cfg = res.scalar_one_or_none()
@@ -118,7 +127,6 @@ async def get_gateway_config(db: AsyncSession = Depends(get_db)) -> SMSGatewayCo
     provider = cfg.provider if cfg else "simulated"
     is_active = cfg.is_active if cfg else False
 
-    # Check env fallbacks
     tw_sid = (cfg.twilio_account_sid if cfg else None) or os.getenv("TWILIO_ACCOUNT_SID")
     tw_token = (cfg.twilio_auth_token if cfg else None) or os.getenv("TWILIO_AUTH_TOKEN")
     eth_url = (cfg.ethio_url if cfg else None) or os.getenv("ETHIO_TELECOM_SMS_URL")
@@ -148,12 +156,22 @@ async def get_gateway_config(db: AsyncSession = Depends(get_db)) -> SMSGatewayCo
     )
 
 
+@router.get("/config", response_model=SMSGatewayConfigResponse, summary="Get Active SMS Gateway Configuration")
+async def get_gateway_config(
+    current_user: Annotated[User, Depends(require_admin)],
+    db: AsyncSession = Depends(get_db),
+) -> SMSGatewayConfigResponse:
+    """Retrieve current active carrier configuration (Admin Only, passwords masked)."""
+    return await _build_gateway_config_response(db)
+
+
 @router.post("/config", response_model=SMSGatewayConfigResponse, summary="Update SMS Gateway Carrier Settings")
 async def update_gateway_config(
     payload: SMSGatewayConfigPayload,
+    current_user: Annotated[User, Depends(require_admin)],
     db: AsyncSession = Depends(get_db),
 ) -> SMSGatewayConfigResponse:
-    """Save live carrier settings (Twilio, Ethio Telecom, or Android GSM Modem)."""
+    """Save live carrier settings (Admin Only: Twilio, Ethio Telecom, or Android GSM Modem)."""
     # Deactivate previous configs
     old_res = await db.execute(select(SMSGatewayConfig))
     for old in old_res.scalars().all():
@@ -180,12 +198,13 @@ async def update_gateway_config(
     await db.commit()
     await db.refresh(new_cfg)
 
-    return await get_gateway_config(db)
+    return await _build_gateway_config_response(db)
 
 
 @router.post("/test-connection", response_model=TestSMSConnectionResponse, summary="Send Live Test SMS to Handset")
 async def test_sms_connection(
     payload: TestSMSConnectionRequest,
+    current_user: Annotated[User, Depends(require_admin)],
     db: AsyncSession = Depends(get_db),
 ) -> TestSMSConnectionResponse:
     """Send an immediate test message through the configured carrier and report exact results."""
@@ -213,6 +232,7 @@ async def test_sms_connection(
 @router.post("/send", response_model=SMSDispatchResponse, summary="Dispatch SMS via Active Gateway")
 async def send_sms_notification(
     payload: SMSDispatchRequest,
+    current_user: Annotated[User, Depends(sms_dispatch_guard)],
     db: AsyncSession = Depends(get_db),
 ) -> SMSDispatchResponse:
     """Send an automated SMS alert to a patient's mobile phone."""
@@ -273,6 +293,7 @@ async def process_ussd_session(payload: USSDSessionRequest) -> USSDSessionRespon
 
 @router.get("/logs", summary="List SMS dispatch logs")
 async def get_sms_logs(
+    current_user: Annotated[User, Depends(require_admin)],
     limit: int = Query(20, le=100),
     db: AsyncSession = Depends(get_db),
 ) -> List[Dict[str, Any]]:
@@ -298,7 +319,9 @@ async def get_sms_logs(
 
 
 @router.get("/templates", summary="Get localized SMS templates")
-async def get_sms_templates() -> Dict[str, Any]:
+async def get_sms_templates(
+    current_user: Annotated[User, Depends(require_staff)],
+) -> Dict[str, Any]:
     """Retrieve available message templates and supported languages."""
     return {
         "templates": TEMPLATES,

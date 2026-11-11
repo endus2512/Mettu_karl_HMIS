@@ -12,17 +12,22 @@ from app.models.crm import GrievanceCategory, GrievancePriority, GrievanceStatus
 @pytest.mark.asyncio
 async def test_crm_csat_feedback_and_grievance_workflow(
     client: AsyncClient,
+    admin_auth_headers: dict[str, str],
     doctor_auth_headers: dict[str, str],
     db_session: AsyncSession,
 ):
-    """Test patient satisfaction survey submission and grievance redressal lifecycle."""
-    # 1. Submit CSAT Rating
+    """Test patient satisfaction survey submission and grievance redressal lifecycle (Admin/Insurance only)."""
+    # 1. Non-CRM role blocked from CRM
     csat_payload = {
         "department": "Emergency OPD",
         "rating_stars": 5,
         "comments": "Exceptional bedside manner from triage nurses.",
     }
-    csat_res = await client.post("/api/v1/crm/feedback", json=csat_payload, headers=doctor_auth_headers)
+    denied = await client.post("/api/v1/crm/feedback", json=csat_payload, headers=doctor_auth_headers)
+    assert denied.status_code == 403
+
+    # Submit CSAT Rating as Admin
+    csat_res = await client.post("/api/v1/crm/feedback", json=csat_payload, headers=admin_auth_headers)
     assert csat_res.status_code == 201
     assert csat_res.json()["rating_stars"] == 5
 
@@ -35,7 +40,7 @@ async def test_crm_csat_feedback_and_grievance_workflow(
         "assigned_department": "Cardiology",
         "complaint_details": "Delayed physician consultation during acute chest pain.",
     }
-    grv_res = await client.post("/api/v1/crm/grievances", json=grv_payload, headers=doctor_auth_headers)
+    grv_res = await client.post("/api/v1/crm/grievances", json=grv_payload, headers=admin_auth_headers)
     assert grv_res.status_code == 201
     ticket = grv_res.json()
     assert ticket["ticket_number"].startswith("GRV-")
@@ -46,7 +51,7 @@ async def test_crm_csat_feedback_and_grievance_workflow(
     resolve_payload = {
         "resolution_summary": "Consultant cardiologist attended patient immediately and reviewed ECG protocol.",
     }
-    res_ticket = await client.post(f"/api/v1/crm/grievances/{ticket_id}/resolve", json=resolve_payload, headers=doctor_auth_headers)
+    res_ticket = await client.post(f"/api/v1/crm/grievances/{ticket_id}/resolve", json=resolve_payload, headers=admin_auth_headers)
     assert res_ticket.status_code == 200
     resolved_data = res_ticket.json()
     assert resolved_data["status"] == "resolved"

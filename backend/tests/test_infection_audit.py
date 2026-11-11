@@ -61,10 +61,11 @@ async def test_infection_control_and_phem_surveillance(
 @pytest.mark.asyncio
 async def test_clinical_audit_and_capa_workflow(
     client: AsyncClient,
+    admin_auth_headers: dict[str, str],
     doctor_auth_headers: dict[str, str],
     db_session: AsyncSession,
 ):
-    """Test EHSTG quality audit scoring and Corrective Action Plan resolution."""
+    """Test EHSTG quality audit scoring and CAPA resolution (Admin only; clinicians blocked)."""
     # 1. Log EHSTG Audit (Surgical Safety Checklist)
     audit_payload = {
         "audit_code": "AUD-EHSTG-2026-OT",
@@ -75,7 +76,10 @@ async def test_clinical_audit_and_capa_workflow(
         "compliance_score_percent": 74.0,  # Below 80%, triggers CAPA_PENDING
         "findings_summary": "Sign-out phase of WHO checklist missed in 6 of 25 observed major surgeries.",
     }
-    a_res = await client.post("/api/v1/clinical-audit/audits", json=audit_payload, headers=doctor_auth_headers)
+    denied = await client.post("/api/v1/clinical-audit/audits", json=audit_payload, headers=doctor_auth_headers)
+    assert denied.status_code == 403
+
+    a_res = await client.post("/api/v1/clinical-audit/audits", json=audit_payload, headers=admin_auth_headers)
     assert a_res.status_code == 201
     audit_data = a_res.json()
     assert audit_data["status"] == "capa_pending"
@@ -89,12 +93,12 @@ async def test_clinical_audit_and_capa_workflow(
         "assigned_to": "OT Head Nurse Almaz",
         "deadline_date": str(date.today()),
     }
-    capa_res = await client.post("/api/v1/clinical-audit/capa", json=capa_payload, headers=doctor_auth_headers)
+    capa_res = await client.post("/api/v1/clinical-audit/capa", json=capa_payload, headers=admin_auth_headers)
     assert capa_res.status_code == 201
     capa_id = capa_res.json()["id"]
     assert capa_res.json()["is_resolved"] is False
 
     # 3. Resolve CAPA
-    res_capa = await client.post(f"/api/v1/clinical-audit/capa/{capa_id}/resolve", headers=doctor_auth_headers)
+    res_capa = await client.post(f"/api/v1/clinical-audit/capa/{capa_id}/resolve", headers=admin_auth_headers)
     assert res_capa.status_code == 200
     assert res_capa.json()["is_resolved"] is True

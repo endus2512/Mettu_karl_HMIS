@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_client_ip, get_current_user, require_roles_flexible
+from app.api.deps import get_client_ip, get_current_user, require_roles
 from app.core.audit import record_audit_event
 from app.core.database import get_db
 from app.models.billing import (
@@ -41,11 +41,10 @@ from app.schemas.billing import (
 )
 from app.services.telebirr_service import telebirr_service
 
-billing_guard = require_roles_flexible(
+billing_guard = require_roles(
     UserRole.BILLING,
     UserRole.ADMIN,
     UserRole.INSURANCE_OFFICER,
-    UserRole.RECEPTIONIST,
     UserRole.SUPER_ADMIN,
 )
 
@@ -105,6 +104,7 @@ async def _enrich_invoice_response(db: AsyncSession, invoice: Invoice) -> Invoic
 
 @router.get("/invoices", response_model=List[InvoiceResponse], summary="List Patient Invoices")
 async def list_invoices(
+    current_user: Annotated[User, Depends(billing_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
     status: Optional[str] = Query(None, description="Filter by status: pending, paid, partial, cancelled, all"),
     search: Optional[str] = Query(None, description="Search by invoice number, patient name, or MRN"),
@@ -215,6 +215,7 @@ async def create_invoice(
 @router.get("/invoices/{invoice_id}", response_model=InvoiceResponse, summary="Get Invoice Details")
 async def get_invoice(
     invoice_id: int,
+    current_user: Annotated[User, Depends(billing_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> InvoiceResponse:
     """Fetch invoice by ID with line items and payment transactions."""
@@ -373,6 +374,7 @@ async def telebirr_webhook(
 
 @router.get("/revenue/summary", response_model=RevenueSummaryResponse, summary="Daily Financial Revenue Summary")
 async def get_revenue_summary(
+    current_user: Annotated[User, Depends(billing_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> RevenueSummaryResponse:
     """Calculate real-time revenue KPIs and channel breakdown."""
@@ -409,6 +411,7 @@ async def get_revenue_summary(
 
 @router.get("/cbhi/policies", response_model=List[CBHIPolicyResponse], summary="List Community-Based Health Insurance Policies")
 async def list_cbhi_policies(
+    current_user: Annotated[User, Depends(billing_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> List[CBHIPolicy]:
     """Retrieve all enrolled CBHI household coverage records."""

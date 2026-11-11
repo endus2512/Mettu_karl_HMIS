@@ -12,6 +12,7 @@ from app.models.patient import Gender, Patient
 @pytest.mark.asyncio
 async def test_cbhi_claims_batch_and_adjudication(
     client: AsyncClient,
+    billing_auth_headers: dict[str, str],
     doctor_auth_headers: dict[str, str],
     db_session: AsyncSession,
 ):
@@ -28,14 +29,17 @@ async def test_cbhi_claims_batch_and_adjudication(
     await db_session.commit()
     await db_session.refresh(patient)
 
-    # 1. Create Batch Header
+    # 1. Create Batch Header (Clinicians strictly blocked)
     batch_payload = {
         "batch_number": "CBHI-METTU-2026-10",
         "insurance_type": "cbhi",
         "woreda_name": "Mettu Woreda Health Pool",
         "billing_period": "October 2026",
     }
-    b_res = await client.post("/api/v1/insurance-claims/batches", json=batch_payload, headers=doctor_auth_headers)
+    denied = await client.post("/api/v1/insurance-claims/batches", json=batch_payload, headers=doctor_auth_headers)
+    assert denied.status_code == 403
+
+    b_res = await client.post("/api/v1/insurance-claims/batches", json=batch_payload, headers=billing_auth_headers)
     assert b_res.status_code == 201
     batch_id = b_res.json()["id"]
 
@@ -49,7 +53,7 @@ async def test_cbhi_claims_batch_and_adjudication(
         "patient_copay_etb": 0.0,  # 100% CBHI covered
         "claimed_amount_etb": 4200.0,
     }
-    c_res = await client.post("/api/v1/insurance-claims/claims", json=claim_payload, headers=doctor_auth_headers)
+    c_res = await client.post("/api/v1/insurance-claims/claims", json=claim_payload, headers=billing_auth_headers)
     assert c_res.status_code == 201
     claim_id = c_res.json()["id"]
 
@@ -59,13 +63,13 @@ async def test_cbhi_claims_batch_and_adjudication(
         "approved_amount_etb": 4200.0,
         "rejection_reason": None,
     }
-    adj_res = await client.post(f"/api/v1/insurance-claims/claims/{claim_id}/adjudicate", json=adj_payload, headers=doctor_auth_headers)
+    adj_res = await client.post(f"/api/v1/insurance-claims/claims/{claim_id}/adjudicate", json=adj_payload, headers=billing_auth_headers)
     assert adj_res.status_code == 200
     assert adj_res.json()["status"] == "approved"
     assert adj_res.json()["approved_amount_etb"] == 4200.0
 
     # 4. Verify Batch Header Totals Recalculated
-    batches_res = await client.get("/api/v1/insurance-claims/batches", headers=doctor_auth_headers)
+    batches_res = await client.get("/api/v1/insurance-claims/batches", headers=billing_auth_headers)
     assert batches_res.status_code == 200
     b_updated = next(b for b in batches_res.json() if b["id"] == batch_id)
     assert b_updated["total_claims_count"] == 1

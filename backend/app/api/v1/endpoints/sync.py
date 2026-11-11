@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_staff
 from app.core.database import get_db
 from app.models.user import User
 from app.schemas.sync import (
@@ -31,7 +31,7 @@ router = APIRouter()
 async def sync_edge_batch(
     batch: EdgeSyncBatchRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_staff)],
 ) -> EdgeSyncBatchResponse:
     """
     Ingest a batch of offline patient records, vitals observations, and prescriptions.
@@ -46,7 +46,7 @@ async def sync_edge_batch(
     summary="Get central synchronization engine and conflict resolution status",
 )
 async def get_sync_status(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_staff)],
 ) -> SyncStatusResponse:
     """Return central server sync health, current UTC timestamp, and conflict strategy."""
     return SyncStatusResponse(

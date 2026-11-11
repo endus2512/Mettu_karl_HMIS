@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_staff
 from app.core.database import get_db
 from app.models.coding import ICD10Code, LOINCCode
 from app.models.user import User
@@ -18,6 +18,7 @@ router = APIRouter()
 
 @router.get("/icd10", response_model=List[ICD10Response], summary="Search ICD-10 Diagnoses")
 async def search_icd10(
+    current_user: Annotated[User, Depends(require_staff)],
     db: Annotated[AsyncSession, Depends(get_db)],
     q: str = Query(..., min_length=2, description="Search term in English, Afaan Oromoo, or code"),
     limit: int = Query(20, ge=1, le=100),
@@ -42,6 +43,7 @@ async def search_icd10(
 
 @router.get("/loinc", response_model=List[LOINCResponse], summary="Search LOINC Lab & Radiology Codes")
 async def search_loinc(
+    current_user: Annotated[User, Depends(require_staff)],
     db: Annotated[AsyncSession, Depends(get_db)],
     q: str = Query(..., min_length=2, description="Search lab analyte, method, or code"),
     limit: int = Query(20, ge=1, le=100),

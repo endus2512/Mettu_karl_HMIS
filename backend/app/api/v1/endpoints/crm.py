@@ -8,10 +8,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_roles
 from app.core.database import get_db
 from app.models.crm import GrievancePriority, GrievanceStatus, GrievanceTicket, PatientFeedback
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.crm import (
     GrievanceResolveRequest,
     GrievanceTicketCreate,
@@ -23,12 +23,14 @@ from app.services.crm_service import create_grievance_ticket
 
 router = APIRouter()
 
+crm_guard = require_roles(UserRole.INSURANCE_OFFICER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+
 
 @router.post("/feedback", response_model=PatientFeedbackResponse, status_code=status.HTTP_201_CREATED, summary="Submit CSAT Feedback")
 async def submit_patient_feedback(
     feedback_in: PatientFeedbackCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(crm_guard)],
 ) -> PatientFeedback:
     """Submit patient satisfaction (CSAT) rating and comments."""
     feedback = PatientFeedback(**feedback_in.model_dump())
@@ -41,7 +43,7 @@ async def submit_patient_feedback(
 @router.get("/feedback", response_model=List[PatientFeedbackResponse], summary="List Patient Feedback")
 async def list_patient_feedback(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(crm_guard)],
     department: Optional[str] = Query(None, description="Filter by clinical or operational department"),
     limit: int = Query(50, ge=1, le=200),
 ) -> List[PatientFeedback]:
@@ -57,7 +59,7 @@ async def list_patient_feedback(
 async def lodge_grievance_ticket(
     ticket_in: GrievanceTicketCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(crm_guard)],
 ) -> GrievanceTicket:
     """Lodge patient or family grievance with automatic SLA deadline assignment."""
     ticket = await create_grievance_ticket(
@@ -76,7 +78,7 @@ async def lodge_grievance_ticket(
 @router.get("/grievances", response_model=List[GrievanceTicketResponse], summary="List Grievance Tickets")
 async def list_grievance_tickets(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(crm_guard)],
     status_filter: Optional[GrievanceStatus] = Query(None, alias="status", description="Filter by grievance status"),
     priority: Optional[GrievancePriority] = Query(None, description="Filter by priority SLA"),
 ) -> List[GrievanceTicket]:
@@ -95,7 +97,7 @@ async def resolve_grievance_ticket(
     ticket_id: int,
     resolve_in: GrievanceResolveRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(crm_guard)],
 ) -> GrievanceTicket:
     """Mark grievance as resolved and document corrective action."""
     result = await db.execute(select(GrievanceTicket).where(GrievanceTicket.id == ticket_id))

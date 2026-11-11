@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_client_ip, get_current_user, require_roles_flexible
+from app.api.deps import get_client_ip, require_pharmacy_dispense, require_roles
 from app.core.audit import record_audit_event
 from app.core.database import get_db
 from app.models.patient import Patient
@@ -48,14 +48,16 @@ from app.services.pharmacy_service import (
     get_fefo_batches_for_drug,
 )
 
-pharmacist_guard = require_roles_flexible(UserRole.PHARMACIST, UserRole.ADMIN, UserRole.SUPER_ADMIN)
-doctor_guard = require_roles_flexible(UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+pharmacist_guard = require_roles(UserRole.PHARMACIST, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+dispense_guard = require_roles(UserRole.PHARMACIST, UserRole.SUPER_ADMIN)
+doctor_guard = require_roles(UserRole.DOCTOR, UserRole.SUPER_ADMIN)
 
 router = APIRouter()
 
 
 @router.get("/drugs", response_model=List[DrugResponse], summary="List Drugs in Formulary")
 async def list_drugs(
+    current_user: Annotated[User, Depends(require_pharmacy_dispense)],
     db: Annotated[AsyncSession, Depends(get_db)],
     search: Optional[str] = Query(None, description="Search by name or generic name"),
 ) -> List[Drug]:
@@ -69,6 +71,7 @@ async def list_drugs(
 
 @router.get("/inventory", response_model=List[DrugInventoryItemResponse], summary="Real-time FEFO Pharmacy Inventory")
 async def get_inventory(
+    current_user: Annotated[User, Depends(require_pharmacy_dispense)],
     db: Annotated[AsyncSession, Depends(get_db)],
     search: Optional[str] = Query(None, description="Search by medication or generic name"),
     status_filter: Optional[str] = Query(None, alias="status", description="Filter by status: low, expiring, good, out_of_stock"),
@@ -220,6 +223,7 @@ async def add_batch(
 
 @router.get("/alerts", response_model=List[StockAlert], summary="Get Inventory & Expiry Alerts")
 async def get_alerts(
+    current_user: Annotated[User, Depends(require_pharmacy_dispense)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> List[StockAlert]:
     """Scan inventory and return real-time FEFO/Expiry and Low Stock alerts."""
@@ -228,6 +232,7 @@ async def get_alerts(
 
 @router.get("/prescriptions", response_model=List[PrescriptionDetailResponse], summary="List Prescriptions with Patient & Prescriber Details")
 async def list_prescriptions(
+    current_user: Annotated[User, Depends(require_pharmacy_dispense)],
     db: Annotated[AsyncSession, Depends(get_db)],
     status: Optional[str] = Query(None, description="Filter by status (pending, dispensed, partially_dispensed, cancelled)"),
     search: Optional[str] = Query(None, description="Search by patient MRN or prescription code"),
@@ -392,7 +397,7 @@ async def create_prescription(
 async def dispense_prescription(
     prescription_id: int,
     request: Request,
-    current_user: Annotated[User, Depends(pharmacist_guard)],
+    current_user: Annotated[User, Depends(dispense_guard)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> DispenseResultResponse:
     """Pharmacist dispenses prescription; system auto-deducts batches by earliest expiry date (FEFO)."""
@@ -487,6 +492,7 @@ async def dispense_prescription(
 
 @router.get("/stock-movements", response_model=List[StockMovementResponse], summary="Pharmacy Stock Movement Audit Trail")
 async def get_stock_movements(
+    current_user: Annotated[User, Depends(require_pharmacy_dispense)],
     db: Annotated[AsyncSession, Depends(get_db)],
     limit: int = Query(50, ge=1, le=200),
 ) -> List[StockMovementResponse]:

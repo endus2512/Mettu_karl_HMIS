@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_clinical_or_admin
 from app.core.database import get_db
 from app.models.infection_control import (
     HAIType,
@@ -32,7 +32,7 @@ router = APIRouter()
 async def log_hai(
     hai_in: HAILogCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> HospitalAcquiredInfectionLog:
     """Log hospital-acquired infection (SSI, CAUTI, CLABSI, VAP) for IPPS audit."""
     log = HospitalAcquiredInfectionLog(
@@ -48,7 +48,7 @@ async def log_hai(
 @router.get("/hai-logs", response_model=List[HAILogResponse], summary="List HAI Surveillance Logs")
 async def list_hai_logs(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
     ward: Optional[str] = Query(None, description="Filter by hospital ward"),
     hai_type: Optional[HAIType] = Query(None, description="Filter by infection type"),
 ) -> List[HospitalAcquiredInfectionLog]:
@@ -66,7 +66,7 @@ async def list_hai_logs(
 async def report_phem(
     phem_in: PHEMReportCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> PHEMOutbreakReport:
     """Submit notifiable epidemic disease report (Cholera, Measles, Malaria) to EPHI."""
     code = f"PHEM-MKH-{datetime.now(timezone.utc).year}-{uuid.uuid4().hex[:5].upper()}"
@@ -84,7 +84,7 @@ async def report_phem(
 @router.get("/phem-reports", response_model=List[PHEMReportResponse], summary="List PHEM Surveillance Reports")
 async def list_phem_reports(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
     disease: Optional[PHEMDiseaseCategory] = Query(None, description="Filter by notifiable epidemic disease"),
 ) -> List[PHEMOutbreakReport]:
     """Retrieve epidemic surveillance cases reported to national health institutes."""

@@ -107,57 +107,71 @@ def require_roles(*roles: UserRole):
 
 def require_roles_flexible(*roles: UserRole):
     """
-    Dependency factory enforcing RBAC with JWT token validation,
-    with safe development fallback if unauthenticated in local testing.
+    Strict RBAC dependency factory enforcing authenticated JWT validation
+    and explicit role checks (all legacy unauthenticated fallbacks disabled).
     """
-    async def _require_roles_flexible(
-        credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(optional_bearer_scheme)],
-        db: Annotated[AsyncSession, Depends(get_db)],
-    ) -> User:
-        if credentials:
-            try:
-                payload = decode_token(credentials.credentials)
-                user_id_str: str | None = payload.get("sub")
-                token_type: str | None = payload.get("type")
-                if user_id_str and token_type == "access":
-                    user = await get_user_by_id(db, int(user_id_str))
-                    if user and user.is_active:
-                        if user.role == UserRole.SUPER_ADMIN or user.role in roles:
-                            return user
-            except (JWTError, Exception):
-                pass
-
-        # Development fallback: find active user matching requested roles
-        for r in roles:
-            stmt = select(User).where(User.role == r, User.is_active.is_(True))
-            res = await db.execute(stmt)
-            dev_user = res.scalar_one_or_none()
-            if dev_user:
-                return dev_user
-
-        # Fallback to super_admin or admin
-        stmt = select(User).where(User.role.in_([UserRole.SUPER_ADMIN, UserRole.ADMIN]), User.is_active.is_(True))
-        res = await db.execute(stmt)
-        admin_user = res.scalar_one_or_none()
-        if admin_user:
-            return admin_user
-
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication credentials required",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return _require_roles_flexible
+    return require_roles(*roles)
 
 
 # Common RBAC dependency presets
 require_admin = require_roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+require_auditor = require_roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+require_staff = require_roles(
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.PHARMACIST,
+    UserRole.INSURANCE_OFFICER,
+    UserRole.TECHNICIAN,
+    UserRole.LAB_TECH,
+    UserRole.RECEPTIONIST,
+    UserRole.BILLING,
+)
 require_clinical = require_roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.SUPER_ADMIN)
+require_clinical_or_admin = require_roles(
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
 require_doctor = require_roles(UserRole.DOCTOR, UserRole.SUPER_ADMIN)
-require_financial = require_roles(UserRole.ADMIN, UserRole.BILLING, UserRole.INSURANCE_OFFICER, UserRole.SUPER_ADMIN)
+require_nurse = require_roles(UserRole.NURSE, UserRole.DOCTOR, UserRole.SUPER_ADMIN)
+require_financial = require_roles(
+    UserRole.ADMIN,
+    UserRole.BILLING,
+    UserRole.INSURANCE_OFFICER,
+    UserRole.SUPER_ADMIN,
+)
 require_pharmacy = require_roles(UserRole.PHARMACIST, UserRole.DOCTOR, UserRole.SUPER_ADMIN)
-require_technician = require_roles(UserRole.TECHNICIAN, UserRole.LAB_TECH, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+require_pharmacy_dispense = require_roles(
+    UserRole.PHARMACIST,
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
+require_technician = require_roles(
+    UserRole.TECHNICIAN,
+    UserRole.LAB_TECH,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
+require_lab_clinical = require_roles(
+    UserRole.TECHNICIAN,
+    UserRole.LAB_TECH,
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
+require_reception_clinical = require_roles(
+    UserRole.RECEPTIONIST,
+    UserRole.NURSE,
+    UserRole.DOCTOR,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
 require_insurance = require_roles(UserRole.INSURANCE_OFFICER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 
 

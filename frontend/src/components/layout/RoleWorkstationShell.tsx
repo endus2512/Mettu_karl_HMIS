@@ -19,7 +19,7 @@ import { useZenMode } from '@/lib/zenMode';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { PageTransition } from '@/components/layout/PageTransition';
-import { getRoleDisplayName, getRolePortalPath } from '@/lib/roleRoutes';
+import { getRoleDisplayName, getRolePortalPath, isAdminRole, isRoleAllowed } from '@/lib/roleRoutes';
 import { notifications } from '@mantine/notifications';
 import {
   ShieldAlert,
@@ -40,22 +40,31 @@ export function RoleWorkstationShell({
   workstationRoleName,
   children,
 }: RoleWorkstationShellProps): React.ReactElement {
-  const { isAuthenticated, isLoading, user, activeRole, simulatedRole } = useAuth();
+  const { isAuthenticated, isLoading, user, activeRole } = useAuth();
   const { language } = useTranslation();
   const { isZenMode } = useZenMode();
   const router = useRouter();
 
   const lang = (language === 'om' || language === 'am' || language === 'en') ? language : 'en';
-  const effectiveRole: UserRole = activeRole || user?.role || 'doctor';
-  const isSupervisor = effectiveRole === 'admin' || effectiveRole === 'super_admin' || user?.role === 'admin' || user?.role === 'super_admin';
+  const realRole = user?.role;
+  const isSupervisor = isAdminRole(realRole);
+  const adminOnlyPortal = allowedRoles.every((r) => isAdminRole(r));
+  const effectiveRole: UserRole = (isSupervisor ? activeRole : realRole) || 'patient';
 
-  const isAuthorized = allowedRoles.includes(effectiveRole) || isSupervisor;
-  const isInspectingAsAdmin = isSupervisor && !allowedRoles.includes(effectiveRole);
+  const isAuthorized = Boolean(
+    isAuthenticated &&
+      user &&
+      realRole &&
+      (adminOnlyPortal ? isSupervisor : isRoleAllowed(realRole, allowedRoles) || isSupervisor),
+  );
+  const isInspectingAsAdmin = Boolean(
+    isSupervisor && !adminOnlyPortal && realRole && !isRoleAllowed(realRole, allowedRoles),
+  );
 
   // Auth & RBAC Guard
   useEffect(() => {
     if (!isLoading) {
-      if (!isAuthenticated && !simulatedRole) {
+      if (!isAuthenticated || !user) {
         router.replace('/login');
         return;
       }
@@ -70,12 +79,12 @@ export function RoleWorkstationShell({
           color: 'amber',
           icon: <ShieldAlert className="w-4 h-4" />,
         });
-        router.replace(getRolePortalPath(effectiveRole));
+        router.replace(getRolePortalPath(realRole));
       }
     }
-  }, [isLoading, isAuthenticated, simulatedRole, isAuthorized, effectiveRole, router, lang]);
+  }, [isLoading, isAuthenticated, user, isAuthorized, realRole, router, lang]);
 
-  if (isLoading || (!isAuthenticated && !simulatedRole)) {
+  if (isLoading || !isAuthenticated || !user) {
     return (
       <div className="min-h-screen bg-[#0b0f17] flex items-center justify-center p-4">
         <div className="flex flex-col items-center gap-3">

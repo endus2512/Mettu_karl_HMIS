@@ -11,7 +11,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_current_user, get_optional_current_user, require_roles
+from app.api.deps import require_lab_clinical
 from app.core.database import get_db
 from app.models.blood_bank import (
     BloodDonor,
@@ -104,7 +104,7 @@ def _map_crossmatch_response(cm: CrossMatch) -> CrossMatchResponse:
 @router.get("/stats", response_model=BloodBankStatsResponse, summary="Blood Bank Real-Time Inventory & Telemetry KPIs")
 async def get_blood_bank_stats(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
 ) -> BloodBankStatsResponse:
     """Retrieve operational KPIs: total blood units, component counts, critical low O-, and cold chain sensors."""
     now = datetime.now(timezone.utc)
@@ -162,7 +162,7 @@ async def get_blood_bank_stats(
 @router.get("/stock-summary", response_model=List[BloodGroupStock], summary="Blood Bank Real-Time Inventory Summary")
 async def get_stock_summary(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
 ) -> List[BloodGroupStock]:
     """Retrieve available blood unit counts by blood group with critical shortage alerts."""
     return await get_blood_bank_stock_summary(db)
@@ -171,7 +171,7 @@ async def get_stock_summary(
 @router.get("/units", response_model=List[BloodUnitResponse], summary="List Screened Blood Units")
 async def list_blood_units(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
     blood_group: Optional[str] = Query(None, description="Filter by blood group"),
     status: Optional[BloodUnitStatus] = Query(None, description="Filter by status"),
     search: Optional[str] = Query(None, description="Search barcode or location"),
@@ -207,7 +207,7 @@ async def list_blood_units(
 async def add_blood_unit(
     unit_in: BloodUnitCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
 ) -> BloodUnitResponse:
     """Register screened and labeled blood unit into cold storage."""
     unit_code = unit_in.unit_number or unit_in.unit_barcode or f"MKH-BB-{uuid.uuid4().hex[:6].upper()}"
@@ -260,7 +260,7 @@ async def add_blood_unit(
 @router.get("/donors", response_model=List[BloodDonorResponse], summary="List Voluntary & Replacement Donors")
 async def list_blood_donors(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
 ) -> List[BloodDonorResponse]:
     """Retrieve donor registry with donation count and clinical eligibility."""
     stmt = select(BloodDonor).order_by(BloodDonor.id.desc())
@@ -286,7 +286,7 @@ async def list_blood_donors(
 async def register_blood_donor(
     donor_in: BloodDonorCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
 ) -> BloodDonorResponse:
     """Register a new voluntary or replacement donor."""
     donor_code = f"DNR-{uuid.uuid4().hex[:6].upper()}"
@@ -318,7 +318,7 @@ async def register_blood_donor(
 @router.get("/crossmatch", response_model=List[CrossMatchResponse], summary="List Crossmatch Testing History")
 async def list_crossmatches(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
 ) -> List[CrossMatchResponse]:
     """Retrieve all crossmatch compatibility tests with recipient and donor records."""
     stmt = (
@@ -339,10 +339,10 @@ async def list_crossmatches(
 async def record_crossmatch(
     cm_in: CrossMatchRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
 ) -> CrossMatchResponse:
     """Record compatibility testing between patient blood sample and donor unit."""
-    tech_id = current_user.id if current_user else 4  # Default to Gemechu Desta / Lab Tech
+    tech_id = current_user.id
 
     try:
         cm = await perform_crossmatch(
@@ -376,8 +376,8 @@ async def record_crossmatch(
 async def update_unit_status(
     unit_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_lab_clinical)],
     status_update: BloodUnitStatus = Query(..., description="Target status: transfused or quarantined"),
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
 ) -> BloodUnitResponse:
     """Transition blood unit status upon completion of clinical transfusion or adverse reaction."""
     stmt = select(BloodUnit).options(selectinload(BloodUnit.donor)).where(BloodUnit.id == unit_id)
@@ -396,7 +396,7 @@ async def update_unit_status(
 async def get_transfusion_voucher(
     crossmatch_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(require_lab_clinical)],
 ) -> BloodTransfusionVoucherResponse:
     """Retrieve printable transfusion clearance certificate with TIN 0038912401, QR code, and lab sign-off."""
     stmt = (

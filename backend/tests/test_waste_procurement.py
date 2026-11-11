@@ -49,11 +49,12 @@ async def test_medical_waste_and_incinerator_batches(
 @pytest.mark.asyncio
 async def test_procurement_tender_and_vendor_bidding(
     client: AsyncClient,
+    pharmacist_auth_headers: dict[str, str],
     doctor_auth_headers: dict[str, str],
     db_session: AsyncSession,
 ):
-    """Test competitive procurement tender publishing and vendor bidding."""
-    # 1. Publish Hospital Tender
+    """Test competitive procurement tender publishing and vendor bidding (Pharmacist/Admin only)."""
+    # 1. Publish Hospital Tender (Doctor strictly blocked)
     tender_payload = {
         "tender_number": "TND-MKH-2026-09",
         "title": "Procurement of High-Resolution Ultrasound Transducers",
@@ -62,7 +63,10 @@ async def test_procurement_tender_and_vendor_bidding(
         "submission_deadline": str(date.today() + timedelta(days=21)),
         "specifications_summary": "3x Convex 3.5MHz and 2x Linear 7.5MHz probes compatible with GE Voluson",
     }
-    t_res = await client.post("/api/v1/procurement/tenders", json=tender_payload, headers=doctor_auth_headers)
+    denied = await client.post("/api/v1/procurement/tenders", json=tender_payload, headers=doctor_auth_headers)
+    assert denied.status_code == 403
+
+    t_res = await client.post("/api/v1/procurement/tenders", json=tender_payload, headers=pharmacist_auth_headers)
     assert t_res.status_code == 201
     tender_id = t_res.json()["id"]
 
@@ -75,7 +79,7 @@ async def test_procurement_tender_and_vendor_bidding(
         "quoted_amount_etb": 2250000.0,
         "delivery_timeline_days": 25,
     }
-    b_res = await client.post("/api/v1/procurement/bids", json=bid_payload, headers=doctor_auth_headers)
+    b_res = await client.post("/api/v1/procurement/bids", json=bid_payload, headers=pharmacist_auth_headers)
     assert b_res.status_code == 201
     assert b_res.json()["quoted_amount_etb"] == 2250000.0
 
@@ -87,7 +91,7 @@ async def test_procurement_tender_and_vendor_bidding(
         "issued_date": str(date.today()),
         "delivery_deadline": str(date.today() + timedelta(days=30)),
     }
-    po_res = await client.post("/api/v1/procurement/purchase-orders", json=po_payload, headers=doctor_auth_headers)
+    po_res = await client.post("/api/v1/procurement/purchase-orders", json=po_payload, headers=pharmacist_auth_headers)
     assert po_res.status_code == 201
     assert po_res.json()["po_number"].startswith("PO-")
 

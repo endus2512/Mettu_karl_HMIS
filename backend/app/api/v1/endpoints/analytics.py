@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_admin
 from app.core.database import get_db
 from app.models.user import User
 from app.schemas.analytics import ExecutiveSummaryResponse
@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/executive-summary", response_model=ExecutiveSummaryResponse, summary="Get Hospital Executive BI Summary")
 async def get_hospital_executive_summary(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> ExecutiveSummaryResponse:
     """

@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_clinical_or_admin
 from app.core.database import get_db
 from app.models.dietary import DietOrder, DietOrderStatus, KitchenMealDelivery
 from app.models.user import User
@@ -25,7 +25,7 @@ router = APIRouter()
 async def create_diet_order(
     order_in: DietOrderCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> DietOrder:
     """Doctor or Clinical Nutritionist prescribes a customized inpatient diet."""
     order = DietOrder(
@@ -47,7 +47,7 @@ async def create_diet_order(
 @router.get("/orders", response_model=List[DietOrderResponse], summary="List Inpatient Diet Orders")
 async def list_diet_orders(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
     patient_id: Optional[int] = None,
 ) -> List[DietOrder]:
     """Retrieve active clinical diet orders for kitchen meal production."""
@@ -62,7 +62,7 @@ async def list_diet_orders(
 async def record_delivery(
     deliv_in: KitchenMealDeliveryCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> KitchenMealDelivery:
     """Kitchen records prepared meal delivery dispatched to inpatient ward."""
     delivery = KitchenMealDelivery(

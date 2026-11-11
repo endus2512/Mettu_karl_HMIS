@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_clinical_or_admin
 from app.core.database import get_db
 from app.models.mci import (
     MassCasualtyIncident,
@@ -32,7 +32,7 @@ router = APIRouter()
 async def declare_mci(
     incident_in: MCIIncidentCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> MassCasualtyIncident:
     """Declare hospital-wide disaster code and activate trauma surge capacity."""
     incident = MassCasualtyIncident(
@@ -49,7 +49,7 @@ async def declare_mci(
 @router.get("/incidents", response_model=List[MCIIncidentResponse], summary="List MCI Incidents")
 async def list_mci_incidents(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> List[MassCasualtyIncident]:
     """Retrieve active and historical mass casualty incident logs."""
     res = await db.execute(select(MassCasualtyIncident).order_by(MassCasualtyIncident.declared_at.desc()))
@@ -60,7 +60,7 @@ async def list_mci_incidents(
 async def assign_casualty_tag(
     tag_in: MCICasualtyTagCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> MCICasualtyTag:
     """Assign START disaster category tag and route casualty to treatment bay."""
     return await tag_disaster_casualty(db=db, tag_in=tag_in)
@@ -70,7 +70,7 @@ async def assign_casualty_tag(
 async def get_incident_stats(
     incident_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> MCIStatsResponse:
     """Tally casualty breakdown by RED, YELLOW, GREEN, and BLACK categories."""
     return await get_mci_incident_stats(db=db, incident_id=incident_id)
@@ -80,7 +80,7 @@ async def get_incident_stats(
 async def stand_down_mci(
     incident_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
 ) -> MassCasualtyIncident:
     """Conclude disaster response and transition hospital to normal operations."""
     res = await db.execute(select(MassCasualtyIncident).where(MassCasualtyIncident.id == incident_id))

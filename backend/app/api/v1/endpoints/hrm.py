@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_client_ip, get_current_user, require_roles
+from app.api.deps import get_client_ip, require_roles, require_staff
 from app.core.audit import record_audit_event
 from app.core.database import get_db
 from app.models.hrm import (
@@ -67,7 +67,7 @@ async def create_employee(
 async def schedule_shift(
     shift_in: ShiftRosterCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(admin_guard)],
 ) -> ShiftRoster:
     """Schedule duty shift for physician, nurse, or clinical staff."""
     shift = ShiftRoster(**shift_in.model_dump())
@@ -81,7 +81,7 @@ async def schedule_shift(
 async def clock_in(
     att_in: AttendanceClockIn,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_staff)],
 ) -> Attendance:
     """Record employee daily duty arrival time."""
     now = datetime.now(timezone.utc)

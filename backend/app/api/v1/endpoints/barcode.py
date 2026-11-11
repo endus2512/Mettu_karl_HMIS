@@ -2,10 +2,12 @@
 Barcode & QR Code Scanner and Resolver Endpoints.
 Supports Pharmacy medicine traceability, patient wristbands, and cashier invoices.
 """
-from typing import Dict, Any, List
-from fastapi import APIRouter, Query
+from typing import Annotated, Dict, Any, List
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 
+from app.api.deps import require_staff
+from app.models.user import User
 from app.services.barcode_service import (
     barcode_service,
     DRUG_BARCODE_CATALOG,
@@ -40,6 +42,7 @@ class BarcodeGenerateResponse(BaseModel):
 
 @router.get("/resolve", response_model=BarcodeResolveResponse, summary="Scan & Resolve Barcode or QR Code")
 async def resolve_barcode(
+    current_user: Annotated[User, Depends(require_staff)],
     code: str = Query(..., description="Raw scanned barcode or QR code data string"),
 ) -> BarcodeResolveResponse:
     """
@@ -61,7 +64,10 @@ async def resolve_barcode(
 
 
 @router.post("/generate", response_model=BarcodeGenerateResponse, summary="Generate Barcode / QR Code Metadata")
-async def generate_barcode(payload: BarcodeGenerateRequest) -> BarcodeGenerateResponse:
+async def generate_barcode(
+    payload: BarcodeGenerateRequest,
+    current_user: Annotated[User, Depends(require_staff)],
+) -> BarcodeGenerateResponse:
     """Generate encoded code payload and printable label caption."""
     res = barcode_service.generate_code_payload(payload.entity_type, payload.entity_id)
     return BarcodeGenerateResponse(
@@ -74,7 +80,9 @@ async def generate_barcode(payload: BarcodeGenerateRequest) -> BarcodeGenerateRe
 
 
 @router.get("/presets", summary="Get test hospital barcodes for 1-click scanning")
-async def get_test_presets() -> Dict[str, Any]:
+async def get_test_presets(
+    current_user: Annotated[User, Depends(require_staff)],
+) -> Dict[str, Any]:
     """Retrieve test barcodes to simulate scanning in hardware or browser environments."""
     return {
         "medicines": [

@@ -11,7 +11,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_current_user, get_optional_current_user, require_roles
+from app.api.deps import require_roles
 from app.core.database import get_db
 from app.models.ot_cssd import (
     CSSDBatch,
@@ -47,6 +47,7 @@ surgical_staff_guard = require_roles(
     UserRole.DOCTOR,
     UserRole.NURSE,
     UserRole.TECHNICIAN,
+    UserRole.LAB_TECH,
     UserRole.SUPER_ADMIN,
     UserRole.ADMIN,
 )
@@ -104,7 +105,7 @@ def _map_booking_response(booking: SurgicalBooking) -> SurgicalBookingResponse:
 @router.get("/stats", response_model=OTStatsResponse, summary="Get Live OT & CSSD Operational Statistics")
 async def get_ot_stats(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> OTStatsResponse:
     """Retrieve high-level operational statistics for theatre suites, active procedures, and autoclave inventory."""
     now = datetime.now(timezone.utc)
@@ -177,7 +178,7 @@ async def get_ot_stats(
 @router.get("/rooms", response_model=List[OperatingRoomResponse], summary="List Operating Theatre Suites with Live Status")
 async def list_ot_rooms(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> List[OperatingRoomResponse]:
     """Retrieve surgical operating theatre suites enriched with live surgical occupancy."""
     rooms_res = await db.execute(select(OperatingRoom).where(OperatingRoom.is_active.is_(True)).order_by(OperatingRoom.id))
@@ -240,7 +241,7 @@ async def list_ot_rooms(
 async def create_ot_room(
     room_in: OperatingRoomCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> OperatingRoomResponse:
     """Register a new operating room suite."""
     room = OperatingRoom(
@@ -267,7 +268,7 @@ async def create_ot_room(
 @router.get("/bookings", response_model=List[SurgicalBookingResponse], summary="List Surgical Bookings")
 async def list_surgical_bookings(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
     status: Optional[SurgeryStatus] = Query(None, description="Filter by surgery status"),
     room_id: Optional[int] = Query(None, description="Filter by room ID"),
     search: Optional[str] = Query(None, description="Search by procedure or booking code"),
@@ -306,7 +307,7 @@ async def list_surgical_bookings(
 async def get_surgical_booking(
     booking_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> SurgicalBookingResponse:
     """Retrieve full details of a specific surgical procedure booking."""
     stmt = (
@@ -331,7 +332,7 @@ async def get_surgical_booking(
 async def book_surgery(
     booking_in: SurgicalBookingCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> SurgicalBookingResponse:
     """Schedule surgery with automatic operating room collision prevention."""
     try:
@@ -370,7 +371,7 @@ async def update_surgery_status(
     booking_id: int,
     status_update: SurgicalStatusUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> SurgicalBookingResponse:
     """Transition surgery along live surgical lifecycle (scheduled -> in_prep -> in_surgery -> in_recovery -> completed/cancelled)."""
     stmt = (
@@ -400,7 +401,7 @@ async def verify_who_checklist(
     booking_id: int,
     checklist_update: WHOChecklistUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> SurgicalBookingResponse:
     """Verify WHO 3-stage Surgical Safety Checklist (Sign-In, Time-Out, Sign-Out)."""
     stmt = (
@@ -420,7 +421,7 @@ async def verify_who_checklist(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Surgical booking not found")
 
     booking.who_safety_checklist_verified = checklist_update.verified
-    verifier_name = current_user.full_name if current_user else "Lead Theatre Surgeon"
+    verifier_name = current_user.full_name
     if checklist_update.notes:
         existing = booking.post_op_notes or ""
         booking.post_op_notes = f"{existing}\n[WHO Checklist Verified by {verifier_name}: {checklist_update.notes}]".strip()
@@ -435,7 +436,7 @@ async def record_post_op_notes(
     booking_id: int,
     notes_in: PostOpNotesUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> SurgicalBookingResponse:
     """Record surgeon operative notes, blood loss (ml), intraoperative findings, and implants."""
     stmt = (
@@ -470,7 +471,7 @@ async def record_post_op_notes(
 async def get_surgical_voucher(
     booking_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> SurgicalVoucherResponse:
     """Retrieve full official surgical summary voucher with hospital TIN, WHO verification, and QR code."""
     stmt = (
@@ -529,7 +530,7 @@ async def get_surgical_voucher(
 @router.get("/cssd/batches", response_model=List[CSSDBatchResponse], summary="List CSSD Sterilization Batches")
 async def list_cssd_batches(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> List[CSSDBatchResponse]:
     """Retrieve autoclave sterilization cycles with pack counts."""
     stmt = (
@@ -567,7 +568,7 @@ async def list_cssd_batches(
 async def get_cssd_batch(
     batch_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> CSSDBatchDetailResponse:
     """Retrieve full batch parameters and all sterile packs associated with the cycle."""
     stmt = (
@@ -616,12 +617,12 @@ async def get_cssd_batch(
 async def record_cssd_batch(
     batch_in: CSSDBatchCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> CSSDBatchResponse:
     """Record autoclave cycle parameters (temperature, pressure, biological indicator)."""
     batch_code = f"CSSD-{uuid.uuid4().hex[:8].upper()}"
-    operator_id = current_user.id if current_user else 3
-    operator_name = current_user.full_name if current_user else "CSSD Operator"
+    operator_id = current_user.id
+    operator_name = current_user.full_name
 
     batch = CSSDBatch(
         batch_code=batch_code,
@@ -655,7 +656,7 @@ async def record_cssd_batch(
 @router.get("/cssd/packs", response_model=List[SterilePackResponse], summary="List Ready Sterile Surgical Packs")
 async def list_sterile_packs(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
     status: Optional[SterilePackStatus] = Query(None, description="Filter pack status"),
     name: Optional[str] = Query(None, description="Filter pack by name"),
 ) -> List[SterilePackResponse]:
@@ -691,7 +692,7 @@ async def list_sterile_packs(
 async def create_sterile_pack(
     pack_in: SterilePackCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> SterilePackResponse:
     """Register a new sterile pack from an autoclave batch."""
     # Verify batch exists
@@ -728,7 +729,7 @@ async def mark_pack_status(
     pack_id: int,
     status_update: SterilePackStatus,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(surgical_staff_guard)],
 ) -> SterilePackResponse:
     """Update pack status to USED or CONTAMINATED upon completion or break in sterile field."""
     stmt = select(SterilePack).options(selectinload(SterilePack.batch)).where(SterilePack.id == pack_id)

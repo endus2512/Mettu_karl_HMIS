@@ -23,16 +23,17 @@ import { getRolePortalPath, getRoleDisplayName } from '@/lib/roleRoutes';
 import type { UserRole } from '@/types';
 
 export default function DashboardSmartRouterPage(): React.ReactElement {
-  const { isAuthenticated, isLoading, user, activeRole, simulatedRole } = useAuth();
+  const { isAuthenticated, isLoading, user, activeRole } = useAuth();
   const { language } = useTranslation();
   const router = useRouter();
 
   const lang = (language === 'om' || language === 'am' || language === 'en') ? language : 'en';
-  const effectiveRole: UserRole = activeRole || user?.role || 'doctor';
+  const isRealSupervisor = user?.role === 'admin' || user?.role === 'super_admin';
+  const effectiveRole: UserRole = (isRealSupervisor ? activeRole : user?.role) || 'patient';
 
   useEffect(() => {
     if (!isLoading) {
-      if (!isAuthenticated && !simulatedRole) {
+      if (!isAuthenticated || !user) {
         router.replace('/login');
         return;
       }
@@ -40,7 +41,7 @@ export default function DashboardSmartRouterPage(): React.ReactElement {
       const targetPortal = getRolePortalPath(effectiveRole);
       router.replace(targetPortal);
     }
-  }, [isLoading, isAuthenticated, simulatedRole, effectiveRole, router]);
+  }, [isLoading, isAuthenticated, user, effectiveRole, router]);
 
   const roleName = getRoleDisplayName(effectiveRole, lang);
 

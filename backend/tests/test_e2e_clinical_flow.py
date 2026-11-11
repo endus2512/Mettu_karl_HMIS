@@ -94,10 +94,17 @@ async def test_e2e_outpatient_clinical_journey(
     db_session.add(dept)
     await db_session.commit()
 
-    # Issue queue ticket for patient
+    # Issue queue ticket for patient (requires clinical/reception role)
+    unauth_ticket_res = await client.post(
+        "/api/v1/queue/tickets",
+        json={"department_code": "OPD_E2E", "priority": "urgent"},
+    )
+    assert unauth_ticket_res.status_code == 401
+
     ticket_res = await client.post(
         "/api/v1/queue/tickets",
         json={"department_code": "OPD_E2E", "priority": "urgent"},
+        headers=doctor_auth_headers,
     )
     assert ticket_res.status_code == 201
     ticket_number = ticket_res.json()["ticket_number"]

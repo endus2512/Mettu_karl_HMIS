@@ -9,9 +9,9 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_roles
 from app.core.database import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.models.waste import IncineratorBatch, MedicalWasteLog, WasteCategory
 from app.schemas.waste import (
     IncineratorBatchCreate,
@@ -22,12 +22,21 @@ from app.schemas.waste import (
 
 router = APIRouter()
 
+waste_guard = require_roles(
+    UserRole.TECHNICIAN,
+    UserRole.LAB_TECH,
+    UserRole.NURSE,
+    UserRole.DOCTOR,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
+
 
 @router.post("/logs", response_model=MedicalWasteLogResponse, status_code=status.HTTP_201_CREATED, summary="Log Medical Waste Collection")
 async def log_medical_waste(
     waste_in: MedicalWasteLogCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(waste_guard)],
 ) -> MedicalWasteLog:
     """Log segregated biomedical waste (Yellow, Red, Brown, Black) from ward or OT."""
     waste_code = f"MW-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:4].upper()}"
@@ -45,7 +54,7 @@ async def log_medical_waste(
 @router.get("/logs", response_model=List[MedicalWasteLogResponse], summary="List Medical Waste Logs")
 async def list_medical_waste(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(waste_guard)],
     category: Optional[WasteCategory] = Query(None, description="Filter by color-coded waste category"),
     department: Optional[str] = Query(None, description="Filter by originating department"),
 ) -> List[MedicalWasteLog]:
@@ -63,7 +72,7 @@ async def list_medical_waste(
 async def log_incinerator_batch(
     batch_in: IncineratorBatchCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(waste_guard)],
 ) -> IncineratorBatch:
     """Log thermal disposal cycle in high-temperature dual-chamber incinerator."""
     batch_code = f"INC-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:4].upper()}"
@@ -82,7 +91,7 @@ async def log_incinerator_batch(
 @router.get("/incinerator/batches", response_model=List[IncineratorBatchResponse], summary="List Incineration Cycles")
 async def list_incinerator_batches(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(waste_guard)],
 ) -> List[IncineratorBatch]:
     """Retrieve thermal treatment compliance logs for environmental safety oversight."""
     result = await db.execute(select(IncineratorBatch).order_by(IncineratorBatch.burned_at.desc()))

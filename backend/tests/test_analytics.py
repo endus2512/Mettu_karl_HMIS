@@ -6,9 +6,16 @@ from httpx import AsyncClient
 
 
 @pytest.mark.asyncio
-async def test_executive_summary_dashboard(client: AsyncClient, doctor_auth_headers: dict[str, str]):
-    """Test retrieving hospital executive summary metrics."""
-    res = await client.get("/api/v1/analytics/executive-summary", headers=doctor_auth_headers)
+async def test_executive_summary_dashboard(
+    client: AsyncClient,
+    admin_auth_headers: dict[str, str],
+    doctor_auth_headers: dict[str, str],
+):
+    """Test retrieving hospital executive summary metrics (Admin only; clinicians blocked)."""
+    denied = await client.get("/api/v1/analytics/executive-summary", headers=doctor_auth_headers)
+    assert denied.status_code == 403
+
+    res = await client.get("/api/v1/analytics/executive-summary", headers=admin_auth_headers)
     assert res.status_code == 200
     data = res.json()
     assert "total_patients_registered" in data

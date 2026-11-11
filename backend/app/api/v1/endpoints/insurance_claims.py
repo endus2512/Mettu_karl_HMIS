@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, require_roles
+from app.api.deps import require_roles
 from app.core.database import get_db
 from app.models.insurance_claims import (
     ClaimStatus,
@@ -26,7 +26,7 @@ from app.services.claims_service import adjudicate_insurance_claim, create_insur
 
 router = APIRouter()
 
-insurance_guard = require_roles(UserRole.INSURANCE_OFFICER, UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR)
+insurance_guard = require_roles(UserRole.INSURANCE_OFFICER, UserRole.BILLING, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 
 
 @router.post("/batches", response_model=InsuranceClaimBatchResponse, status_code=status.HTTP_201_CREATED, summary="Create Insurance Batch")
@@ -60,7 +60,7 @@ async def list_claim_batches(
 async def submit_claim(
     claim_in: PatientInsuranceClaimCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(insurance_guard)],
 ) -> PatientInsuranceClaim:
     """Submit clinical encounter claim item for insurance reimbursement."""
     return await create_insurance_claim(db=db, claim_in=claim_in)

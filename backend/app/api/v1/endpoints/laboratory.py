@@ -14,7 +14,7 @@ from sqlalchemy import case, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_current_user, get_optional_current_user
+from app.api.deps import require_lab_clinical
 from app.core.database import get_db
 from app.models.laboratory import (
     LabCategory,
@@ -152,7 +152,7 @@ def _build_order_response(order: LabOrder) -> LabOrderResponse:
 async def get_test_catalog(
     category: Optional[LabCategory] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> List[LabTestCatalogResponse]:
     """Retrieve full catalog of diagnostic tests and LOINC coded panels."""
     query = select(LabTestCatalog).where(LabTestCatalog.is_active == True)
@@ -190,7 +190,7 @@ async def get_test_catalog(
 async def create_test_catalog(
     payload: LabTestCatalogCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> LabTestCatalogResponse:
     """Register a new diagnostic panel or test into master catalog."""
     test = LabTestCatalog(**payload.model_dump())
@@ -222,7 +222,7 @@ async def create_test_catalog(
 @router.get("/stats", response_model=LabStatsResponse, summary="Clinical Laboratory Real-Time KPIs")
 async def get_lab_stats(
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> LabStatsResponse:
     """Calculates operational queue metrics, STAT/critical emergencies, and completed test counts."""
     pending_orders_q = select(func.count(LabOrder.id)).where(LabOrder.status == LabOrderStatus.ORDERED)
@@ -265,7 +265,7 @@ async def list_lab_orders(
     priority_filter: Optional[LabOrderPriority] = Query(None, alias="priority"),
     search: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> List[LabOrderResponse]:
     """Search and retrieve lab orders with full patient, item, and result details."""
     priority_rank = case(
@@ -322,7 +322,7 @@ async def list_lab_orders(
 async def create_lab_order(
     payload: LabOrderCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> LabOrderResponse:
     """Physician places a laboratory requisition order for a patient."""
     # Verify patient exists
@@ -382,7 +382,7 @@ async def create_lab_order(
 async def get_lab_order(
     order_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> LabOrderResponse:
     """Retrieve full details of a single lab order."""
     stmt = (
@@ -414,7 +414,7 @@ async def collect_sample(
     order_id: int,
     payload: SampleCollectionRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> LabOrderResponse:
     """Phlebotomist confirms specimen draw, generates barcode, and queues for laboratory analysis."""
     stmt = (
@@ -434,7 +434,7 @@ async def collect_sample(
     if not order:
         raise HTTPException(status_code=404, detail="Laboratory order not found")
 
-    collector_id = current_user.id if current_user else 4 # lab tech Gemechu
+    collector_id = current_user.id
     barcode = payload.sample_barcode or f"SMP-{datetime.now().year}-{uuid.uuid4().hex[:6].upper()}"
 
     order.sample_collected_at = datetime.now(timezone.utc)
@@ -461,7 +461,7 @@ async def record_results(
     order_id: int,
     payload: LabResultsSubmitRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ) -> LabOrderResponse:
     """Technologist enters qualitative/quantitative findings, auto-checks critical panic flags, and finalizes."""
     stmt = (
@@ -481,7 +481,7 @@ async def record_results(
     if not order:
         raise HTTPException(status_code=404, detail="Laboratory order not found")
 
-    tech_id = current_user.id if current_user else 4 # Gemechu lab tech
+    tech_id = current_user.id
 
     # First test ID default
     default_test_id = order.items[0].test_catalog_id if order.items else 1
@@ -547,7 +547,7 @@ async def record_results(
 async def get_printable_lab_report(
     order_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(require_lab_clinical),
 ):
     """Generates official structured diagnostic report suitable for hospital legal discharge, referral, and archiving."""
     stmt = (

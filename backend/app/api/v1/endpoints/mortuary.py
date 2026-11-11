@@ -10,7 +10,8 @@ from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_current_user, get_optional_current_user
+from app.api.deps import require_roles
+from app.models.user import UserRole
 from app.core.database import get_db
 from app.models.mortuary import BodyVault, MortuaryRecord, VaultStatus
 from app.models.user import User
@@ -28,10 +29,13 @@ from app.schemas.mortuary import (
 router = APIRouter()
 
 
+mortuary_guard = require_roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+
+
 @router.get("/stats", response_model=MortuaryStatsResponse, summary="Get Mortuary Cold Storage & Custody Stats")
 async def get_mortuary_stats(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(mortuary_guard)],
 ) -> MortuaryStatsResponse:
     """Retrieve mortuary preservation units, occupancy, and post-mortem stats."""
     vaults_res = await db.execute(select(BodyVault))
@@ -66,7 +70,7 @@ async def get_mortuary_stats(
 @router.get("/vaults", response_model=List[BodyVaultResponse], summary="List Cold Vault Compartments")
 async def list_vaults(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(mortuary_guard)],
 ) -> List[BodyVaultResponse]:
     """Retrieve mortuary preservation vaults with active occupant telemetry."""
     stmt = select(BodyVault).order_by(BodyVault.vault_code.asc())
@@ -105,7 +109,7 @@ async def list_vaults(
 async def create_vault(
     vault_in: BodyVaultCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(mortuary_guard)],
 ) -> BodyVaultResponse:
     """Create a new refrigerated mortuary preservation vault."""
     existing = await db.execute(select(BodyVault).where(BodyVault.vault_code == vault_in.vault_code))
@@ -137,8 +141,8 @@ async def create_vault(
 @router.get("/records", response_model=List[MortuaryRecordResponse], summary="List Deceased Records")
 async def list_records(
     db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(mortuary_guard)],
     filter_type: Optional[str] = Query("all", description="Filter by: all, custody, released, autopsy"),
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
 ) -> List[MortuaryRecordResponse]:
     """Retrieve mortuary deceased admission, autopsy, and legal release registry."""
     stmt = select(MortuaryRecord, BodyVault.vault_code).outerjoin(
@@ -193,7 +197,7 @@ async def list_records(
 async def admit_deceased(
     record_in: MortuaryRecordCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(mortuary_guard)],
 ) -> MortuaryRecordResponse:
     """Record deceased admission into mortuary preservation with assigned vault."""
     tag = f"MORT-{datetime.now(timezone.utc).year}-{uuid.uuid4().hex[:6].upper()}"
@@ -271,7 +275,7 @@ async def record_autopsy(
     record_id: int,
     autopsy_in: AutopsyRecordRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(mortuary_guard)],
 ) -> MortuaryRecordResponse:
     """Document forensic or clinical post-mortem autopsy findings and confirming pathologist."""
     stmt = select(MortuaryRecord).where(MortuaryRecord.id == record_id)
@@ -330,8 +334,8 @@ async def record_autopsy(
 async def release_deceased(
     record_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(mortuary_guard)],
     release_in: Optional[ReleaseDeceasedRequest] = None,
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
 ) -> MortuaryRecordResponse:
     """Release deceased body to family with legal death certificate validation."""
     stmt = select(MortuaryRecord).where(MortuaryRecord.id == record_id)
@@ -405,7 +409,7 @@ async def release_deceased(
 async def get_death_certificate_voucher(
     record_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User, Depends(mortuary_guard)],
 ) -> MortuaryCertificateVoucherResponse:
     """Generate printable official medical death certificate and mortuary release voucher."""
     stmt = select(MortuaryRecord).where(MortuaryRecord.id == record_id)

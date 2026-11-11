@@ -7,10 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_roles
 from app.core.database import get_db
 from app.models.fayda import FaydaRecord
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.fayda import (
     BiometricVerificationRequest,
     FaydaLookupRequest,
@@ -26,11 +26,21 @@ from app.services.fayda_service import (
 
 router = APIRouter()
 
+fayda_guard = require_roles(
+    UserRole.RECEPTIONIST,
+    UserRole.NURSE,
+    UserRole.DOCTOR,
+    UserRole.INSURANCE_OFFICER,
+    UserRole.BILLING,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
+
 
 @router.post("/verify", response_model=FaydaVerificationResponse, summary="Verify Fayda National Digital ID")
 async def verify_fayda(
     lookup: FaydaLookupRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(fayda_guard)],
 ) -> FaydaVerificationResponse:
     """eKYC query against Ethiopian National ID Program (NIDP) Fayda gateway."""
     return await verify_fayda_identity(lookup.fin_number)
@@ -39,7 +49,7 @@ async def verify_fayda(
 @router.post("/verify-biometric", response_model=FaydaVerificationResponse, summary="Biometric eKYC Fingerprint Verification")
 async def verify_fayda_biometric_endpoint(
     req: BiometricVerificationRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(fayda_guard)],
 ) -> FaydaVerificationResponse:
     """Live USB biometric scanner capture & minutiae verification against Fayda NID gateway."""
     return await verify_fayda_biometric(req)
@@ -49,7 +59,7 @@ async def verify_fayda_biometric_endpoint(
 async def link_fayda(
     link_in: FaydaRecordCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(fayda_guard)],
 ) -> FaydaRecord:
     """Link verified Fayda record to patient master demographic registry."""
     return await link_fayda_to_patient(db=db, link_in=link_in)
@@ -59,7 +69,7 @@ async def link_fayda(
 async def get_patient_fayda(
     patient_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(fayda_guard)],
 ) -> Optional[FaydaRecord]:
     """Retrieve verified National Digital ID linked to patient."""
     res = await db.execute(select(FaydaRecord).where(FaydaRecord.patient_id == patient_id))

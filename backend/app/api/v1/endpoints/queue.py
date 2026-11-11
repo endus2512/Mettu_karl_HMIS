@@ -16,7 +16,7 @@ from fastapi import (
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_reception_clinical, require_staff
 from app.core.database import get_db
 from app.models.queue import (
     QueueDepartment,
@@ -41,6 +41,7 @@ router = APIRouter()
 
 @router.get("/departments", response_model=List[QueueDepartmentResponse], summary="List Queue Departments")
 async def list_departments(
+    current_user: Annotated[User, Depends(require_staff)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> List[QueueDepartment]:
     """Fetch active queue departments (OPD, Triage, Lab, Pharmacy, Cashier)."""
@@ -52,6 +53,7 @@ async def list_departments(
 @router.post("/tickets", response_model=TicketResponse, status_code=status.HTTP_201_CREATED, summary="Issue New Token Ticket")
 async def issue_ticket(
     ticket_in: TicketCreate,
+    current_user: Annotated[User, Depends(require_reception_clinical)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TicketResponse:
     """Issue a new numbered queue token ticket for a patient."""
@@ -80,7 +82,7 @@ async def issue_ticket(
 @router.post("/call-next", response_model=Optional[TicketResponse], summary="Call Next Patient (Doctor / Counter)")
 async def call_next(
     call_req: CallNextRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_reception_clinical)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Optional[TicketResponse]:
     """Call the next patient in line. Broadcasts live token update to waiting room TV screens."""

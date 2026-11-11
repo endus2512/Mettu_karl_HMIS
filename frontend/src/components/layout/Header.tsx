@@ -67,7 +67,8 @@ export function Header(): React.ReactElement {
     isUpdating,
   } = useHospitalTimeSync();
 
-  const effectiveRole = activeRole || user?.role || 'doctor';
+  const isSupervisor = user?.role === 'admin' || user?.role === 'super_admin';
+  const effectiveRole = (isSupervisor ? activeRole : user?.role) || 'patient';
 
   // Online Calendar & Shift Modal Configuration State
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);

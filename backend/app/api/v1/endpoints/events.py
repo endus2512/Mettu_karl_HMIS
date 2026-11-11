@@ -22,7 +22,7 @@ from jose import JWTError
 from sqlalchemy import desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, require_roles
+from app.api.deps import require_clinical_or_admin, require_staff
 from app.core.database import get_db
 from app.core.security import decode_token
 from app.models.notification import ClinicalNotification
@@ -145,7 +145,7 @@ async def websocket_event_hub(
 
 @router.get("/notifications", response_model=PaginatedNotificationResponse)
 async def list_notifications(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_staff)],
     db: Annotated[AsyncSession, Depends(get_db)],
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
@@ -193,7 +193,7 @@ async def list_notifications(
 @router.post("/notifications/broadcast", response_model=ClinicalNotificationResponse, status_code=status.HTTP_201_CREATED)
 async def dispatch_emergency_broadcast(
     payload: EmergencyBroadcastRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """
@@ -258,7 +258,7 @@ async def dispatch_emergency_broadcast(
 async def react_to_notification(
     notification_id: int,
     reaction_data: ClinicalNotificationReact,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_staff)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """
@@ -298,7 +298,7 @@ async def react_to_notification(
 @router.post("/notifications/{notification_id}/read", response_model=ClinicalNotificationResponse)
 async def mark_notification_read(
     notification_id: int,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_staff)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Mark a notification as read."""
@@ -315,7 +315,7 @@ async def mark_notification_read(
 
 @router.post("/notifications/clear-all")
 async def clear_all_notifications(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_staff)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Mark all relevant notifications as read for current user."""

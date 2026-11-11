@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import require_clinical_or_admin
 from app.core.database import get_db
 from app.models.appointment import (
     Appointment,
@@ -28,7 +28,7 @@ router = APIRouter()
 @router.post("/sessions", response_model=TelemedSessionResponse, status_code=status.HTTP_201_CREATED, summary="Create Telemedicine Video Room")
 async def create_telemed_session(
     session_in: TelemedSessionCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TelemedSessionResponse:
     """Initialize a WebRTC encrypted video consultation room."""
@@ -61,7 +61,7 @@ async def create_telemed_session(
 @router.post("/sessions/{room_id}/end", summary="End Telemedicine Video Room")
 async def end_telemed_session(
     room_id: str,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_clinical_or_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> dict:
     """Close active telemedicine session and record end time."""

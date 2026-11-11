@@ -5,8 +5,8 @@ Ensures time, calendar, and shifts are synchronized online via the central datab
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, get_db
-from app.models.user import User, UserRole
+from app.api.deps import get_db, require_clinical_or_admin, require_staff
+from app.models.user import User
 from app.schemas.system_time import (
     ShiftOverrideRequest,
     ShiftRosterOverviewResponse,
@@ -51,24 +51,12 @@ async def get_system_time_sync(
 async def override_hospital_shift(
     override_in: ShiftOverrideRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_clinical_or_admin),
 ) -> TimeSyncResponse:
     """
     Persist shift change, charge nurse, on-duty physician, or handover notes to database.
     Permitted for ADMIN, SUPER_ADMIN, DOCTOR, and NURSE (Charge Nurse).
     """
-    allowed_roles = [
-        UserRole.ADMIN,
-        UserRole.SUPER_ADMIN,
-        UserRole.DOCTOR,
-        UserRole.NURSE,
-    ]
-    if current_user.role not in allowed_roles:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Shift and calendar configuration is restricted to clinical leadership and administrators.",
-        )
-
     user_label = f"{current_user.full_name} ({current_user.role.value})"
     return await override_shift_config(db, override_in, user_label)
 
@@ -80,7 +68,7 @@ async def override_hospital_shift(
 )
 async def reset_auto_shift(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_clinical_or_admin),
 ) -> TimeSyncResponse:
     """Reset active shift calculation to follow automatic server time."""
     config = await get_or_create_shift_config(db)
@@ -98,6 +86,7 @@ async def reset_auto_shift(
 )
 async def get_shift_roster(
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_staff),
 ) -> ShiftRosterOverviewResponse:
     """Get active clinical duty roster for on-duty nurses, midwives, and physicians."""
     time_data = await get_online_time_sync(db)

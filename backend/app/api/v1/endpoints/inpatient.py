@@ -13,7 +13,7 @@ from sqlalchemy import case, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_optional_current_user
+from app.api.deps import require_clinical, require_roles
 from app.core.database import get_db
 from app.models.inpatient import (
     AcuityLevel,
@@ -117,10 +117,19 @@ def _build_admission_response(adm: InpatientAdmission) -> InpatientAdmissionResp
     )
 
 
+inpatient_read_guard = require_roles(
+    UserRole.NURSE,
+    UserRole.DOCTOR,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+)
+inpatient_write_guard = require_clinical
+
+
 @router.get("/stats", response_model=InpatientStatsResponse, summary="Get Inpatient Ward & Bed Census Statistics")
 async def get_inpatient_stats(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_read_guard)],
 ):
     """
     Computes real-time hospital inpatient capacity, occupied beds, available beds,
@@ -178,7 +187,7 @@ async def get_inpatient_stats(
 @router.get("/wards", response_model=List[WardWithBedsResponse], summary="List Hospital Wards with Beds")
 async def list_wards(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_read_guard)],
 ):
     """
     List all clinical hospital wards with bed breakdown, current occupancy, and occupancy rate.
@@ -231,7 +240,7 @@ async def list_wards(
 @router.get("/beds", response_model=List[WardBedResponse], summary="List Hospital Beds with Filters")
 async def list_beds(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_read_guard)],
     ward_id: Optional[int] = Query(None, description="Filter by Ward ID"),
     status: Optional[str] = Query(None, description="Filter by bed status"),
     bed_type: Optional[str] = Query(None, description="Filter by bed type"),
@@ -265,7 +274,7 @@ async def update_bed_status(
     bed_id: int,
     payload: WardBedStatusUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_write_guard)],
 ):
     """
     Update bed housekeeping status (e.g. mark bed as cleaned & available, or under maintenance).
@@ -303,7 +312,7 @@ async def update_bed_status(
 @router.get("/admissions", response_model=List[InpatientAdmissionResponse], summary="List Inpatient Admissions")
 async def list_admissions(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_read_guard)],
     status: Optional[str] = Query(None, description="admitted, discharged, or all"),
     ward_id: Optional[int] = Query(None, description="Filter by Ward ID"),
     acuity_level: Optional[str] = Query(None, description="Filter by Acuity level"),
@@ -362,7 +371,7 @@ async def list_admissions(
 async def create_admission(
     payload: InpatientAdmissionCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_write_guard)],
 ):
     """
     Admit a patient to a specified ward and bed.
@@ -458,7 +467,7 @@ async def transfer_patient(
     admission_id: int,
     payload: BedTransferRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_write_guard)],
 ):
     """
     Transfer an admitted patient to a new bed or ward.
@@ -550,7 +559,7 @@ async def discharge_patient(
     admission_id: int,
     payload: InpatientDischargeRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_write_guard)],
 ):
     """
     Clinically discharges an inpatient.
@@ -621,7 +630,7 @@ async def discharge_patient(
 async def get_discharge_voucher(
     admission_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_read_guard)],
 ):
     """
     Generate official hospital Inpatient Admission & Discharge Summary voucher
@@ -691,7 +700,7 @@ async def get_discharge_voucher(
 @router.get("/transfers", response_model=List[BedTransferLogResponse], summary="List Bed Transfer Audit Logs")
 async def list_transfers(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)],
+    current_user: Annotated[User, Depends(inpatient_read_guard)],
     limit: int = Query(25, ge=1, le=100),
 ):
     """

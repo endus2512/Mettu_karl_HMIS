@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_client_ip, get_current_user
+from app.api.deps import get_client_ip, require_admin
 from app.core.audit import record_audit_event, verify_audit_chain
 from app.core.database import get_db
 from app.models.audit_log import AuditLog
@@ -18,7 +18,7 @@ from app.models.clinical_audit import (
     CorrectiveActionPlan,
     EHSTGStandardChapter,
 )
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.schemas.clinical_audit import (
     CAPACreate,
     CAPAResponse,
@@ -35,7 +35,7 @@ router = APIRouter()
 async def log_audit(
     audit_in: ClinicalAuditCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_admin)],
 ) -> ClinicalAudit:
     """Record internal departmental clinical audit against EHSTG standards."""
     audit = ClinicalAudit(
@@ -52,7 +52,7 @@ async def log_audit(
 @router.get("/audits", response_model=List[ClinicalAuditResponse], summary="List Clinical Audits")
 async def list_audits(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_admin)],
     chapter: Optional[EHSTGStandardChapter] = Query(None, description="Filter by EHSTG standard chapter"),
     department: Optional[str] = Query(None, description="Filter by hospital department"),
 ) -> List[ClinicalAudit]:
@@ -70,7 +70,7 @@ async def list_audits(
 async def assign_capa(
     capa_in: CAPACreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_admin)],
 ) -> CorrectiveActionPlan:
     """Assign Corrective and Preventive Action (CAPA) for clinical quality non-compliance."""
     capa = CorrectiveActionPlan(
@@ -87,7 +87,7 @@ async def assign_capa(
 async def resolve_capa(
     capa_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_admin)],
 ) -> CorrectiveActionPlan:
     """Sign off on completed CAPA resolution."""
     res = await db.execute(select(CorrectiveActionPlan).where(CorrectiveActionPlan.id == capa_id))
@@ -105,7 +105,7 @@ async def resolve_capa(
 @router.get("/security/logs", response_model=List[SecurityAuditLogResponse], summary="Security Audit Trail & Threat Sentinel Logs")
 async def get_security_audit_logs(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_admin)],
     limit: int = Query(50, ge=1, le=200),
 ) -> List[AuditLog]:
     """
@@ -125,7 +125,7 @@ async def get_security_audit_logs(
 )
 async def verify_security_audit_chain(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_admin)],
     limit: int = Query(500, ge=1, le=5000),
 ) -> MerkleChainVerifyResponse:
     """
@@ -140,6 +140,7 @@ async def verify_security_audit_chain(
 @router.post("/security/simulate-intercept", summary="Simulate & Verify Zero-Trust Impersonation Defense")
 async def simulate_impersonation_intercept(
     request: Request,
+    current_user: Annotated[User, Depends(require_admin)],
     target_mrn: str = Query("MKH-2026-000101", description="Target patient MRN to simulate unauthorized access on"),
 ) -> Dict[str, Any]:
     """
