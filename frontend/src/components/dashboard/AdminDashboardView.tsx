@@ -19,6 +19,7 @@ import { useZenMode } from '@/lib/zenMode';
 import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
 import { AdminLedControlPanel } from '@/components/admin/AdminLedControlPanel';
 import { AdminStaffApprovalPanel } from '@/components/admin/AdminStaffApprovalPanel';
+import { AdminWorkforceMonitor } from '@/components/admin/AdminWorkforceMonitor';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
 import {
@@ -348,6 +349,19 @@ export function AdminDashboardView(): React.ReactElement {
             <span>{language === 'om' ? 'Mirkaneessa Hojjettootaa' : 'Staff Approvals'}</span>
           </button>
 
+          {/* Quick Jump to Live Workforce Activity Monitor */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('admin-workforce-monitor');
+              el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#141c2e] hover:bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-bold text-xs transition-all cursor-pointer"
+          >
+            <Activity className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{language === 'om' ? 'Hojjettoota Hojirraa' : 'Workforce Monitor'}</span>
+          </button>
+
           {/* Quick Jump to Digital LED Signboard Studio */}
           <button
             type="button"
@@ -394,7 +408,14 @@ export function AdminDashboardView(): React.ReactElement {
       {/* ================================================================= */}
       {/* 1B. STAFF SIGN-UP VERIFICATION & ANTI-IMPERSONATION GUARD         */}
       {/* ================================================================= */}
+      {/* 1B. STAFF SIGN-UP VERIFICATION & ANTI-IMPERSONATION GUARD         */}
+      {/* ================================================================= */}
       <AdminStaffApprovalPanel />
+
+      {/* ================================================================= */}
+      {/* 1B-2. LIVE STAFF WORKFORCE ACTIVITY & ACCESS CONTROL MONITOR      */}
+      {/* ================================================================= */}
+      <AdminWorkforceMonitor />
 
       {/* ================================================================= */}
       {/* 1C. HOSPITAL DIGITAL LED MARQUEE SIGNBOARD CONTROLLER (ADMIN)     */}

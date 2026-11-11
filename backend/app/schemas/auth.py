@@ -2,7 +2,7 @@
 Pydantic schemas for authentication, token generation, and MFA.
 """
 from datetime import datetime
-from typing import Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -95,7 +95,11 @@ class UserResponse(BaseModel):
     is_active: bool
     is_mfa_enabled: bool
     created_at: datetime
+    first_login_at: Optional[datetime] = None
     last_login_at: Optional[datetime] = None
+    last_seen_at: Optional[datetime] = None
+    last_ip: Optional[str] = None
+    last_activity_path: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -134,6 +138,7 @@ class PendingStaffUserResponse(BaseModel):
     staff_id: Optional[str] = None
     department: Optional[str] = None
     license_number: Optional[str] = None
+    phone_number: Optional[str] = None
     role: UserRole
     requested_role: Optional[str] = None
     approval_status: str
@@ -144,6 +149,11 @@ class PendingStaffUserResponse(BaseModel):
     created_at: datetime
     approved_at: Optional[datetime] = None
     approved_by: Optional[int] = None
+    first_login_at: Optional[datetime] = None
+    last_login_at: Optional[datetime] = None
+    last_seen_at: Optional[datetime] = None
+    last_ip: Optional[str] = None
+    last_activity_path: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -152,3 +162,83 @@ class StaffApprovalDecisionRequest(BaseModel):
     """Admin payload for approving or rejecting a pending staff enrollment request."""
     assigned_role: Optional[UserRole] = None
     rejection_reason: Optional[str] = Field(None, max_length=255)
+
+
+class StaffHeartbeatRequest(BaseModel):
+    """Lightweight activity pulse from authenticated staff browser sessions."""
+    current_path: Optional[str] = Field(None, max_length=255)
+
+
+class StaffWorkforceItemResponse(BaseModel):
+    """Live Admin monitoring snapshot for an individual hospital staff member."""
+    id: int
+    username: str
+    email: str
+    full_name: str
+    staff_id: Optional[str] = None
+    department: Optional[str] = None
+    license_number: Optional[str] = None
+    phone_number: Optional[str] = None
+    role: UserRole
+    requested_role: Optional[str] = None
+    approval_status: str
+    risk_flag: Optional[str] = None
+    rejection_reason: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    first_login_at: Optional[datetime] = None
+    last_login_at: Optional[datetime] = None
+    last_seen_at: Optional[datetime] = None
+    last_ip: Optional[str] = None
+    last_activity_path: Optional[str] = None
+    work_status: str
+    idle_seconds: Optional[int] = None
+
+    model_config = {"from_attributes": True}
+
+
+class StaffWorkforceSummaryResponse(BaseModel):
+    """Real-time hospital staff working status & access control summary."""
+    total_staff: int
+    working_now_count: int
+    recent_count: int
+    offline_count: int
+    blocked_count: int
+    pending_count: int
+    items: List[StaffWorkforceItemResponse]
+
+
+class StaffWorkforceControlRequest(BaseModel):
+    """Admin payload to block, activate, or reassign role/permissions for any staff member."""
+    action: Literal["block", "activate", "update_role"]
+    assigned_role: Optional[UserRole] = None
+    reason: Optional[str] = Field(None, max_length=255)
+
+
+class AdminSecurityAlarmResponse(BaseModel):
+    """Real-time Admin security alarm enriched with current target account status."""
+    id: int
+    title: str
+    message: str
+    severity: str
+    category: str
+    event_type: str
+    actor_name: str
+    actor_role: str
+    actor_user_id: Optional[int] = None
+    staff_id: Optional[str] = None
+    username: Optional[str] = None
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
+    requested_role: Optional[str] = None
+    department: Optional[str] = None
+    license_number: Optional[str] = None
+    ip_address: Optional[str] = None
+    risk_flag: Optional[str] = None
+    user_approval_status: Optional[str] = None
+    user_is_active: Optional[bool] = None
+    user_current_role: Optional[str] = None
+    is_read: bool
+    created_at: datetime
+    reacted_at: Optional[datetime] = None
+    reaction_by: Optional[str] = None

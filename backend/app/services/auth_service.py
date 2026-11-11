@@ -19,6 +19,7 @@ from app.core.config import settings
 from app.core.security import hash_password, verify_password
 from app.models.user import User, UserRole
 from app.schemas.auth import UserCreate
+from app.services.security_alarm_service import emit_admin_security_alarm
 
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_DURATION_MINUTES = 15
@@ -81,6 +82,22 @@ async def authenticate_user(
             result="failure",
             detail={"reason": "User not found"},
         )
+        await emit_admin_security_alarm(
+            db,
+            event_type="UNKNOWN_USER_LOGIN_ATTEMPT",
+            title=f"UNKNOWN STAFF LOGIN ATTEMPT: '{username}'",
+            message=(
+                f"Unrecognized identifier '{username}' attempted staff workstation login "
+                f"from IP {client_ip or 'unknown'}."
+            ),
+            severity="warning",
+            category="staff_login_blocked_alarm",
+            actor_name=username,
+            actor_role="unverified",
+            username=username,
+            client_ip=client_ip,
+            commit=True,
+        )
         return None, "Invalid username or password"
 
     # Check if account is currently locked (normalize naive datetimes loaded from SQLite)
@@ -98,6 +115,20 @@ async def authenticate_user(
             ip_address=client_ip,
             result="failure",
             detail={"locked_until": locked_until.isoformat()},
+        )
+        await emit_admin_security_alarm(
+            db,
+            event_type="LOCKED_ACCOUNT_LOGIN_ATTEMPT",
+            title=f"LOCKED ACCOUNT LOGIN PROBE: {user.full_name} ({user.staff_id or user.username})",
+            message=(
+                f"Locked account {user.full_name} ({user.role.value}) attempted sign-in "
+                f"from IP {client_ip or 'unknown'}."
+            ),
+            severity="critical",
+            category="staff_login_blocked_alarm",
+            actor_user=user,
+            client_ip=client_ip,
+            commit=True,
         )
         return None, f"Account is locked due to multiple failed logins. Try again in {remaining_minutes} minutes."
 
@@ -139,6 +170,31 @@ async def authenticate_user(
             result="failure",
             detail=detail,
         )
+        if user.failed_attempts in (1, MAX_FAILED_ATTEMPTS):
+            await emit_admin_security_alarm(
+                db,
+                event_type=(
+                    "ACCOUNT_LOCKOUT_TRIGGERED"
+                    if user.failed_attempts >= MAX_FAILED_ATTEMPTS
+                    else "FAILED_PASSWORD_LOGIN"
+                ),
+                title=(
+                    f"SECURITY LOCKOUT ({MAX_FAILED_ATTEMPTS}x FAIL): {user.full_name} ({user.staff_id or user.username})"
+                    if user.failed_attempts >= MAX_FAILED_ATTEMPTS
+                    else f"FAILED PASSWORD LOGIN: {user.full_name} ({user.staff_id or user.username})"
+                ),
+                message=(
+                    f"Failed password attempt #{user.failed_attempts} for {user.full_name} "
+                    f"(Role: {user.role.value}) from IP {client_ip or 'unknown'}."
+                ),
+                severity="emergency" if user.failed_attempts >= MAX_FAILED_ATTEMPTS else "warning",
+                category="staff_login_blocked_alarm",
+                actor_user=user,
+                client_ip=client_ip,
+                commit=True,
+            )
+        else:
+            await db.commit()
         return None, "Invalid username or password"
 
     if approval_state == "pending":
@@ -151,6 +207,21 @@ async def authenticate_user(
             ip_address=client_ip,
             result="blocked",
             detail={"requested_role": user.requested_role, "staff_id": user.staff_id},
+        )
+        await emit_admin_security_alarm(
+            db,
+            event_type="PENDING_STAFF_LOGIN_ATTEMPT",
+            title=f"PENDING STAFF LOGIN BLOCKED: {user.full_name} ({user.staff_id or user.username})",
+            message=(
+                f"Unapproved applicant {user.full_name} (ID: {user.staff_id or user.username}, "
+                f"Requested: {(user.requested_role or user.role.value).upper()}, Dept: {user.department or 'N/A'}) "
+                f"attempted system sign-in before Admin verification from IP {client_ip or 'unknown'}."
+            ),
+            severity="critical",
+            category="staff_login_blocked_alarm",
+            actor_user=user,
+            client_ip=client_ip,
+            commit=True,
         )
         return None, "Account is pending Hospital Administrator verification and approval."
 
@@ -165,15 +236,55 @@ async def authenticate_user(
             result="blocked",
             detail={"rejection_reason": user.rejection_reason},
         )
+        await emit_admin_security_alarm(
+            db,
+            event_type="BLOCKED_STAFF_LOGIN_ATTEMPT",
+            title=f"BLOCKED USER LOGIN ATTEMPT: {user.full_name} ({user.staff_id or user.username})",
+            message=(
+                f"Blocked/rejected user {user.full_name} (ID: {user.staff_id or user.username}) "
+                f"attempted unauthorized login from IP {client_ip or 'unknown'}."
+            ),
+            severity="emergency",
+            category="staff_login_blocked_alarm",
+            actor_user=user,
+            client_ip=client_ip,
+            commit=True,
+        )
         return None, "Account registration was rejected by Hospital Administration."
 
     if not user.is_active:
+        await record_audit_event(
+            db,
+            user_id=user.id,
+            action="LOGIN_BLOCKED_DISABLED",
+            resource="User",
+            resource_id=str(user.id),
+            ip_address=client_ip,
+            result="blocked",
+        )
+        await emit_admin_security_alarm(
+            db,
+            event_type="DISABLED_STAFF_LOGIN_ATTEMPT",
+            title=f"SUSPENDED STAFF LOGIN ATTEMPT: {user.full_name} ({user.staff_id or user.username})",
+            message=(
+                f"Suspended/inactive account {user.full_name} (ID: {user.staff_id or user.username}, Role: {user.role.value}) "
+                f"attempted login from IP {client_ip or 'unknown'}."
+            ),
+            severity="critical",
+            category="staff_login_blocked_alarm",
+            actor_user=user,
+            client_ip=client_ip,
+            commit=True,
+        )
         return None, "Account is disabled"
 
     # Reset failure counters on successful password verification
     user.failed_attempts = 0
     user.locked_until = None
     user.last_login_at = now
+    user.last_seen_at = now
+    if client_ip:
+        user.last_ip = client_ip
     await db.commit()
 
     return user, None

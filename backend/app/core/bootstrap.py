@@ -66,6 +66,10 @@ async def ensure_database_ready() -> None:
                     ("approved_by", "INTEGER"),
                     ("approved_at", "TIMESTAMP"),
                     ("requested_ip", "VARCHAR(64)"),
+                    ("first_login_at", "TIMESTAMP"),
+                    ("last_seen_at", "TIMESTAMP"),
+                    ("last_ip", "VARCHAR(64)"),
+                    ("last_activity_path", "VARCHAR(255)"),
                 ]
                 for col_name, col_type in additions:
                     if col_name not in existing:

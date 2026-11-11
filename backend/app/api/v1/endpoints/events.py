@@ -143,6 +143,19 @@ async def websocket_event_hub(
         await clinical_event_bus.disconnect(websocket)
 
 
+def _build_notification_filter(current_user: User):
+    """Build SQL filter matching notifications targeted to all staff, user's role, or user ID."""
+    role_str = current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role)
+    role_targets = [role_str]
+    if current_user.role == UserRole.SUPER_ADMIN:
+        role_targets.append(UserRole.ADMIN.value)
+    return or_(
+        ClinicalNotification.target_role == "all",
+        ClinicalNotification.target_role.in_(role_targets),
+        ClinicalNotification.target_user_id == current_user.id,
+    )
+
+
 @router.get("/notifications", response_model=PaginatedNotificationResponse)
 async def list_notifications(
     current_user: Annotated[User, Depends(require_staff)],
@@ -153,16 +166,9 @@ async def list_notifications(
 ):
     """
     Fetch persistent clinical notifications and broadcasts applicable to the current user.
-    Filtered by user ID or user role (e.g. Doctor, Nurse, Admin).
+    Filtered by user ID or user role (e.g. Doctor, Nurse, Admin / Super Admin).
     """
-    role_str = current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role)
-
-    # Filter where targeted to 'all', or matching user's role, or directly to user's ID
-    filter_condition = or_(
-        ClinicalNotification.target_role == "all",
-        ClinicalNotification.target_role == role_str,
-        ClinicalNotification.target_user_id == current_user.id,
-    )
+    filter_condition = _build_notification_filter(current_user)
 
     query = select(ClinicalNotification).where(filter_condition)
     if unread_only:
@@ -319,12 +325,7 @@ async def clear_all_notifications(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Mark all relevant notifications as read for current user."""
-    role_str = current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role)
-    filter_condition = or_(
-        ClinicalNotification.target_role == "all",
-        ClinicalNotification.target_role == role_str,
-        ClinicalNotification.target_user_id == current_user.id,
-    )
+    filter_condition = _build_notification_filter(current_user)
     stmt = select(ClinicalNotification).where(filter_condition, ClinicalNotification.is_read.is_(False))
     result = await db.execute(stmt)
     notifications_list = result.scalars().all()

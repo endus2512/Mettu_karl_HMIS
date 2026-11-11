@@ -20,6 +20,12 @@ class ClinicalNotificationBase(BaseModel):
         "mci_alert",
         "directive",
         "broadcast",
+        "staff_signup_alarm",
+        "staff_first_login",
+        "staff_login_blocked_alarm",
+        "staff_impersonation_alarm",
+        "staff_security_alarm",
+        "staff_status_change",
         "custom",
     ] = "broadcast"
     target_role: str = Field(default="all", description="'all' or specific role like 'doctor', 'nurse', etc.")

@@ -33,8 +33,10 @@ import {
   ReactionType,
   connectClinicalEventBusWebSocket,
   fetchLiveBackendNotifications,
+  playClinicalAudioAlert,
   EVENT_NAME,
 } from '@/lib/notifications';
+import { useRouter } from 'next/navigation';
 
 interface NotificationBellProps {
   variant?: 'light' | 'dark';
@@ -100,6 +102,7 @@ const BELL_I18N: Record<Language, {
 };
 
 export function NotificationBell({ variant = 'dark', className = '' }: NotificationBellProps): React.ReactElement {
+  const router = useRouter();
   const { user } = useAuth();
   const { language } = useTranslation();
   const lang: Language = (language as Language) || 'en';
@@ -111,6 +114,7 @@ export function NotificationBell({ variant = 'dark', className = '' }: Notificat
   const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const seenSecurityAlarmIdsRef = useRef<Set<number> | null>(null);
 
   // Load notifications for this role
   const refreshNotifications = () => {
@@ -123,15 +127,62 @@ export function NotificationBell({ variant = 'dark', className = '' }: Notificat
   useEffect(() => {
     refreshNotifications();
     const isStaffUser = Boolean(user && user.role !== 'patient');
+    const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
     let disconnectWs: () => void = () => {};
+    let pollTimer: NodeJS.Timeout | null = null;
+
+    const syncLive = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      void fetchLiveBackendNotifications().then((live) => {
+        if (!live || live.length === 0) return;
+        setItems(live);
+
+        if (isAdminUser) {
+          const unreadAlarms = live.filter(
+            (n) =>
+              !n.read &&
+              n.backendId &&
+              (n.type === 'staff_signup_alarm' ||
+                n.type === 'staff_first_login' ||
+                n.type === 'staff_login_blocked_alarm' ||
+                n.type === 'staff_impersonation_alarm' ||
+                n.type === 'staff_security_alarm'),
+          );
+          if (seenSecurityAlarmIdsRef.current === null) {
+            seenSecurityAlarmIdsRef.current = new Set(
+              unreadAlarms.map((n) => n.backendId as number),
+            );
+          } else {
+            const newlyArrived = unreadAlarms.filter(
+              (n) => !seenSecurityAlarmIdsRef.current!.has(n.backendId as number),
+            );
+            if (newlyArrived.length > 0) {
+              newlyArrived.forEach((n) =>
+                seenSecurityAlarmIdsRef.current!.add(n.backendId as number),
+              );
+              playClinicalAudioAlert('emergency');
+              const top = newlyArrived[0];
+              notifications.show({
+                title:
+                  lang === 'om'
+                    ? 'Akeekkachiisa Nageenyaa Haaraa (Admin Alarm)'
+                    : 'URGENT STAFF SECURITY ALARM',
+                message: top.title[lang] || top.title.en,
+                color: 'red',
+                autoClose: 8000,
+                onClick: () => router.push('/portal/admin'),
+              });
+            }
+          }
+        }
+      });
+    };
 
     if (isStaffUser) {
-      // Fetch live persistent notifications from staff backend bus
-      fetchLiveBackendNotifications().then((live) => {
-        if (live && live.length > 0) setItems(live);
-      });
+      syncLive();
+      pollTimer = setInterval(syncLive, isAdminUser ? 6000 : 20000);
 
-      // Real-Time Event Bus WebSocket connection for hospital staff
+      // Real-Time Event Bus WebSocket connection for local hospital staff
       const token =
         typeof window !== 'undefined'
           ? localStorage.getItem('access_token') || localStorage.getItem('token') || undefined
@@ -145,10 +196,11 @@ export function NotificationBell({ variant = 'dark', className = '' }: Notificat
     window.addEventListener(EVENT_NAME, handleUpdate);
 
     return () => {
+      if (pollTimer) clearInterval(pollTimer);
       disconnectWs();
       window.removeEventListener(EVENT_NAME, handleUpdate);
     };
-  }, [user]);
+  }, [user, lang, router]);
 
   // Click outside to close drawer
   useEffect(() => {
@@ -374,6 +426,15 @@ export function NotificationBell({ variant = 'dark', className = '' }: Notificat
                         {item.type === 'custom' && (
                           <span className="inline-flex items-center gap-1 rounded-md bg-blue-100 dark:bg-blue-950/60 border border-blue-300 dark:border-blue-800 px-2 py-0.5 text-[10px] font-mono font-bold text-blue-800 dark:text-blue-300 uppercase">
                             <MessageSquare className="h-3 w-3" /> MESSAGE
+                          </span>
+                        )}
+                        {(item.type === 'staff_signup_alarm' ||
+                          item.type === 'staff_first_login' ||
+                          item.type === 'staff_login_blocked_alarm' ||
+                          item.type === 'staff_impersonation_alarm' ||
+                          item.type === 'staff_security_alarm') && (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-rose-100 dark:bg-rose-950/60 border border-rose-400 dark:border-rose-700 px-2 py-0.5 text-[10px] font-mono font-bold text-rose-800 dark:text-rose-200 uppercase">
+                            <AlertOctagon className="h-3 w-3" /> SECURITY ALARM
                           </span>
                         )}
 

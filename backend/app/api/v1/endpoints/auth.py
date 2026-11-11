@@ -2,15 +2,16 @@
 Authentication endpoints: login, 2-step MFA, token refresh, logout, and profile.
 """
 from datetime import datetime, timezone
+import json
 import re
 from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from jose import JWTError
-from sqlalchemy import func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_client_ip, get_current_user, require_admin, require_roles
+from app.api.deps import get_client_ip, get_current_user, require_admin, require_roles, require_staff
 from app.core.audit import record_audit_event
 from app.core.database import get_db
 from app.core.rate_limiter import (
@@ -26,8 +27,10 @@ from app.core.security import (
     decode_token,
     hash_password,
 )
+from app.models.notification import ClinicalNotification
 from app.models.user import ApprovalStatus, User, UserRole
 from app.schemas.auth import (
+    AdminSecurityAlarmResponse,
     LoginRequest,
     MFALoginRequest,
     MFASetupResponse,
@@ -37,8 +40,12 @@ from app.schemas.auth import (
     PendingStaffUserResponse,
     RefreshTokenRequest,
     StaffApprovalDecisionRequest,
+    StaffHeartbeatRequest,
     StaffRegisterRequest,
     StaffRegistrationResponse,
+    StaffWorkforceControlRequest,
+    StaffWorkforceItemResponse,
+    StaffWorkforceSummaryResponse,
     TokenResponse,
     UserCreate,
     UserResponse,
@@ -50,6 +57,12 @@ from app.services.auth_service import (
     setup_mfa,
     verify_and_enable_mfa,
     verify_totp_code,
+)
+from app.services.security_alarm_service import (
+    STAFF_ALARM_CATEGORIES,
+    compute_staff_work_status,
+    emit_admin_security_alarm,
+    record_staff_session_start,
 )
 
 router = APIRouter()
@@ -124,6 +137,12 @@ async def login(
         resource_id=str(user.id),
         ip_address=client_ip,
         result="success",
+    )
+    await record_staff_session_start(
+        db,
+        user,
+        client_ip=client_ip,
+        entry_path=f"/portal/{user.role.value}",
     )
 
     return TokenResponse(
@@ -523,6 +542,12 @@ async def login_mfa(
         ip_address=client_ip,
         result="success",
     )
+    await record_staff_session_start(
+        db,
+        user,
+        client_ip=client_ip,
+        entry_path=f"/portal/{user.role.value}",
+    )
 
     return TokenResponse(
         access_token=access_token,
@@ -538,6 +563,7 @@ async def login_mfa(
 @router.post("/refresh", response_model=TokenResponse, summary="Refresh Access Token")
 async def refresh_access_token(
     refresh_data: RefreshTokenRequest,
+    request: Request,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TokenResponse:
     """Exchange valid refresh token for a newly minted access token."""
@@ -560,6 +586,10 @@ async def refresh_access_token(
             detail="User account is disabled or pending approval",
         )
 
+    user.last_seen_at = datetime.now(timezone.utc)
+    user.last_ip = get_client_ip(request)
+    await db.commit()
+
     access_token = create_access_token(
         subject=user.id,
         extra_claims={"role": user.role.value, "username": user.username},
@@ -580,8 +610,10 @@ async def logout(
     request: Request,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> dict:
-    """Invalidate active refresh token in Redis."""
+    """Invalidate active refresh token in Redis and mark workstation offline."""
     await redis_delete(f"refresh_token:{current_user.id}")
+    current_user.last_activity_path = "LOGGED_OUT"
+    await db.commit()
     await record_audit_event(
         db,
         user_id=current_user.id,
@@ -598,6 +630,30 @@ async def logout(
 async def get_me(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     """Return profile details of the authenticated caller."""
     return current_user
+
+
+@router.post("/heartbeat", summary="Staff Presence & Active Workstation Heartbeat")
+async def record_staff_heartbeat(
+    payload: StaffHeartbeatRequest,
+    request: Request,
+    current_user: Annotated[User, Depends(require_staff)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    """Update authenticated staff member's live presence timestamp and active workstation path."""
+    now = datetime.now(timezone.utc)
+    current_user.last_seen_at = now
+    current_user.last_ip = get_client_ip(request)
+    if payload.current_path:
+        current_user.last_activity_path = payload.current_path.strip()[:255]
+    elif current_user.last_activity_path == "LOGGED_OUT":
+        current_user.last_activity_path = f"/portal/{current_user.role.value}"
+    await db.commit()
+    work_status, _ = compute_staff_work_status(current_user, now)
+    return {
+        "status": "ok",
+        "work_status": work_status,
+        "last_seen_at": now.isoformat(),
+    }
 
 
 @router.post("/mfa/setup", response_model=MFASetupResponse, summary="Initialize MFA setup")
@@ -754,6 +810,26 @@ async def register_staff_request(
             result="blocked",
             detail={"requested_role": req_role_lower, "full_name": clean_full_name},
         )
+        await emit_admin_security_alarm(
+            db,
+            event_type="STAFF_SIGNUP_ESCALATION_BLOCKED",
+            title=f"PRIVILEGE ESCALATION BLOCKED: {clean_full_name} ({clean_staff_id})",
+            message=(
+                f"Applicant {clean_full_name} (ID: {clean_staff_id}, Dept: {clean_dept}) attempted "
+                f"self-registration for prohibited role '{req_role_lower}' from IP {client_ip or 'unknown'}."
+            ),
+            severity="emergency",
+            category="staff_impersonation_alarm",
+            actor_name=clean_full_name,
+            actor_role=req_role_lower,
+            staff_id=clean_staff_id,
+            username=username_slug,
+            department=clean_dept,
+            license_number=payload.license_number,
+            risk_flag="SUPER_ADMIN_ESCALATION_BLOCKED",
+            client_ip=client_ip,
+            commit=True,
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Root Super Admin privileges cannot be self-requested via public sign-up.",
@@ -786,6 +862,26 @@ async def register_staff_request(
             result="blocked",
             detail={"reason": "reserved_identifier", "requested_role": req_role_lower},
         )
+        await emit_admin_security_alarm(
+            db,
+            event_type="STAFF_SIGNUP_IMPERSONATION_BLOCKED",
+            title=f"IMPERSONATION BLOCKED: {clean_full_name} claimed reserved ID '{clean_staff_id}'",
+            message=(
+                f"Sign-up attempt using reserved identifier '{clean_staff_id}' by {clean_full_name} "
+                f"for role {req_role_lower.upper()} was blocked from IP {client_ip or 'unknown'}."
+            ),
+            severity="emergency",
+            category="staff_impersonation_alarm",
+            actor_name=clean_full_name,
+            actor_role=req_role_lower,
+            staff_id=clean_staff_id,
+            username=username_slug,
+            department=clean_dept,
+            license_number=payload.license_number,
+            risk_flag="RESERVED_ID_IMPERSONATION",
+            client_ip=client_ip,
+            commit=True,
+        )
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Reserved hospital staff identifier cannot be self-registered. Incident logged for ICT Security.",
@@ -807,6 +903,26 @@ async def register_staff_request(
             ip_address=client_ip,
             result="blocked",
             detail={"reason": "duplicate_identity", "requested_role": req_role_lower},
+        )
+        await emit_admin_security_alarm(
+            db,
+            event_type="STAFF_SIGNUP_DUPLICATE_BLOCKED",
+            title=f"DUPLICATE STAFF ID SIGN-UP BLOCKED: {clean_full_name} ({clean_staff_id})",
+            message=(
+                f"Sign-up attempt colliding with existing account '{clean_staff_id}' by {clean_full_name} "
+                f"({req_role_lower.upper()}) blocked from IP {client_ip or 'unknown'}."
+            ),
+            severity="critical",
+            category="staff_impersonation_alarm",
+            actor_name=clean_full_name,
+            actor_role=req_role_lower,
+            staff_id=clean_staff_id,
+            username=username_slug,
+            department=clean_dept,
+            risk_flag="DUPLICATE_IDENTITY_ATTEMPT",
+            client_ip=client_ip,
+            extra_metadata={"collided_user_id": existing_user.id},
+            commit=True,
         )
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -858,6 +974,24 @@ async def register_staff_request(
             "risk_flag": risk_flag,
         },
     )
+    await emit_admin_security_alarm(
+        db,
+        event_type="STAFF_SIGNUP_HIGH_RISK" if risk_flag else "STAFF_SIGNUP_NEW",
+        title=(
+            f"{'HIGH-RISK ' if risk_flag else ''}NEW STAFF SIGN-UP: {clean_full_name} ({clean_staff_id}) -> {req_role_lower.upper()}"
+        ),
+        message=(
+            f"Applicant {clean_full_name} (ID: {clean_staff_id}, Role Requested: {req_role_lower.upper()}, "
+            f"Dept: {clean_dept}, License: {clean_license or 'N/A'}, Phone: {new_staff.phone_number or 'N/A'}) "
+            f"registered from IP {client_ip or 'unknown'} and awaits Admin permission or block decision."
+        ),
+        severity="emergency" if risk_flag else "critical",
+        category="staff_signup_alarm",
+        actor_user=new_staff,
+        actor_role=req_role_lower,
+        client_ip=client_ip,
+        commit=True,
+    )
 
     return StaffRegistrationResponse(
         id=new_staff.id,
@@ -872,6 +1006,51 @@ async def register_staff_request(
             "Account created in PENDING ADMIN APPROVAL status. Access remains locked until verified by the Hospital Administrator."
         ),
     )
+
+
+async def _assert_role_grant_permitted(
+    *,
+    actor: User,
+    target: User,
+    target_role: UserRole,
+    request: Request,
+    db: AsyncSession,
+) -> None:
+    """Restrict granting ADMIN / SUPER_ADMIN roles strictly to Root Super Admin."""
+    if target_role in {UserRole.ADMIN, UserRole.SUPER_ADMIN} and actor.role != UserRole.SUPER_ADMIN:
+        await record_audit_event(
+            db,
+            user_id=actor.id,
+            action="ADMIN_PRIVILEGE_PROMOTION_BLOCKED",
+            resource="User",
+            resource_id=str(target.id),
+            ip_address=get_client_ip(request),
+            result="blocked",
+            detail={"attempted_role": target_role.value},
+        )
+        await db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Root Super Admin can approve an Administrator role grant.",
+        )
+
+
+async def _mark_user_alarms_handled(db: AsyncSession, target_user_id: int, actor_name: str) -> None:
+    """Mark open staff signup/login alarms for a user as handled when Admin takes action."""
+    stmt = select(ClinicalNotification).where(
+        ClinicalNotification.target_role == UserRole.ADMIN.value,
+        ClinicalNotification.sender_id == target_user_id,
+        ClinicalNotification.is_read.is_(False),
+    )
+    rows = list((await db.execute(stmt)).scalars().all())
+    now = datetime.now(timezone.utc)
+    for row in rows:
+        row.is_read = True
+        row.reaction_type = "acknowledged"
+        row.reaction_by = actor_name[:100]
+        row.reacted_at = now
+    if rows:
+        await db.commit()
 
 
 @router.get(
@@ -932,22 +1111,13 @@ async def approve_staff_request(
         (target.requested_role or "").lower(),
         UserRole.RECEPTIONIST,
     )
-
-    if target_role in {UserRole.ADMIN, UserRole.SUPER_ADMIN} and current_user.role != UserRole.SUPER_ADMIN:
-        await record_audit_event(
-            db,
-            user_id=current_user.id,
-            action="ADMIN_PRIVILEGE_PROMOTION_BLOCKED",
-            resource="User",
-            resource_id=str(target.id),
-            ip_address=get_client_ip(request),
-            result="blocked",
-            detail={"attempted_role": target_role.value},
-        )
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Root Super Admin can approve an Administrator role grant.",
-        )
+    await _assert_role_grant_permitted(
+        actor=current_user,
+        target=target,
+        target_role=target_role,
+        request=request,
+        db=db,
+    )
 
     target.role = target_role
     target.is_active = True
@@ -957,6 +1127,7 @@ async def approve_staff_request(
     target.approved_at = datetime.now(timezone.utc)
     await db.commit()
     await db.refresh(target)
+    await _mark_user_alarms_handled(db, target.id, current_user.full_name or current_user.username)
 
     await record_audit_event(
         db,
@@ -1004,6 +1175,7 @@ async def reject_staff_request(
     await db.commit()
     await db.refresh(target)
     await redis_delete(f"refresh_token:{target.id}")
+    await _mark_user_alarms_handled(db, target.id, current_user.full_name or current_user.username)
 
     await record_audit_event(
         db,
@@ -1020,3 +1192,304 @@ async def reject_staff_request(
         },
     )
     return target
+
+
+@router.get(
+    "/staff/alarms",
+    response_model=List[AdminSecurityAlarmResponse],
+    summary="List Live Staff Sign-Up, First-Login & Intrusion Security Alarms (Admin Only)",
+)
+async def list_admin_security_alarms(
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    unread_only: bool = Query(False),
+    limit: int = Query(50, ge=1, le=200),
+) -> List[AdminSecurityAlarmResponse]:
+    """Return real-time security alarms enriched with current live account status."""
+    stmt = select(ClinicalNotification).where(
+        ClinicalNotification.target_role == UserRole.ADMIN.value,
+        ClinicalNotification.category.in_(STAFF_ALARM_CATEGORIES),
+    )
+    if unread_only:
+        stmt = stmt.where(ClinicalNotification.is_read.is_(False))
+    stmt = stmt.order_by(desc(ClinicalNotification.id)).limit(limit)
+
+    notif_rows = list((await db.execute(stmt)).scalars().all())
+    parsed_meta: dict[int, dict] = {}
+    user_ids: set[int] = set()
+    for n in notif_rows:
+        meta: dict = {}
+        if n.metadata_json:
+            try:
+                loaded = json.loads(n.metadata_json)
+                if isinstance(loaded, dict):
+                    meta = loaded
+            except json.JSONDecodeError:
+                meta = {}
+        uid = meta.get("user_id") or n.sender_id
+        if isinstance(uid, int):
+            user_ids.add(uid)
+        parsed_meta[n.id] = meta
+
+    users_map: dict[int, User] = {}
+    if user_ids:
+        u_rows = (await db.execute(select(User).where(User.id.in_(user_ids)))).scalars().all()
+        users_map = {u.id: u for u in u_rows}
+
+    alarms: list[AdminSecurityAlarmResponse] = []
+    for n in notif_rows:
+        meta = parsed_meta[n.id]
+        uid = meta.get("user_id") or n.sender_id
+        linked_user = users_map.get(uid) if isinstance(uid, int) else None
+        alarms.append(
+            AdminSecurityAlarmResponse(
+                id=n.id,
+                title=n.title,
+                message=n.message,
+                severity=n.severity,
+                category=n.category,
+                event_type=str(meta.get("event_type") or n.category.upper()),
+                actor_name=str(meta.get("full_name") or n.sender_name or "Unknown"),
+                actor_role=str(meta.get("actor_role") or n.sender_role or "staff"),
+                actor_user_id=uid if isinstance(uid, int) else None,
+                staff_id=meta.get("staff_id") or (linked_user.staff_id if linked_user else None),
+                username=meta.get("username") or (linked_user.username if linked_user else None),
+                email=meta.get("email") or (linked_user.email if linked_user else None),
+                phone_number=meta.get("phone_number") or (linked_user.phone_number if linked_user else None),
+                requested_role=meta.get("requested_role") or (linked_user.requested_role if linked_user else None),
+                department=meta.get("department") or n.department or (linked_user.department if linked_user else None),
+                license_number=meta.get("license_number") or (linked_user.license_number if linked_user else None),
+                ip_address=meta.get("ip_address"),
+                risk_flag=meta.get("risk_flag") or (linked_user.risk_flag if linked_user else None),
+                user_approval_status=(
+                    getattr(linked_user, "approval_status", "approved")
+                    if linked_user
+                    else None
+                ),
+                user_is_active=linked_user.is_active if linked_user else None,
+                user_current_role=linked_user.role.value if linked_user else None,
+                is_read=n.is_read,
+                created_at=n.created_at,
+                reacted_at=n.reacted_at,
+                reaction_by=n.reaction_by,
+            )
+        )
+    return alarms
+
+
+@router.post(
+    "/staff/alarms/{alarm_id}/ack",
+    summary="Acknowledge Staff Security Alarm (Admin Only)",
+)
+async def acknowledge_admin_security_alarm(
+    alarm_id: int,
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    """Mark a security alarm acknowledged by Admin."""
+    notif = (
+        await db.execute(
+            select(ClinicalNotification).where(
+                ClinicalNotification.id == alarm_id,
+                ClinicalNotification.target_role == UserRole.ADMIN.value,
+            )
+        )
+    ).scalar_one_or_none()
+    if not notif:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Security alarm not found")
+
+    notif.is_read = True
+    notif.reaction_type = "acknowledged"
+    notif.reaction_by = current_user.full_name or current_user.username
+    notif.reacted_at = datetime.now(timezone.utc)
+    await db.commit()
+    return {"id": notif.id, "is_read": True, "reaction_by": notif.reaction_by}
+
+
+@router.get(
+    "/staff/workforce",
+    response_model=StaffWorkforceSummaryResponse,
+    summary="Live Staff Workforce Status & Access Control Directory (Admin Only)",
+)
+async def list_staff_workforce_status(
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> StaffWorkforceSummaryResponse:
+    """
+    Return all hospital staff accounts with live online/working vs offline/blocked telemetry
+    so Administrators can monitor active duty clinicians and control access in real time.
+    """
+    now = datetime.now(timezone.utc)
+    rows = list(
+        (await db.execute(select(User).where(User.role != UserRole.PATIENT))).scalars().all()
+    )
+    items: list[StaffWorkforceItemResponse] = []
+    counts = {
+        "working_now": 0,
+        "recent": 0,
+        "offline": 0,
+        "blocked": 0,
+        "pending": 0,
+    }
+    for u in rows:
+        work_status, idle_seconds = compute_staff_work_status(u, now)
+        counts[work_status] = counts.get(work_status, 0) + 1
+        items.append(
+            StaffWorkforceItemResponse(
+                id=u.id,
+                username=u.username,
+                email=u.email,
+                full_name=u.full_name,
+                staff_id=u.staff_id,
+                department=u.department,
+                license_number=u.license_number,
+                phone_number=u.phone_number,
+                role=u.role,
+                requested_role=u.requested_role,
+                approval_status=getattr(u, "approval_status", ApprovalStatus.APPROVED.value),
+                risk_flag=u.risk_flag,
+                rejection_reason=u.rejection_reason,
+                is_active=u.is_active,
+                created_at=u.created_at,
+                first_login_at=u.first_login_at,
+                last_login_at=u.last_login_at,
+                last_seen_at=u.last_seen_at,
+                last_ip=u.last_ip,
+                last_activity_path=u.last_activity_path,
+                work_status=work_status,
+                idle_seconds=idle_seconds,
+            )
+        )
+
+    order_rank = {"working_now": 0, "recent": 1, "pending": 2, "offline": 3, "blocked": 4}
+    items.sort(key=lambda item: (order_rank.get(item.work_status, 5), item.idle_seconds or 999999, item.id))
+
+    return StaffWorkforceSummaryResponse(
+        total_staff=len(items),
+        working_now_count=counts["working_now"],
+        recent_count=counts["recent"],
+        offline_count=counts["offline"],
+        blocked_count=counts["blocked"],
+        pending_count=counts["pending"],
+        items=items,
+    )
+
+
+@router.post(
+    "/staff/{user_id}/status",
+    response_model=StaffWorkforceItemResponse,
+    summary="Block, Activate, or Reassign Role for Any Staff Member (Admin Only)",
+)
+async def control_staff_access_and_role(
+    user_id: int,
+    control: StaffWorkforceControlRequest,
+    request: Request,
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> StaffWorkforceItemResponse:
+    """
+    Allow Administrators to block/suspend active staff, activate/unblock existing or new accounts,
+    or update RBAC permissions cleanly with immediate session invalidation.
+    """
+    target = await get_user_by_id(db, user_id)
+    if not target or target.role == UserRole.PATIENT:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Staff account not found")
+
+    if target.id == current_user.id or target.username == "admin":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot block or alter primary administrator account")
+
+    client_ip = get_client_ip(request)
+    if control.assigned_role is not None:
+        await _assert_role_grant_permitted(
+            actor=current_user,
+            target=target,
+            target_role=control.assigned_role,
+            request=request,
+            db=db,
+        )
+
+    now = datetime.now(timezone.utc)
+    if control.action == "block":
+        reason = (control.reason or "").strip() or "Suspended / Blocked by Hospital Administration."
+        target.is_active = False
+        target.approval_status = ApprovalStatus.REJECTED.value
+        target.rejection_reason = reason
+        target.last_activity_path = "LOGGED_OUT"
+        target.approved_by = current_user.id
+        target.approved_at = now
+        await db.commit()
+        await db.refresh(target)
+        await redis_delete(f"refresh_token:{target.id}")
+        audit_action = "STAFF_ACCESS_BLOCKED"
+        audit_result = "blocked"
+    elif control.action == "activate":
+        if control.assigned_role is not None:
+            target.role = control.assigned_role
+        elif target.approval_status == ApprovalStatus.PENDING.value:
+            target.role = _ROLE_REQUEST_MAP.get(
+                (target.requested_role or "").lower(),
+                target.role,
+            )
+        target.is_active = True
+        target.approval_status = ApprovalStatus.APPROVED.value
+        target.rejection_reason = None
+        target.approved_by = current_user.id
+        target.approved_at = now
+        if target.last_activity_path == "LOGGED_OUT":
+            target.last_activity_path = None
+        await db.commit()
+        await db.refresh(target)
+        audit_action = "STAFF_ACCESS_ACTIVATED"
+        audit_result = "success"
+    else:  # update_role
+        if control.assigned_role is None:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="assigned_role is required")
+        target.role = control.assigned_role
+        await db.commit()
+        await db.refresh(target)
+        audit_action = "STAFF_ROLE_UPDATED"
+        audit_result = "success"
+
+    await _mark_user_alarms_handled(db, target.id, current_user.full_name or current_user.username)
+    await record_audit_event(
+        db,
+        user_id=current_user.id,
+        action=audit_action,
+        resource="User",
+        resource_id=str(target.id),
+        ip_address=client_ip,
+        result=audit_result,
+        detail={
+            "target_username": target.username,
+            "staff_id": target.staff_id,
+            "role": target.role.value,
+            "is_active": target.is_active,
+            "reason": control.reason,
+        },
+    )
+
+    work_status, idle_seconds = compute_staff_work_status(target, now)
+    return StaffWorkforceItemResponse(
+        id=target.id,
+        username=target.username,
+        email=target.email,
+        full_name=target.full_name,
+        staff_id=target.staff_id,
+        department=target.department,
+        license_number=target.license_number,
+        phone_number=target.phone_number,
+        role=target.role,
+        requested_role=target.requested_role,
+        approval_status=getattr(target, "approval_status", ApprovalStatus.APPROVED.value),
+        risk_flag=target.risk_flag,
+        rejection_reason=target.rejection_reason,
+        is_active=target.is_active,
+        created_at=target.created_at,
+        first_login_at=target.first_login_at,
+        last_login_at=target.last_login_at,
+        last_seen_at=target.last_seen_at,
+        last_ip=target.last_ip,
+        last_activity_path=target.last_activity_path,
+        work_status=work_status,
+        idle_seconds=idle_seconds,
+    )

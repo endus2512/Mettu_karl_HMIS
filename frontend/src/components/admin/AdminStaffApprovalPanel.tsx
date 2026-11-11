@@ -1,19 +1,28 @@
 /**
- * Mettu Karl Referral Hospital — Executive Staff Enrollment & Impersonation Guard Panel.
+ * Mettu Karl Referral Hospital — Executive Security Alarms, Enrollment Verification & Anti-Impersonation Guard.
  *
- * Allows authenticated Administrators (ADMIN / SUPER_ADMIN) to review self-registered
- * staff enrollment requests, detect privileged-role/title impersonation alerts, assign
- * verified RBAC roles, approve accounts, or reject/block unauthorized applicants.
+ * Allows authenticated Administrators (ADMIN / SUPER_ADMIN) to:
+ * 1. Receive immediate real-time Security Alarms when new staff sign up, when any Doctor / Nurse /
+ *    Pharmacist / Staff logs in for the FIRST time, or when a blocked/impersonator attempt occurs.
+ * 2. Inspect full applicant identity (Name, Staff ID, Phone, Email, Role, Dept, License #, IP)
+ *    and immediately Allow/Grant RBAC permissions, Block/Suspend, or Acknowledge alarms.
+ * 3. Manage the self-registered enrollment approval queue (Pending / Risk Alerts / All).
  */
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import type { UserRole } from '@/types';
 import { useTranslation, type Language } from '@/lib/i18n';
+import { playClinicalAudioAlert } from '@/lib/notifications';
+import {
+  REQUEST_TO_DEFAULT_ROLE,
+  STAFF_ROLE_OPTIONS,
+  formatRelativeTimestamp,
+} from '@/lib/staffRoles';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -26,6 +35,10 @@ import {
   Lock,
   CheckCircle2,
   XCircle,
+  BellRing,
+  Volume2,
+  VolumeX,
+  Check,
 } from 'lucide-react';
 
 interface StaffEnrollmentRequest {
@@ -36,6 +49,7 @@ interface StaffEnrollmentRequest {
   staff_id?: string | null;
   department?: string | null;
   license_number?: string | null;
+  phone_number?: string | null;
   role: UserRole;
   requested_role?: string | null;
   approval_status: 'pending' | 'approved' | 'rejected' | string;
@@ -47,36 +61,33 @@ interface StaffEnrollmentRequest {
   approved_at?: string | null;
 }
 
-const REQUEST_TO_DEFAULT_ROLE: Record<string, UserRole> = {
-  doctor: 'doctor',
-  specialist: 'doctor',
-  consultant: 'doctor',
-  nurse: 'nurse',
-  paramedic: 'nurse',
-  pharmacist: 'pharmacist',
-  lab_tech: 'lab_tech',
-  radiographer: 'lab_tech',
-  technician: 'technician',
-  biomedical: 'technician',
-  receptionist: 'receptionist',
-  billing: 'billing',
-  auditor: 'billing',
-  insurance_officer: 'insurance_officer',
-  admin: 'admin',
-  ict_admin: 'admin',
-};
-
-const ROLE_OPTIONS: Array<{ value: UserRole; label: string; superAdminOnly?: boolean }> = [
-  { value: 'doctor', label: 'Doctor' },
-  { value: 'nurse', label: 'Nurse' },
-  { value: 'pharmacist', label: 'Pharmacist' },
-  { value: 'lab_tech', label: 'Lab Technologist' },
-  { value: 'technician', label: 'Technician / BioMed' },
-  { value: 'receptionist', label: 'Receptionist' },
-  { value: 'billing', label: 'Billing Officer' },
-  { value: 'insurance_officer', label: 'Insurance (CBHI)' },
-  { value: 'admin', label: 'Administrator', superAdminOnly: true },
-];
+interface SecurityAlarmItem {
+  id: number;
+  title: string;
+  message: string;
+  severity: string;
+  category: string;
+  event_type: string;
+  actor_name: string;
+  actor_role: string;
+  actor_user_id?: number | null;
+  staff_id?: string | null;
+  username?: string | null;
+  email?: string | null;
+  phone_number?: string | null;
+  requested_role?: string | null;
+  department?: string | null;
+  license_number?: string | null;
+  ip_address?: string | null;
+  risk_flag?: string | null;
+  user_approval_status?: string | null;
+  user_is_active?: boolean | null;
+  user_current_role?: UserRole | null;
+  is_read: boolean;
+  created_at: string;
+  reacted_at?: string | null;
+  reaction_by?: string | null;
+}
 
 export function AdminStaffApprovalPanel(): React.ReactElement {
   const { user } = useAuth();
@@ -85,22 +96,70 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
     language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   const [requests, setRequests] = useState<StaffEnrollmentRequest[]>([]);
+  const [alarms, setAlarms] = useState<SecurityAlarmItem[]>([]);
+  const [showAllAlarms, setShowAllAlarms] = useState<boolean>(false);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+  const [alarmRoles, setAlarmRoles] = useState<Record<number, UserRole>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [filterTab, setFilterTab] = useState<'pending' | 'flagged' | 'all'>('pending');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedRoles, setSelectedRoles] = useState<Record<number, UserRole>>({});
   const [rejectReasons, setRejectReasons] = useState<Record<number, string>>({});
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [busyAlarmId, setBusyAlarmId] = useState<number | null>(null);
+  const seenAlarmIdsRef = useRef<Set<number> | null>(null);
 
   const isSuperAdmin = user?.role === 'super_admin';
+
+  const fetchAlarms = useCallback(async () => {
+    try {
+      const res = await apiClient.get<SecurityAlarmItem[]>('/auth/staff/alarms?limit=30');
+      const data = Array.isArray(res.data) ? res.data : [];
+      setAlarms(data);
+
+      setAlarmRoles((prev) => {
+        const next = { ...prev };
+        for (const alarm of data) {
+          if (!next[alarm.id]) {
+            const candidate =
+              REQUEST_TO_DEFAULT_ROLE[(alarm.requested_role || '').toLowerCase()] ||
+              (alarm.user_current_role as UserRole | undefined) ||
+              REQUEST_TO_DEFAULT_ROLE[(alarm.actor_role || '').toLowerCase()] ||
+              'receptionist';
+            next[alarm.id] =
+              !isSuperAdmin && (candidate === 'admin' || candidate === 'super_admin')
+                ? 'receptionist'
+                : candidate;
+          }
+        }
+        return next;
+      });
+
+      const unread = data.filter((a) => !a.is_read);
+      if (seenAlarmIdsRef.current === null) {
+        seenAlarmIdsRef.current = new Set(unread.map((a) => a.id));
+      } else {
+        const arrived = unread.filter((a) => !seenAlarmIdsRef.current!.has(a.id));
+        if (arrived.length > 0) {
+          arrived.forEach((a) => seenAlarmIdsRef.current!.add(a.id));
+          if (soundEnabled) {
+            playClinicalAudioAlert('emergency');
+          }
+        }
+      }
+    } catch {
+      // Offline / transient network tolerance
+    }
+  }, [isSuperAdmin, soundEnabled]);
 
   const fetchRequests = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await apiClient.get<StaffEnrollmentRequest[]>(
-        '/auth/staff/requests?status_filter=all',
-      );
-      const data = Array.isArray(res.data) ? res.data : [];
+      const [reqRes] = await Promise.all([
+        apiClient.get<StaffEnrollmentRequest[]>('/auth/staff/requests?status_filter=all'),
+        fetchAlarms(),
+      ]);
+      const data = Array.isArray(reqRes.data) ? reqRes.data : [];
       setRequests(data);
       setSelectedRoles((prev) => {
         const next = { ...prev };
@@ -110,7 +169,6 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
               REQUEST_TO_DEFAULT_ROLE[(item.requested_role || '').toLowerCase()] ||
               item.role ||
               'receptionist';
-            // Non-super-admins cannot pre-select admin grants
             next[item.id] =
               !isSuperAdmin && (mapped === 'admin' || mapped === 'super_admin')
                 ? 'receptionist'
@@ -124,11 +182,23 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [isSuperAdmin]);
+  }, [fetchAlarms, isSuperAdmin]);
 
   useEffect(() => {
     void fetchRequests();
+    const timer = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        void fetchRequests();
+      }
+    }, 5000);
+    return () => clearInterval(timer);
   }, [fetchRequests]);
+
+  const unreadAlarms = useMemo(() => alarms.filter((a) => !a.is_read), [alarms]);
+  const visibleAlarms = useMemo(
+    () => (showAllAlarms ? alarms : unreadAlarms.slice(0, 6)),
+    [alarms, unreadAlarms, showAllAlarms],
+  );
 
   const counts = useMemo(() => {
     let pending = 0;
@@ -160,6 +230,60 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
     });
   }, [requests, filterTab, searchQuery]);
 
+  async function handleAckAlarm(alarmId: number): Promise<void> {
+    setBusyAlarmId(alarmId);
+    try {
+      await apiClient.post(`/auth/staff/alarms/${alarmId}/ack`, {});
+      setAlarms((prev) => prev.map((a) => (a.id === alarmId ? { ...a, is_read: true } : a)));
+    } catch {
+      // Ignore transient errors
+    } finally {
+      setBusyAlarmId(null);
+    }
+  }
+
+  async function handleAlarmDecision(
+    alarm: SecurityAlarmItem,
+    decision: 'activate' | 'block',
+  ): Promise<void> {
+    if (!alarm.actor_user_id) return;
+    setBusyAlarmId(alarm.id);
+    const roleChoice = alarmRoles[alarm.id] || 'receptionist';
+    try {
+      await apiClient.post(`/auth/staff/${alarm.actor_user_id}/status`, {
+        action: decision,
+        assigned_role: roleChoice,
+        reason:
+          decision === 'block'
+            ? `Blocked directly by Admin from Security Alarm #${alarm.id} (${alarm.event_type})`
+            : undefined,
+      });
+      await fetchRequests();
+      notifications.show({
+        title:
+          decision === 'activate'
+            ? lang === 'om'
+              ? 'Eeyyamni Kennameera'
+              : 'Staff Access Allowed'
+            : lang === 'om'
+            ? 'Fayyadamaan Cufameera'
+            : 'Staff Blocked Immediately',
+        message: `${alarm.actor_name} (${alarm.staff_id || alarm.username || 'ID'}) -> ${
+          decision === 'activate' ? roleChoice.toUpperCase() : 'BLOCKED'
+        }`,
+        color: decision === 'activate' ? 'teal' : 'red',
+      });
+    } catch (err: unknown) {
+      let detail = 'Decision failed.';
+      if (axios.isAxiosError(err) && err.response?.data?.detail) {
+        detail = String(err.response.data.detail);
+      }
+      notifications.show({ title: 'Action Blocked', message: detail, color: 'red' });
+    } finally {
+      setBusyAlarmId(null);
+    }
+  }
+
   async function handleApprove(item: StaffEnrollmentRequest): Promise<void> {
     const assignedRole = selectedRoles[item.id] || 'receptionist';
     setBusyId(item.id);
@@ -169,6 +293,7 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
         { assigned_role: assignedRole },
       );
       setRequests((prev) => prev.map((r) => (r.id === item.id ? res.data : r)));
+      void fetchAlarms();
       notifications.show({
         title: lang === 'om' ? 'Hojjataan Mirkanaa’eera' : 'Staff Account Approved',
         message: `${item.full_name} (${item.staff_id || item.username}) -> ${assignedRole.toUpperCase()}`,
@@ -202,6 +327,7 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
         { rejection_reason: reason },
       );
       setRequests((prev) => prev.map((r) => (r.id === item.id ? res.data : r)));
+      void fetchAlarms();
       notifications.show({
         title: lang === 'om' ? 'Gaaffiin Kufaa Ta’eera' : 'Staff Request Rejected & Blocked',
         message: `${item.full_name} (${item.staff_id || item.username}) permanently locked.`,
@@ -237,11 +363,17 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-sm font-extrabold text-white">
                 {lang === 'om'
-                  ? "Mirkaneessa Galmee Hojjettootaa & Eegumsa Fakkeessuu (Admin Guard)"
+                  ? "Akeekkachiisa Nageenyaa & Mirkaneessa Galmee (Admin Guard)"
                   : lang === 'am'
-                  ? 'የሰራተኞች ምዝገባ ማጽደቂያ እና የማንነት ማረጋገጫ'
+                  ? 'የሰራተኞች ማንቂያ፣ ምዝገባ ማጽደቂያ እና የማንነት ማረጋገጫ'
                   : 'Staff Sign-Up Verification & Anti-Impersonation Guard'}
               </h2>
+              {unreadAlarms.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-600/30 text-rose-200 border border-rose-500/60 flex items-center gap-1 animate-pulse">
+                  <BellRing className="w-3 h-3 text-rose-300" />
+                  {unreadAlarms.length} LIVE ALARMS
+                </span>
+              )}
               {counts.pending > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
                   {counts.pending} PENDING
@@ -256,14 +388,28 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
               {lang === 'om'
-                ? 'Namni haaraan hundi osoo Admin hin mirkaneessin seenuu hin danda’u; yaalii sobaa Admin/Doctor of fakkeessuu adda baasiitii cufi.'
-                : 'All self-registered accounts stay locked until Admin approval. Privileged claims are flagged for impersonation audit.'}
+                ? 'Hojjetaan haaraan yoo galmaa’e ykn Doctor/Nurse/Pharmacy yeroo jalqabaaf seenuu yoo yaale battalumatti alarmii erga; Admin eyyamee ykn cufee to’ata.'
+                : 'All self-registered accounts stay locked until Admin approval. Live alarms notify Admin immediately on every new sign-up, first-time login, or blocked attempt.'}
             </p>
           </div>
         </div>
 
-        {/* Filter & Refresh Controls */}
+        {/* Filter & Sound Controls */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            title={soundEnabled ? 'Mute alarm siren' : 'Enable alarm siren'}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[11px] font-semibold cursor-pointer ${
+              soundEnabled
+                ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+                : 'bg-[#151e30] border-[#25334d] text-slate-400'
+            }`}
+          >
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span>{soundEnabled ? 'Alarm Sound ON' : 'Muted'}</span>
+          </button>
+
           <div className="inline-flex rounded-xl bg-[#0a0f18] border border-[#1e2738] p-0.5 text-[11px] font-semibold">
             <button
               type="button"
@@ -311,6 +457,167 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
           </button>
         </div>
       </div>
+
+      {/* Live Real-Time Security Alarms Feed */}
+      {(unreadAlarms.length > 0 || showAllAlarms) && (
+        <div
+          id="admin-live-security-alarms"
+          className="rounded-xl border border-rose-500/40 bg-rose-950/15 p-3.5 space-y-2.5"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <BellRing className="w-4 h-4 text-rose-400 animate-pulse" />
+              <span className="text-xs font-extrabold text-rose-200 uppercase tracking-wide">
+                {lang === 'om'
+                  ? `Alarmii Nageenyaa Battalaa (${unreadAlarms.length} Haaraa)`
+                  : `Real-Time Security & First-Login Alarms (${unreadAlarms.length} Unread)`}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAllAlarms(!showAllAlarms)}
+              className="text-[11px] font-semibold text-rose-300 hover:text-white underline cursor-pointer"
+            >
+              {showAllAlarms
+                ? `Show Unread Only (${unreadAlarms.length})`
+                : `View Alarm History (${alarms.length})`}
+            </button>
+          </div>
+
+          <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
+            {visibleAlarms.map((alarm) => {
+              const isEmergency = alarm.severity === 'emergency' || alarm.severity === 'critical';
+              const canManageTarget =
+                Boolean(alarm.actor_user_id) &&
+                alarm.username !== 'admin' &&
+                alarm.actor_user_id !== user?.id;
+              const isBusy = busyAlarmId === alarm.id;
+
+              return (
+                <div
+                  key={alarm.id}
+                  className={`rounded-lg border p-2.5 flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 ${
+                    alarm.is_read
+                      ? 'bg-[#0b101b] border-[#1f293d] opacity-80'
+                      : isEmergency
+                      ? 'bg-[#1b1122] border-rose-500/50'
+                      : 'bg-[#141a2b] border-amber-500/40'
+                  }`}
+                >
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/25 text-rose-200 border border-rose-500/50">
+                        {alarm.event_type}
+                      </span>
+                      <span className="text-xs font-bold text-white">{alarm.actor_name}</span>
+                      {(alarm.staff_id || alarm.username) && (
+                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-teal-300">
+                          {alarm.staff_id || alarm.username}
+                        </span>
+                      )}
+                      {alarm.user_approval_status && (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300 uppercase">
+                          Account: {alarm.user_approval_status}
+                          {alarm.user_is_active ? ' / ACTIVE' : ' / LOCKED'}
+                        </span>
+                      )}
+                      <span className="text-[10px] text-slate-400">
+                        {formatRelativeTimestamp(alarm.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-snug">{alarm.message}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-slate-400">
+                      <span>
+                        Role Claimed:{' '}
+                        <strong className="text-amber-300 uppercase">
+                          {alarm.requested_role || alarm.actor_role}
+                        </strong>
+                      </span>
+                      {alarm.department && <span>Dept: {alarm.department}</span>}
+                      {alarm.license_number && (
+                        <span className="font-mono text-cyan-300">License: {alarm.license_number}</span>
+                      )}
+                      {alarm.ip_address && <span className="font-mono">IP: {alarm.ip_address}</span>}
+                    </div>
+                  </div>
+
+                  {/* Direct 1-Click Admin Alarm Actions */}
+                  <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                    {canManageTarget && (
+                      <>
+                        <select
+                          aria-label={`Alarm permission for ${alarm.actor_name}`}
+                          value={alarmRoles[alarm.id] || 'receptionist'}
+                          disabled={isBusy}
+                          onChange={(e) =>
+                            setAlarmRoles((prev) => ({
+                              ...prev,
+                              [alarm.id]: e.target.value as UserRole,
+                            }))
+                          }
+                          className="h-7 rounded-lg bg-[#090e18] border border-[#24324c] px-2 text-[11px] text-white"
+                        >
+                          {STAFF_ROLE_OPTIONS.filter((opt) => !opt.superAdminOnly || isSuperAdmin).map(
+                            (opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ),
+                          )}
+                        </select>
+                        <button
+                          type="button"
+                          disabled={isBusy}
+                          onClick={() => void handleAlarmDecision(alarm, 'activate')}
+                          className="h-7 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        >
+                          <UserCheck className="w-3 h-3" />
+                          <span>Allow</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isBusy}
+                          onClick={() => void handleAlarmDecision(alarm, 'block')}
+                          className="h-7 px-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        >
+                          <UserX className="w-3 h-3" />
+                          <span>Block</span>
+                        </button>
+                      </>
+                    )}
+                    {!alarm.is_read && (
+                      <button
+                        type="button"
+                        disabled={isBusy}
+                        onClick={() => void handleAckAlarm(alarm.id)}
+                        className="h-7 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-[11px] font-semibold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                      >
+                        <Check className="w-3 h-3" />
+                        <span>Acknowledge</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {unreadAlarms.length === 0 && !showAllAlarms && alarms.length > 0 && (
+        <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#0a0f18] border border-[#1c2536] text-[11px] text-slate-400">
+          <span>
+            All recent security alarms acknowledged ({alarms.length} recorded in audit history).
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowAllAlarms(true)}
+            className="text-teal-400 hover:text-teal-300 font-semibold cursor-pointer"
+          >
+            Show Alarm Log
+          </button>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="relative">
@@ -413,6 +720,7 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
                         License: {item.license_number}
                       </span>
                     )}
+                    {item.phone_number && <span>Phone: {item.phone_number}</span>}
                     {item.requested_ip && (
                       <span className="font-mono">IP: {item.requested_ip}</span>
                     )}
@@ -445,7 +753,7 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
                     disabled={isBusy}
                     className="h-8 rounded-lg bg-[#090e18] border border-[#24324c] px-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
                   >
-                    {ROLE_OPTIONS.filter((opt) => !opt.superAdminOnly || isSuperAdmin).map(
+                    {STAFF_ROLE_OPTIONS.filter((opt) => !opt.superAdminOnly || isSuperAdmin).map(
                       (opt) => (
                         <option key={opt.value} value={opt.value}>
                           Grant: {opt.label}

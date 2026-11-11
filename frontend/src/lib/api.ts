@@ -116,6 +116,19 @@ apiClient.interceptors.response.use(
       accessToken?.includes('demo') ||
       accessToken?.includes('registered');
 
+    if (error.response?.status === 403 && !isAuthEndpoint && !isDemoToken) {
+      const errDetail = String(
+        (error.response?.data as { detail?: unknown } | undefined)?.detail ?? '',
+      ).toLowerCase();
+      if (errDetail.includes('inactive or pending')) {
+        clearTokens();
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          window.location.href = '/login?revoked=1';
+        }
+        return Promise.reject(error);
+      }
+    }
+
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
       if (isDemoToken) {
         // In demo/offline fallback mode, do not clear tokens or bounce to /login

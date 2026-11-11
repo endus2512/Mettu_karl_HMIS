@@ -20,6 +20,12 @@ export type NotificationType =
   | 'lab_panic'
   | 'mci_alert'
   | 'iomt_alarm'
+  | 'staff_signup_alarm'
+  | 'staff_first_login'
+  | 'staff_login_blocked_alarm'
+  | 'staff_impersonation_alarm'
+  | 'staff_security_alarm'
+  | 'staff_status_change'
   | 'custom';
 
 export type ReactionType =
@@ -47,7 +53,7 @@ export interface HospitalNotification {
   id: string;
   senderName: string;
   senderRole: string;
-  recipientRole: 'all' | 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'billing' | 'patient';
+  recipientRole: 'all' | 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'billing' | 'admin' | 'super_admin' | 'patient';
   recipientId?: string;
   recipientName?: string;
   title: {
@@ -431,12 +437,21 @@ export function connectClinicalEventBusWebSocket(
 ): () => void {
   if (typeof window === 'undefined') return () => {};
 
+  const host = window.location.hostname || '';
+  const isLocalHost = host === 'localhost' || host === '127.0.0.1';
+  if (!isLocalHost) {
+    // Cloud serverless deployments use DB-backed polling instead of stateful WS on port 8000
+    return () => {};
+  }
+
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.hostname || '127.0.0.1';
   const port = '8000'; // FastAPI backend port
   const wsUrl = `${protocol}//${host}:${port}/api/v1/events/ws${token ? `?token=${token}` : ''}`;
 
+  let cancelled = false;
+
   function connect() {
+    if (cancelled) return;
     try {
       eventSocket = new WebSocket(wsUrl);
 
@@ -454,34 +469,36 @@ export function connectClinicalEventBusWebSocket(
       eventSocket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.type === 'EMERGENCY_BROADCAST') {
+          if (data.type === 'EMERGENCY_BROADCAST' || data.type === 'ADMIN_SECURITY_ALARM') {
             const p = data.payload || {};
+            const isSecurityAlarm = data.type === 'ADMIN_SECURITY_ALARM';
             playClinicalAudioAlert('emergency');
 
             // Prepend to local notifications
             const current = getAllNotifications();
             const newNotif: HospitalNotification = {
-              id: `ws-${p.id || Date.now()}`,
+              id: `${isSecurityAlarm ? 'sec' : 'ws'}-${p.id || Date.now()}`,
               backendId: p.id,
-              senderName: p.sender_name || 'Emergency Command',
+              senderName: p.sender_name || (isSecurityAlarm ? 'Security Guard' : 'Emergency Command'),
               senderRole: p.sender_role || 'admin',
-              recipientRole: 'all',
+              recipientRole: isSecurityAlarm ? 'admin' : 'all',
               title: {
-                en: p.title || 'CODE BLUE EMERGENCY',
-                om: p.title || 'KOODII CUQULIISA',
-                am: p.title || 'ኮድ ብሉ አስቸኳይ',
+                en: p.title || (isSecurityAlarm ? 'SECURITY ALARM' : 'CODE BLUE EMERGENCY'),
+                om: p.title || (isSecurityAlarm ? 'AKEEKKACHIISA NAGEENYAA' : 'KOODII CUQULIISA'),
+                am: p.title || (isSecurityAlarm ? 'የደህንነት ማንቂያ' : 'ኮድ ብሉ አስቸኳይ'),
               },
               message: {
                 en: p.message || '',
                 om: p.message || '',
                 am: p.message || '',
               },
-              type: 'code_blue',
+              type: (p.category as NotificationType) || (isSecurityAlarm ? 'staff_security_alarm' : 'code_blue'),
               channel: 'both',
               timestamp: p.timestamp || new Date().toISOString(),
               read: false,
             };
-            const updated = [newNotif, ...current];
+            const deduped = current.filter((item) => !newNotif.backendId || item.backendId !== newNotif.backendId);
+            const updated = [newNotif, ...deduped];
             localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
             window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: newNotif }));
           } else if (data.type === 'CLINICAL_REACTION') {
@@ -498,11 +515,11 @@ export function connectClinicalEventBusWebSocket(
       };
 
       eventSocket.onclose = () => {
-        if (!reconnectTimer) {
+        if (!cancelled && !reconnectTimer) {
           reconnectTimer = setTimeout(() => {
             reconnectTimer = null;
             connect();
-          }, 3000); // 3 second backoff
+          }, 5000);
         }
       };
 
@@ -510,8 +527,7 @@ export function connectClinicalEventBusWebSocket(
         eventSocket?.close();
       };
     } catch {
-      // WebSocket creation error, retry scheduled
-      if (!reconnectTimer) {
+      if (!cancelled && !reconnectTimer) {
         reconnectTimer = setTimeout(() => {
           reconnectTimer = null;
           connect();
@@ -523,6 +539,7 @@ export function connectClinicalEventBusWebSocket(
   connect();
 
   return () => {
+    cancelled = true;
     if (reconnectTimer) {
       clearTimeout(reconnectTimer);
       reconnectTimer = null;

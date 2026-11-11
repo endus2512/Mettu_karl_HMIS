@@ -11,8 +11,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import apiClient from '@/lib/api';
 import { useTranslation } from '@/lib/i18n';
 import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
 import { LanguageSelect } from '@/components/common/LanguageSelect';
@@ -54,6 +55,7 @@ const ETH_MONTHS = [
 
 export function Header(): React.ReactElement {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, logout, activeRole, simulatedRole } = useAuth();
   const { t, language } = useTranslation();
   const {
@@ -166,6 +168,26 @@ export function Header(): React.ReactElement {
       setTimeout(() => setSyncStatusMsg(null), 4000);
     }
   };
+
+  // Live staff workforce activity heartbeat (reports active station path to Admin monitor)
+  useEffect(() => {
+    if (!user || user.role === 'patient' || typeof window === 'undefined') return;
+    const token = localStorage.getItem('access_token') || '';
+    if (!token || token.includes('demo') || token.includes('registered')) return;
+
+    const sendHeartbeat = () => {
+      if (document.visibilityState === 'hidden') return;
+      void apiClient
+        .post('/auth/heartbeat', { current_path: pathname || '/dashboard' })
+        .catch(() => {
+          // Non-blocking heartbeat
+        });
+    };
+
+    sendHeartbeat();
+    const timer = setInterval(sendHeartbeat, 45000);
+    return () => clearInterval(timer);
+  }, [user, pathname]);
 
   // Pre-warm / prefetch all key routes on idle so clicking any link opens instantly
   useEffect(() => {
