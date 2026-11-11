@@ -12,8 +12,35 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import axios from 'axios';
 import apiClient, { clearTokens, getApiOrigin, saveTokens } from '@/lib/api';
 import type { User, UserRole } from '@/types';
+
+/** Decode a Base64URL-encoded JWT payload safely without throwing on `-`, `_`, or missing padding. */
+function decodeJwtPayload<T = Record<string, unknown>>(token: string): T | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const padLen = (4 - (base64.length % 4)) % 4;
+    const padded = base64 + '='.repeat(padLen);
+    const binary = atob(padded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const json =
+      typeof TextDecoder !== 'undefined'
+        ? new TextDecoder().decode(bytes)
+        : decodeURIComponent(
+            Array.from(bytes, (b) => `%${b.toString(16).padStart(2, '0')}`).join(''),
+          );
+    return JSON.parse(json) as T;
+  } catch {
+    return null;
+  }
+}
 
 interface AuthState {
   user: User | null;
@@ -118,22 +145,21 @@ export function AuthProvider({
         setState({ user: null, isLoading: false, isAuthenticated: false });
         return;
       }
-      // Decode JWT
-      const parts = token.split('.');
-      if (parts.length >= 2) {
-        const payload = JSON.parse(atob(parts[1])) as {
-          sub: string;
-          username?: string;
-          full_name?: string;
-          role: string;
-          exp: number;
-          patient_id?: number;
-          mrn?: string;
-          fhir_id?: string;
-          fayda_id?: string;
-          phone?: string;
-          phone_number?: string;
-        };
+      // Decode JWT (Base64URL-safe)
+      const payload = decodeJwtPayload<{
+        sub: string;
+        username?: string;
+        full_name?: string;
+        role: string;
+        exp: number;
+        patient_id?: number;
+        mrn?: string;
+        fhir_id?: string;
+        fayda_id?: string;
+        phone?: string;
+        phone_number?: string;
+      }>(token);
+      if (payload) {
         if (Date.now() / 1000 > payload.exp) {
           clearTokens();
           setState({ user: null, isLoading: false, isAuthenticated: false });
@@ -304,7 +330,8 @@ export function AuthProvider({
       }
 
       try {
-        const apiUsername = lower === 'superadmin' ? 'admin' : cleanUser;
+        const adminAliases = ['superadmin', 'super_admin', 'super admin', 'admin_dawit'];
+        const apiUsername = adminAliases.includes(lower) ? 'admin' : cleanUser;
         const response = await apiClient.post<TokenPair | MFAChallengeResponse>(
           '/auth/login',
           {
@@ -322,20 +349,30 @@ export function AuthProvider({
         saveTokens(tokens.access_token, tokens.refresh_token);
         await refreshUser();
 
-        let resolvedRole: User['role'] = 'doctor';
-        try {
-          const parts = tokens.access_token.split('.');
-          if (parts.length >= 2) {
-            const payload = JSON.parse(atob(parts[1]));
-            if (payload.role) resolvedRole = payload.role as User['role'];
-          }
-        } catch {
-          // fallback
-        }
+        const decoded = decodeJwtPayload<{ role?: User['role'] }>(tokens.access_token);
+        const resolvedRole: User['role'] = decoded?.role || 'doctor';
 
         return { mfaRequired: false, role: resolvedRole };
       } catch (err: unknown) {
-        // Staff fallback roles
+        // When the live backend explicitly rejects credentials or lock status (400/401/403/422),
+        // surface the real error rather than issuing a `.demo-sig` token that bounces back to /login.
+        if (axios.isAxiosError(err) && err.response) {
+          const status = err.response.status;
+          if (status >= 400 && status < 500 && status !== 404 && status !== 408) {
+            const respData = err.response.data as
+              | { detail?: string | Array<{ msg?: string }> }
+              | undefined;
+            const detailMsg = Array.isArray(respData?.detail)
+              ? respData.detail
+                  .map((item) => item?.msg)
+                  .filter(Boolean)
+                  .join(', ')
+              : respData?.detail;
+            throw new Error(detailMsg || 'Invalid username or password');
+          }
+        }
+
+        // Staff offline fallback roles (only when backend server is unreachable)
         let role: User['role'] = 'doctor';
         if (lower.includes('admin') || lower.includes('super')) role = 'admin';
         else if (lower.includes('nurse')) role = 'nurse';

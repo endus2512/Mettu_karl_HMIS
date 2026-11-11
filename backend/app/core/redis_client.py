@@ -4,6 +4,8 @@ Redis connection pool and client utilities.
 Provides a shared Redis connection pool for caching, session management,
 and rate limiting across the application.
 """
+import os
+
 import redis.asyncio as redis
 from redis.asyncio import Redis
 from redis.asyncio.connection import ConnectionPool
@@ -14,6 +16,13 @@ from app.core.config import settings
 _pool: ConnectionPool | None = None
 
 
+def _use_memory_only() -> bool:
+    """Bypass localhost Redis sockets on stateless serverless runtimes when no remote REDIS_URL is configured."""
+    return bool(os.environ.get("VERCEL")) and (
+        not settings.REDIS_URL or "localhost" in settings.REDIS_URL or "127.0.0.1" in settings.REDIS_URL
+    )
+
+
 def get_redis_pool() -> ConnectionPool:
     """Get or create the Redis connection pool."""
     global _pool
@@ -22,6 +31,8 @@ def get_redis_pool() -> ConnectionPool:
             settings.REDIS_URL,
             max_connections=50,
             decode_responses=True,
+            socket_connect_timeout=0.5,
+            socket_timeout=0.5,
         )
     return _pool
 
@@ -52,6 +63,9 @@ _memory_store: dict[str, str] = {}
 
 async def redis_set(key: str, value: str, expire_seconds: int | None = None) -> None:
     """Set a key in Redis with optional expiry, falling back to memory if Redis is unavailable."""
+    if _use_memory_only():
+        _memory_store[key] = value
+        return
     try:
         client = get_redis_client()
         await client.set(key, value, ex=expire_seconds)
@@ -61,6 +75,8 @@ async def redis_set(key: str, value: str, expire_seconds: int | None = None) -> 
 
 async def redis_get(key: str) -> str | None:
     """Get a value from Redis by key, falling back to memory if Redis is unavailable."""
+    if _use_memory_only():
+        return _memory_store.get(key)
     try:
         client = get_redis_client()
         return await client.get(key)
@@ -70,6 +86,9 @@ async def redis_get(key: str) -> str | None:
 
 async def redis_delete(key: str) -> None:
     """Delete a key from Redis, falling back to memory if Redis is unavailable."""
+    if _use_memory_only():
+        _memory_store.pop(key, None)
+        return
     try:
         client = get_redis_client()
         await client.delete(key)
@@ -79,6 +98,8 @@ async def redis_delete(key: str) -> None:
 
 async def redis_exists(key: str) -> bool:
     """Check if a key exists in Redis, falling back to memory if Redis is unavailable."""
+    if _use_memory_only():
+        return key in _memory_store
     try:
         client = get_redis_client()
         return bool(await client.exists(key))

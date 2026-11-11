@@ -4,7 +4,7 @@ Unit and integration tests for authentication and lockout features.
 import pytest
 from httpx import AsyncClient
 
-from app.models.user import User
+from app.models.user import User, UserRole
 
 
 @pytest.mark.asyncio
@@ -58,3 +58,46 @@ async def test_get_current_user_profile(client: AsyncClient, doctor_auth_headers
     data = response.json()
     assert data["username"] == "dr_karl"
     assert data["role"] == "doctor"
+
+
+@pytest.mark.asyncio
+async def test_admin_login_case_insensitive_and_aliases(client: AsyncClient, db_session):
+    """Admin login should succeed regardless of keyboard capitalization or legacy alias."""
+    from app.core.security import hash_password
+
+    admin_user = User(
+        username="admin",
+        email="admin@mettukarl.gov.et",
+        full_name="Hospital System Administrator",
+        hashed_password=hash_password("AdminSecurePassword2026!"),
+        role=UserRole.SUPER_ADMIN,
+        is_active=True,
+    )
+    db_session.add(admin_user)
+    await db_session.commit()
+
+    for alias in ["admin", "Admin", "ADMIN", "superadmin", "Super Admin", "admin_dawit"]:
+        res = await client.post(
+            "/api/v1/auth/login",
+            json={"username": alias, "password": "AdminSecurePassword2026!"},
+        )
+        assert res.status_code == 200, f"Failed for alias {alias}: {res.text}"
+        body = res.json()
+        assert body["username"] == "admin"
+        assert body["role"] == "super_admin"
+
+
+@pytest.mark.asyncio
+async def test_naive_locked_until_does_not_crash(client: AsyncClient, db_session, test_doctor_user: User):
+    """Naive locked_until loaded from SQLite must cleanly return 401 instead of raising TypeError."""
+    from datetime import datetime, timedelta
+
+    test_doctor_user.locked_until = datetime.now() + timedelta(minutes=10)
+    await db_session.commit()
+
+    res = await client.post(
+        "/api/v1/auth/login",
+        json={"username": "dr_karl", "password": "DoctorSecurePass123!"},
+    )
+    assert res.status_code == 401
+    assert "locked" in res.json()["detail"].lower()

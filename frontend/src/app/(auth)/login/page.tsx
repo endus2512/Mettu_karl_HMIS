@@ -354,6 +354,7 @@ export default function LoginPage() {
   const [mfaToken, setMfaToken] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showPatientPassword, setShowPatientPassword] = useState(false);
   const [showPatientConfirmPassword, setShowPatientConfirmPassword] = useState(false);
@@ -601,6 +602,7 @@ export default function LoginPage() {
   // Handle Login Submit
   async function handleLogin(data: LoginFormData): Promise<void> {
     setIsLoading(true);
+    setLoginError(null);
     try {
       if (rememberMe) {
         localStorage.setItem('mettu_his_remember_username', data.username);
@@ -647,13 +649,17 @@ export default function LoginPage() {
         router.push(destination);
       }
     } catch (err: unknown) {
-      const errorMsg =
+      const rawMsg =
         err instanceof Error
           ? err.message
-          : language === 'om'
-          ? 'Maqaa fayyadamaa ykn jecha icchitii dogoggoraa'
           : 'Invalid credentials. Please verify your username and password.';
+      const errorMsg = /invalid username or password/i.test(rawMsg)
+        ? language === 'om'
+          ? 'Maqaan fayyadamaa ykn jechi icchitii dogoggoraadha. Chip "Super Admin (Exec)" olitti jiru tuqii yaali.'
+          : 'Invalid username or password. You can click the "Super Admin (Exec)" chip above.'
+        : rawMsg;
 
+      setLoginError(errorMsg);
       notifications.show({
         title: language === 'om' ? 'Seensi Hin Milkoofne' : 'Authentication Failed',
         message: errorMsg,
@@ -1186,8 +1192,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'admin');
-                          loginForm.setValue('password', 'AdminSecurePassword2026!');
+                          setLoginError(null);
+                          loginForm.setValue('username', 'admin', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                          loginForm.setValue('password', 'AdminSecurePassword2026!', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 transition cursor-pointer shadow-xs"
                       >
@@ -1197,8 +1204,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'dr_bekele');
-                          loginForm.setValue('password', 'password');
+                          setLoginError(null);
+                          loginForm.setValue('username', 'dr_bekele', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                          loginForm.setValue('password', 'password', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40 transition cursor-pointer"
                       >
@@ -1208,8 +1216,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'nurse_chaltu');
-                          loginForm.setValue('password', 'password');
+                          setLoginError(null);
+                          loginForm.setValue('username', 'nurse_chaltu', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                          loginForm.setValue('password', 'password', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer"
                       >
@@ -1219,8 +1228,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'pharm_tolera');
-                          loginForm.setValue('password', 'password');
+                          setLoginError(null);
+                          loginForm.setValue('username', 'pharm_tolera', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                          loginForm.setValue('password', 'password', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer"
                       >
@@ -1230,8 +1240,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'lab_gemechu');
-                          loginForm.setValue('password', 'password');
+                          setLoginError(null);
+                          loginForm.setValue('username', 'lab_gemechu', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                          loginForm.setValue('password', 'password', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 transition cursor-pointer"
                       >
@@ -1241,8 +1252,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'billing_clerk');
-                          loginForm.setValue('password', 'password');
+                          setLoginError(null);
+                          loginForm.setValue('username', 'billing_clerk', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                          loginForm.setValue('password', 'password', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 transition cursor-pointer"
                       >
@@ -1252,8 +1264,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'admin');
-                          loginForm.setValue('password', 'password');
+                          setLoginError(null);
+                          loginForm.setValue('username', 'admin', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                          loginForm.setValue('password', 'password', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition cursor-pointer"
                       >
@@ -1263,8 +1276,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          loginForm.setValue('username', 'FAN-9901-2384-5120');
-                          loginForm.setValue('password', '123456');
+                          setLoginError(null);
+                          loginForm.setValue('username', 'FAN-9901-2384-5120', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                          loginForm.setValue('password', '123456', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                         }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/40 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 transition cursor-pointer"
                       >
@@ -1300,6 +1314,9 @@ export default function LoginPage() {
                           id={usernameId}
                           type="text"
                           autoComplete="username"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
                           autoFocus
                           {...loginForm.register('username')}
                           placeholder={t.usernamePlaceholder}
@@ -1406,6 +1423,17 @@ export default function LoginPage() {
                         {t.forgotPassword}
                       </button>
                     </div>
+
+                    {/* Inline Authentication Error Alert */}
+                    {loginError && (
+                      <div
+                        data-testid="login-error-alert"
+                        className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-3.5 py-2.5 text-xs font-medium text-rose-600 dark:text-rose-300 flex items-start gap-2"
+                      >
+                        <AlertCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+                        <span>{loginError}</span>
+                      </div>
+                    )}
 
                     {/* Full-Width Obsidian / Gold Luxury Login Button */}
                     <button

@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 
 import pyotp
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.audit import record_audit_event
@@ -33,12 +33,14 @@ async def get_user_by_id(db: AsyncSession, user_id: int) -> Optional[User]:
 async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
     """Retrieve user by username, email, fayda_id, or phone_number."""
     clean = username.strip()
-    if clean.lower() == "superadmin":
+    lower = clean.lower()
+    if lower in {"superadmin", "super_admin", "super admin", "admin_dawit"}:
         clean = "admin"
+        lower = "admin"
     result = await db.execute(
         select(User).where(
-            (User.username == clean)
-            | (User.email == clean)
+            (func.lower(User.username) == lower)
+            | (func.lower(User.email) == lower)
             | (User.fayda_id == clean)
             | (User.phone_number == clean)
         )
@@ -80,9 +82,12 @@ async def authenticate_user(
         )
         return None, "Invalid username or password"
 
-    # Check if account is currently locked
-    if user.locked_until and user.locked_until > now:
-        remaining_minutes = int((user.locked_until - now).total_seconds() / 60) + 1
+    # Check if account is currently locked (normalize naive datetimes loaded from SQLite)
+    locked_until = user.locked_until
+    if locked_until is not None and locked_until.tzinfo is None:
+        locked_until = locked_until.replace(tzinfo=timezone.utc)
+    if locked_until and locked_until > now:
+        remaining_minutes = int((locked_until - now).total_seconds() / 60) + 1
         await record_audit_event(
             db,
             user_id=user.id,
@@ -91,7 +96,7 @@ async def authenticate_user(
             resource_id=str(user.id),
             ip_address=client_ip,
             result="failure",
-            detail={"locked_until": user.locked_until.isoformat()},
+            detail={"locked_until": locked_until.isoformat()},
         )
         return None, f"Account is locked due to multiple failed logins. Try again in {remaining_minutes} minutes."
 
