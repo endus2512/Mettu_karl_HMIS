@@ -78,6 +78,58 @@ async def ensure_database_ready() -> None:
                 await db.rollback()
 
             try:
+                existing_patient_usernames = set(
+                    (
+                        await db.execute(
+                            select(User.username).where(User.username.in_(["pat_gudeta", "pat_chaltu"]))
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                default_patients = [
+                    (
+                        "pat_gudeta",
+                        "pat_gudeta@patient.mettukarl.gov.et",
+                        "Gudeta Hailu Tadesse",
+                        "PatientPass2026!",
+                        1,
+                        "FAN-9901-2384-5120",
+                        "+251911002233",
+                    ),
+                    (
+                        "pat_chaltu",
+                        "pat_chaltu@patient.mettukarl.gov.et",
+                        "Chaltu Daba Tolasa",
+                        "PatientPass2026!",
+                        2,
+                        "FAN-7721-9981-3310",
+                        "+251922445566",
+                    ),
+                ]
+                added_patient_users = False
+                for uname, uemail, fname, pwd, pat_id, fayda, phone in default_patients:
+                    if uname not in existing_patient_usernames:
+                        db.add(
+                            User(
+                                username=uname,
+                                email=uemail,
+                                full_name=fname,
+                                hashed_password=hash_password(pwd),
+                                role=UserRole.PATIENT,
+                                patient_id=pat_id,
+                                fayda_id=fayda,
+                                phone_number=phone,
+                                is_active=True,
+                            )
+                        )
+                        added_patient_users = True
+                if added_patient_users:
+                    await db.commit()
+            except IntegrityError:
+                await db.rollback()
+
+            try:
                 existing_signage = (
                     await db.execute(select(HospitalSignageConfig.id).limit(1))
                 ).scalar_one_or_none()

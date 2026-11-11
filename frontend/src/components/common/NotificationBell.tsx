@@ -122,16 +122,24 @@ export function NotificationBell({ variant = 'dark', className = '' }: Notificat
 
   useEffect(() => {
     refreshNotifications();
-    // Fetch live persistent notifications from PostgreSQL backend
-    fetchLiveBackendNotifications().then((live) => {
-      if (live && live.length > 0) setItems(live);
-    });
+    const isStaffUser = Boolean(user && user.role !== 'patient');
+    let disconnectWs: () => void = () => {};
 
-    // Real-Time Event Bus WebSocket connection
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') || undefined : undefined;
-    const disconnectWs = connectClinicalEventBusWebSocket(token, () => {
-      refreshNotifications();
-    });
+    if (isStaffUser) {
+      // Fetch live persistent notifications from staff backend bus
+      fetchLiveBackendNotifications().then((live) => {
+        if (live && live.length > 0) setItems(live);
+      });
+
+      // Real-Time Event Bus WebSocket connection for hospital staff
+      const token =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('access_token') || localStorage.getItem('token') || undefined
+          : undefined;
+      disconnectWs = connectClinicalEventBusWebSocket(token, () => {
+        refreshNotifications();
+      });
+    }
 
     const handleUpdate = () => refreshNotifications();
     window.addEventListener(EVENT_NAME, handleUpdate);

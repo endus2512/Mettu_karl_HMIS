@@ -293,6 +293,7 @@ async def patient_login(
         },
     )
     refresh_token = create_refresh_token(subject=user.id)
+    await redis_set(f"refresh_token:{user.id}", refresh_token, expire_seconds=7 * 86400)
 
     # Record secure audit log with masked PII
     await record_audit_event(
@@ -419,6 +420,7 @@ async def patient_register(
         },
     )
     refresh_token = create_refresh_token(subject=user.id)
+    await redis_set(f"refresh_token:{user.id}", refresh_token, expire_seconds=7 * 86400)
 
     await record_audit_event(
         db,
