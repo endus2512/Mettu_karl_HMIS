@@ -54,9 +54,13 @@ async def get_db() -> AsyncGenerator[AsyncSession, Any]:
     """
     Async generator that yields a database session.
 
-    Automatically commits on success and rolls back on exception.
-    Used as a FastAPI dependency.
+    Ensures database schema & baseline seeds exist (including cold serverless
+    invocations), commits on success, and rolls back on exception.
     """
+    from app.core.bootstrap import ensure_database_ready
+
+    await ensure_database_ready()
+
     async with AsyncSessionLocal() as session:
         try:
             yield session

@@ -4,6 +4,7 @@ Application configuration using Pydantic BaseSettings.
 All settings are read from environment variables or .env file.
 Provides type-safe configuration with validation.
 """
+import os
 from functools import lru_cache
 from typing import List
 
@@ -32,7 +33,11 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Database
-    DATABASE_URL: str = "sqlite+aiosqlite:///./mettu_his.db"
+    DATABASE_URL: str = (
+        "sqlite+aiosqlite:////tmp/mettu_his.db"
+        if os.environ.get("VERCEL")
+        else "sqlite+aiosqlite:///./mettu_his.db"
+    )
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
@@ -61,7 +66,7 @@ class Settings(BaseSettings):
     SENTRY_DSN: str = ""
 
     # CORS
-    CORS_ORIGINS: List[str] = [
+    CORS_ORIGINS: List[str] | str = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "https://mettu-karl-hospital.vercel.app",
@@ -71,16 +76,27 @@ class Settings(BaseSettings):
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: str | List[str]) -> List[str]:
-        """Parse CORS origins from comma-separated string or list."""
+        """Parse CORS origins from comma-separated string, JSON array, or list."""
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
+            stripped = v.strip()
+            if stripped.startswith("["):
+                import json
+
+                parsed = json.loads(stripped)
+                if isinstance(parsed, list):
+                    return [str(origin).strip() for origin in parsed if str(origin).strip()]
+            return [origin.strip() for origin in stripped.split(",") if origin.strip()]
         return v
 
     # FHIR
     FHIR_SERVER_BASE_URL: str = "http://localhost:8000/api/v1/fhir/r4"
 
     # Audit
-    AUDIT_LOG_FILE: str = "/var/log/mettu-karl-his/audit.log"
+    AUDIT_LOG_FILE: str = (
+        "/tmp/mettu_audit.log"
+        if os.environ.get("VERCEL")
+        else "/var/log/mettu-karl-his/audit.log"
+    )
 
 
 @lru_cache()

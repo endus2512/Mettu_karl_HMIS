@@ -1,9 +1,13 @@
 """
 Public Read & Admin-Protected Control Endpoints for the Digital LED Marquee Signboard.
 """
+import json
+import logging
+import os
 from datetime import datetime, timezone
+from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +17,55 @@ from app.models.user import User, UserRole
 from app.schemas.signage import SignageConfigResponse, SignageConfigUpdate
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+SIGNAGE_BLOB_PATH = "signage/config.json"
+
+
+def _blob_enabled() -> bool:
+    """Return True when Vercel Blob RW token is configured for shared serverless state."""
+    return bool(os.environ.get("BLOB_READ_WRITE_TOKEN"))
+
+
+async def _read_signage_from_blob() -> Optional[SignageConfigResponse]:
+    """Read shared LED signage config from Vercel private Blob store if configured."""
+    if not _blob_enabled():
+        return None
+    try:
+        from vercel import blob
+
+        result = await blob.get_blob(SIGNAGE_BLOB_PATH, access="private")
+        payload = json.loads(result.body.decode("utf-8"))
+        return SignageConfigResponse.model_validate(payload)
+    except Exception as exc:
+        if exc.__class__.__name__ == "BlobNotFoundError":
+            return None
+        logger.warning("Failed reading LED signage config from Vercel Blob: %s", exc)
+        return None
+
+
+async def _write_signage_to_blob(state: SignageConfigResponse) -> None:
+    """Persist LED signage config to Vercel private Blob store for cross-instance sync."""
+    if not _blob_enabled():
+        return
+    try:
+        from vercel import blob
+
+        payload_bytes = state.model_dump_json().encode("utf-8")
+        await blob.put_blob(
+            SIGNAGE_BLOB_PATH,
+            payload_bytes,
+            access="private",
+            content_type="application/json",
+            add_random_suffix=False,
+            allow_overwrite=True,
+            cache_control_max_age=0,
+        )
+    except Exception as exc:
+        logger.exception("Failed persisting LED signage config to Vercel Blob: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to persist Digital LED signage configuration to shared storage.",
+        ) from exc
 
 
 async def _ensure_signage_table(db: AsyncSession) -> None:
@@ -56,9 +109,14 @@ async def _get_or_create_signage_config(db: AsyncSession) -> HospitalSignageConf
     summary="Get Active Digital LED Marquee Signboard Configuration (Public)",
 )
 async def get_led_signage_config(
+    response: Response,
     db: AsyncSession = Depends(get_db),
-) -> HospitalSignageConfig:
+) -> SignageConfigResponse | HospitalSignageConfig:
     """Return the currently configured hospital Digital LED marquee state."""
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    blob_state = await _read_signage_from_blob()
+    if blob_state is not None:
+        return blob_state
     return await _get_or_create_signage_config(db)
 
 
@@ -69,10 +127,12 @@ async def get_led_signage_config(
 )
 async def update_led_signage_config(
     payload: SignageConfigUpdate,
+    response: Response,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)),
-) -> HospitalSignageConfig:
+) -> SignageConfigResponse:
     """Persist Admin updates to the Digital LED marquee signboard."""
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     config = await _get_or_create_signage_config(db)
     config.message = payload.message
     config.color_preset = payload.color_preset
@@ -91,4 +151,6 @@ async def update_led_signage_config(
 
     await db.commit()
     await db.refresh(config)
-    return config
+    validated = SignageConfigResponse.model_validate(config)
+    await _write_signage_to_blob(validated)
+    return validated
