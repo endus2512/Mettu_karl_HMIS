@@ -188,23 +188,7 @@ export function Header(): React.ReactElement {
     return () => clearInterval(timer);
   }, [user, pathname]);
 
-  // Pre-warm / prefetch all key routes on idle so clicking any link opens instantly
-  useEffect(() => {
-    const prewarmRoutes = [
-      '/dashboard', '/patients', '/queue', '/billing', '/pharmacy',
-      '/telemed', '/analytics', '/hrm', '/assets', '/ot', '/pacs',
-      '/accounting', '/blood-bank', '/ems', '/iomt', '/dietary',
-      '/mortuary', '/crm', '/academic', '/waste', '/procurement',
-      '/fayda', '/efda', '/mci', '/infection', '/insurance', '/audit', '/power'
-    ];
-    prewarmRoutes.forEach((r) => {
-      try {
-        router.prefetch(r);
-      } catch {
-        // ignore
-      }
-    });
-  }, [router]);
+  // Portal links prefetch via <Link prefetch> and onMouseEnter; avoid flooding 28+ fetches on every mount
 
   const handleInstantLogout = () => {
     void logout();

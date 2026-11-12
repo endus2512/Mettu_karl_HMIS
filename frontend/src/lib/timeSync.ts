@@ -126,23 +126,51 @@ export function normalizeServerTime12Hour(rawTime: string): string {
   return trimmed || '12:00:00 PM';
 }
 
+let cachedTimeSyncData: TimeSyncData | null = null;
+let cachedServerOffsetMs = 0;
+let cachedTimeSyncFetchedAt = 0;
+let inFlightTimeSync: Promise<TimeSyncData | null> | null = null;
+const TIME_SYNC_TTL_MS = 45000;
+
 export function useHospitalTimeSync() {
-  const [syncData, setSyncData] = useState<TimeSyncData>(DEFAULT_SYNC_DATA);
-  const [serverOffsetMs, setServerOffsetMs] = useState<number>(0);
-  const [currentDisplayTime, setCurrentDisplayTime] = useState<string>('08:45:00 AM');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [syncData, setSyncData] = useState<TimeSyncData>(() => cachedTimeSyncData || DEFAULT_SYNC_DATA);
+  const [serverOffsetMs, setServerOffsetMs] = useState<number>(() => cachedServerOffsetMs);
+  const [currentDisplayTime, setCurrentDisplayTime] = useState<string>(() =>
+    cachedTimeSyncData ? formatTime12Hour(new Date(Date.now() + cachedServerOffsetMs)) : '08:45:00 AM'
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(() => !cachedTimeSyncData);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
-  // Fetch true server time from FastAPI backend
-  const fetchTimeSync = useCallback(async () => {
+  // Fetch true server time from FastAPI backend (cached across route changes for 45s)
+  const fetchTimeSync = useCallback(async (force = false) => {
+    const now = Date.now();
+    if (!force && cachedTimeSyncData && now - cachedTimeSyncFetchedAt < TIME_SYNC_TTL_MS) {
+      setSyncData(cachedTimeSyncData);
+      setServerOffsetMs(cachedServerOffsetMs);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const res = await apiClient.get<TimeSyncData>('/system/time-sync');
-      if (res.data) {
-        setSyncData(res.data);
-        const serverMs = new Date(res.data.server_timestamp_iso).getTime();
+      if (!inFlightTimeSync) {
+        inFlightTimeSync = apiClient
+          .get<TimeSyncData>('/system/time-sync')
+          .then((res) => res.data || null)
+          .catch(() => null)
+          .finally(() => {
+            inFlightTimeSync = null;
+          });
+      }
+      const data = await inFlightTimeSync;
+      if (data) {
+        const serverMs = new Date(data.server_timestamp_iso).getTime();
         const clientMs = Date.now();
-        setServerOffsetMs(serverMs - clientMs);
-        setCurrentDisplayTime(normalizeServerTime12Hour(res.data.server_time));
+        cachedTimeSyncData = data;
+        cachedServerOffsetMs = serverMs - clientMs;
+        cachedTimeSyncFetchedAt = clientMs;
+        setSyncData(data);
+        setServerOffsetMs(cachedServerOffsetMs);
+        setCurrentDisplayTime(normalizeServerTime12Hour(data.server_time));
       }
     } catch {
       // Fallback gracefully without throwing
@@ -153,9 +181,9 @@ export function useHospitalTimeSync() {
 
   // Initial fetch and periodic background sync every 60 seconds
   useEffect(() => {
-    void fetchTimeSync();
+    void fetchTimeSync(false);
     const syncInterval = setInterval(() => {
-      void fetchTimeSync();
+      void fetchTimeSync(true);
     }, 60000);
     return () => clearInterval(syncInterval);
   }, [fetchTimeSync]);

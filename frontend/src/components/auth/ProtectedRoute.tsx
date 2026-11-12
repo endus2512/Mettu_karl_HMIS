@@ -36,14 +36,7 @@ export function ProtectedRoute({
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-900 text-white">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-teal-500 border-t-transparent" />
-          <p className="text-xs font-bold uppercase tracking-wider text-teal-300">
-            {language === 'om' ? 'Mettu Karl HIS • Eeyyama Qorachuu...' : language === 'am' ? 'መቱ ካርል ሪፈራል ሆስፒታል • ፈቃድ በማረጋገጥ ላይ...' : 'Mettu Karl HIS • Verifying Access Permissions...'}
-          </p>
-        </div>
-      </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50/70 to-indigo-50/60 dark:from-[#080d17] dark:via-[#0d1526] dark:to-[#09101d]" />
     );
   }
 

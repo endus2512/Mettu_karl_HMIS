@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { AuthProvider } from '@/lib/auth';
 import { I18nProvider } from '@/lib/i18n';
 import { ZenModeProvider } from '@/lib/zenMode';
+import { NavigationProgress } from '@/components/layout/NavigationProgress';
 
 export function Providers({ children }: { children: React.ReactNode }): React.ReactElement {
   const [queryClient] = useState(
@@ -31,6 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }): React.Re
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider>
+        <NavigationProgress />
         <Notifications position="top-right" />
         <I18nProvider>
           <AuthProvider>
@@ -38,7 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }): React.Re
           </AuthProvider>
         </I18nProvider>
       </MantineProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }

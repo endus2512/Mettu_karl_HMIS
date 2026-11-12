@@ -86,18 +86,7 @@ export function RoleWorkstationShell({
 
   if (isLoading || !isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50/70 to-indigo-50/60 dark:from-[#080d17] dark:via-[#0d1526] dark:to-[#09101d] flex items-center justify-center p-4 transition-colors duration-300">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-          <p className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300">
-            {lang === 'om'
-              ? "Mettu Karl HIS • Wiirtuu Hojii Fe'aa Jira..."
-              : lang === 'am'
-              ? 'መቱ ካርል ሆስፒታል • የስራ ክፍሉን በመጫን ላይ...'
-              : 'Mettu Karl HIS • Loading Dedicated Workstation...'}
-          </p>
-        </div>
-      </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50/70 to-indigo-50/60 dark:from-[#080d17] dark:via-[#0d1526] dark:to-[#09101d]" />
     );
   }
 

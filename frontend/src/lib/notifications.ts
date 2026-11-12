@@ -250,70 +250,89 @@ export function addNotification(
   return newNotif;
 }
 
+let inFlightNotificationsSync: Promise<HospitalNotification[]> | null = null;
+let lastNotificationsSyncAt = 0;
+const NOTIFICATIONS_MIN_GAP_MS = 4000;
+
 /**
- * Synchronize live notifications from the FastAPI PostgreSQL backend.
+ * Synchronize live notifications from the FastAPI PostgreSQL backend (deduplicated & throttled).
  */
 export async function fetchLiveBackendNotifications(): Promise<HospitalNotification[]> {
-  try {
-    const res = await apiClient.get<{ items: Array<Record<string, unknown>>; total: number }>('/events/notifications');
-    const items = res?.data?.items;
-    if (Array.isArray(items)) {
-      const liveItems: HospitalNotification[] = items.map((item) => {
-        const idStr = String(item.id);
-        const titleStr = String(item.title || 'Clinical Alert');
-        const msgStr = String(item.message || '');
-        const role = (item.target_role as HospitalNotification['recipientRole']) || 'all';
-
-        let reactionObj: NotificationReaction | undefined;
-        if (item.reaction_type) {
-          reactionObj = {
-            type: item.reaction_type as ReactionType,
-            label: {
-              en: String(item.reaction_type).replace(/_/g, ' '),
-              om: String(item.reaction_type).replace(/_/g, ' '),
-              am: String(item.reaction_type).replace(/_/g, ' '),
-            },
-            responderName: String(item.reaction_by || 'Clinician'),
-            responderRole: 'staff',
-            timestamp: String(item.reacted_at || new Date().toISOString()),
-            replyNote: item.reaction_note ? String(item.reaction_note) : undefined,
-          };
-        }
-
-        return {
-          id: `backend-${idStr}`,
-          backendId: Number(item.id),
-          senderName: String(item.sender_name || 'Hospital Administration'),
-          senderRole: String(item.sender_role || 'admin'),
-          recipientRole: role,
-          title: {
-            en: titleStr,
-            om: titleStr,
-            am: titleStr,
-          },
-          message: {
-            en: msgStr,
-            om: msgStr,
-            am: msgStr,
-          },
-          type: (item.category as NotificationType) || 'broadcast',
-          channel: 'system',
-          timestamp: String(item.created_at || new Date().toISOString()),
-          read: Boolean(item.is_read),
-          reaction: reactionObj,
-        };
-      });
-
-      if (liveItems.length > 0 && typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(liveItems));
-        window.dispatchEvent(new CustomEvent(EVENT_NAME));
-        return liveItems;
-      }
-    }
-  } catch {
-    // Backend offline or token pending; fall back smoothly to cached items
+  const now = Date.now();
+  if (inFlightNotificationsSync) {
+    return inFlightNotificationsSync;
   }
-  return getAllNotifications();
+  if (now - lastNotificationsSyncAt < NOTIFICATIONS_MIN_GAP_MS) {
+    return getAllNotifications();
+  }
+
+  inFlightNotificationsSync = (async () => {
+    try {
+      const res = await apiClient.get<{ items: Array<Record<string, unknown>>; total: number }>('/events/notifications');
+      lastNotificationsSyncAt = Date.now();
+      const items = res?.data?.items;
+      if (Array.isArray(items)) {
+        const liveItems: HospitalNotification[] = items.map((item) => {
+          const idStr = String(item.id);
+          const titleStr = String(item.title || 'Clinical Alert');
+          const msgStr = String(item.message || '');
+          const role = (item.target_role as HospitalNotification['recipientRole']) || 'all';
+
+          let reactionObj: NotificationReaction | undefined;
+          if (item.reaction_type) {
+            reactionObj = {
+              type: item.reaction_type as ReactionType,
+              label: {
+                en: String(item.reaction_type).replace(/_/g, ' '),
+                om: String(item.reaction_type).replace(/_/g, ' '),
+                am: String(item.reaction_type).replace(/_/g, ' '),
+              },
+              responderName: String(item.reaction_by || 'Clinician'),
+              responderRole: 'staff',
+              timestamp: String(item.reacted_at || new Date().toISOString()),
+              replyNote: item.reaction_note ? String(item.reaction_note) : undefined,
+            };
+          }
+
+          return {
+            id: `backend-${idStr}`,
+            backendId: Number(item.id),
+            senderName: String(item.sender_name || 'Hospital Administration'),
+            senderRole: String(item.sender_role || 'admin'),
+            recipientRole: role,
+            title: {
+              en: titleStr,
+              om: titleStr,
+              am: titleStr,
+            },
+            message: {
+              en: msgStr,
+              om: msgStr,
+              am: msgStr,
+            },
+            type: (item.category as NotificationType) || 'broadcast',
+            channel: 'system',
+            timestamp: String(item.created_at || new Date().toISOString()),
+            read: Boolean(item.is_read),
+            reaction: reactionObj,
+          };
+        });
+
+        if (liveItems.length > 0 && typeof window !== 'undefined') {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(liveItems));
+          window.dispatchEvent(new CustomEvent(EVENT_NAME));
+          return liveItems;
+        }
+      }
+    } catch {
+      // Backend offline or token pending; fall back smoothly to cached items
+    } finally {
+      inFlightNotificationsSync = null;
+    }
+    return getAllNotifications();
+  })();
+
+  return inFlightNotificationsSync;
 }
 
 /**

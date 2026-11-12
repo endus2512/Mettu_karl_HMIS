@@ -71,7 +71,7 @@ import {
   Clock,
 } from 'lucide-react';
 import axios from 'axios';
-import apiClient from '@/lib/api';
+import apiClient, { getApiOrigin } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, type Language } from '@/lib/i18n';
 import { playClinicalAudioAlert } from '@/lib/notifications';
@@ -740,10 +740,37 @@ export default function LoginPage() {
     }
     const destination = pendingWait.portalPath;
     const timer = window.setTimeout(() => {
-      window.location.href = destination;
-    }, 850);
+      router.replace(destination);
+    }, 350);
     return () => window.clearTimeout(timer);
-  }, [pendingWait?.status, pendingWait?.portalPath]);
+  }, [pendingWait?.status, pendingWait?.portalPath, router]);
+
+  // Pre-warm serverless backend + DB connection AND prefetch primary role portals immediately on /login mount
+  useEffect(() => {
+    const origin = getApiOrigin();
+    if (origin) {
+      void fetch(`${origin}/health`, { cache: 'no-store' }).catch(() => {});
+    }
+    const timer = window.setTimeout(() => {
+      [
+        '/portal/admin',
+        '/portal/doctor',
+        '/portal/nurse',
+        '/portal/pharmacy',
+        '/portal/lab',
+        '/portal/billing',
+        '/portal/reception',
+        '/patient-portal',
+      ].forEach((portalPath) => {
+        try {
+          router.prefetch(portalPath);
+        } catch {
+          // ignore
+        }
+      });
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [router]);
 
   // Load remember-me username if previously saved
   useEffect(() => {
@@ -875,11 +902,7 @@ export default function LoginPage() {
 
       setIsFormOpen(false);
       const destination = getRolePortalPath(response?.role);
-      if (typeof window !== 'undefined') {
-        window.location.href = destination;
-      } else {
-        router.push(destination);
-      }
+      router.replace(destination);
     } catch (err: unknown) {
       const rawMsg =
         err instanceof Error
@@ -917,19 +940,11 @@ export default function LoginPage() {
       });
       setIsFormOpen(false);
       const mfaDestination = getRolePortalPath(user?.role);
-      if (typeof window !== 'undefined') {
-        window.location.href = mfaDestination;
-      } else {
-        router.push(mfaDestination);
-      }
+      router.replace(mfaDestination);
     } catch {
       setIsFormOpen(false);
       const mfaDestination = getRolePortalPath(user?.role);
-      if (typeof window !== 'undefined') {
-        window.location.href = mfaDestination;
-      } else {
-        router.push(mfaDestination);
-      }
+      router.replace(mfaDestination);
     } finally {
       setIsLoading(false);
     }
@@ -983,11 +998,7 @@ export default function LoginPage() {
       });
 
       setIsFormOpen(false);
-      if (typeof window !== 'undefined') {
-        window.location.href = '/patient-portal';
-      } else {
-        router.push('/patient-portal');
-      }
+      router.replace('/patient-portal');
     } catch {
       notifications.show({
         title: language === 'om' ? 'Dogoggora Galmee' : 'Registration Error',

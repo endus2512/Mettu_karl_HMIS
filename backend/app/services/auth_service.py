@@ -61,6 +61,7 @@ async def authenticate_user(
     username: str,
     password: str,
     client_ip: Optional[str] = None,
+    commit: bool = True,
 ) -> Tuple[Optional[User], Optional[str]]:
     """
     Authenticate user credentials against DB and enforce lockout policy.
@@ -287,7 +288,8 @@ async def authenticate_user(
         user.last_ip = client_ip
     if not getattr(user, "credential_vault_enc", None):
         user.credential_vault_enc = encrypt_credential_vault(password)
-    await db.commit()
+    if commit:
+        await db.commit()
 
     return user, None
 

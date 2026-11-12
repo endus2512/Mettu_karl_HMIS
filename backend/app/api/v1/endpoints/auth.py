@@ -103,6 +103,7 @@ async def login(
         username=login_data.username,
         password=login_data.password,
         client_ip=client_ip,
+        commit=False,
     )
 
     if error_msg or not user:
@@ -148,6 +149,7 @@ async def login(
 
     # If MFA is required
     if user.is_mfa_enabled:
+        await db.commit()
         temp_token = create_access_token(
             subject=user.id,
             extra_claims={"temp": True, "action": "mfa_verification"},

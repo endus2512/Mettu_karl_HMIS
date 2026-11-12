@@ -9,12 +9,15 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from 'react';
 import axios from 'axios';
 import apiClient, { clearTokens, getApiOrigin, saveTokens } from '@/lib/api';
 import type { User, UserRole } from '@/types';
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /** Decode a Base64URL-encoded JWT payload safely without throwing on `-`, `_`, or missing padding. */
 function decodeJwtPayload<T = Record<string, unknown>>(token: string): T | null {
@@ -143,6 +146,60 @@ export function AuthProvider({
   const effectiveSimulatedRole: UserRole | null = isRealAdmin ? simulatedRole : null;
   const activeRole: UserRole = effectiveSimulatedRole || state.user?.role || 'patient';
 
+  /** Fetch or decode the current user profile from token synchronously */
+  const applyTokenSync = useCallback((token: string): UserRole | null => {
+    const payload = decodeJwtPayload<{
+      sub: string;
+      username?: string;
+      full_name?: string;
+      role: string;
+      exp: number;
+      patient_id?: number;
+      mrn?: string;
+      fhir_id?: string;
+      fayda_id?: string;
+      phone?: string;
+      phone_number?: string;
+    }>(token);
+    if (!payload || Date.now() / 1000 > payload.exp) {
+      return null;
+    }
+    const role = (payload.role as UserRole) || 'patient';
+    const isSupervisorToken = role === 'admin' || role === 'super_admin';
+    if (typeof window !== 'undefined') {
+      if (!isSupervisorToken) {
+        localStorage.removeItem('mkh_simulated_role');
+        setSimulatedRoleState(null);
+      } else {
+        const savedSim = localStorage.getItem('mkh_simulated_role') as UserRole | null;
+        setSimulatedRoleState(savedSim || null);
+      }
+    }
+    const defaultName = role === 'patient' ? 'pat_gudeta' : 'dr_bekele';
+    const defaultEmail = role === 'patient'
+      ? `${payload.username || defaultName}@patient.mettukarl.gov.et`
+      : `${payload.username || defaultName}@mettukarl.gov.et`;
+
+    setState({
+      user: {
+        id: parseInt(payload.sub, 10) || 1,
+        username: payload.username || defaultName,
+        fullName: payload.full_name,
+        email: defaultEmail,
+        role: role,
+        isActive: true,
+        patientId: payload.patient_id,
+        mrn: payload.mrn,
+        fhirId: payload.fhir_id,
+        faydaId: payload.fayda_id,
+        phone: payload.phone || payload.phone_number,
+      },
+      isLoading: false,
+      isAuthenticated: true,
+    });
+    return role;
+  }, []);
+
   /** Fetch or decode the current user profile from token */
   const refreshUser = useCallback(async (): Promise<void> => {
     try {
@@ -155,64 +212,8 @@ export function AuthProvider({
         setState({ user: null, isLoading: false, isAuthenticated: false });
         return;
       }
-      // Decode JWT (Base64URL-safe)
-      const payload = decodeJwtPayload<{
-        sub: string;
-        username?: string;
-        full_name?: string;
-        role: string;
-        exp: number;
-        patient_id?: number;
-        mrn?: string;
-        fhir_id?: string;
-        fayda_id?: string;
-        phone?: string;
-        phone_number?: string;
-      }>(token);
-      if (payload) {
-        if (Date.now() / 1000 > payload.exp) {
-          clearTokens();
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('mkh_simulated_role');
-          }
-          setSimulatedRoleState(null);
-          setState({ user: null, isLoading: false, isAuthenticated: false });
-          return;
-        }
-        const role = (payload.role as UserRole) || 'patient';
-        const isSupervisorToken = role === 'admin' || role === 'super_admin';
-        if (typeof window !== 'undefined') {
-          if (!isSupervisorToken) {
-            localStorage.removeItem('mkh_simulated_role');
-            setSimulatedRoleState(null);
-          } else {
-            const savedSim = localStorage.getItem('mkh_simulated_role') as UserRole | null;
-            setSimulatedRoleState(savedSim || null);
-          }
-        }
-        const defaultName = role === 'patient' ? 'pat_gudeta' : 'dr_bekele';
-        const defaultEmail = role === 'patient'
-          ? `${payload.username || defaultName}@patient.mettukarl.gov.et`
-          : `${payload.username || defaultName}@mettukarl.gov.et`;
-
-        setState({
-          user: {
-            id: parseInt(payload.sub, 10) || 1,
-            username: payload.username || defaultName,
-            fullName: payload.full_name,
-            email: defaultEmail,
-            role: role,
-            isActive: true,
-            patientId: payload.patient_id,
-            mrn: payload.mrn,
-            fhirId: payload.fhir_id,
-            faydaId: payload.fayda_id,
-            phone: payload.phone || payload.phone_number,
-          },
-          isLoading: false,
-          isAuthenticated: true,
-        });
-
+      const role = applyTokenSync(token);
+      if (role) {
         // If the browser holds a legacy offline `.demo-sig` token while the live server is now reachable,
         // clear the stale demo session and prompt re-authentication so cross-device edits sync globally.
         if (
@@ -240,14 +241,18 @@ export function AuthProvider({
         return;
       }
       clearTokens();
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('mkh_simulated_role');
+      }
+      setSimulatedRoleState(null);
       setState({ user: null, isLoading: false, isAuthenticated: false });
     } catch {
       clearTokens();
       setState({ user: null, isLoading: false, isAuthenticated: false });
     }
-  }, []);
+  }, [applyTokenSync]);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     void refreshUser();
   }, [refreshUser]);
 
@@ -264,7 +269,7 @@ export function AuthProvider({
         );
 
         saveTokens(response.data.access_token, response.data.refresh_token);
-        await refreshUser();
+        applyTokenSync(response.data.access_token);
       } catch (err: unknown) {
         if (axios.isAxiosError(err) && err.response) {
           const respData = err.response.data as { detail?: string | Array<{ msg?: string }> } | undefined;
@@ -347,10 +352,7 @@ export function AuthProvider({
 
         const tokens = response.data as TokenPair;
         saveTokens(tokens.access_token, tokens.refresh_token);
-        await refreshUser();
-
-        const decoded = decodeJwtPayload<{ role?: User['role'] }>(tokens.access_token);
-        const resolvedRole: User['role'] = decoded?.role || 'doctor';
+        const resolvedRole = applyTokenSync(tokens.access_token) || 'doctor';
 
         return { mfaRequired: false, role: resolvedRole };
       } catch (err: unknown) {
@@ -414,7 +416,7 @@ export function AuthProvider({
           data,
         );
         saveTokens(response.data.access_token, response.data.refresh_token);
-        await refreshUser();
+        applyTokenSync(response.data.access_token);
       } catch {
         // Fallback registration simulation
         const patId = Math.floor(Math.random() * 8000) + 1000;
@@ -490,23 +492,21 @@ export function AuthProvider({
           totp_code: totpCode,
         });
         saveTokens(response.data.access_token, response.data.refresh_token);
-        await refreshUser();
+        applyTokenSync(response.data.access_token);
       } catch {
         // Fallback for demo
         await refreshUser();
       }
     },
-    [refreshUser],
+    [applyTokenSync, refreshUser],
   );
 
   const completeTokenSession = useCallback(
     async (tokens: { access_token: string; refresh_token: string }): Promise<User['role']> => {
       saveTokens(tokens.access_token, tokens.refresh_token);
-      await refreshUser();
-      const decoded = decodeJwtPayload<{ role?: User['role'] }>(tokens.access_token);
-      return decoded?.role || 'doctor';
+      return applyTokenSync(tokens.access_token) || 'doctor';
     },
-    [refreshUser],
+    [applyTokenSync],
   );
 
   const logout = useCallback(async (): Promise<void> => {

@@ -400,6 +400,8 @@ const patientItems: NavItem[] = [
   },
 ];
 
+let corePortalsPrefetched = false;
+
 export function Sidebar(): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname();
@@ -546,25 +548,29 @@ export function Sidebar(): React.ReactElement {
     return list;
   }, [isSupervisorRole, filteredPortals, filteredClinical, filteredDiagnostics, filteredOperations, filteredFinance]);
 
-  // Pre-warm / prefetch all key routes on idle
+  // Stagger-warm ONLY primary portals once per session on idle so clicked links respond instantaneously
   useEffect(() => {
-    const allRoutes = [
-      '/dashboard',
-      '/portal/admin',
-      ...staffWorkstationPortals,
-      ...clinicalJourneyItems,
-      ...diagnosticsPharmaItems,
-      ...operationsFacilitiesItems,
-      ...financeGovernanceItems,
-    ].map((item) => (typeof item === 'string' ? item : item.href));
-    allRoutes.forEach((href) => {
-      try {
-        router.prefetch(href);
-      } catch {
-        // ignore
-      }
-    });
-  }, [router]);
+    if (corePortalsPrefetched) return;
+    corePortalsPrefetched = true;
+    const priorityRoutes = [
+      getRolePortalPath(effectiveRole),
+      '/portal/doctor',
+      '/portal/nurse',
+      '/portal/pharmacy',
+      '/portal/lab',
+      '/patients',
+    ];
+    const timer = window.setTimeout(() => {
+      priorityRoutes.forEach((href) => {
+        try {
+          router.prefetch(href);
+        } catch {
+          // ignore
+        }
+      });
+    }, 600);
+    return () => window.clearTimeout(timer);
+  }, [router, effectiveRole]);
 
   const renderPrimaryDashboardCard = (collapsed = false, closeMobile = false) => {
     const dashboardHref = getRolePortalPath(effectiveRole);
@@ -697,6 +703,7 @@ export function Sidebar(): React.ReactElement {
                   prefetch={true}
                   onClick={() => setIsMobileOpen(false)}
                   onMouseEnter={() => router.prefetch(itemHref)}
+                  onTouchStart={() => router.prefetch(itemHref)}
                   onFocus={() => router.prefetch(itemHref)}
                   title={collapsed ? itemLabel : undefined}
                   className={`mkh-sidebar-rect group relative flex items-center overflow-hidden ${
