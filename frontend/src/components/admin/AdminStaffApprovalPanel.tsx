@@ -44,6 +44,7 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  ChevronUp,
   Layers,
 } from 'lucide-react';
 
@@ -105,6 +106,7 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
 
   const [requests, setRequests] = useState<StaffEnrollmentRequest[]>([]);
   const [alarms, setAlarms] = useState<SecurityAlarmItem[]>([]);
+  const [isMinimized, setIsMinimized] = useState<boolean>(true);
   const [showAllAlarms, setShowAllAlarms] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [alarmRoles, setAlarmRoles] = useState<Record<number, UserRole>>({});
@@ -440,11 +442,19 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
   return (
     <div
       id="admin-staff-approval-queue"
-      className="bg-[#101624] border border-[#222b3d] rounded-2xl p-4 sm:p-5 shadow-lg space-y-4"
+      className={`bg-[#101624] border rounded-2xl shadow-lg transition-all ${
+        unreadAlarms.length > 0 || counts.pending > 0
+          ? 'border-amber-500/45'
+          : 'border-[#222b3d]'
+      } ${isMinimized ? 'p-4' : 'p-4 sm:p-5 space-y-4'}`}
     >
       {/* Header Row */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-[#1c2536]">
-        <div className="flex items-start sm:items-center gap-3">
+      <div
+        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${
+          isMinimized ? '' : 'pb-3 border-b border-[#1c2536]'
+        }`}
+      >
+        <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
             <ShieldAlert className="w-5 h-5" />
           </div>
@@ -452,10 +462,10 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-sm font-extrabold text-white">
                 {lang === 'om'
-                  ? "Akeekkachiisa Nageenyaa & Mirkaneessa Galmee (Admin Guard)"
+                  ? "To'annoo Nageenyaa & Mirkaneessa Galmee (Admin Guard)"
                   : lang === 'am'
                   ? 'የሰራተኞች ማንቂያ፣ ምዝገባ ማጽደቂያ እና የማንነት ማረጋገጫ'
-                  : 'Staff Sign-Up Verification & Anti-Impersonation Guard'}
+                  : 'Staff Sign-Up Verification & Security Guard'}
               </h2>
               {unreadAlarms.length > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-600/30 text-rose-200 border border-rose-500/60 flex items-center gap-1 animate-pulse">
@@ -474,17 +484,24 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
                   {counts.flagged} RISK ALERTS
                 </span>
               )}
+              {isMinimized && unreadAlarms.length === 0 && counts.pending === 0 && (
+                <span className="text-[11px] font-mono text-emerald-400/90">
+                  0 Pending • All Clear
+                </span>
+              )}
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {lang === 'om'
-                ? 'Hojjetaan haaraan yoo galmaa’e ykn Doctor/Nurse/Pharmacy yeroo jalqabaaf seenuu yoo yaale battalumatti alarmii erga; Admin eyyamee ykn cufee to’ata.'
-                : 'All self-registered accounts stay locked until Admin approval. Live alarms notify Admin immediately on every new sign-up, first-time login, or blocked attempt.'}
-            </p>
+            {!isMinimized && (
+              <p className="text-xs text-slate-400 mt-0.5">
+                {lang === 'om'
+                  ? 'Hojjetaan haaraan yoo galmaa’e ykn Doctor/Nurse/Pharmacy yeroo jalqabaaf seenuu yoo yaale battalumatti alarmii erga; Admin eyyamee ykn cufee to’ata.'
+                  : 'All self-registered accounts stay locked until Admin approval. Live alarms notify Admin immediately on every new sign-up, first-time login, or blocked attempt.'}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Filter & Sound Controls */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Filter, Sound & Minimize/Expand Controls */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setSoundEnabled(!soundEnabled)}
@@ -496,58 +513,81 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
             }`}
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            <span>{soundEnabled ? 'Alarm Sound ON' : 'Muted'}</span>
+            <span>{soundEnabled ? 'Alarm ON' : 'Muted'}</span>
           </button>
 
-          <div className="inline-flex rounded-xl bg-[#0a0f18] border border-[#1e2738] p-0.5 text-[11px] font-semibold">
-            <button
-              type="button"
-              onClick={() => setFilterTab('pending')}
-              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                filterTab === 'pending'
-                  ? 'bg-amber-500 text-slate-950 font-bold'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Pending ({counts.pending})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilterTab('flagged')}
-              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                filterTab === 'flagged'
-                  ? 'bg-rose-500 text-white font-bold'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Risk Alerts ({counts.flagged})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilterTab('all')}
-              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                filterTab === 'all'
-                  ? 'bg-teal-500 text-slate-950 font-bold'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              All ({counts.total})
-            </button>
-          </div>
+          {!isMinimized && (
+            <>
+              <div className="inline-flex rounded-xl bg-[#0a0f18] border border-[#1e2738] p-0.5 text-[11px] font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setFilterTab('pending')}
+                  className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                    filterTab === 'pending'
+                      ? 'bg-amber-500 text-slate-950 font-bold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Pending ({counts.pending})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterTab('flagged')}
+                  className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                    filterTab === 'flagged'
+                      ? 'bg-rose-500 text-white font-bold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Risk Alerts ({counts.flagged})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterTab('all')}
+                  className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                    filterTab === 'all'
+                      ? 'bg-teal-500 text-slate-950 font-bold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  All ({counts.total})
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => void fetchRequests()}
+                disabled={isLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#151e30] hover:bg-[#1c2840] border border-[#25334d] text-xs font-semibold text-slate-200 cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                <span>{lang === 'om' ? 'Haaromsi' : 'Refresh'}</span>
+              </button>
+            </>
+          )}
 
           <button
             type="button"
-            onClick={() => void fetchRequests()}
-            disabled={isLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#151e30] hover:bg-[#1c2840] border border-[#25334d] text-xs font-semibold text-slate-200 cursor-pointer disabled:opacity-50"
+            onClick={() => setIsMinimized((prev) => !prev)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#25334d] bg-[#151e30] hover:bg-[#1c2840] text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-            <span>{lang === 'om' ? 'Haaromsi' : 'Refresh'}</span>
+            {isMinimized ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+            <span>
+              {isMinimized
+                ? lang === 'om'
+                  ? 'Bani (Expand)'
+                  : 'Expand'
+                : lang === 'om'
+                ? 'Xiqeessi (Minimize)'
+                : 'Minimize'}
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Profession / Role Chunk Filter Pills (Doctors, Nurses, Pharmacy, etc.) */}
+      {!isMinimized && (
+        <>
+          {/* Profession / Role Chunk Filter Pills (Doctors, Nurses, Pharmacy, etc.) */}
       <div
         id="admin-role-chunk-filters"
         className="flex flex-wrap items-center gap-1.5 pt-1"
@@ -1031,6 +1071,8 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
             );
           })}
         </div>
+      )}
+        </>
       )}
     </div>
   );

@@ -746,7 +746,8 @@ export function AdminOversightHub(): React.ReactElement {
   const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
   const txt = OVERSIGHT_I18N[lang] || OVERSIGHT_I18N['en'];
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Default minimized/collapsed so Admin Dashboard stays clean and uncluttered
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [roleFilter, setRoleFilter] = useState<'all' | 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'patient'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -1098,23 +1099,32 @@ export function AdminOversightHub(): React.ReactElement {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#131824] p-5 sm:p-6 shadow-xs space-y-5">
+    <section className={`rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#101624] shadow-lg transition-all ${isCollapsed ? 'p-4' : 'p-4 sm:p-5 space-y-5'}`}>
       {/* 1. Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-[#1b2334] pb-4">
-        <div className="flex items-start gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-xs">
-            <Building2 className="h-5 w-5" />
+      <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${isCollapsed ? '' : 'border-b border-slate-100 dark:border-[#1b2334] pb-4'}`}>
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-xs">
+            <Building2 className="h-4.5 w-4.5" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-300 mb-1">
-              <span>{txt.badge}</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
+                {txt.title}
+              </h2>
+              <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+                {txt.badge}
+              </span>
+              {isCollapsed && (
+                <span className="text-[11px] font-mono text-slate-400">
+                  {HOSPITAL_ROSTER.length} {lang === 'om' ? 'Ogeeyyii & Dhukkubsattoota' : 'Records'}
+                </span>
+              )}
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-              {txt.title}
-            </h2>
-            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">
-              {txt.subtitle}
-            </p>
+            {!isCollapsed && (
+              <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">
+                {txt.subtitle}
+              </p>
+            )}
           </div>
         </div>
 
@@ -1123,18 +1133,18 @@ export function AdminOversightHub(): React.ReactElement {
           <button
             type="button"
             onClick={() => setBroadcastModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 text-slate-950 font-bold px-3.5 py-2 text-xs shadow-md shadow-amber-500/20 border border-amber-300 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 text-slate-950 font-bold px-3 py-1.5 text-xs shadow-md shadow-amber-500/20 border border-amber-300 transition-colors cursor-pointer"
           >
-            <Megaphone className="h-4 w-4" />
+            <Megaphone className="h-3.5 w-3.5" />
             <span>{txt.broadcastBtn}</span>
           </button>
           <button
             type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#0e131f] hover:bg-slate-50 dark:hover:bg-[#151c2e] text-slate-700 dark:text-slate-200 px-3 py-2 text-xs font-medium shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-[#25334d] bg-white dark:bg-[#151e30] hover:bg-slate-50 dark:hover:bg-[#1c2840] text-slate-700 dark:text-slate-200 px-3 py-1.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           >
-            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-            <span>{isCollapsed ? (lang === 'om' ? 'Kutaalee Agarsiisi' : lang === 'am' ? 'ዘርጋ' : 'Expand') : (lang === 'om' ? 'Simplicity (Dhadhahi)' : lang === 'am' ? 'አሳጥር' : 'Minimize')}</span>
+            {isCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+            <span>{isCollapsed ? (lang === 'om' ? 'Bani (Expand)' : lang === 'am' ? 'ዘርጋ' : 'Expand') : (lang === 'om' ? 'Xiqeessi (Minimize)' : lang === 'am' ? 'አሳጥር' : 'Minimize')}</span>
           </button>
         </div>
       </div>

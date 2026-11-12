@@ -27,6 +27,8 @@ import {
   Clock,
   Lock,
   Radio,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 interface WorkforceMember {
@@ -71,6 +73,7 @@ export function AdminWorkforceMonitor(): React.ReactElement {
     language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
   const [summary, setSummary] = useState<WorkforceSummaryResponse | null>(null);
+  const [isMinimized, setIsMinimized] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [statusFilter, setStatusFilter] = useState<'all' | 'working_now' | 'offline' | 'blocked'>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
@@ -192,11 +195,17 @@ export function AdminWorkforceMonitor(): React.ReactElement {
   return (
     <div
       id="admin-workforce-monitor"
-      className="bg-[#101624] border border-[#222b3d] rounded-2xl p-4 sm:p-5 shadow-lg space-y-4"
+      className={`bg-[#101624] border border-[#222b3d] rounded-2xl shadow-lg transition-all ${
+        isMinimized ? 'p-4' : 'p-4 sm:p-5 space-y-4'
+      }`}
     >
       {/* Header Row */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-[#1c2536]">
-        <div className="flex items-start sm:items-center gap-3">
+      <div
+        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${
+          isMinimized ? '' : 'pb-3 border-b border-[#1c2536]'
+        }`}
+      >
+        <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
             <Activity className="w-5 h-5" />
           </div>
@@ -204,72 +213,107 @@ export function AdminWorkforceMonitor(): React.ReactElement {
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-sm font-extrabold text-white">
                 {lang === 'om'
-                  ? "To'annoo Hojjettoota Hojirra Jiran & Eeyyama (Live Workforce Monitor)"
+                  ? "To'annoo Hojjettoota Hojirra Jiran (Live Workforce)"
                   : lang === 'am'
                   ? 'የነባር ሰራተኞች የስራ እንቅስቃሴ እና ፍቃድ መቆጣጠሪያ'
                   : 'Live Staff Workforce Activity & Access Control'}
               </h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
                 <Radio className="w-3 h-3 animate-pulse" />
-                {summary?.working_now_count ?? 0} WORKING NOW
+                {summary?.working_now_count ?? 0} WORKING
               </span>
+              {(summary?.offline_count ?? 0) > 0 && isMinimized && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                  {summary?.offline_count} OFFLINE
+                </span>
+              )}
               {(summary?.blocked_count ?? 0) > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
                   {summary?.blocked_count} BLOCKED
                 </span>
               )}
+              {isMinimized && (
+                <span className="text-[11px] font-mono text-slate-400">
+                  ({summary?.total_staff ?? 0} Staff)
+                </span>
+              )}
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {lang === 'om'
-                ? 'Hojjettoonni duraanii (Doctor, Nurse, Pharmacy...) yeroo ammaa hojjechaa jiraachuu fi dhiisuu isaanii hordofii, eyyami ykn cufi.'
-                : 'Monitor whether existing Doctors, Nurses, Pharmacists, Lab Techs & Staff are actively working or offline, and block or grant permissions anytime.'}
-            </p>
+            {!isMinimized && (
+              <p className="text-xs text-slate-400 mt-0.5">
+                {lang === 'om'
+                  ? 'Hojjettoonni duraanii (Doctor, Nurse, Pharmacy...) yeroo ammaa hojjechaa jiraachuu fi dhiisuu isaanii hordofii, eyyami ykn cufi.'
+                  : 'Monitor whether existing Doctors, Nurses, Pharmacists, Lab Techs & Staff are actively working or offline, and block or grant permissions anytime.'}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Summary Counters + Refresh */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-xl bg-[#0a0f18] border border-[#1e2738] p-0.5 text-[11px] font-semibold">
-            {(
-              [
-                ['all', `All (${summary?.total_staff ?? 0})`],
-                ['working_now', `Working (${(summary?.working_now_count ?? 0) + (summary?.recent_count ?? 0)})`],
-                ['offline', `Offline (${summary?.offline_count ?? 0})`],
-                ['blocked', `Blocked (${summary?.blocked_count ?? 0})`],
-              ] as const
-            ).map(([key, label]) => (
+        {/* Summary Counters + Refresh + Minimize/Expand */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {!isMinimized && (
+            <>
+              <div className="inline-flex rounded-xl bg-[#0a0f18] border border-[#1e2738] p-0.5 text-[11px] font-semibold">
+                {(
+                  [
+                    ['all', `All (${summary?.total_staff ?? 0})`],
+                    ['working_now', `Working (${(summary?.working_now_count ?? 0) + (summary?.recent_count ?? 0)})`],
+                    ['offline', `Offline (${summary?.offline_count ?? 0})`],
+                    ['blocked', `Blocked (${summary?.blocked_count ?? 0})`],
+                  ] as const
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setStatusFilter(key)}
+                    className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                      statusFilter === key
+                        ? key === 'blocked'
+                          ? 'bg-rose-500 text-white font-bold'
+                          : 'bg-emerald-500 text-slate-950 font-bold'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
               <button
-                key={key}
                 type="button"
-                onClick={() => setStatusFilter(key)}
-                className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                  statusFilter === key
-                    ? key === 'blocked'
-                      ? 'bg-rose-500 text-white font-bold'
-                      : 'bg-emerald-500 text-slate-950 font-bold'
-                    : 'text-slate-400 hover:text-white'
-                }`}
+                onClick={() => {
+                  setIsLoading(true);
+                  void fetchWorkforce();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#151e30] hover:bg-[#1c2840] border border-[#25334d] text-xs font-semibold text-slate-200 cursor-pointer"
               >
-                {label}
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                <span>{lang === 'om' ? 'Haaromsi' : 'Refresh'}</span>
               </button>
-            ))}
-          </div>
+            </>
+          )}
 
           <button
             type="button"
-            onClick={() => {
-              setIsLoading(true);
-              void fetchWorkforce();
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#151e30] hover:bg-[#1c2840] border border-[#25334d] text-xs font-semibold text-slate-200 cursor-pointer"
+            onClick={() => setIsMinimized((prev) => !prev)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#25334d] bg-[#151e30] hover:bg-[#1c2840] text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-            <span>{lang === 'om' ? 'Haaromsi' : 'Refresh'}</span>
+            {isMinimized ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+            <span>
+              {isMinimized
+                ? lang === 'om'
+                  ? 'Bani (Expand)'
+                  : 'Expand'
+                : lang === 'om'
+                ? 'Xiqeessi (Minimize)'
+                : 'Minimize'}
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Filters Row */}
+      {!isMinimized && (
+        <>
+          {/* Filters Row */}
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -463,6 +507,8 @@ export function AdminWorkforceMonitor(): React.ReactElement {
           })
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }
