@@ -14,6 +14,7 @@ import { notifications } from '@mantine/notifications';
 import { useTranslation, Language } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 import { addNotification } from '@/lib/notifications';
+import { MorphingArrowButton } from '@/components/admin/MorphingArrowButton';
 import {
   Building2,
   Megaphone,
@@ -1130,22 +1131,20 @@ export function AdminOversightHub(): React.ReactElement {
 
         {/* Action Buttons: Broadcast & Simplicity Collapse/Expand */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <button
-            type="button"
+          <MorphingArrowButton
+            variant="amber"
+            size="sm"
+            icon={<Megaphone className="h-4 w-4" />}
+            label={txt.broadcastBtn}
             onClick={() => setBroadcastModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 text-slate-950 font-extrabold px-3.5 py-2 text-xs sm:text-sm shadow-md shadow-amber-500/20 border border-amber-300 hover:scale-[1.03] transition-all cursor-pointer"
-          >
-            <Megaphone className="h-4 w-4" />
-            <span>{txt.broadcastBtn}</span>
-          </button>
-          <button
-            type="button"
+          />
+          <MorphingArrowButton
+            variant="violet"
+            size="sm"
+            isExpanded={!isCollapsed}
+            label={isCollapsed ? (lang === 'om' ? 'Bani (Expand)' : lang === 'am' ? 'ዘርጋ' : 'Expand') : (lang === 'om' ? 'Xiqeessi (Minimize)' : lang === 'am' ? 'አሳጥር' : 'Minimize')}
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-violet-300 dark:border-violet-400/45 bg-violet-50 dark:bg-[#1a2640] hover:bg-violet-100 dark:hover:bg-[#233252] text-violet-900 dark:text-violet-200 px-4 py-2 text-xs sm:text-sm font-extrabold shadow-xs hover:scale-[1.03] transition-all cursor-pointer"
-          >
-            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-            <span>{isCollapsed ? (lang === 'om' ? 'Bani (Expand)' : lang === 'am' ? 'ዘርጋ' : 'Expand') : (lang === 'om' ? 'Xiqeessi (Minimize)' : lang === 'am' ? 'አሳጥር' : 'Minimize')}</span>
-          </button>
+          />
         </div>
       </div>
 

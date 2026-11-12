@@ -15,6 +15,7 @@ import {
   type LedSignageConfig,
 } from '@/lib/ledSignage';
 import { useTranslation, type Language } from '@/lib/i18n';
+import { MorphingArrowButton } from '@/components/admin/MorphingArrowButton';
 import {
   AlertTriangle,
   ArrowLeftRight,
@@ -243,68 +244,59 @@ export function AdminLedControlPanel(): React.ReactElement {
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           {!showSettings && (
-            <button
-              type="button"
+            <MorphingArrowButton
+              variant={showPreviewOnly ? 'teal' : 'sky'}
+              size="sm"
+              icon={<Eye className="w-4 h-4" />}
+              label={showPreviewOnly ? (lang === 'om' ? 'Dhoksi' : 'Hide Preview') : (lang === 'om' ? 'Ilaali' : 'Preview')}
               onClick={() => setShowPreviewOnly((prev) => !prev)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-extrabold transition-all hover:scale-[1.03] cursor-pointer ${
-                showPreviewOnly
-                  ? 'bg-teal-100 dark:bg-teal-500/20 border-teal-400 text-teal-900 dark:text-teal-200'
-                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-[#1a2640] hover:bg-sky-50 dark:hover:bg-[#233252] text-slate-800 dark:text-white'
-              }`}
-            >
-              <Eye className="w-4 h-4" />
-              <span>{showPreviewOnly ? (lang === 'om' ? 'Dhoksi' : 'Hide Preview') : (lang === 'om' ? 'Ilaali' : 'Preview')}</span>
-            </button>
+            />
           )}
 
           {hasUnsavedChanges && !showSettings && (
-            <button
-              type="button"
+            <MorphingArrowButton
+              variant="amber"
+              size="sm"
               disabled={isSaving}
+              icon={<Check className="w-4 h-4" />}
+              label={isSaving ? 'Publishing...' : 'Save & Publish Live'}
               onClick={handleSave}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-yellow-400 disabled:opacity-60 text-slate-950 font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/25 cursor-pointer"
-            >
-              <Check className="w-4 h-4" />
-              <span>{isSaving ? 'Publishing...' : 'Save & Publish Live'}</span>
-            </button>
+            />
           )}
 
-          <button
-            type="button"
-            onClick={() => setShowSettings((prev) => !prev)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl border text-xs sm:text-sm font-extrabold transition-all hover:scale-[1.03] cursor-pointer ${
+          <MorphingArrowButton
+            variant={showSettings ? 'amber' : 'amber-soft'}
+            size="sm"
+            isExpanded={showSettings}
+            icon={<Settings className={`w-4 h-4 ${showSettings ? 'animate-spin' : ''}`} style={{ animationDuration: '8s' }} />}
+            label={
               showSettings
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/25'
-                : 'bg-amber-50 dark:bg-[#1a2640] hover:bg-amber-100 dark:hover:bg-amber-500/20 border-amber-400 text-amber-900 dark:text-amber-300'
-            }`}
-          >
-            <Settings className={`w-4 h-4 ${showSettings ? 'animate-spin' : ''}`} style={{ animationDuration: '8s' }} />
-            <span>
-              {showSettings
                 ? lang === 'om'
                   ? 'Settings Cufi (Close)'
                   : 'Close Settings'
                 : lang === 'om'
                 ? "Qindaa'ina (Settings)"
-                : 'Settings'}
-            </span>
-            {showSettings ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
+                : 'Settings'
+            }
+            onClick={() => setShowSettings((prev) => !prev)}
+          />
         </div>
       </div>
 
       {isExpanded && syncStatus === 'demo_session' && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-orange-500/40 bg-orange-500/10 px-3.5 py-2.5 text-xs text-orange-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border-2 border-orange-400/60 bg-orange-100/90 dark:bg-orange-500/15 px-3.5 py-2.5 text-xs font-semibold text-orange-950 dark:text-orange-100">
           <div className="flex items-start sm:items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5 sm:mt-0" />
+            <AlertTriangle className="w-4 h-4 text-orange-700 dark:text-orange-300 shrink-0 mt-0.5 sm:mt-0" />
             <span>
               {lang === 'om'
                 ? "Offline/Demo token moofaa irra jirtu — device biroorratti hin mul'atu. Device hundumaatti wal-qabsiisuuf haaraa seenaa:"
                 : 'You are on an offline demo token, so saves stay in this browser only. Re-login with your live server Admin session to publish across all devices.'}
             </span>
           </div>
-          <button
-            type="button"
+          <MorphingArrowButton
+            variant="amber"
+            size="xs"
+            label={lang === 'om' ? 'Ba\'i & Haaraa Seeni (Admin)' : 'Sign Out & Re-Login Admin'}
             onClick={() => {
               clearTokens();
               if (typeof window !== 'undefined') {
@@ -314,22 +306,20 @@ export function AdminLedControlPanel(): React.ReactElement {
                 window.location.href = `${base}/login`;
               }
             }}
-            className="shrink-0 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold text-[11px] transition cursor-pointer"
-          >
-            {lang === 'om' ? 'Ba\'i & Haaraa Seeni (Admin)' : 'Sign Out & Re-Login Admin'}
-          </button>
+            className="shrink-0"
+          />
         </div>
       )}
 
       {/* Live Physical LED Board Preview (shown when Settings OR Preview is opened) */}
       {isExpanded && (
-        <div className="space-y-2 rounded-xl bg-[#090e18] border border-[#1d2638] p-3 sm:p-4">
-          <div className="flex items-center justify-between text-[11px] text-slate-400">
-            <span className="font-semibold text-amber-300 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
+        <div className="space-y-2 rounded-xl bg-slate-900 border-2 border-slate-700 p-3 sm:p-4">
+          <div className="flex items-center justify-between text-xs text-slate-200">
+            <span className="font-extrabold text-amber-300 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4" />
               {lang === 'om' ? 'Ilaalcha Kallattii (Live LED Matrix Preview)' : 'Live LED Matrix Preview'}
             </span>
-            <span className="font-mono text-[10px] text-slate-400">
+            <span className="font-mono text-[11px] font-bold text-slate-200">
               {draft.speed.toFixed(2)}x ({pxPerSec} px/s) • Scale {draft.fontScale.toFixed(2)}x •{' '}
               {draft.colorHex.toUpperCase()}
             </span>
@@ -341,43 +331,41 @@ export function AdminLedControlPanel(): React.ReactElement {
       {/* Unified Settings Drawer — ALL Digital Arduino LED Editing Controls Live Here */}
       {showSettings && (
         <div className="space-y-4 pt-1">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl bg-[#0c121e] border border-[#1b2436] px-3.5 py-2.5">
-            <div className="text-xs text-slate-300">
-              <span className="font-bold text-amber-300">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl bg-slate-100/95 dark:bg-[#0c121e] border border-slate-300 dark:border-[#1b2436] px-3.5 py-2.5">
+            <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-100">
+              <span className="font-extrabold text-amber-800 dark:text-amber-300">
                 {lang === 'om' ? 'Wiirtuu Gulaallii Digital LED:' : 'Unified Digital LED Settings:'}
               </span>{' '}
-              <span className="text-slate-400">
+              <span className="font-semibold text-slate-700 dark:text-slate-200">
                 {lang === 'om'
                   ? 'Barreeffama, halluu, saffisa fi effects hunda asitti qindeessaa.'
                   : 'Edit marquee message, diode colors, speed, typography, and effects below.'}
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
+              <MorphingArrowButton
+                variant="neutral"
+                size="xs"
+                icon={<RotateCcw className="w-3.5 h-3.5" />}
+                label={lang === 'om' ? 'Deebisi (Default)' : 'Reset Default'}
                 onClick={handleReset}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#263248] bg-[#141c2c] hover:bg-[#1a2438] text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>{lang === 'om' ? 'Deebisi (Default)' : 'Reset Default'}</span>
-              </button>
-              <button
-                type="button"
+              />
+              <MorphingArrowButton
+                variant="amber"
+                size="xs"
                 disabled={isSaving}
-                onClick={handleSave}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500 disabled:opacity-60 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>
-                  {isSaving
+                icon={<Check className="w-3.5 h-3.5" />}
+                label={
+                  isSaving
                     ? lang === 'om'
                       ? 'Ol-kaa\'aa jira...'
                       : 'Publishing...'
                     : lang === 'om'
                     ? 'Ol-kaa\'i & Mul\'isi (Save & Publish)'
-                    : 'Save & Publish Live'}
-                </span>
-              </button>
+                    : 'Save & Publish Live'
+                }
+                onClick={handleSave}
+              />
             </div>
           </div>
 
@@ -386,20 +374,20 @@ export function AdminLedControlPanel(): React.ReactElement {
         {/* Left Column (Message, Presets & Palette) */}
         <div className="lg:col-span-7 space-y-3.5">
           {/* 1. Custom Message Input & Presets */}
-          <div className="bg-[#0c121e] border border-[#1b2436] rounded-xl p-3.5 space-y-2.5">
+          <div className="bg-white/95 dark:bg-[#0c121e] border border-slate-300 dark:border-[#1b2436] rounded-xl p-3.5 space-y-2.5">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="admin-led-message-input"
-                className="text-xs font-bold text-white flex items-center gap-1.5"
+                className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5"
               >
-                <Type className="w-3.5 h-3.5 text-amber-400" />
+                <Type className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>
                   {lang === 'om'
                     ? '1. Barreeffama Boordii LED (Scrolling Message):'
                     : '1. Scrolling Marquee Message:'}
                 </span>
               </label>
-              <span className="text-[10px] font-mono text-slate-400">{draft.message.length}/300</span>
+              <span className="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-300">{draft.message.length}/300</span>
             </div>
             <input
               id="admin-led-message-input"
@@ -408,10 +396,10 @@ export function AdminLedControlPanel(): React.ReactElement {
               value={draft.message}
               onChange={(e) => updateDraft({ message: e.target.value })}
               placeholder="METTU KARL COMPREHENSIVE SPECIALIZED HOSPITAL"
-              className="w-full rounded-xl border border-[#26354d] bg-[#141c2e] px-3.5 py-2 text-xs sm:text-sm font-semibold text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
+              className="w-full rounded-xl border-2 border-slate-300 dark:border-[#26354d] bg-slate-50 dark:bg-[#141c2e] px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
             />
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              <span className="text-[10px] text-slate-400 mr-1">
+              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mr-1">
                 {lang === 'om' ? 'Filannoo Salphaa (Presets):' : 'Quick Presets:'}
               </span>
               {LED_MESSAGE_PRESETS.map((preset) => (
@@ -419,10 +407,10 @@ export function AdminLedControlPanel(): React.ReactElement {
                   key={preset.label}
                   type="button"
                   onClick={() => updateDraft({ message: preset.text })}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold border transition-all cursor-pointer ${
                     draft.message === preset.text
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-400/60'
-                      : 'bg-[#141c2c] text-slate-300 border-[#222d42] hover:border-slate-500 hover:text-white'
+                      ? 'bg-amber-200 dark:bg-amber-500/25 text-amber-950 dark:text-amber-200 border-amber-500'
+                      : 'bg-slate-100 dark:bg-[#141c2c] text-slate-800 dark:text-slate-200 border-slate-300 dark:border-[#222d42] hover:border-amber-400'
                   }`}
                 >
                   {preset.label}
@@ -432,17 +420,17 @@ export function AdminLedControlPanel(): React.ReactElement {
           </div>
 
           {/* 2. Color Palette + Custom Picker */}
-          <div className="bg-[#0c121e] border border-[#1b2436] rounded-xl p-3.5 space-y-2.5">
+          <div className="bg-white/95 dark:bg-[#0c121e] border border-slate-300 dark:border-[#1b2436] rounded-xl p-3.5 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Palette className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <Palette className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>
                   {lang === 'om'
                     ? '2. Halluuwwan LED (Color Palette & Custom Picker):'
                     : '2. LED Diode Color Palette:'}
                 </span>
               </span>
-              <label className="flex items-center gap-1.5 text-[11px] font-mono text-slate-300 cursor-pointer bg-[#141c2c] border border-[#26354d] px-2 py-0.5 rounded-lg">
+              <label className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-slate-900 dark:text-slate-100 cursor-pointer bg-slate-100 dark:bg-[#141c2c] border border-slate-300 dark:border-[#26354d] px-2 py-0.5 rounded-lg">
                 <span>Custom</span>
                 <input
                   type="color"
@@ -468,10 +456,10 @@ export function AdminLedControlPanel(): React.ReactElement {
                     onClick={() =>
                       updateDraft({ colorPreset: swatch.id, colorHex: swatch.hex })
                     }
-                    className={`flex items-center gap-2 px-2.5 py-2 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`flex items-center gap-2 px-2.5 py-2 rounded-xl border-2 text-left transition-all cursor-pointer ${
                       active
-                        ? 'bg-[#182238] border-white/60 text-white shadow-sm'
-                        : 'bg-[#121928] border-[#1f293d] text-slate-300 hover:border-slate-500'
+                        ? 'bg-sky-50 dark:bg-[#182238] border-sky-500 dark:border-white/70 text-slate-950 dark:text-white shadow-sm'
+                        : 'bg-slate-50 dark:bg-[#121928] border-slate-300 dark:border-[#1f293d] text-slate-800 dark:text-slate-200 hover:border-slate-500'
                     }`}
                   >
                     <span
@@ -481,7 +469,7 @@ export function AdminLedControlPanel(): React.ReactElement {
                         boxShadow: `0 0 8px ${swatch.hex}`,
                       }}
                     />
-                    <span className="text-[11px] font-semibold truncate">
+                    <span className="text-[11px] font-extrabold truncate">
                       {lang === 'om' ? swatch.labelOm : swatch.label}
                     </span>
                   </button>
@@ -494,10 +482,10 @@ export function AdminLedControlPanel(): React.ReactElement {
         {/* Right Column (Speed, Font Size, Position & Effects) */}
         <div className="lg:col-span-5 space-y-3.5">
           {/* 3. Ultra-Fine Speed & Transport Controls */}
-          <div className="bg-[#0c121e] border border-[#1b2436] rounded-xl p-3.5 space-y-3">
+          <div className="bg-white/95 dark:bg-[#0c121e] border border-slate-300 dark:border-[#1b2436] rounded-xl p-3.5 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>
                   {lang === 'om'
                     ? '3. Saffisa fi Sochii (Ultra-Fine Speed):'
@@ -508,10 +496,10 @@ export function AdminLedControlPanel(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => updateDraft({ isPlaying: !draft.isPlaying })}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold border transition-all cursor-pointer ${
                     draft.isPlaying
-                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                      : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border-emerald-400'
+                      : 'bg-amber-100 dark:bg-amber-500/20 text-amber-950 dark:text-amber-200 border-amber-400'
                   }`}
                 >
                   {draft.isPlaying ? (
@@ -531,7 +519,7 @@ export function AdminLedControlPanel(): React.ReactElement {
                   onClick={() =>
                     updateDraft({ direction: draft.direction === 'rtl' ? 'ltr' : 'rtl' })
                   }
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-[#141c2c] border border-[#24314a] text-slate-300 hover:text-white cursor-pointer"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-[#141c2c] border border-slate-300 dark:border-[#24314a] text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
                   title="Toggle Scroll Direction"
                 >
                   <ArrowLeftRight className="w-3 h-3 text-teal-400" />

@@ -581,32 +581,32 @@ export function Sidebar(): React.ReactElement {
     const domainTitle = t(titleKey) || fallbackTitle;
 
     return (
-      <div key={id} className="space-y-1">
+      <div key={id} className="space-y-1.5">
         {!collapsed ? (
           <button
             type="button"
             onClick={() => toggleDomain(id)}
-            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-[#141c2c] transition-colors group cursor-pointer"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-800 dark:text-slate-100 bg-white/45 dark:bg-white/[0.04] hover:bg-sky-500/15 dark:hover:bg-sky-400/15 hover:text-indigo-950 dark:hover:text-white border border-slate-200/60 dark:border-slate-700/40 hover:border-sky-300/70 dark:hover:border-sky-400/40 transition-all duration-300 group cursor-pointer shadow-xs"
           >
-            <div className="flex items-center gap-2 min-w-0">
-              <DomainIcon className="w-3.5 h-3.5 text-amber-400 group-hover:text-amber-300 shrink-0" />
-              <span className="text-[11px] font-bold uppercase tracking-wider truncate">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <DomainIcon className="w-4 h-4 text-amber-600 dark:text-amber-300 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0" />
+              <span className="text-xs font-extrabold uppercase tracking-wider truncate">
                 {domainTitle}
               </span>
             </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-sky-100/90 dark:bg-slate-800/80 text-sky-900 dark:text-sky-200 border border-sky-300/70 dark:border-slate-600/70">
                 {items.length}
               </span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-300 ease-out ${
+                className={`w-4 h-4 text-slate-600 dark:text-slate-300 transition-transform duration-300 ease-out ${
                   isOpen ? 'rotate-0' : '-rotate-90'
                 }`}
               />
             </div>
           </button>
         ) : (
-          <div className="my-2 border-t border-slate-800/80 mx-2" title={domainTitle} />
+          <div className="my-2 border-t border-slate-300/70 dark:border-slate-700/70 mx-2" title={domainTitle} />
         )}
 
         <div
@@ -614,7 +614,7 @@ export function Sidebar(): React.ReactElement {
             isOpen || collapsed ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
           }`}
         >
-          <div className="overflow-hidden space-y-0.5 pt-0.5">
+          <div className="overflow-hidden space-y-1 pt-0.5">
             {items.map((item) => {
               // Dynamically map dashboard key to dedicated role portal path
               const itemHref = item.key === 'dashboard' ? getRolePortalPath(effectiveRole) : item.href;
@@ -633,28 +633,36 @@ export function Sidebar(): React.ReactElement {
                   onMouseEnter={() => router.prefetch(itemHref)}
                   onFocus={() => router.prefetch(itemHref)}
                   title={collapsed ? itemLabel : undefined}
-                  className={`group relative flex items-center ${
-                    collapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2'
-                  } rounded-xl text-xs transition-all duration-200 cursor-pointer ${
+                  className={`group relative flex items-center overflow-hidden ${
+                    collapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3.5 py-2.5'
+                  } rounded-xl text-[13px] sm:text-sm tracking-tight transition-all duration-300 ease-out cursor-pointer ${
                     isActive
-                      ? 'bg-amber-500/15 text-amber-300 font-semibold border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.12)]'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-[#141b29] font-medium'
+                      ? 'bg-gradient-to-r from-amber-400/30 via-sky-400/20 to-indigo-400/15 dark:from-amber-500/25 dark:via-amber-400/15 dark:to-sky-500/10 text-slate-950 dark:text-amber-100 font-extrabold border border-amber-500/60 dark:border-amber-400/50 shadow-[0_4px_14px_-4px_rgba(245,158,11,0.3)] translate-x-1'
+                      : 'text-slate-800 dark:text-slate-100 font-bold border border-transparent hover:text-indigo-950 dark:hover:text-white hover:bg-white/75 dark:hover:bg-white/10 hover:border-sky-300/70 dark:hover:border-sky-400/35 hover:translate-x-1.5 hover:shadow-sm'
                   }`}
                 >
-                  <div className={`flex items-center gap-2.5 ${collapsed ? 'justify-center' : 'min-w-0'}`}>
+                  {/* Hover sheen shimmer */}
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent"
+                  />
+
+                  <div className={`relative z-10 flex items-center gap-2.5 ${collapsed ? 'justify-center' : 'min-w-0'}`}>
                     <IconComponent
-                      className={`h-4 w-4 shrink-0 transition-transform ${
-                        isActive ? 'text-amber-400' : 'text-slate-400 group-hover:text-slate-200'
+                      className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${
+                        isActive
+                          ? 'text-amber-700 dark:text-amber-300 scale-110'
+                          : 'text-indigo-600 dark:text-sky-300 group-hover:text-amber-600 dark:group-hover:text-amber-300 group-hover:scale-115 group-hover:-rotate-6'
                       }`}
                     />
                     {!collapsed && <span className="truncate">{itemLabel}</span>}
                   </div>
                   {!collapsed && item.badge && (
                     <span
-                      className={`text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md shrink-0 ${
+                      className={`relative z-10 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full shrink-0 transition-transform duration-300 group-hover:scale-105 ${
                         isActive
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                          : item.badgeColor || 'bg-slate-800 text-slate-300'
+                          ? 'bg-amber-500/25 text-amber-950 dark:text-amber-200 border border-amber-500/45'
+                          : item.badgeColor || 'bg-slate-200/90 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 border border-slate-300/80 dark:border-slate-600/60'
                       }`}
                     >
                       {item.badge}
@@ -662,10 +670,10 @@ export function Sidebar(): React.ReactElement {
                   )}
                   {/* Floating tooltip for collapsed mode on hover */}
                   {collapsed && (
-                    <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1 text-xs font-medium text-white shadow-xl border border-slate-700">
+                    <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-extrabold text-slate-900 dark:text-white shadow-xl border border-sky-300 dark:border-slate-700">
                       <span>{itemLabel}</span>
                       {item.badge && (
-                        <span className="font-mono text-[10px] text-teal-300">({item.badge})</span>
+                        <span className="font-mono text-[10px] text-teal-700 dark:text-teal-300">({item.badge})</span>
                       )}
                     </div>
                   )}
@@ -680,29 +688,29 @@ export function Sidebar(): React.ReactElement {
 
   return (
     <>
-      {/* 1. DESKTOP / PC SIDEBAR (PERMANENTLY VISIBLE ON LG+ SCREENS, COLLAPSIBLE) */}
+      {/* 1. DESKTOP / PC SIDEBAR (FROSTED GLASS TRANSPARENCY + ANIMATED HOVER) */}
       <aside
         className={`hidden lg:flex ${
           isCollapsed ? 'w-18' : 'w-72 lg:w-76'
-        } flex-shrink-0 border-r border-[#1a2233] bg-[#0b0f17] text-white flex-col h-screen sticky top-0 shadow-2xl select-none z-20 transition-all duration-200`}
+        } flex-shrink-0 border-r border-sky-200/80 dark:border-slate-700/60 bg-white/70 dark:bg-slate-950/60 backdrop-blur-2xl text-slate-900 dark:text-slate-100 flex-col h-screen sticky top-0 shadow-[8px_0_30px_-10px_rgba(14,165,233,0.16)] dark:shadow-2xl select-none z-20 transition-all duration-300`}
       >
         {/* Brand Header */}
         <Link
           href={getRolePortalPath(effectiveRole)}
           className={`flex h-16 items-center ${
             isCollapsed ? 'justify-center px-2' : 'gap-3 px-4'
-          } border-b border-[#1a2233] flex-shrink-0 bg-[#080c14] hover:bg-[#101622] transition-colors group cursor-pointer`}
+          } border-b border-sky-200/70 dark:border-slate-800/70 flex-shrink-0 bg-white/55 dark:bg-slate-900/50 backdrop-blur-md hover:bg-sky-50/80 dark:hover:bg-slate-800/60 transition-all duration-300 group cursor-pointer`}
           title={t('hospital_name')}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-400 shrink-0 group-hover:scale-105 shadow-[0_0_12px_rgba(245,158,11,0.15)] transition-transform">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/25 to-orange-500/20 border border-amber-500/45 text-amber-700 dark:text-amber-300 shrink-0 group-hover:scale-110 group-hover:rotate-3 shadow-[0_0_16px_rgba(245,158,11,0.2)] transition-all duration-300">
             <Building2 className="h-5 w-5" />
           </div>
           {!isCollapsed && (
             <div className="min-w-0 flex-1">
-              <span className="text-xs sm:text-sm font-bold text-white tracking-tight leading-tight block group-hover:text-amber-300 transition-colors truncate">
+              <span className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight block group-hover:text-indigo-700 dark:group-hover:text-amber-300 transition-colors truncate">
                 {t('hospital_name')}
               </span>
-              <span className="text-[10px] font-medium text-amber-500/80 block truncate">
+              <span className="text-[11px] font-extrabold text-amber-700 dark:text-amber-400 block truncate">
                 Enterprise Clinical OS
               </span>
             </div>
@@ -712,17 +720,17 @@ export function Sidebar(): React.ReactElement {
         {/* Navigation Groups (Domain-Driven Flow) */}
         <nav className={`flex-1 overflow-y-auto space-y-4 ${isCollapsed ? 'p-1.5' : 'p-3'} custom-scrollbar`}>
           {isPatientRole ? (
-            <div className="space-y-1">
-              <span className="px-3 text-[11px] font-semibold uppercase tracking-wider text-teal-400 block mb-1.5">
+            <div className="space-y-1.5">
+              <span className="px-3 text-xs font-extrabold uppercase tracking-wider text-teal-800 dark:text-teal-300 block mb-1.5">
                 {language === 'om' ? 'Kutaa Dhukkubsataa' : language === 'am' ? 'የታካሚ ክፍል' : 'Patient Care Portal'}
               </span>
               {patientItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-300 font-bold text-xs"
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/35 text-teal-900 dark:text-teal-200 font-extrabold text-sm hover:translate-x-1 transition-all duration-300"
                 >
-                  <item.icon className="w-4 h-4" />
+                  <item.icon className="w-4.5 h-4.5" />
                   <span>{t(item.key)}</span>
                 </Link>
               ))}
@@ -733,13 +741,13 @@ export function Sidebar(): React.ReactElement {
         </nav>
 
         {/* Hospital Footer status & Collapse Toggle */}
-        <div className={`p-2.5 border-t border-[#1a2233] bg-[#080c14] space-y-2 text-xs`}>
+        <div className="p-2.5 border-t border-sky-200/70 dark:border-slate-800/70 bg-white/55 dark:bg-slate-900/50 backdrop-blur-md space-y-2 text-xs">
           {!isCollapsed ? (
             <>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                  <span className="text-[10px] font-mono font-semibold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-600/30 truncate">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span className="text-[11px] font-mono font-extrabold text-amber-950 dark:text-amber-200 bg-amber-200/80 dark:bg-amber-950/70 px-2.5 py-0.5 rounded-md border border-amber-400/60 dark:border-amber-600/40 truncate">
                     {effectiveRole.toUpperCase()} {simulatedRole ? '(SIM)' : ''}
                   </span>
                 </div>
@@ -747,7 +755,7 @@ export function Sidebar(): React.ReactElement {
                   type="button"
                   onClick={toggleCollapse}
                   title="Collapse sidebar to icon mode"
-                  className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-sky-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   aria-label="Collapse sidebar"
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -756,11 +764,11 @@ export function Sidebar(): React.ReactElement {
 
               {/* Administrative Supervisory Authority & Workstation Inspector */}
               {isSupervisorRole && (
-                <div className="rounded-xl bg-[#0c121e] border border-amber-500/30 p-2.5 space-y-2 shadow-inner">
+                <div className="rounded-xl bg-white/75 dark:bg-slate-900/70 backdrop-blur-md border border-amber-400/50 dark:border-amber-500/35 p-2.5 space-y-2 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-amber-400">
-                      <Eye className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
+                      <Eye className="w-4 h-4" />
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider">
                         {language === 'om' ? "To'annoo Ogeessotaa" : language === 'am' ? 'የስራ ክትትል' : 'Staff Oversight'}
                       </span>
                     </div>
@@ -771,15 +779,15 @@ export function Sidebar(): React.ReactElement {
                           setSimulatedRole(null);
                           router.push('/portal/admin');
                         }}
-                        className="flex items-center gap-1 text-[9px] font-bold text-rose-400 hover:text-rose-300 hover:underline cursor-pointer"
+                        className="flex items-center gap-1 text-[10px] font-extrabold text-rose-700 dark:text-rose-300 hover:underline cursor-pointer"
                       >
-                        <RotateCcw className="w-2.5 h-2.5" />
+                        <RotateCcw className="w-3 h-3" />
                         <span>{language === 'om' ? 'Deebi\'i' : 'Reset'}</span>
                       </button>
                     )}
                   </div>
 
-                  <p className="text-[10px] text-slate-400 leading-tight">
+                  <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 leading-tight">
                     {language === 'om'
                       ? "Kutaa hojii ogeessa kamiyyuu akka supervisor-tti to'achuuf filadhu:"
                       : 'Switch workstation perspective to supervise staff activities:'}
@@ -793,7 +801,7 @@ export function Sidebar(): React.ReactElement {
                       setSimulatedRole(nextRole === 'admin' ? null : nextRole);
                       router.push(getRolePortalPath(nextRole));
                     }}
-                    className="w-full bg-[#06090f] border border-amber-500/40 text-amber-200 text-[11px] rounded-lg px-2 py-1.5 font-semibold focus:outline-none focus:border-amber-400 cursor-pointer"
+                    className="w-full bg-white/95 dark:bg-slate-950/90 border border-amber-400/70 dark:border-amber-500/45 text-slate-900 dark:text-amber-100 text-xs rounded-lg px-2.5 py-1.5 font-bold focus:outline-none focus:border-amber-500 cursor-pointer"
                   >
                     <option value="admin">🛡️ ADMIN (Executive)</option>
                     <option value="doctor">🩺 DOCTOR (Clinical & EMR)</option>
@@ -813,9 +821,9 @@ export function Sidebar(): React.ReactElement {
                 type="button"
                 onClick={handleSidebarLogout}
                 title={language === 'om' ? "Sirna Keessaa Ba'i (Logout)" : language === 'am' ? 'ከስርዓቱ ውጣ (Logout)' : 'Sign out of HMIS'}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-2 px-3 text-xs shadow-md shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-[0.98] transition-all cursor-pointer border border-rose-400/30"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-extrabold py-2.5 px-3 text-xs sm:text-sm shadow-md shadow-rose-600/25 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-rose-400/40"
               >
-                <LogOut className="h-3.5 w-3.5 shrink-0" />
+                <LogOut className="h-4 w-4 shrink-0" />
                 <span>{language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Logout'}</span>
               </button>
             </>
@@ -834,7 +842,7 @@ export function Sidebar(): React.ReactElement {
                 type="button"
                 onClick={toggleCollapse}
                 title="Expand sidebar"
-                className="p-1.5 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-md text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-sky-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 aria-label="Expand sidebar"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -847,31 +855,31 @@ export function Sidebar(): React.ReactElement {
       {/* 2. MOBILE DRAWER OVERLAY (FOR SMARTPHONES & TABLETS - LG:HIDDEN) */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs lg:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm lg:hidden animate-in fade-in duration-200"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       {/* 3. MOBILE SLIDE-OVER DRAWER PANEL */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-[#0b0f17] text-white shadow-2xl flex flex-col lg:hidden transform transition-transform duration-200 ease-out border-r border-[#1a2233] ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-white/85 dark:bg-slate-950/80 backdrop-blur-2xl text-slate-900 dark:text-slate-100 shadow-2xl flex flex-col lg:hidden transform transition-transform duration-300 ease-out border-r border-sky-200/80 dark:border-slate-700/60 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Drawer Header with Brand & Close Button */}
-        <div className="flex h-16 items-center justify-between border-b border-[#1a2233] px-4 bg-[#080c14] shrink-0">
+        <div className="flex h-16 items-center justify-between border-b border-sky-200/70 dark:border-slate-800/70 px-4 bg-white/60 dark:bg-slate-900/55 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-400 shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 border border-amber-500/45 text-amber-700 dark:text-amber-300 shrink-0">
               <Building2 className="h-4.5 w-4.5" />
             </div>
-            <span className="text-xs sm:text-sm font-bold text-white truncate">
+            <span className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
               {t('hospital_name')}
             </span>
           </div>
           <button
             type="button"
             onClick={() => setIsMobileOpen(false)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-200/80 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             aria-label="Close menu"
           >
             <X className="h-4 w-4" />
@@ -881,8 +889,8 @@ export function Sidebar(): React.ReactElement {
         {/* Scrollable Workstation Links */}
         <nav className="flex-1 overflow-y-auto space-y-4 p-3 custom-scrollbar">
           {isPatientRole ? (
-            <div className="space-y-1">
-              <span className="px-3 text-[11px] font-semibold uppercase tracking-wider text-teal-400 block mb-1.5">
+            <div className="space-y-1.5">
+              <span className="px-3 text-xs font-extrabold uppercase tracking-wider text-teal-800 dark:text-teal-300 block mb-1.5">
                 {language === 'om' ? 'Kutaa Dhukkubsataa' : language === 'am' ? 'የታካሚ ክፍል' : 'Patient Care Portal'}
               </span>
               {patientItems.map((item) => (
@@ -890,9 +898,9 @@ export function Sidebar(): React.ReactElement {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMobileOpen(false)}
-                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-300 font-bold text-xs"
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/35 text-teal-900 dark:text-teal-200 font-extrabold text-sm"
                 >
-                  <item.icon className="w-4 h-4" />
+                  <item.icon className="w-4.5 h-4.5" />
                   <span>{t(item.key)}</span>
                 </Link>
               ))}
@@ -903,7 +911,7 @@ export function Sidebar(): React.ReactElement {
         </nav>
 
         {/* Mobile Drawer Footer with Logout Button */}
-        <div className="p-3 border-t border-[#1a2233] bg-[#080c14] shrink-0 space-y-2">
+        <div className="p-3 border-t border-sky-200/70 dark:border-slate-800/70 bg-white/60 dark:bg-slate-900/55 backdrop-blur-md shrink-0 space-y-2">
           {isSupervisorRole && (
             <select
               value={effectiveRole}
@@ -913,7 +921,7 @@ export function Sidebar(): React.ReactElement {
                 setIsMobileOpen(false);
                 router.push(getRolePortalPath(nextRole));
               }}
-              className="w-full bg-[#0c121e] border border-amber-500/40 text-amber-200 text-xs rounded-lg p-2 font-semibold"
+              className="w-full bg-white/95 dark:bg-slate-950/90 border border-amber-400/70 dark:border-amber-500/45 text-slate-900 dark:text-amber-100 text-xs rounded-lg p-2 font-bold"
             >
               <option value="admin">🛡️ ADMIN (Executive)</option>
               <option value="doctor">🩺 DOCTOR (Clinical)</option>
@@ -928,7 +936,7 @@ export function Sidebar(): React.ReactElement {
           <button
             type="button"
             onClick={handleSidebarLogout}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-2.5 px-4 text-sm shadow-md shadow-rose-950/50 active:scale-95 transition-all cursor-pointer border border-rose-400/30"
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-extrabold py-2.5 px-4 text-sm shadow-md shadow-rose-600/25 active:scale-95 transition-all cursor-pointer border border-rose-400/30"
           >
             <LogOut className="h-4 w-4" />
             <span>{language === 'om' ? "Sirna Keessaa Ba'i" : language === 'am' ? 'ከስርዓቱ ውጣ' : 'Sign Out'}</span>

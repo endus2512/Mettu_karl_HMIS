@@ -16,6 +16,7 @@ import { useAuth } from '@/lib/auth';
 import type { UserRole } from '@/types';
 import { useTranslation, type Language } from '@/lib/i18n';
 import { STAFF_ROLE_OPTIONS, formatRelativeTimestamp } from '@/lib/staffRoles';
+import { MorphingArrowButton } from '@/components/admin/MorphingArrowButton';
 import {
   Activity,
   ShieldCheck,
@@ -252,7 +253,7 @@ export function AdminWorkforceMonitor(): React.ReactElement {
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           {!isMinimized && (
             <>
-              <div className="inline-flex rounded-xl bg-[#0a0f18] border border-[#1e2738] p-0.5 text-[11px] font-semibold">
+              <div className="inline-flex rounded-xl bg-slate-100 dark:bg-[#0a0f18] border border-slate-300 dark:border-[#1e2738] p-0.5 text-xs font-bold">
                 {(
                   [
                     ['all', `All (${summary?.total_staff ?? 0})`],
@@ -268,9 +269,9 @@ export function AdminWorkforceMonitor(): React.ReactElement {
                     className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                       statusFilter === key
                         ? key === 'blocked'
-                          ? 'bg-rose-500 text-white font-bold'
-                          : 'bg-emerald-500 text-slate-950 font-bold'
-                        : 'text-slate-400 hover:text-white'
+                          ? 'bg-rose-600 text-white font-extrabold'
+                          : 'bg-emerald-500 text-slate-950 font-extrabold'
+                        : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
                     }`}
                   >
                     {label}
@@ -278,36 +279,34 @@ export function AdminWorkforceMonitor(): React.ReactElement {
                 ))}
               </div>
 
-              <button
-                type="button"
+              <MorphingArrowButton
+                variant="neutral"
+                size="sm"
+                icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+                label={lang === 'om' ? 'Haaromsi' : 'Refresh'}
                 onClick={() => {
                   setIsLoading(true);
                   void fetchWorkforce();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#151e30] hover:bg-[#1c2840] border border-[#25334d] text-xs font-semibold text-slate-200 cursor-pointer"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-                <span>{lang === 'om' ? 'Haaromsi' : 'Refresh'}</span>
-              </button>
+              />
             </>
           )}
 
-          <button
-            type="button"
-            onClick={() => setIsMinimized((prev) => !prev)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-emerald-300 dark:border-emerald-400/45 bg-emerald-50 dark:bg-[#1a2640] hover:bg-emerald-100 dark:hover:bg-[#233252] text-xs sm:text-sm font-extrabold text-emerald-900 dark:text-emerald-200 hover:scale-[1.03] transition-all cursor-pointer"
-          >
-            {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-            <span>
-              {isMinimized
+          <MorphingArrowButton
+            variant="emerald"
+            size="sm"
+            isExpanded={!isMinimized}
+            label={
+              isMinimized
                 ? lang === 'om'
                   ? 'Bani (Expand)'
                   : 'Expand'
                 : lang === 'om'
                 ? 'Xiqeessi (Minimize)'
-                : 'Minimize'}
-            </span>
-          </button>
+                : 'Minimize'
+            }
+            onClick={() => setIsMinimized((prev) => !prev)}
+          />
         </div>
       </div>
 
@@ -316,7 +315,7 @@ export function AdminWorkforceMonitor(): React.ReactElement {
           {/* Filters Row */}
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-500 dark:text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
@@ -326,7 +325,7 @@ export function AdminWorkforceMonitor(): React.ReactElement {
                 ? 'Maqaa, ID, kutaa ykn ga’ee hojjettootaa barbaadi...'
                 : 'Search active or offline staff by Name, Username, Staff ID, or Department...'
             }
-            className="w-full h-9 rounded-xl bg-[#0a0f18] border border-[#1e2738] pl-9 pr-3 text-xs text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none"
+            className="w-full h-10 rounded-xl bg-white dark:bg-[#0a0f18] border border-slate-300 dark:border-[#1e2738] pl-9 pr-3 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none"
           />
         </div>
 
@@ -334,7 +333,7 @@ export function AdminWorkforceMonitor(): React.ReactElement {
           aria-label="Filter workforce by role"
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="h-9 rounded-xl bg-[#0a0f18] border border-[#1e2738] px-3 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none"
+          className="h-10 rounded-xl bg-white dark:bg-[#0a0f18] border border-slate-300 dark:border-[#1e2738] px-3 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:outline-none"
         >
           <option value="all">All Roles</option>
           <option value="doctor">Doctors</option>
@@ -351,11 +350,11 @@ export function AdminWorkforceMonitor(): React.ReactElement {
       {/* Workforce Directory Rows */}
       <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
         {isLoading && !summary ? (
-          <div className="py-6 text-center text-xs text-slate-400">
+          <div className="py-6 text-center text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
             Loading live staff workforce status...
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="py-6 text-center text-xs text-slate-400">
+          <div className="py-6 text-center text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
             No matching staff records found.
           </div>
         ) : (
@@ -369,69 +368,69 @@ export function AdminWorkforceMonitor(): React.ReactElement {
             return (
               <div
                 key={member.id}
-                className={`rounded-xl border p-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3 ${
+                className={`rounded-xl border-2 p-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3 ${
                   isBlocked
-                    ? 'bg-rose-950/15 border-rose-500/35'
+                    ? 'bg-rose-50 dark:bg-rose-950/25 border-rose-300 dark:border-rose-500/40'
                     : isWorking
-                    ? 'bg-emerald-950/15 border-emerald-500/35'
-                    : 'bg-[#0b101b] border-[#1b2436]'
+                    ? 'bg-emerald-50/90 dark:bg-emerald-950/25 border-emerald-300 dark:border-emerald-500/40'
+                    : 'bg-white/95 dark:bg-[#0b101b] border-slate-200 dark:border-[#1b2436]'
                 }`}
               >
                 <div className="space-y-1 min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-bold text-white">{member.full_name}</span>
-                    <span className="px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[10px] font-mono text-teal-300">
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">{member.full_name}</span>
+                    <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-[11px] font-mono font-bold text-teal-800 dark:text-teal-300">
                       {member.staff_id || member.username}
                     </span>
-                    <span className="px-2 py-0.5 rounded-md bg-indigo-500/15 border border-indigo-500/30 text-[10px] font-bold text-indigo-300 uppercase">
+                    <span className="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-500/20 border border-indigo-300 dark:border-indigo-500/35 text-[11px] font-extrabold text-indigo-900 dark:text-indigo-200 uppercase">
                       {member.role}
                     </span>
 
                     {isWorking && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-[10px] font-bold text-emerald-300">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-400 text-[10px] font-extrabold text-emerald-900 dark:text-emerald-200">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
                         WORKING NOW
                       </span>
                     )}
                     {isRecent && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-[10px] font-bold text-cyan-300">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 border border-cyan-400 text-[10px] font-extrabold text-cyan-900 dark:text-cyan-200">
                         <Clock className="w-3 h-3" />
                         RECENTLY ACTIVE
                       </span>
                     )}
                     {member.work_status === 'offline' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-bold text-slate-400">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-[10px] font-extrabold text-slate-800 dark:text-slate-300">
                         OFFLINE / INACTIVE
                       </span>
                     )}
                     {member.work_status === 'pending' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-[10px] font-bold text-amber-300">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 border border-amber-400 text-[10px] font-extrabold text-amber-900 dark:text-amber-200">
                         PENDING APPROVAL
                       </span>
                     )}
                     {isBlocked && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/50 text-[10px] font-bold text-rose-300">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-500/20 border border-rose-400 text-[10px] font-extrabold text-rose-900 dark:text-rose-200">
                         <Lock className="w-3 h-3" />
                         BLOCKED
                       </span>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-400">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
                     {member.last_activity_path && member.last_activity_path !== 'LOGGED_OUT' && (
-                      <span className="font-mono text-emerald-300">
+                      <span className="font-mono font-bold text-emerald-800 dark:text-emerald-300">
                         Station: {member.last_activity_path}
                       </span>
                     )}
                     <span>
                       Last Seen:{' '}
-                      <strong className="text-slate-200">
+                      <strong className="text-slate-900 dark:text-white">
                         {formatRelativeTimestamp(member.last_seen_at || member.last_login_at)}
                       </strong>
                     </span>
                     <span>
                       First Login:{' '}
-                      <strong className="text-slate-300">
+                      <strong className="text-slate-900 dark:text-white">
                         {formatRelativeTimestamp(member.first_login_at)}
                       </strong>
                     </span>
@@ -453,7 +452,7 @@ export function AdminWorkforceMonitor(): React.ReactElement {
                           [member.id]: e.target.value as UserRole,
                         }))
                       }
-                      className="h-8 rounded-lg bg-[#090e18] border border-[#24324c] px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                      className="h-8 rounded-lg bg-white dark:bg-[#090e18] border border-slate-300 dark:border-[#24324c] px-2 text-xs font-bold text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-none"
                     >
                       {STAFF_ROLE_OPTIONS.filter((opt) => !opt.superAdminOnly || isSuperAdmin).map(
                         (opt) => (
@@ -464,40 +463,37 @@ export function AdminWorkforceMonitor(): React.ReactElement {
                       )}
                     </select>
 
-                    <button
-                      type="button"
+                    <MorphingArrowButton
+                      variant="neutral"
+                      size="xs"
                       disabled={isBusy}
+                      icon={<ShieldCheck className="w-3.5 h-3.5 text-teal-600 dark:text-teal-300" />}
+                      label="Set Role"
                       onClick={() => void handleControl(member, 'update_role')}
-                      className="h-8 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold text-slate-200 cursor-pointer disabled:opacity-50"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 inline mr-1 text-teal-400" />
-                      Set Role
-                    </button>
+                    />
 
                     {isBlocked || member.work_status === 'pending' ? (
-                      <button
-                        type="button"
+                      <MorphingArrowButton
+                        variant="emerald"
+                        size="xs"
                         disabled={isBusy}
+                        icon={<UserCheck className="w-3.5 h-3.5" />}
+                        label={isBlocked ? 'Unblock & Allow' : 'Approve & Allow'}
                         onClick={() => void handleControl(member, 'activate')}
-                        className="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                      >
-                        <UserCheck className="w-3.5 h-3.5" />
-                        <span>{isBlocked ? 'Unblock & Allow' : 'Approve & Allow'}</span>
-                      </button>
+                      />
                     ) : (
-                      <button
-                        type="button"
+                      <MorphingArrowButton
+                        variant="rose"
+                        size="xs"
                         disabled={isBusy}
+                        icon={<UserX className="w-3.5 h-3.5" />}
+                        label="Block Staff"
                         onClick={() => void handleControl(member, 'block')}
-                        className="h-8 px-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                      >
-                        <UserX className="w-3.5 h-3.5" />
-                        <span>Block Staff</span>
-                      </button>
+                      />
                     )}
                   </div>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-[10px] font-bold text-amber-300 shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-500/20 border border-amber-400/60 text-[11px] font-extrabold text-amber-900 dark:text-amber-200 shrink-0">
                     <ShieldBan className="w-3 h-3" />
                     PRIMARY ROOT ADMIN
                   </span>

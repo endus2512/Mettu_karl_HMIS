@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
+import { MorphingArrowButton } from '@/components/admin/MorphingArrowButton';
 
 export interface AdminDirectoryUser {
   id: number;
@@ -343,15 +344,15 @@ export function AdminUserDirectoryPanel() {
           </div>
         </div>
 
-        <button
-          type="button"
+        <MorphingArrowButton
+          variant="amber"
+          size="md"
+          isExpanded={!isMinimized}
+          icon={<KeyRound className="w-4 h-4" />}
+          label={isMinimized ? 'Open Directory & Passwords' : 'Minimize'}
           onClick={() => setIsMinimized((prev) => !prev)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 shadow-md shadow-amber-500/20 border border-amber-300 hover:scale-[1.03] transition-all cursor-pointer self-start sm:self-auto"
-        >
-          <KeyRound className="w-4 h-4" />
-          <span>{isMinimized ? 'Open Directory & Passwords' : 'Minimize'}</span>
-          {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-        </button>
+          className="self-start sm:self-auto"
+        />
       </div>
 
       {/* Expanded Directory & Recovery Console */}
@@ -443,15 +444,15 @@ export function AdminUserDirectoryPanel() {
                   className="w-full h-10 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#182238] pl-9 pr-3 text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-amber-500 focus:outline-none"
                 />
               </div>
-              <button
-                type="button"
-                onClick={() => fetchDirectory()}
+              <MorphingArrowButton
+                variant="neutral"
+                size="sm"
                 disabled={loading}
-                className="h-10 px-3.5 rounded-xl bg-white dark:bg-[#192338] hover:bg-sky-50 dark:hover:bg-[#22304d] border border-slate-300 dark:border-slate-600 text-xs sm:text-sm font-bold text-slate-800 dark:text-white inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                <span>Refresh</span>
-              </button>
+                icon={<RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />}
+                label="Refresh"
+                onClick={() => fetchDirectory()}
+                className="h-10"
+              />
             </div>
           </div>
 
@@ -595,16 +596,20 @@ export function AdminUserDirectoryPanel() {
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                      <button
-                        type="button"
+                      <MorphingArrowButton
+                        variant="indigo"
+                        size="sm"
+                        isExpanded={isEditing}
+                        icon={<Edit3 className="w-4 h-4" />}
+                        label={isEditing ? 'Close Edit' : 'View / Edit Bio & Credentials'}
                         onClick={() => (isEditing ? setEditingUserId(null) : openEditor(u))}
-                        className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 text-indigo-800 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-400/40 inline-flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] transition-all"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        <span>{isEditing ? 'Close Edit' : 'View / Edit Bio & Credentials'}</span>
-                      </button>
-                      <button
-                        type="button"
+                      />
+                      <MorphingArrowButton
+                        variant="amber-soft"
+                        size="sm"
+                        isExpanded={isResetting}
+                        icon={<KeyRound className="w-4 h-4" />}
+                        label={isResetting ? 'Cancel Reset' : 'Quick Reset Pw'}
                         onClick={() => {
                           setEditingUserId(null);
                           setResetUserId(isResetting ? null : u.id);
@@ -612,11 +617,7 @@ export function AdminUserDirectoryPanel() {
                           setResetReason('');
                           setResetActivate(!u.is_active || u.approval_status !== 'approved');
                         }}
-                        className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-amber-100 dark:bg-amber-500/20 hover:bg-amber-200 dark:hover:bg-amber-500/30 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-400/40 inline-flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] transition-all"
-                      >
-                        <KeyRound className="w-4 h-4" />
-                        <span>{isResetting ? 'Cancel Reset' : 'Quick Reset Pw'}</span>
-                      </button>
+                      />
                     </div>
                   </div>
 

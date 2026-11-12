@@ -18,6 +18,7 @@ import { useAuth } from '@/lib/auth';
 import type { UserRole } from '@/types';
 import { useTranslation, type Language } from '@/lib/i18n';
 import { playClinicalAudioAlert } from '@/lib/notifications';
+import { MorphingArrowButton } from '@/components/admin/MorphingArrowButton';
 import {
   REQUEST_TO_DEFAULT_ROLE,
   STAFF_ROLE_GROUPS,
@@ -502,30 +503,25 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
 
         {/* Filter, Sound & Minimize/Expand Controls */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setSoundEnabled(!soundEnabled)}
+          <MorphingArrowButton
+            variant={soundEnabled ? 'rose' : 'neutral'}
+            size="sm"
+            icon={soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            label={soundEnabled ? 'Alarm ON' : 'Muted'}
             title={soundEnabled ? 'Mute alarm siren' : 'Enable alarm siren'}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs sm:text-sm font-extrabold hover:scale-[1.03] transition-all cursor-pointer ${
-              soundEnabled
-                ? 'bg-rose-100 dark:bg-rose-500/20 border-rose-400 text-rose-800 dark:text-rose-200'
-                : 'bg-white dark:bg-[#1a2640] border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300'
-            }`}
-          >
-            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            <span>{soundEnabled ? 'Alarm ON' : 'Muted'}</span>
-          </button>
+            onClick={() => setSoundEnabled(!soundEnabled)}
+          />
 
           {!isMinimized && (
             <>
-              <div className="inline-flex rounded-xl bg-[#0a0f18] border border-[#1e2738] p-0.5 text-[11px] font-semibold">
+              <div className="inline-flex rounded-xl bg-slate-100 dark:bg-[#0a0f18] border border-slate-300 dark:border-[#1e2738] p-0.5 text-xs font-bold">
                 <button
                   type="button"
                   onClick={() => setFilterTab('pending')}
                   className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                     filterTab === 'pending'
-                      ? 'bg-amber-500 text-slate-950 font-bold'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-amber-500 text-slate-950 font-extrabold'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
                   }`}
                 >
                   Pending ({counts.pending})
@@ -535,8 +531,8 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
                   onClick={() => setFilterTab('flagged')}
                   className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                     filterTab === 'flagged'
-                      ? 'bg-rose-500 text-white font-bold'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-rose-600 text-white font-extrabold'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
                   }`}
                 >
                   Risk Alerts ({counts.flagged})
@@ -546,42 +542,40 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
                   onClick={() => setFilterTab('all')}
                   className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                     filterTab === 'all'
-                      ? 'bg-teal-500 text-slate-950 font-bold'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-teal-500 text-slate-950 font-extrabold'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
                   }`}
                 >
                   All ({counts.total})
                 </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => void fetchRequests()}
+              <MorphingArrowButton
+                variant="neutral"
+                size="sm"
                 disabled={isLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#151e30] hover:bg-[#1c2840] border border-[#25334d] text-xs font-semibold text-slate-200 cursor-pointer disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-                <span>{lang === 'om' ? 'Haaromsi' : 'Refresh'}</span>
-              </button>
+                icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+                label={lang === 'om' ? 'Haaromsi' : 'Refresh'}
+                onClick={() => void fetchRequests()}
+              />
             </>
           )}
 
-          <button
-            type="button"
-            onClick={() => setIsMinimized((prev) => !prev)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#1a2640] hover:bg-sky-50 dark:hover:bg-[#233252] text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white hover:scale-[1.03] transition-all cursor-pointer"
-          >
-            {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-            <span>
-              {isMinimized
+          <MorphingArrowButton
+            variant="amber-soft"
+            size="sm"
+            isExpanded={!isMinimized}
+            label={
+              isMinimized
                 ? lang === 'om'
                   ? 'Bani (Expand)'
                   : 'Expand'
                 : lang === 'om'
                 ? 'Xiqeessi (Minimize)'
-                : 'Minimize'}
-            </span>
-          </button>
+                : 'Minimize'
+            }
+            onClick={() => setIsMinimized((prev) => !prev)}
+          />
         </div>
       </div>
 
@@ -592,17 +586,17 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
         id="admin-role-chunk-filters"
         className="flex flex-wrap items-center gap-1.5 pt-1"
       >
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 mr-1">
-          <Layers className="w-3.5 h-3.5 text-amber-400" />
+        <span className="inline-flex items-center gap-1 text-xs font-extrabold text-slate-800 dark:text-slate-200 mr-1">
+          <Layers className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
           <span>{lang === 'om' ? 'Gahee Hojiin Qoodi:' : 'Group by Role:'}</span>
         </span>
         <button
           type="button"
           onClick={() => setSelectedRoleGroup('all')}
-          className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer ${
+          className={`px-2.5 py-1 rounded-full text-xs font-extrabold border transition cursor-pointer ${
             selectedRoleGroup === 'all'
-              ? 'bg-amber-500 text-slate-950 border-amber-400'
-              : 'bg-[#0a0f18] text-slate-300 border-[#222b3d] hover:border-slate-500'
+              ? 'bg-amber-500 text-slate-950 border-amber-500'
+              : 'bg-white dark:bg-[#0a0f18] text-slate-800 dark:text-slate-200 border-slate-300 dark:border-[#222b3d] hover:border-amber-400'
           }`}
         >
           {lang === 'om' ? 'Hunda (Qoodamee)' : 'All Roles (Chunked)'} ({filteredByTabAndSearch.length})
@@ -616,9 +610,9 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
               key={group.key}
               type="button"
               onClick={() => setSelectedRoleGroup(isSelected ? 'all' : group.key)}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer ${
+              className={`px-2.5 py-1 rounded-full text-xs font-extrabold border transition cursor-pointer ${
                 isSelected
-                  ? 'bg-teal-500 text-slate-950 border-teal-400'
+                  ? 'bg-teal-500 text-slate-950 border-teal-500'
                   : `${group.badgeClass} hover:brightness-110`
               }`}
             >
@@ -632,12 +626,12 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
       {(unreadAlarms.length > 0 || showAllAlarms) && (
         <div
           id="admin-live-security-alarms"
-          className="rounded-xl border border-rose-500/40 bg-rose-950/15 p-3.5 space-y-3"
+          className="rounded-xl border-2 border-rose-400/70 bg-rose-50 dark:bg-rose-950/20 p-3.5 space-y-3"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <BellRing className="w-4 h-4 text-rose-400 animate-pulse" />
-              <span className="text-xs font-extrabold text-rose-200 uppercase tracking-wide">
+              <BellRing className="w-4 h-4 text-rose-600 dark:text-rose-400 animate-pulse" />
+              <span className="text-xs sm:text-sm font-extrabold text-rose-900 dark:text-rose-200 uppercase tracking-wide">
                 {lang === 'om'
                   ? `Alarmii Nageenyaa Battalaa — Gahee Hojiin Qoodame (${unreadAlarms.length} Haaraa)`
                   : `Real-Time Security & Sign-Up Alarms — Grouped by Role (${unreadAlarms.length} Unread)`}
@@ -646,7 +640,7 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
             <button
               type="button"
               onClick={() => setShowAllAlarms(!showAllAlarms)}
-              className="text-[11px] font-semibold text-rose-300 hover:text-white underline cursor-pointer"
+              className="text-xs font-extrabold text-rose-700 dark:text-rose-300 hover:underline cursor-pointer"
             >
               {showAllAlarms
                 ? `Show Unread Only (${unreadAlarms.length})`
@@ -655,7 +649,7 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
           </div>
 
           {chunkedAlarms.length === 0 ? (
-            <div className="text-[11px] text-slate-400 py-2">
+            <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 py-2">
               {lang === 'om'
                 ? 'Garee kana keessa alarmiin haaraan hin jiru.'
                 : 'No security alarms in this role group.'}
