@@ -31,6 +31,9 @@ async def ensure_database_ready() -> None:
         from app.models.user import User, UserRole
 
         async with engine.begin() as conn:
+            if conn.dialect.name == "postgresql":
+                # Serialize concurrent serverless cold-start DDL across Vercel Lambda containers
+                await conn.execute(text("SELECT pg_advisory_xact_lock(78341209)"))
             await conn.run_sync(Base.metadata.create_all)
 
             def _ensure_audit_columns(sync_conn) -> None:
