@@ -606,4 +606,39 @@ main {
   background-color: #0e131f !important;
 }
 
+/* =========================================================================
+   Compact 3D KPI Cube Float & Shimmer Animations
+   ========================================================================= */
+@keyframes mkhCubeFloat {
+  0%, 100% {
+    transform: translateY(0px) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotateX(2deg);
+  }
+}
+
+@keyframes mkhCubeSweep {
+  0% {
+    transform: translateX(-140%) skewX(-20deg);
+  }
+  45%, 100% {
+    transform: translateX(220%) skewX(-20deg);
+  }
+}
+
+.mkh-cube-tile {
+  animation: mkhCubeFloat 4.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.mkh-cube-tile:hover {
+  animation-play-state: paused;
+}
+
+.mkh-cube-sweep {
+  animation: mkhCubeSweep 5.5s ease-in-out infinite;
+}
+
+
 

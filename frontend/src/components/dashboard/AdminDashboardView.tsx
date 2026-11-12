@@ -352,139 +352,155 @@ export function AdminDashboardView(): React.ReactElement {
       )}
 
       {/* ================================================================= */}
-      {/* 2. COMPACT PORTABLE 3D CUBE KPI TILES (PC, TABLET & MOBILE)       */}
+      {/* 2. ONE UNIFIED RECTANGLE HOLDING 4 COMPACT ANIMATED 3D MINI CUBES */}
       {/* ================================================================= */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
-        {/* Cube 1: Bed Occupancy */}
-        <div
-          onClick={() => setIsEditModalOpen(true)}
-          className="w-full max-w-[172px] sm:max-w-[184px] aspect-square mx-auto rounded-2xl border-2 border-sky-400/80 dark:border-sky-400/50 bg-gradient-to-br from-white via-sky-50 to-sky-100/90 dark:from-[#172744] dark:via-[#1b2e52] dark:to-[#1d2849] p-3 sm:p-3.5 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_8px_20px_-6px_rgba(14,165,233,0.22),4px_4px_0_0_rgba(56,189,248,0.28)] hover:-translate-y-1.5 hover:scale-[1.04] hover:border-sky-500 hover:shadow-[0_14px_28px_-6px_rgba(14,165,233,0.35),6px_6px_0_0_rgba(56,189,248,0.4)] transition-all duration-300 ease-out"
-        >
-          <div className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-sky-400/20 blur-xl group-hover:scale-150 transition-transform duration-500" />
-          <div className="flex items-start justify-between gap-1.5 relative z-10">
-            <span className="text-xs sm:text-[13px] font-extrabold text-slate-900 dark:text-white leading-tight">
-              1. {language === 'om' ? 'Siree Dhukkubsataa' : 'Bed Occupancy'}
-            </span>
-            <span className="h-7 w-7 rounded-xl bg-sky-500/20 dark:bg-sky-400/25 border border-sky-400/50 text-sky-800 dark:text-sky-200 flex items-center justify-center shrink-0 group-hover:rotate-6 group-hover:scale-110 transition-transform duration-300">
-              <Edit3 className="w-3.5 h-3.5" />
-            </span>
-          </div>
-
-          <div className="relative z-10 space-y-1.5 my-auto">
-            <div className="flex items-baseline justify-between gap-1 flex-wrap">
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-950 dark:text-white">
-                  {occupiedBeds}
-                </span>
-                <span className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
-                  / {totalBeds}
-                </span>
-              </div>
-              <span
-                className={`text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-lg border ${
-                  occupancyPercent > 85
-                    ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border-rose-400'
-                    : 'bg-emerald-100 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border-emerald-400'
-                }`}
-              >
-                {occupancyPercent}%
+      <div className="rounded-3xl border-2 border-sky-300/85 dark:border-sky-400/45 bg-gradient-to-br from-white/95 via-sky-50/85 to-indigo-50/85 dark:from-[#121d36]/95 dark:via-[#162442]/95 dark:to-[#131d38]/95 backdrop-blur-md p-3 sm:p-4 shadow-[0_12px_30px_-8px_rgba(14,165,233,0.22)] hover:shadow-[0_16px_36px_-8px_rgba(14,165,233,0.34)] transition-all duration-300 animate-smooth-in">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-3xl mx-auto">
+          {/* Mini Cube 1: Bed Occupancy */}
+          <div
+            onClick={() => setIsEditModalOpen(true)}
+            style={{ animationDelay: '0s' }}
+            className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-sky-400/85 dark:border-sky-400/55 bg-gradient-to-br from-white via-sky-50 to-sky-100/95 dark:from-[#182949] dark:via-[#1d3258] dark:to-[#1f2b50] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(14,165,233,0.28),3px_3px_0_0_rgba(56,189,248,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-sky-500 hover:shadow-[0_14px_24px_-4px_rgba(14,165,233,0.42),5px_5px_0_0_rgba(56,189,248,0.45)] transition-all duration-300 ease-out"
+          >
+            <div className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/45 dark:via-sky-200/20 to-transparent mkh-cube-sweep" />
+            <div className="pointer-events-none absolute -right-5 -top-5 w-16 h-16 rounded-full bg-sky-400/25 blur-lg group-hover:scale-150 transition-transform duration-500" />
+            <div className="flex items-start justify-between gap-1 relative z-10">
+              <span className="text-[11px] sm:text-xs font-extrabold text-slate-900 dark:text-white leading-tight">
+                1. {language === 'om' ? 'Siree' : 'Bed Occupancy'}
+              </span>
+              <span className="h-6 w-6 rounded-lg bg-sky-500/20 dark:bg-sky-400/25 border border-sky-400/60 text-sky-800 dark:text-sky-200 flex items-center justify-center shrink-0 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300">
+                <Edit3 className="w-3 h-3" />
               </span>
             </div>
-            <div className="h-2 w-full bg-slate-200/90 dark:bg-slate-700/80 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${
-                  occupancyPercent > 85
-                    ? 'bg-gradient-to-r from-rose-500 to-orange-500'
-                    : 'bg-gradient-to-r from-sky-500 to-emerald-500'
-                }`}
-                style={{ width: `${Math.min(occupancyPercent, 100)}%` }}
-              />
+
+            <div className="relative z-10 space-y-1 my-auto">
+              <div className="flex items-baseline justify-between gap-1">
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-lg sm:text-xl font-black tracking-tight text-slate-950 dark:text-white">
+                    {occupiedBeds}
+                  </span>
+                  <span className="text-[11px] font-extrabold text-slate-700 dark:text-slate-200">
+                    /{totalBeds}
+                  </span>
+                </div>
+                <span
+                  className={`text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-md border ${
+                    occupancyPercent > 85
+                      ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border-rose-400'
+                      : 'bg-emerald-100 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border-emerald-400'
+                  }`}
+                >
+                  {occupancyPercent}%
+                </span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-200/90 dark:bg-slate-700/80 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${
+                    occupancyPercent > 85
+                      ? 'bg-gradient-to-r from-rose-500 to-orange-500'
+                      : 'bg-gradient-to-r from-sky-500 to-emerald-500'
+                  }`}
+                  style={{ width: `${Math.min(occupancyPercent, 100)}%` }}
+                />
+              </div>
             </div>
+
+            <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
+              {language === 'om' ? `${wards.length} Kutaalee Live` : `${wards.length} Wards Live`}
+            </p>
           </div>
 
-          <p className="relative z-10 text-[11px] font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2">
-            {language === 'om' ? `${wards.length} Kutaalee Yaalaa • Kallattii` : `${wards.length} Hospital Wards Live`}
-          </p>
-        </div>
-
-        {/* Cube 2: Active Consultations */}
-        <div className="w-full max-w-[172px] sm:max-w-[184px] aspect-square mx-auto rounded-2xl border-2 border-teal-400/80 dark:border-teal-400/50 bg-gradient-to-br from-white via-teal-50 to-cyan-100/80 dark:from-[#123240] dark:via-[#163c4d] dark:to-[#17324a] p-3 sm:p-3.5 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_8px_20px_-6px_rgba(20,184,166,0.22),4px_4px_0_0_rgba(45,212,191,0.28)] hover:-translate-y-1.5 hover:scale-[1.04] hover:border-teal-500 hover:shadow-[0_14px_28px_-6px_rgba(20,184,166,0.35),6px_6px_0_0_rgba(45,212,191,0.4)] transition-all duration-300 ease-out">
-          <div className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-teal-400/20 blur-xl group-hover:scale-150 transition-transform duration-500" />
-          <div className="flex items-start justify-between gap-1.5 relative z-10">
-            <span className="text-xs sm:text-[13px] font-extrabold text-slate-900 dark:text-white leading-tight">
-              2. {language === 'om' ? 'Qorannoo Yaalaa' : 'Active Consultations'}
-            </span>
-            <div className="h-7 w-7 rounded-xl bg-teal-500/20 dark:bg-teal-400/25 border border-teal-400/50 text-teal-800 dark:text-teal-200 flex items-center justify-center shrink-0 group-hover:-rotate-6 group-hover:scale-110 transition-transform duration-300">
-              <Stethoscope className="w-3.5 h-3.5" />
+          {/* Mini Cube 2: Active Consultations */}
+          <div
+            style={{ animationDelay: '0.45s' }}
+            className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-teal-400/85 dark:border-teal-400/55 bg-gradient-to-br from-white via-teal-50 to-cyan-100/85 dark:from-[#123442] dark:via-[#163e50] dark:to-[#18354e] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(20,184,166,0.28),3px_3px_0_0_rgba(45,212,191,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-teal-500 hover:shadow-[0_14px_24px_-4px_rgba(20,184,166,0.42),5px_5px_0_0_rgba(45,212,191,0.45)] transition-all duration-300 ease-out"
+          >
+            <div className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/45 dark:via-teal-200/20 to-transparent mkh-cube-sweep" style={{ animationDelay: '1.1s' }} />
+            <div className="pointer-events-none absolute -right-5 -top-5 w-16 h-16 rounded-full bg-teal-400/25 blur-lg group-hover:scale-150 transition-transform duration-500" />
+            <div className="flex items-start justify-between gap-1 relative z-10">
+              <span className="text-[11px] sm:text-xs font-extrabold text-slate-900 dark:text-white leading-tight">
+                2. {language === 'om' ? 'Qorannoo' : 'Active Consultations'}
+              </span>
+              <div className="h-6 w-6 rounded-lg bg-teal-500/20 dark:bg-teal-400/25 border border-teal-400/60 text-teal-800 dark:text-teal-200 flex items-center justify-center shrink-0 group-hover:-rotate-12 group-hover:scale-110 transition-transform duration-300">
+                <Stethoscope className="w-3 h-3" />
+              </div>
             </div>
-          </div>
 
-          <div className="relative z-10 my-auto space-y-1">
-            <span className="block text-xl sm:text-2xl font-black tracking-tight text-teal-900 dark:text-teal-200">
-              142
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-extrabold px-2 py-0.5 rounded-lg bg-teal-100 dark:bg-teal-500/25 text-teal-950 dark:text-teal-100 border border-teal-400/60">
-              <span className="h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-300 animate-ping" />
-              OPD &amp; IPD Daily
-            </span>
-          </div>
-
-          <p className="relative z-10 text-[11px] font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2">
-            {language === 'om' ? 'Doktoorota 12 fi Ispeeshaalistii 6' : '12 Doctors & 6 Specialists active'}
-          </p>
-        </div>
-
-        {/* Cube 3: Revenue & Telebirr */}
-        <div className="w-full max-w-[172px] sm:max-w-[184px] aspect-square mx-auto rounded-2xl border-2 border-emerald-400/80 dark:border-emerald-400/50 bg-gradient-to-br from-white via-emerald-50 to-teal-100/80 dark:from-[#10332b] dark:via-[#153e35] dark:to-[#15303f] p-3 sm:p-3.5 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_8px_20px_-6px_rgba(16,185,129,0.22),4px_4px_0_0_rgba(52,211,153,0.28)] hover:-translate-y-1.5 hover:scale-[1.04] hover:border-emerald-500 hover:shadow-[0_14px_28px_-6px_rgba(16,185,129,0.35),6px_6px_0_0_rgba(52,211,153,0.4)] transition-all duration-300 ease-out">
-          <div className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-emerald-400/20 blur-xl group-hover:scale-150 transition-transform duration-500" />
-          <div className="flex items-start justify-between gap-1.5 relative z-10">
-            <span className="text-xs sm:text-[13px] font-extrabold text-slate-900 dark:text-white leading-tight">
-              3. {language === 'om' ? 'Galii Telebirr & CBHI' : 'Revenue & Telebirr'}
-            </span>
-            <div className="h-7 w-7 rounded-xl bg-emerald-500/20 dark:bg-emerald-400/25 border border-emerald-400/50 text-emerald-800 dark:text-emerald-200 flex items-center justify-center shrink-0 group-hover:rotate-6 group-hover:scale-110 transition-transform duration-300">
-              <CreditCard className="w-3.5 h-3.5" />
+            <div className="relative z-10 my-auto space-y-1">
+              <span className="block text-lg sm:text-xl font-black tracking-tight text-teal-900 dark:text-teal-200">
+                142
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-teal-100 dark:bg-teal-500/25 text-teal-950 dark:text-teal-100 border border-teal-400/60">
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-300 animate-ping" />
+                OPD &amp; IPD
+              </span>
             </div>
+
+            <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
+              {language === 'om' ? 'Dr 12 • Spec 6' : '12 Doctors • 6 Spec'}
+            </p>
           </div>
 
-          <div className="relative z-10 my-auto space-y-1">
-            <span className="block text-xl sm:text-2xl font-black tracking-tight text-emerald-900 dark:text-emerald-200">
-              284.5K
-            </span>
-            <span className="inline-block text-[10px] sm:text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border border-emerald-400/60">
-              ETB Collected Today
-            </span>
-          </div>
-
-          <p className="relative z-10 text-[11px] font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2">
-            {language === 'om' ? 'Telebirr 68% • CBHI 24% • Kaashii 8%' : 'Telebirr 68% • CBHI 24% • Cash 8%'}
-          </p>
-        </div>
-
-        {/* Cube 4: System Telemetry */}
-        <div className="w-full max-w-[172px] sm:max-w-[184px] aspect-square mx-auto rounded-2xl border-2 border-indigo-400/80 dark:border-indigo-400/50 bg-gradient-to-br from-white via-indigo-50 to-violet-100/80 dark:from-[#1d254a] dark:via-[#222c56] dark:to-[#27224d] p-3 sm:p-3.5 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_8px_20px_-6px_rgba(99,102,241,0.22),4px_4px_0_0_rgba(129,140,248,0.28)] hover:-translate-y-1.5 hover:scale-[1.04] hover:border-indigo-500 hover:shadow-[0_14px_28px_-6px_rgba(99,102,241,0.35),6px_6px_0_0_rgba(129,140,248,0.4)] transition-all duration-300 ease-out">
-          <div className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-indigo-400/20 blur-xl group-hover:scale-150 transition-transform duration-500" />
-          <div className="flex items-start justify-between gap-1.5 relative z-10">
-            <span className="text-xs sm:text-[13px] font-extrabold text-slate-900 dark:text-white leading-tight">
-              4. {language === 'om' ? 'Haala Sirna Yaalaa' : 'System Telemetry'}
-            </span>
-            <div className="h-7 w-7 rounded-xl bg-indigo-500/20 dark:bg-indigo-400/25 border border-indigo-400/50 text-indigo-800 dark:text-indigo-200 flex items-center justify-center shrink-0 group-hover:-rotate-6 group-hover:scale-110 transition-transform duration-300">
-              <ShieldCheck className="w-3.5 h-3.5" />
+          {/* Mini Cube 3: Revenue & Telebirr */}
+          <div
+            style={{ animationDelay: '0.9s' }}
+            className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-emerald-400/85 dark:border-emerald-400/55 bg-gradient-to-br from-white via-emerald-50 to-teal-100/85 dark:from-[#10362d] dark:via-[#154137] dark:to-[#163444] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(16,185,129,0.28),3px_3px_0_0_rgba(52,211,153,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-emerald-500 hover:shadow-[0_14px_24px_-4px_rgba(16,185,129,0.42),5px_5px_0_0_rgba(52,211,153,0.45)] transition-all duration-300 ease-out"
+          >
+            <div className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/45 dark:via-emerald-200/20 to-transparent mkh-cube-sweep" style={{ animationDelay: '2.2s' }} />
+            <div className="pointer-events-none absolute -right-5 -top-5 w-16 h-16 rounded-full bg-emerald-400/25 blur-lg group-hover:scale-150 transition-transform duration-500" />
+            <div className="flex items-start justify-between gap-1 relative z-10">
+              <span className="text-[11px] sm:text-xs font-extrabold text-slate-900 dark:text-white leading-tight">
+                3. {language === 'om' ? 'Telebirr' : 'Revenue & Telebirr'}
+              </span>
+              <div className="h-6 w-6 rounded-lg bg-emerald-500/20 dark:bg-emerald-400/25 border border-emerald-400/60 text-emerald-800 dark:text-emerald-200 flex items-center justify-center shrink-0 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300">
+                <CreditCard className="w-3 h-3" />
+              </div>
             </div>
+
+            <div className="relative z-10 my-auto space-y-1">
+              <span className="block text-lg sm:text-xl font-black tracking-tight text-emerald-900 dark:text-emerald-200">
+                284.5K
+              </span>
+              <span className="inline-block text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border border-emerald-400/60">
+                ETB Today
+              </span>
+            </div>
+
+            <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
+              {language === 'om' ? 'Telebirr 68% • CBHI' : 'Telebirr 68% • CBHI'}
+            </p>
           </div>
 
-          <div className="relative z-10 my-auto space-y-1">
-            <span className="block text-xl sm:text-2xl font-black tracking-tight text-indigo-900 dark:text-indigo-200">
-              99.98%
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border border-emerald-400/60">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-300 animate-pulse" />
-              100% HA Node
-            </span>
-          </div>
+          {/* Mini Cube 4: System Telemetry */}
+          <div
+            style={{ animationDelay: '1.35s' }}
+            className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-indigo-400/85 dark:border-indigo-400/55 bg-gradient-to-br from-white via-indigo-50 to-violet-100/85 dark:from-[#1f2850] dark:via-[#25305e] dark:to-[#292452] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(99,102,241,0.28),3px_3px_0_0_rgba(129,140,248,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-indigo-500 hover:shadow-[0_14px_24px_-4px_rgba(99,102,241,0.42),5px_5px_0_0_rgba(129,140,248,0.45)] transition-all duration-300 ease-out"
+          >
+            <div className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/45 dark:via-indigo-200/20 to-transparent mkh-cube-sweep" style={{ animationDelay: '3.3s' }} />
+            <div className="pointer-events-none absolute -right-5 -top-5 w-16 h-16 rounded-full bg-indigo-400/25 blur-lg group-hover:scale-150 transition-transform duration-500" />
+            <div className="flex items-start justify-between gap-1 relative z-10">
+              <span className="text-[11px] sm:text-xs font-extrabold text-slate-900 dark:text-white leading-tight">
+                4. {language === 'om' ? 'Telemetry' : 'System Telemetry'}
+              </span>
+              <div className="h-6 w-6 rounded-lg bg-indigo-500/20 dark:bg-indigo-400/25 border border-indigo-400/60 text-indigo-800 dark:text-indigo-200 flex items-center justify-center shrink-0 group-hover:-rotate-12 group-hover:scale-110 transition-transform duration-300">
+                <ShieldCheck className="w-3 h-3" />
+              </div>
+            </div>
 
-          <p className="relative z-10 text-[11px] font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2">
-            {language === 'om' ? 'Kuusaan 4.2°C • EEU Hojirra' : 'Cold Chain 4.2°C • EEU Normal'}
-          </p>
+            <div className="relative z-10 my-auto space-y-1">
+              <span className="block text-lg sm:text-xl font-black tracking-tight text-indigo-900 dark:text-indigo-200">
+                99.98%
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border border-emerald-400/60">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-300 animate-pulse" />
+                100% HA
+              </span>
+            </div>
+
+            <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
+              {language === 'om' ? '4.2°C • EEU Normal' : '4.2°C • EEU Grid'}
+            </p>
+          </div>
         </div>
       </div>
 
