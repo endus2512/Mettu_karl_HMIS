@@ -55,6 +55,7 @@ async def ensure_database_ready() -> None:
                 if not inspector.has_table("users"):
                     return
                 existing = {col["name"] for col in inspector.get_columns("users")}
+                ts_type = "TIMESTAMPTZ" if sync_conn.dialect.name == "postgresql" else "TIMESTAMP"
                 additions = [
                     ("staff_id", "VARCHAR(64)"),
                     ("department", "VARCHAR(100)"),
@@ -64,10 +65,10 @@ async def ensure_database_ready() -> None:
                     ("rejection_reason", "VARCHAR(255)"),
                     ("risk_flag", "VARCHAR(100)"),
                     ("approved_by", "INTEGER"),
-                    ("approved_at", "TIMESTAMP"),
+                    ("approved_at", ts_type),
                     ("requested_ip", "VARCHAR(64)"),
-                    ("first_login_at", "TIMESTAMP"),
-                    ("last_seen_at", "TIMESTAMP"),
+                    ("first_login_at", ts_type),
+                    ("last_seen_at", ts_type),
                     ("last_ip", "VARCHAR(64)"),
                     ("last_activity_path", "VARCHAR(255)"),
                     ("pending_wait_jti", "VARCHAR(64)"),
