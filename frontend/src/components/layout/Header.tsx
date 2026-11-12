@@ -241,73 +241,84 @@ export function Header(): React.ReactElement {
       ? shift.name_am
       : shift.name_en;
 
-  // Clinician profile based on dynamic role
+  // Clinician profile based on dynamic role & personalized logged-in identity
   const getProfile = () => {
+    const rawName = user?.fullName?.trim() || user?.username?.trim();
+    const computedInitials = rawName
+      ? rawName
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part[0].toUpperCase())
+          .join('')
+      : '';
+
     switch (user?.role) {
       case 'admin':
+      case 'super_admin':
         return {
-          initials: 'AD',
-          name: 'System Administrator',
+          initials: computedInitials || 'AD',
+          name: user?.fullName || 'System Administrator',
           dept: 'Executive Hospital Management',
         };
       case 'doctor':
         return {
-          initials: 'BT',
-          name: 'Dr. Bekele Tadesse',
+          initials: computedInitials || 'MD',
+          name: user?.fullName || 'Dr. Attending Physician',
           dept: 'Internal Medicine & Surgery',
         };
       case 'nurse':
         return {
-          initials: 'CD',
-          name: 'Nurse Chaltu Daba',
-          dept: 'Critical Care & Emergency',
+          initials: computedInitials || 'RN',
+          name: user?.fullName || 'Registered Ward Nurse',
+          dept: 'Critical Care & Inpatient Care',
         };
       case 'pharmacist':
         return {
-          initials: 'PT',
-          name: 'Pharm. Tolasa Gudeta',
-          dept: 'Hospital Dispensary & FEFO',
+          initials: computedInitials || 'RX',
+          name: user?.fullName || 'Licensed Pharmacist',
+          dept: 'Hospital Dispensary & FEFO Store',
         };
       case 'insurance_officer':
         return {
-          initials: 'FD',
-          name: 'Fatuma Duresa (Claims)',
+          initials: computedInitials || 'IO',
+          name: user?.fullName || 'Insurance Claims Officer',
           dept: 'CBHI & EHIA Assurance',
         };
       case 'technician':
         return {
-          initials: 'GD',
-          name: 'Gemechu Desta (Biomed)',
+          initials: computedInitials || 'BM',
+          name: user?.fullName || 'Biomedical Engineer',
           dept: 'Biomedical & Infrastructure',
         };
       case 'lab_technician':
         return {
-          initials: 'AY',
-          name: 'Ayantu Yilma (Lab Scientist)',
-          dept: 'Pathology & Diagnostic Laboratory',
+          initials: computedInitials || 'LT',
+          name: user?.fullName || 'Medical Laboratory Scientist',
+          dept: 'Pathology & Diagnostic LIS Bench',
         };
       case 'receptionist':
         return {
-          initials: 'KA',
-          name: 'Kumsa Alemu (Intake)',
+          initials: computedInitials || 'RC',
+          name: user?.fullName || 'Admissions & Triage Registrar',
           dept: 'OPD Admissions & Patient Triage',
         };
       case 'billing':
         return {
-          initials: 'TW',
-          name: 'Tigist Worku (Cashier)',
+          initials: computedInitials || 'CS',
+          name: user?.fullName || 'Cashier & Revenue Clerk',
           dept: 'Revenue & Patient Accounts',
         };
       case 'auditor':
         return {
-          initials: 'DL',
-          name: 'Dr. Dereje Lemma (Quality)',
+          initials: computedInitials || 'QA',
+          name: user?.fullName || 'Clinical Quality Auditor',
           dept: 'EHSTG Clinical Governance & Audit',
         };
       default:
         return {
-          initials: user?.username ? user.username.slice(0, 2).toUpperCase() : 'HP',
-          name: user?.username || 'Hospital Practitioner',
+          initials: computedInitials || (user?.username ? user.username.slice(0, 2).toUpperCase() : 'HP'),
+          name: user?.fullName || user?.username || 'Hospital Practitioner',
           dept: 'Clinical Operations',
         };
     }

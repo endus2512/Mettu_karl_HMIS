@@ -27,6 +27,7 @@ import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { getRolePortalPath } from '@/lib/roleRoutes';
 import apiClient from '@/lib/api';
 import {
   Ticket,
@@ -147,9 +148,31 @@ interface AppointmentResponse {
 }
 
 export default function PatientPortalPage(): React.ReactElement {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated, isLoading: authLoading } = useAuth();
   const { t, language } = useTranslation();
   const router = useRouter();
+
+  // Strict Authentication & RBAC Isolation Guard
+  useEffect(() => {
+    if (!authLoading) {
+      if (!isAuthenticated || !user) {
+        router.replace('/patient-login');
+        return;
+      }
+      // If a non-patient & non-admin staff stumbles upon /patient-portal, redirect them to their workstation
+      if (user.role && user.role !== 'patient' && user.role !== 'admin' && user.role !== 'super_admin') {
+        notifications.show({
+          title: language === 'om' ? 'Wiirtuu Yaalaa' : language === 'am' ? 'የስራ ክፍል' : 'Staff Workstation',
+          message:
+            language === 'om'
+              ? 'Akka ogeessa fayyaatti gara wiirtuu hojii keessaniitti qajeeltaniittu.'
+              : 'Redirecting to your designated staff clinical workstation.',
+          color: 'teal',
+        });
+        router.replace(getRolePortalPath(user.role));
+      }
+    }
+  }, [authLoading, isAuthenticated, user, router, language]);
 
   // Active Tab: 'queue' | 'history' | 'prescriptions' | 'billing' | 'telemed'
   const [activeTab, setActiveTab] = useState<'queue' | 'history' | 'prescriptions' | 'billing' | 'telemed'>('queue');
@@ -212,32 +235,118 @@ export default function PatientPortalPage(): React.ReactElement {
   // Load patient data from backend with strict patient isolation (Zero cross-patient leakage)
   const fetchPatientData = useCallback(async () => {
     setIsLoading(true);
-    const isChaltu =
+
+    const isGudeta = Boolean(
+      user?.username?.includes('gudeta') ||
+      user?.faydaId?.includes('9901') ||
+      user?.mrn?.includes('0001') ||
+      user?.patientId === 1 ||
+      user?.fullName?.toLowerCase().includes('gudeta')
+    );
+
+    const isChaltu = Boolean(
       user?.username?.includes('chaltu') ||
       user?.faydaId?.includes('7721') ||
       user?.mrn?.includes('0042') ||
-      user?.patientId === 2;
+      user?.patientId === 2 ||
+      user?.fullName?.toLowerCase().includes('chaltu')
+    );
+
+    // Retrieve any locally registered patient record from localStorage
+    let registeredPatient: {
+      id?: number;
+      username?: string;
+      full_name?: string;
+      phone_number?: string;
+      fayda_id?: string;
+      mrn?: string;
+      birth_place?: string;
+      birth_date?: string;
+      gender?: string;
+    } | null = null;
+
+    if (typeof window !== 'undefined') {
+      try {
+        const registeredList = JSON.parse(localStorage.getItem('mettu_his_registered_patients') || '[]');
+        if (Array.isArray(registeredList)) {
+          registeredPatient = registeredList.find(
+            (p) =>
+              p.id === user?.patientId ||
+              p.id === user?.id ||
+              p.username === user?.username ||
+              p.phone_number === user?.phone ||
+              (user?.fullName && p.full_name?.toLowerCase() === user.fullName.toLowerCase())
+          ) || null;
+        }
+      } catch {
+        // ignore parse errors
+      }
+    }
 
     try {
       // 1. Profile
       const profRes = await apiClient.get<PatientProfile>('/portal/me');
       setProfile(profRes.data);
     } catch {
-      setProfile({
-        id: isChaltu ? 2 : 1,
-        mrn: user?.mrn || (isChaltu ? 'MKH-2026-0042' : 'MKH-2026-0001'),
-        fhir_id: user?.fhirId || (isChaltu ? 'pat-mkrh-0042' : 'pat-mkrh-0001'),
-        full_name: isChaltu ? 'Chaltu Daba Tolasa' : (user?.fullName || 'Gudeta Hailu Tadesse'),
-        phone_number: user?.phone || (isChaltu ? '+251 922 445 566' : '+251 911 002 233'),
-        fayda_id: user?.faydaId || (isChaltu ? 'FAN-7721-9981-3310' : 'FAN-9901-2384-5120'),
-        gender: isChaltu ? 'female' : 'male',
-        birth_date: isChaltu ? '1992-08-20' : '1985-04-12',
-        woreda: isChaltu ? 'Mettu Town, Kebele 04' : 'Mettu Town, Kebele 02',
-        blood_group: isChaltu ? 'A+' : 'O+',
-        allergies: isChaltu ? ['Penicillin'] : ['Penicillin', 'Sulfa'],
-        cbhi_active: true,
-        cbhi_policy_number: isChaltu ? 'CBHI-OR-MET-99104' : 'CBHI-OR-MET-88902',
-      });
+      if (isChaltu) {
+        setProfile({
+          id: 2,
+          mrn: user?.mrn || 'MKH-2026-0042',
+          fhir_id: user?.fhirId || 'pat-mkrh-0042',
+          full_name: 'Chaltu Daba Tolasa',
+          phone_number: user?.phone || '+251 922 445 566',
+          fayda_id: user?.faydaId || 'FAN-7721-9981-3310',
+          gender: 'female',
+          birth_date: '1992-08-20',
+          woreda: 'Mettu Town, Kebele 04',
+          blood_group: 'A+',
+          allergies: ['Penicillin'],
+          cbhi_active: true,
+          cbhi_policy_number: 'CBHI-OR-MET-99104',
+        });
+      } else if (isGudeta) {
+        setProfile({
+          id: 1,
+          mrn: user?.mrn || 'MKH-2026-0001',
+          fhir_id: user?.fhirId || 'pat-mkrh-0001',
+          full_name: 'Gudeta Hailu Tadesse',
+          phone_number: user?.phone || '+251 911 002 233',
+          fayda_id: user?.faydaId || 'FAN-9901-2384-5120',
+          gender: 'male',
+          birth_date: '1985-04-12',
+          woreda: 'Mettu Town, Kebele 02',
+          blood_group: 'O+',
+          allergies: ['Penicillin', 'Sulfa'],
+          cbhi_active: true,
+          cbhi_policy_number: 'CBHI-OR-MET-88902',
+        });
+      } else {
+        // Strictly isolated profile for any newly registered or custom patient (e.g. Tolan)
+        const customName = user?.fullName || registeredPatient?.full_name || (user?.username ? user.username.replace(/^pat_/, '') : 'Dhukkubsataa');
+        const customMrn = user?.mrn || registeredPatient?.mrn || `MKH-2026-${user?.id || 1045}`;
+        const customFhir = user?.fhirId || `pat-mkrh-${user?.id || 1045}`;
+        const customFayda = user?.faydaId || registeredPatient?.fayda_id || `FAN-${user?.id || 1045}-2026`;
+        const customPhone = user?.phone || registeredPatient?.phone_number || '+251 900 000 000';
+        const customGender = ((registeredPatient?.gender === 'female' ? 'female' : 'male') as 'male' | 'female');
+        const customBirthDate = registeredPatient?.birth_date || '1996-05-18';
+        const customWoreda = registeredPatient?.birth_place || 'Mettu Town, Kebele 01';
+
+        setProfile({
+          id: user?.id || user?.patientId || 1045,
+          mrn: customMrn,
+          fhir_id: customFhir,
+          full_name: customName,
+          phone_number: customPhone,
+          fayda_id: customFayda,
+          gender: customGender,
+          birth_date: customBirthDate,
+          woreda: customWoreda,
+          blood_group: 'O+',
+          allergies: ['No Known Drug Allergies (NKDA)'],
+          cbhi_active: true,
+          cbhi_policy_number: `CBHI-OR-MET-${user?.id || 1045}`,
+        });
+      }
     }
 
     try {
@@ -262,7 +371,7 @@ export default function PatientPortalPage(): React.ReactElement {
             status: 'Completed',
           },
         ]);
-      } else {
+      } else if (isGudeta) {
         setEncounters([
           {
             date: '2026-10-25 09:30',
@@ -276,6 +385,24 @@ export default function PatientPortalPage(): React.ReactElement {
               spo2: '98%',
             },
             diagnosis: 'Acute Bronchitis (ICD-10: J20.9) - Responding well to therapy',
+            status: 'Completed',
+          },
+        ]);
+      } else {
+        // Initial health intake encounter for newly enrolled patient (e.g. Tolan)
+        setEncounters([
+          {
+            date: '2026-10-27 08:30',
+            department: 'Triage & General OPD',
+            clinician: 'Dr. Gemechu Desta',
+            chief_complaint: 'Galmee dhukkubsataa haaraa fi qorannoo fayyaa waliigalaa (Initial enrollment & health screening)',
+            vitals: {
+              blood_pressure: '118/76 mmHg',
+              pulse: '72 bpm',
+              temperature: '36.6 °C',
+              spo2: '99%',
+            },
+            diagnosis: 'General Health Assessment (ICD-10: Z00.00) - Qorannoon fayyaa guutuu fi nagaa dha',
             status: 'Completed',
           },
         ]);
@@ -314,7 +441,7 @@ export default function PatientPortalPage(): React.ReactElement {
             ],
           },
         ]);
-      } else {
+      } else if (isGudeta) {
         setPrescriptions([
           {
             prescription_code: 'RX-2026-MKH-0881',
@@ -341,6 +468,9 @@ export default function PatientPortalPage(): React.ReactElement {
             ],
           },
         ]);
+      } else {
+        // Clean empty prescriptions for newly enrolled patient - zero leaked medications!
+        setPrescriptions([]);
       }
     }
 
@@ -365,7 +495,7 @@ export default function PatientPortalPage(): React.ReactElement {
             ],
           },
         ]);
-      } else {
+      } else if (isGudeta) {
         setInvoices([
           {
             id: 101,
@@ -379,6 +509,22 @@ export default function PatientPortalPage(): React.ReactElement {
               { description: 'OPD Senior Physician Consultation', amount_etb: 120.0 },
               { description: 'Laboratory CBC & CRP Diagnostic Panel', amount_etb: 180.0 },
               { description: 'Pharmacy Prescription Dispensing', amount_etb: 120.0 },
+            ],
+          },
+        ]);
+      } else {
+        // Registration card invoice for newly enrolled patient (100% CBHI covered, 0.00 ETB payable)
+        setInvoices([
+          {
+            id: 201,
+            invoice_number: `INV-2026-MKH-${user?.id || 1045}`,
+            date: '2026-10-27',
+            total_amount_etb: 50.0,
+            insurance_covered_etb: 50.0,
+            patient_payable_etb: 0.0,
+            status: 'PAID (Kaffalameera)',
+            items: [
+              { description: 'EHR Digital Health Card & Portal Verification', amount_etb: 50.0 },
             ],
           },
         ]);
@@ -400,7 +546,7 @@ export default function PatientPortalPage(): React.ReactElement {
           estimated_wait_minutes: 12,
           status: 'WAITING (Dabaree Eegaa Jira)',
         });
-      } else {
+      } else if (isGudeta) {
         setQueueStatus({
           has_active_token: true,
           token_number: 'A-042',
@@ -408,6 +554,17 @@ export default function PatientPortalPage(): React.ReactElement {
           current_serving_token: 'A-038',
           queue_position: 4,
           estimated_wait_minutes: 18,
+          status: 'WAITING (Dabaree Eegaa Jira)',
+        });
+      } else {
+        const tokenId = (user?.id ? user.id % 40 : 10) + 1;
+        setQueueStatus({
+          has_active_token: true,
+          token_number: `C-0${tokenId < 10 ? '0' + tokenId : tokenId}`,
+          department: 'Reception & Registration (Desk 01)',
+          current_serving_token: 'C-005',
+          queue_position: 1,
+          estimated_wait_minutes: 5,
           status: 'WAITING (Dabaree Eegaa Jira)',
         });
       }
@@ -430,7 +587,7 @@ export default function PatientPortalPage(): React.ReactElement {
             status: "CONFIRMED (Mirkanaa'eera)",
           },
         ]);
-      } else {
+      } else if (isGudeta) {
         setAppointments([
           {
             id: 501,
@@ -439,6 +596,19 @@ export default function PatientPortalPage(): React.ReactElement {
             department: 'Internal Medicine Follow-up',
             type: 'Telemedicine Video Call',
             meeting_link: 'https://meet.mettukarl.gov.et/room/telemed-dr-bekele-pat-001',
+            status: "CONFIRMED (Mirkanaa'eera)",
+          },
+        ]);
+      } else {
+        // Initial appointment for newly enrolled patient (e.g. Tolan)
+        setAppointments([
+          {
+            id: 701,
+            scheduled_time: '2026-10-28 09:30 AM',
+            clinician_name: 'Dr. Gemechu Desta',
+            department: 'General OPD Consultation',
+            type: 'In-Person Consultation',
+            meeting_link: '',
             status: "CONFIRMED (Mirkanaa'eera)",
           },
         ]);
@@ -515,15 +685,15 @@ export default function PatientPortalPage(): React.ReactElement {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs sm:text-sm font-bold text-white truncate">
-                    {profile?.full_name || 'Gudeta Hailu'}
+                    {profile?.full_name || user?.fullName || user?.username || 'Dhukkubsataa'}
                   </p>
                   <p className="text-[11px] font-mono font-medium text-amber-400 truncate">
-                    MRN: {profile?.mrn || 'MKH-2026-0001'}
+                    MRN: {profile?.mrn || user?.mrn || 'MKH-2026-REG'}
                   </p>
                 </div>
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-[#1b2334] text-[10px] font-medium">
-                <span className="text-slate-400 font-mono">{profile?.fayda_id || 'FAN-9901-2384'}</span>
+                <span className="text-slate-400 font-mono">{profile?.fayda_id || user?.faydaId || 'FAN-REG-2026'}</span>
                 <span className="bg-[#102419] text-[#34d399] border border-[#059669]/40 px-1.5 py-0.5 rounded font-semibold">
                   CBHI 80%
                 </span>
@@ -692,10 +862,10 @@ export default function PatientPortalPage(): React.ReactElement {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs sm:text-sm font-black text-white truncate">
-                    {profile?.full_name || 'Gudeta Hailu'}
+                    {profile?.full_name || user?.fullName || user?.username || 'Dhukkubsataa'}
                   </p>
                   <p className="text-[11px] font-mono font-bold text-teal-400 truncate">
-                    MRN: {profile?.mrn || 'MKH-2026-0001'}
+                    MRN: {profile?.mrn || user?.mrn || 'MKH-2026-REG'}
                   </p>
                 </div>
               </div>
@@ -897,7 +1067,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   <Fingerprint className="h-3.5 w-3.5 text-emerald-400 inline mr-1" /> {t('fayda_id')}
                 </span>
                 <span className="text-xs font-mono font-bold text-teal-800 dark:text-teal-300">
-                  {profile?.fayda_id || 'FAN-9901-2384-5120'}
+                  {profile?.fayda_id || user?.faydaId || 'FAN-REG-2026'}
                 </span>
               </div>
 
@@ -918,7 +1088,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   <AlertTriangle className="h-3.5 w-3.5 text-amber-400 inline mr-1" /> {t('allergies')}
                 </span>
                 <span className="text-xs font-black text-rose-700 dark:text-rose-400 mt-0.5 block">
-                  {profile?.allergies.join(', ') || 'Penicillin, Sulfa'}
+                  {profile?.allergies.join(', ') || 'No Known Drug Allergies (NKDA)'}
                 </span>
               </div>
 
@@ -928,7 +1098,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   <MapPin className="h-3.5 w-3.5 text-sky-400 inline mr-1" /> {t('residence')}
                 </span>
                 <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate block mt-0.5">
-                  {profile?.woreda || 'Mettu Town, Kebele 02'}
+                  {profile?.woreda || 'Mettu Town, Kebele 01'}
                 </span>
               </div>
             </div>
@@ -1024,7 +1194,7 @@ export default function PatientPortalPage(): React.ReactElement {
                               {queueStatus?.current_serving_token}
                             </span>
                             <span className="block text-xs text-teal-800 mt-2 font-bold">
-                              Room 04 • Dr. Bekele Tadesse
+                              {queueStatus?.department || 'OPD Consultation Room'}
                             </span>
                           </div>
 
@@ -1186,59 +1356,75 @@ export default function PatientPortalPage(): React.ReactElement {
                     </div>
 
                     <div className="space-y-4">
-                      {prescriptions.map((rx, idx) => (
-                        <div
-                          key={idx}
-                          className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4"
-                        >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                            <div>
-                              <span className="text-xs font-mono font-bold text-teal-700">{rx.prescription_code}</span>
-                              <h3 className="text-sm font-bold text-slate-800">Ajaje: {rx.prescriber_name}</h3>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-slate-500 font-medium">Guyyaa: {rx.prescribed_date}</span>
-                              <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1 text-xs font-bold">
-                                {rx.status}
-                              </span>
-                            </div>
+                      {prescriptions.length === 0 ? (
+                        <div className="rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-8 text-center space-y-3">
+                          <div className="h-12 w-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/20">
+                            <Pill className="h-6 w-6" />
                           </div>
-
-                          <div className="space-y-3">
-                            {rx.items.map((item, i) => (
-                              <div
-                                key={i}
-                                className="rounded-2xl border-2 border-slate-200 bg-slate-50/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-teal-400 hover:bg-white hover:ring-2 hover:ring-teal-400/20 transition-all duration-150"
-                              >
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <Pill className="h-5 w-5 text-teal-400" />
-                                    <h4 className="text-sm font-black text-slate-900">{item.drug_name}</h4>
-                                  </div>
-                                  <p className="text-xs text-teal-800 font-bold">
-                                    Dose: {item.dosage} • {item.frequency} • Guyyoota {item.duration_days}f
-                                  </p>
-                                  <p className="text-xs text-slate-600 italic">
-                                    {t('instructions')}: &quot;{item.instructions}&quot;
-                                  </p>
-                                </div>
-
-                                <div className="shrink-0">
-                                  {item.is_dispensed ? (
-                                    <span className="rounded-xl border-2 border-emerald-300 bg-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-900 flex items-center gap-1.5">
-                                      <Check className="h-3.5 w-3.5 text-emerald-400 inline mr-1" /> {t('dispensed')}
-                                    </span>
-                                  ) : (
-                                    <span className="rounded-xl border-2 border-amber-300 bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-900">
-                                      {t('pending')}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                            {language === 'om' ? 'Qorichi Yeroo Ammaa Ajajame Hin Jiru' : language === 'am' ? 'በአሁኑ ጊዜ የታዘዘ መድኃኒት የለም' : 'No Active Prescriptions'}
+                          </h3>
+                          <p className="text-xs text-slate-500 max-w-md mx-auto">
+                            {language === 'om'
+                              ? 'Qorichi doktarri keessan isiniif ajaju asirratti dhiyaata. FEFO fayyadamuun koodii fi qajeelfama fudhannaa qorichaa asirraa argattu.'
+                              : 'Prescriptions issued by your attending physician will appear here once verified and authorized.'}
+                          </p>
                         </div>
-                      ))}
+                      ) : (
+                        prescriptions.map((rx, idx) => (
+                          <div
+                            key={idx}
+                            className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                              <div>
+                                <span className="text-xs font-mono font-bold text-teal-700">{rx.prescription_code}</span>
+                                <h3 className="text-sm font-bold text-slate-800">Ajaje: {rx.prescriber_name}</h3>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-slate-500 font-medium">Guyyaa: {rx.prescribed_date}</span>
+                                <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1 text-xs font-bold">
+                                  {rx.status}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
+                              {rx.items.map((item, i) => (
+                                <div
+                                  key={i}
+                                  className="rounded-2xl border-2 border-slate-200 bg-slate-50/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-teal-400 hover:bg-white hover:ring-2 hover:ring-teal-400/20 transition-all duration-150"
+                                >
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <Pill className="h-5 w-5 text-teal-400" />
+                                      <h4 className="text-sm font-black text-slate-900">{item.drug_name}</h4>
+                                    </div>
+                                    <p className="text-xs text-teal-800 font-bold">
+                                      Dose: {item.dosage} • {item.frequency} • Guyyoota {item.duration_days}f
+                                    </p>
+                                    <p className="text-xs text-slate-600 italic">
+                                      {t('instructions')}: &quot;{item.instructions}&quot;
+                                    </p>
+                                  </div>
+
+                                  <div className="shrink-0">
+                                    {item.is_dispensed ? (
+                                      <span className="rounded-xl border-2 border-emerald-300 bg-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                                        <Check className="h-3.5 w-3.5 text-emerald-400 inline mr-1" /> {t('dispensed')}
+                                      </span>
+                                    ) : (
+                                      <span className="rounded-xl border-2 border-amber-300 bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-900">
+                                        {t('pending')}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
@@ -1261,65 +1447,81 @@ export default function PatientPortalPage(): React.ReactElement {
                     </div>
 
                     <div className="space-y-4">
-                      {invoices.map((inv) => (
-                        <div
-                          key={inv.id}
-                          className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4"
-                        >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                            <div>
-                              <span className="text-xs font-mono font-bold text-teal-700">{inv.invoice_number}</span>
-                              <p className="text-xs text-slate-500">Guyyaa: {inv.date}</p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <span
-                                className={`rounded-full px-3 py-1 text-xs font-black ${
-                                  inv.status.includes('PAID')
-                                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                                    : 'bg-rose-100 text-rose-900 border border-rose-300 animate-pulse'
-                                }`}
-                              >
-                                {inv.status}
-                              </span>
-                              {!inv.status.includes('PAID') && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleOpenPayment(inv)}
-                                  className="rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 px-4 py-2 text-xs font-black text-white shadow-md active:scale-95 transition-all duration-150 cursor-pointer"
-                                >
-                                  {t('telebirr_pay')} →
-                                </button>
-                              )}
-                            </div>
+                      {invoices.length === 0 ? (
+                        <div className="rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-8 text-center space-y-3">
+                          <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto border border-emerald-500/20">
+                            <Check className="h-6 w-6" />
                           </div>
-
-                          {/* Breakdown */}
-                          <div className="space-y-2 text-xs">
-                            {inv.items.map((it, idx) => (
-                              <div key={idx} className="flex justify-between text-slate-700 py-1.5 border-b border-slate-100">
-                                <span>{it.description}</span>
-                                <span className="font-mono font-bold text-slate-900">{it.amount_etb.toFixed(2)} ETB</span>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Totals with Clear CBHI Government Subsidy Breakdown */}
-                          <div className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                            <div>
-                              <span className="block text-slate-500 text-[10px] uppercase font-bold">{t('total_bill')}</span>
-                              <span className="text-base font-black text-slate-900 font-mono">{inv.total_amount_etb.toFixed(2)} ETB</span>
-                            </div>
-                            <div>
-                              <span className="block text-emerald-700 text-[10px] uppercase font-bold">{t('cbhi_subsidy')}</span>
-                              <span className="text-base font-black text-emerald-700 font-mono">-{inv.insurance_covered_etb.toFixed(2)} ETB</span>
-                            </div>
-                            <div className="border-t sm:border-t-0 sm:border-l sm:pl-4 border-slate-200">
-                              <span className="block text-amber-800 text-[10px] uppercase font-bold">{t('patient_copay')}</span>
-                              <span className="text-lg font-black text-amber-900 font-mono">{inv.patient_payable_etb.toFixed(2)} ETB</span>
-                            </div>
-                          </div>
+                          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                            {language === 'om' ? 'Kaffaltiin Eegamu Hin Jiru' : language === 'am' ? 'ምንም የሚከፈል ሂሳብ የለም' : 'All Dues Cleared'}
+                          </h3>
+                          <p className="text-xs text-slate-500 max-w-md mx-auto">
+                            {language === 'om'
+                              ? 'Herregni kaffaltii yeroo ammaa guutummaatti qulqullaa\'aa dha. Kaffaltiin tajaajila haaraa yoo uumame asirratti isiniif mul\'ata.'
+                              : 'All medical and pharmacy invoices are fully settled. Any new invoices will appear here.'}
+                          </p>
                         </div>
-                      ))}
+                      ) : (
+                        invoices.map((inv) => (
+                          <div
+                            key={inv.id}
+                            className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                              <div>
+                                <span className="text-xs font-mono font-bold text-teal-700">{inv.invoice_number}</span>
+                                <p className="text-xs text-slate-500">Guyyaa: {inv.date}</p>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className={`rounded-full px-3 py-1 text-xs font-black ${
+                                    inv.status.includes('PAID')
+                                      ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                                      : 'bg-rose-100 text-rose-900 border border-rose-300 animate-pulse'
+                                  }`}
+                                >
+                                  {inv.status}
+                                </span>
+                                {!inv.status.includes('PAID') && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenPayment(inv)}
+                                    className="rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 px-4 py-2 text-xs font-black text-white shadow-md active:scale-95 transition-all duration-150 cursor-pointer"
+                                  >
+                                    {t('telebirr_pay')} →
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Breakdown */}
+                            <div className="space-y-2 text-xs">
+                              {inv.items.map((it, idx) => (
+                                <div key={idx} className="flex justify-between text-slate-700 py-1.5 border-b border-slate-100">
+                                  <span>{it.description}</span>
+                                  <span className="font-mono font-bold text-slate-900">{it.amount_etb.toFixed(2)} ETB</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Totals with Clear CBHI Government Subsidy Breakdown */}
+                            <div className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                              <div>
+                                <span className="block text-slate-500 text-[10px] uppercase font-bold">{t('total_bill')}</span>
+                                <span className="text-base font-black text-slate-900 font-mono">{inv.total_amount_etb.toFixed(2)} ETB</span>
+                              </div>
+                              <div>
+                                <span className="block text-emerald-700 text-[10px] uppercase font-bold">{t('cbhi_subsidy')}</span>
+                                <span className="text-base font-black text-emerald-700 font-mono">-{inv.insurance_covered_etb.toFixed(2)} ETB</span>
+                              </div>
+                              <div className="border-t sm:border-t-0 sm:border-l sm:pl-4 border-slate-200">
+                                <span className="block text-amber-800 text-[10px] uppercase font-bold">{t('patient_copay')}</span>
+                                <span className="text-lg font-black text-amber-900 font-mono">{inv.patient_payable_etb.toFixed(2)} ETB</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
@@ -1335,43 +1537,59 @@ export default function PatientPortalPage(): React.ReactElement {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {appointments.map((apt) => (
-                        <div
-                          key={apt.id}
-                          className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4 flex flex-col justify-between"
-                        >
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <span className="rounded-full bg-teal-100 text-teal-900 border border-teal-300 px-3 py-1 text-xs font-black">
-                                {apt.type}
-                              </span>
-                              <span className="text-xs font-mono font-bold text-amber-800">
-                                ⏰ {apt.scheduled_time}
-                              </span>
-                            </div>
-
-                            <h3 className="text-lg font-black text-slate-900">{apt.department}</h3>
-                            <p className="text-xs text-slate-600 font-medium">Doktoora: <span className="text-slate-900 font-bold">{apt.clinician_name}</span></p>
-
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
-                              Status: <span className="text-teal-800 font-black">{apt.status}</span>
-                            </div>
+                      {appointments.length === 0 ? (
+                        <div className="col-span-full rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-8 text-center space-y-3">
+                          <div className="h-12 w-12 rounded-2xl bg-teal-500/10 text-teal-500 flex items-center justify-center mx-auto border border-teal-500/20">
+                            <Calendar className="h-6 w-6" />
                           </div>
-
-                          {apt.meeting_link && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActiveMeeting(apt);
-                                setTelemedModalOpen(true);
-                              }}
-                              className="w-full rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 py-3 text-xs font-black text-white shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all duration-150 cursor-pointer"
-                            >
-                              <Video className="h-4 w-4 inline mr-1" /> {t('join_video_call')} →
-                            </button>
-                          )}
+                          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                            {language === 'om' ? 'Beellamni Qophaa\'e Hin Jiru' : language === 'am' ? 'ምንም የተቀጠረ ቀጠሮ የለም' : 'No Scheduled Appointments'}
+                          </h3>
+                          <p className="text-xs text-slate-500 max-w-md mx-auto">
+                            {language === 'om'
+                              ? 'Beellamni yaala kallattiin ykn yaala fagootti (Telemedicine) qabattan asirratti dhiyaata.'
+                              : 'Upcoming in-person or telemedicine video appointments will appear here.'}
+                          </p>
                         </div>
-                      ))}
+                      ) : (
+                        appointments.map((apt) => (
+                          <div
+                            key={apt.id}
+                            className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4 flex flex-col justify-between"
+                          >
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="rounded-full bg-teal-100 text-teal-900 border border-teal-300 px-3 py-1 text-xs font-black">
+                                  {apt.type}
+                                </span>
+                                <span className="text-xs font-mono font-bold text-amber-800">
+                                  ⏰ {apt.scheduled_time}
+                                </span>
+                              </div>
+
+                              <h3 className="text-lg font-black text-slate-900">{apt.department}</h3>
+                              <p className="text-xs text-slate-600 font-medium">Doktoora: <span className="text-slate-900 font-bold">{apt.clinician_name}</span></p>
+
+                              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+                                Status: <span className="text-teal-800 font-black">{apt.status}</span>
+                              </div>
+                            </div>
+
+                            {apt.meeting_link && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveMeeting(apt);
+                                  setTelemedModalOpen(true);
+                                }}
+                                className="w-full rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 py-3 text-xs font-black text-white shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all duration-150 cursor-pointer"
+                              >
+                                <Video className="h-4 w-4 inline mr-1" /> {t('join_video_call')} →
+                              </button>
+                            )}
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}

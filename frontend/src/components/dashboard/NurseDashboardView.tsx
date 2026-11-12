@@ -14,6 +14,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth';
 import { useTranslation, type Language } from '@/lib/i18n';
 import { useHospitalTimeSync } from '@/lib/timeSync';
 import { MorphingArrowButton } from '@/components/admin/MorphingArrowButton';
@@ -115,6 +116,7 @@ const INITIAL_BEDS: BedVital[] = [
 ];
 
 export function NurseDashboardView(): React.ReactElement {
+  const { user } = useAuth();
   const { language } = useTranslation();
   const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
 
@@ -686,7 +688,7 @@ export function NurseDashboardView(): React.ReactElement {
                 <div className="space-y-1.5 text-xs font-bold text-slate-900 dark:text-white">
                   <div className="flex items-center gap-2">
                     <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span>{shift.charge_nurse || 'Nurse Chaltu Daba (Charge)'}</span>
+                    <span>{shift.charge_nurse || (user?.fullName ? `${user.fullName} (Charge)` : 'Nurse On-Duty (Charge)')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Stethoscope className="w-4 h-4 text-teal-600 dark:text-teal-400" />
