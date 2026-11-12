@@ -1100,16 +1100,17 @@ export function AdminOversightHub(): React.ReactElement {
   };
 
   return (
-    <section className={`rounded-2xl border-2 border-violet-300/75 dark:border-violet-400/35 bg-gradient-to-br from-white via-violet-50/40 to-sky-50/45 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${isCollapsed ? 'p-4 sm:p-5' : 'p-4 sm:p-5 space-y-5'}`}>
+    <section className={`relative overflow-hidden rounded-2xl border-[2.5px] border-violet-400/90 dark:border-violet-400/55 bg-gradient-to-br from-white via-violet-100/60 to-sky-100/65 dark:from-[#16233d] dark:via-[#212548] dark:to-[#162138] shadow-[0_12px_28px_-8px_rgba(139,92,246,0.25)] hover:shadow-[0_16px_36px_-8px_rgba(139,92,246,0.42)] hover:-translate-y-1 transition-all duration-300 group ${isCollapsed ? 'p-4 sm:p-5' : 'p-4 sm:p-5 space-y-5'}`}>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-violet-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '2.6s' }} />
       {/* 1. Header Banner */}
-      <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${isCollapsed ? '' : 'border-b border-violet-200 dark:border-slate-700 pb-4'}`}>
+      <div className={`relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${isCollapsed ? '' : 'border-b-2 border-violet-200 dark:border-slate-700 pb-4'}`}>
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-md shadow-violet-500/25">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-md shadow-violet-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
             <Building2 className="h-5.5 w-5.5" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
                 {txt.title}
               </h2>
               <span className="inline-flex items-center rounded-full border border-amber-400/60 bg-amber-100 dark:bg-amber-500/20 px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-200">

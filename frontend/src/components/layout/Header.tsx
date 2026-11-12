@@ -18,7 +18,6 @@ import { useTranslation } from '@/lib/i18n';
 import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
 import { LanguageSelect } from '@/components/common/LanguageSelect';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
-import { ZenModeToggle } from '@/components/common/ZenModeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { OmnisearchCommandCenter } from '@/components/common/OmnisearchCommandCenter';
 import { getPendingCount, triggerEdgeBatchSync } from '@/lib/offlineSync';
@@ -469,11 +468,6 @@ export function Header(): React.ReactElement {
           {/* Theme Toggle */}
           <div className="flex items-center px-0.5 border-l border-slate-700">
             <ThemeToggle variant="cockpit" />
-          </div>
-
-          {/* Zen Mode / Salphaa Toggle */}
-          <div className="hidden sm:flex items-center px-1 border-l border-slate-700">
-            <ZenModeToggle variant="header" />
           </div>
         </div>
 

@@ -443,25 +443,26 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
   return (
     <div
       id="admin-staff-approval-queue"
-      className={`bg-gradient-to-br from-white via-rose-50/40 to-amber-50/45 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] border-2 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${
+      className={`relative overflow-hidden bg-gradient-to-br from-white via-rose-100/55 to-amber-100/60 dark:from-[#16233d] dark:via-[#242544] dark:to-[#1a223c] border-[2.5px] rounded-2xl shadow-[0_12px_28px_-8px_rgba(244,63,94,0.22)] hover:shadow-[0_16px_36px_-8px_rgba(244,63,94,0.38)] hover:-translate-y-1 transition-all duration-300 group ${
         unreadAlarms.length > 0 || counts.pending > 0
-          ? 'border-amber-400 dark:border-amber-400/65'
-          : 'border-rose-200/80 dark:border-slate-600/60'
+          ? 'border-amber-500 dark:border-amber-400/75'
+          : 'border-rose-400/90 dark:border-rose-400/55'
       } ${isMinimized ? 'p-4 sm:p-5' : 'p-4 sm:p-5 space-y-4'}`}
     >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-rose-200/15 to-transparent mkh-panel-sweep" />
       {/* Header Row */}
       <div
-        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${
-          isMinimized ? '' : 'pb-3 border-b border-amber-200 dark:border-slate-700'
+        className={`relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${
+          isMinimized ? '' : 'pb-3 border-b-2 border-amber-200 dark:border-slate-700'
         }`}
       >
         <div className="flex items-center gap-3.5">
-          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/20">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/25 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
             <ShieldAlert className="w-5.5 h-5.5" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
                 {lang === 'om'
                   ? "To'annoo Nageenyaa & Mirkaneessa Galmee (Admin Guard)"
                   : lang === 'am'

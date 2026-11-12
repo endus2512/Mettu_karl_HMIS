@@ -96,7 +96,7 @@ const staffWorkstationPortals: NavItem[] = [
     href: '/portal/doctor',
     icon: Stethoscope,
     badge: 'OPD',
-    badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40',
+    badgeColor: 'bg-teal-500/20 text-teal-950 dark:text-teal-200 border border-teal-500/45',
     allowedRoles: ['admin', 'super_admin'],
   },
   {
@@ -104,7 +104,7 @@ const staffWorkstationPortals: NavItem[] = [
     href: '/portal/nurse',
     icon: Bed,
     badge: 'IPD',
-    badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40',
+    badgeColor: 'bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/45',
     allowedRoles: ['admin', 'super_admin'],
   },
   {
@@ -112,7 +112,7 @@ const staffWorkstationPortals: NavItem[] = [
     href: '/portal/pharmacy',
     icon: Pill,
     badge: 'FEFO',
-    badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40',
+    badgeColor: 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/45',
     allowedRoles: ['admin', 'super_admin'],
   },
   {
@@ -120,7 +120,7 @@ const staffWorkstationPortals: NavItem[] = [
     href: '/portal/lab',
     icon: FlaskConical,
     badge: 'LIS',
-    badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40',
+    badgeColor: 'bg-cyan-500/20 text-cyan-950 dark:text-cyan-200 border border-cyan-500/45',
     allowedRoles: ['admin', 'super_admin'],
   },
   {
@@ -128,7 +128,7 @@ const staffWorkstationPortals: NavItem[] = [
     href: '/portal/billing',
     icon: CreditCard,
     badge: 'POS',
-    badgeColor: 'bg-blue-500/20 text-blue-300 border border-blue-400/40',
+    badgeColor: 'bg-blue-500/20 text-blue-950 dark:text-blue-200 border border-blue-500/45',
     allowedRoles: ['admin', 'super_admin'],
   },
   {
@@ -136,7 +136,7 @@ const staffWorkstationPortals: NavItem[] = [
     href: '/portal/reception',
     icon: Ticket,
     badge: 'Fayda',
-    badgeColor: 'bg-purple-500/20 text-purple-300 border border-purple-400/40',
+    badgeColor: 'bg-purple-500/20 text-purple-950 dark:text-purple-200 border border-purple-500/45',
     allowedRoles: ['admin', 'super_admin'],
   },
   {
@@ -144,7 +144,7 @@ const staffWorkstationPortals: NavItem[] = [
     href: '/portal/admin',
     icon: ShieldCheck,
     badge: 'CEO',
-    badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
+    badgeColor: 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/50',
     allowedRoles: ['admin', 'super_admin'],
   },
 ];
@@ -152,17 +152,11 @@ const staffWorkstationPortals: NavItem[] = [
 /** 1. DOMAIN: CLINICAL JOURNEY & PATIENT CARE */
 const clinicalJourneyItems: NavItem[] = [
   {
-    key: 'dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-    allowedRoles: ['doctor', 'nurse', 'pharmacist', 'technician', 'lab_tech', 'lab_technician', 'billing', 'insurance_officer', 'receptionist', 'admin', 'super_admin'],
-  },
-  {
     key: 'patients',
     href: '/patients',
     icon: Users,
     badge: 'FHIR',
-    badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40',
+    badgeColor: 'bg-teal-500/20 text-teal-950 dark:text-teal-200 border border-teal-500/45',
     allowedRoles: ['doctor', 'nurse', 'receptionist', 'admin', 'super_admin'],
   },
   {
@@ -170,7 +164,7 @@ const clinicalJourneyItems: NavItem[] = [
     href: '/queue',
     icon: Ticket,
     badge: 'OPD',
-    badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40',
+    badgeColor: 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/45',
     allowedRoles: ['receptionist', 'nurse', 'doctor', 'admin', 'super_admin'],
   },
   {
@@ -178,7 +172,7 @@ const clinicalJourneyItems: NavItem[] = [
     href: '/wards',
     icon: Bed,
     badge: 'IPD',
-    badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40',
+    badgeColor: 'bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/45',
     allowedRoles: ['nurse', 'doctor', 'admin', 'super_admin'],
   },
   {
@@ -186,7 +180,7 @@ const clinicalJourneyItems: NavItem[] = [
     href: '/ot',
     icon: Syringe,
     badge: 'OT',
-    badgeColor: 'bg-sky-500/20 text-sky-300 border border-sky-400/40',
+    badgeColor: 'bg-sky-500/20 text-sky-950 dark:text-sky-200 border border-sky-500/45',
     allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'],
   },
   {
@@ -194,7 +188,7 @@ const clinicalJourneyItems: NavItem[] = [
     href: '/ems',
     icon: Ambulance,
     badge: '907',
-    badgeColor: 'bg-rose-500/20 text-rose-300 border border-rose-400/40',
+    badgeColor: 'bg-rose-500/20 text-rose-950 dark:text-rose-200 border border-rose-500/45',
     allowedRoles: ['nurse', 'receptionist', 'admin', 'super_admin'],
   },
   {
@@ -202,7 +196,7 @@ const clinicalJourneyItems: NavItem[] = [
     href: '/mci',
     icon: AlertOctagon,
     badge: 'START',
-    badgeColor: 'bg-rose-500/20 text-rose-300 border border-rose-400/40',
+    badgeColor: 'bg-rose-500/20 text-rose-950 dark:text-rose-200 border border-rose-500/45',
     allowedRoles: ['doctor', 'nurse', 'admin', 'super_admin'],
   },
   {
@@ -220,7 +214,7 @@ const diagnosticsPharmaItems: NavItem[] = [
     href: '/laboratory',
     icon: FlaskConical,
     badge: 'LIS',
-    badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40',
+    badgeColor: 'bg-cyan-500/20 text-cyan-950 dark:text-cyan-200 border border-cyan-500/45',
     allowedRoles: ['technician', 'lab_technician', 'lab_tech', 'doctor', 'nurse', 'admin', 'super_admin'],
   },
   {
@@ -228,7 +222,7 @@ const diagnosticsPharmaItems: NavItem[] = [
     href: '/blood-bank',
     icon: Droplets,
     badge: 'SafeBlood',
-    badgeColor: 'bg-red-500/20 text-red-300 border border-red-400/40',
+    badgeColor: 'bg-red-500/20 text-red-950 dark:text-red-200 border border-red-500/45',
     allowedRoles: ['technician', 'lab_technician', 'lab_tech', 'doctor', 'nurse', 'admin', 'super_admin'],
   },
   {
@@ -236,7 +230,7 @@ const diagnosticsPharmaItems: NavItem[] = [
     href: '/pacs',
     icon: Scan,
     badge: 'DICOM',
-    badgeColor: 'bg-blue-500/20 text-blue-300 border border-blue-400/40',
+    badgeColor: 'bg-blue-500/20 text-blue-950 dark:text-blue-200 border border-blue-500/45',
     allowedRoles: ['doctor', 'technician', 'nurse', 'admin', 'super_admin'],
   },
   {
@@ -244,7 +238,7 @@ const diagnosticsPharmaItems: NavItem[] = [
     href: '/pharmacy',
     icon: Pill,
     badge: 'FEFO',
-    badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40',
+    badgeColor: 'bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/45',
     allowedRoles: ['pharmacist', 'doctor', 'nurse', 'admin', 'super_admin'],
   },
   {
@@ -274,7 +268,7 @@ const operationsFacilitiesItems: NavItem[] = [
     href: '/iomt',
     icon: Activity,
     badge: 'IoT',
-    badgeColor: 'bg-indigo-500/20 text-indigo-300 border border-indigo-400/40',
+    badgeColor: 'bg-indigo-500/20 text-indigo-950 dark:text-indigo-200 border border-indigo-500/45',
     allowedRoles: ['doctor', 'nurse', 'technician', 'admin', 'super_admin'],
   },
   {
@@ -306,7 +300,7 @@ const operationsFacilitiesItems: NavItem[] = [
     href: '/power',
     icon: Zap,
     badge: 'EEU',
-    badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40',
+    badgeColor: 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/45',
     allowedRoles: ['technician', 'admin', 'super_admin'],
   },
   {
@@ -336,7 +330,7 @@ const financeGovernanceItems: NavItem[] = [
     href: '/billing',
     icon: CreditCard,
     badge: 'Telebirr',
-    badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40',
+    badgeColor: 'bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/45',
     allowedRoles: ['billing', 'insurance_officer', 'admin', 'super_admin'],
   },
   {
@@ -344,7 +338,7 @@ const financeGovernanceItems: NavItem[] = [
     href: '/insurance',
     icon: BadgeCheck,
     badge: 'CBHI',
-    badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40',
+    badgeColor: 'bg-teal-500/20 text-teal-950 dark:text-teal-200 border border-teal-500/45',
     allowedRoles: ['insurance_officer', 'billing', 'admin', 'super_admin'],
   },
   {
@@ -358,7 +352,7 @@ const financeGovernanceItems: NavItem[] = [
     href: '/fayda',
     icon: Fingerprint,
     badge: 'FIN',
-    badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40',
+    badgeColor: 'bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/45',
     allowedRoles: ['receptionist', 'nurse', 'insurance_officer', 'billing', 'admin', 'super_admin'],
   },
   {
@@ -366,7 +360,7 @@ const financeGovernanceItems: NavItem[] = [
     href: '/audit',
     icon: ClipboardCheck,
     badge: 'INSA',
-    badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/40',
+    badgeColor: 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/45',
     allowedRoles: ['admin', 'auditor', 'super_admin'],
   },
   {
@@ -374,7 +368,7 @@ const financeGovernanceItems: NavItem[] = [
     href: '/analytics',
     icon: TrendingUp,
     badge: 'KPI',
-    badgeColor: 'bg-indigo-500/20 text-indigo-300 border border-indigo-400/40',
+    badgeColor: 'bg-indigo-500/20 text-indigo-950 dark:text-indigo-200 border border-indigo-500/45',
     allowedRoles: ['admin', 'super_admin'],
   },
   {
@@ -382,7 +376,7 @@ const financeGovernanceItems: NavItem[] = [
     href: '/sms-ussd',
     icon: Smartphone,
     badge: '*907#',
-    badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40',
+    badgeColor: 'bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/45',
     allowedRoles: ['admin', 'nurse', 'doctor', 'receptionist', 'super_admin'],
   },
   {
@@ -390,7 +384,7 @@ const financeGovernanceItems: NavItem[] = [
     href: '/scanner',
     icon: QrCode,
     badge: 'GS1',
-    badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40',
+    badgeColor: 'bg-teal-500/20 text-teal-950 dark:text-teal-200 border border-teal-500/45',
     allowedRoles: ['doctor', 'nurse', 'pharmacist', 'billing', 'technician', 'admin', 'super_admin'],
   },
 ];
@@ -401,7 +395,7 @@ const patientItems: NavItem[] = [
     href: '/patient-portal',
     icon: HeartPulse,
     badge: 'PORTAL',
-    badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-400/40',
+    badgeColor: 'bg-teal-500/20 text-teal-950 dark:text-teal-200 border border-teal-500/45',
     allowedRoles: ['patient'],
   },
 ];
@@ -507,14 +501,14 @@ export function Sidebar(): React.ReactElement {
   const filteredOperations = useMemo(() => filterByRole(operationsFacilitiesItems), [effectiveRole]);
   const filteredFinance = useMemo(() => filterByRole(financeGovernanceItems), [effectiveRole]);
 
-  // All structured domains
+  // All structured domains: Dashboard is pinned first above this list, then Staff Portal, then remaining clinical/ops domains
   const domains: NavDomain[] = useMemo(() => {
     const list: NavDomain[] = [];
     if (isSupervisorRole) {
       list.push({
         id: 'portals',
         titleKey: 'domain_portals_supervision',
-        fallbackTitle: 'Staff Portals (Supervisor)',
+        fallbackTitle: 'Staff Portal',
         icon: Eye,
         items: filteredPortals,
       });
@@ -555,12 +549,14 @@ export function Sidebar(): React.ReactElement {
   // Pre-warm / prefetch all key routes on idle
   useEffect(() => {
     const allRoutes = [
+      '/dashboard',
+      '/portal/admin',
       ...staffWorkstationPortals,
       ...clinicalJourneyItems,
       ...diagnosticsPharmaItems,
       ...operationsFacilitiesItems,
       ...financeGovernanceItems,
-    ].map((i) => i.href);
+    ].map((item) => (typeof item === 'string' ? item : item.href));
     allRoutes.forEach((href) => {
       try {
         router.prefetch(href);
@@ -570,6 +566,66 @@ export function Sidebar(): React.ReactElement {
     });
   }, [router]);
 
+  const renderPrimaryDashboardCard = (collapsed = false, closeMobile = false) => {
+    const dashboardHref = getRolePortalPath(effectiveRole);
+    const isDashboardActive = pathname === dashboardHref || pathname === '/dashboard';
+    const dashboardLabel =
+      language === 'om'
+        ? 'Dashboard'
+        : language === 'am'
+        ? 'Dashboard (ዳሽቦርድ)'
+        : 'Dashboard';
+
+    return (
+      <Link
+        href={dashboardHref}
+        prefetch={true}
+        onClick={() => {
+          if (closeMobile) setIsMobileOpen(false);
+        }}
+        onMouseEnter={() => router.prefetch(dashboardHref)}
+        title={collapsed ? dashboardLabel : undefined}
+        className={`mkh-sidebar-rect group relative flex items-center overflow-hidden ${
+          collapsed ? 'justify-center px-2 py-3' : 'justify-between px-3.5 py-3'
+        } rounded-2xl border-2 backdrop-blur-md cursor-pointer ${
+          isDashboardActive
+            ? 'mkh-sidebar-active-glow bg-gradient-to-r from-sky-500/25 via-indigo-500/20 to-amber-500/25 dark:from-sky-500/30 dark:via-indigo-500/25 dark:to-amber-500/25 border-sky-500/85 dark:border-amber-400/75 text-slate-950 dark:text-white'
+            : 'bg-white/40 dark:bg-slate-900/40 border-sky-300/80 dark:border-sky-400/40 text-slate-950 dark:text-white hover:bg-white/65 dark:hover:bg-sky-500/20 hover:border-sky-500 hover:translate-x-1 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-6px_rgba(14,165,233,0.38)]'
+        }`}
+      >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/45 dark:via-sky-200/20 to-transparent mkh-panel-sweep"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent"
+        />
+        <div className={`relative z-10 flex items-center gap-2.5 ${collapsed ? 'justify-center' : 'min-w-0'}`}>
+          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-sky-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0">
+            <LayoutDashboard className="h-4.5 w-4.5" />
+          </div>
+          {!collapsed && (
+            <div className="min-w-0">
+              <span className="block text-sm font-black tracking-tight text-slate-950 dark:text-white truncate">
+                {dashboardLabel}
+              </span>
+              <span className="block text-[10px] font-extrabold uppercase tracking-wider text-sky-900 dark:text-sky-200 truncate">
+                {language === 'om' ? 'Wiirtuu Guddicha' : 'Executive Overview'}
+              </span>
+            </div>
+          )}
+        </div>
+        {!collapsed && (
+          <span className="relative z-10 inline-flex items-center gap-1.5 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-950 dark:text-emerald-200 border border-emerald-500/50 shrink-0">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-300 animate-ping" />
+            LIVE
+          </span>
+        )}
+      </Link>
+    );
+  };
+
   const renderNavGroup = (
     domain: NavDomain,
     collapsed = false
@@ -578,7 +634,10 @@ export function Sidebar(): React.ReactElement {
     if (!items || items.length === 0) return null;
 
     const isOpen = openDomains[id] ?? true;
-    const domainTitle = t(titleKey) || fallbackTitle;
+    const domainTitle =
+      id === 'portals'
+        ? 'Staff Portal'
+        : t(titleKey) || fallbackTitle;
 
     return (
       <div key={id} className="space-y-1.5">
@@ -586,27 +645,35 @@ export function Sidebar(): React.ReactElement {
           <button
             type="button"
             onClick={() => toggleDomain(id)}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-800 dark:text-slate-100 bg-white/45 dark:bg-white/[0.04] hover:bg-sky-500/15 dark:hover:bg-sky-400/15 hover:text-indigo-950 dark:hover:text-white border border-slate-200/60 dark:border-slate-700/40 hover:border-sky-300/70 dark:hover:border-sky-400/40 transition-all duration-300 group cursor-pointer shadow-xs"
+            className={`mkh-sidebar-rect relative overflow-hidden w-full flex items-center justify-between px-3 py-2.5 rounded-xl backdrop-blur-md border-2 cursor-pointer group ${
+              id === 'portals'
+                ? 'bg-amber-400/15 dark:bg-amber-500/15 border-amber-400/75 dark:border-amber-400/45 text-slate-950 dark:text-white hover:bg-amber-400/25 dark:hover:bg-amber-500/25 hover:border-amber-500 hover:translate-x-1'
+                : 'bg-white/35 dark:bg-slate-900/35 border-sky-300/60 dark:border-sky-400/30 text-slate-950 dark:text-white hover:bg-white/55 dark:hover:bg-sky-500/20 hover:border-sky-500/75 hover:translate-x-1'
+            }`}
           >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <DomainIcon className="w-4 h-4 text-amber-600 dark:text-amber-300 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0" />
-              <span className="text-xs font-extrabold uppercase tracking-wider truncate">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/35 dark:via-white/10 to-transparent"
+            />
+            <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+              <DomainIcon className="w-4 h-4 text-amber-700 dark:text-amber-300 group-hover:scale-115 group-hover:rotate-12 transition-transform duration-300 shrink-0" />
+              <span className="text-xs font-black uppercase tracking-wider text-slate-950 dark:text-white truncate">
                 {domainTitle}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-sky-100/90 dark:bg-slate-800/80 text-sky-900 dark:text-sky-200 border border-sky-300/70 dark:border-slate-600/70">
+            <div className="relative z-10 flex items-center gap-1.5 shrink-0">
+              <span className="text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-sky-500/20 dark:bg-sky-500/25 text-sky-950 dark:text-sky-100 border border-sky-500/50">
                 {items.length}
               </span>
               <ChevronDown
-                className={`w-4 h-4 text-slate-600 dark:text-slate-300 transition-transform duration-300 ease-out ${
+                className={`w-4 h-4 text-slate-900 dark:text-slate-100 transition-transform duration-300 ease-out ${
                   isOpen ? 'rotate-0' : '-rotate-90'
                 }`}
               />
             </div>
           </button>
         ) : (
-          <div className="my-2 border-t border-slate-300/70 dark:border-slate-700/70 mx-2" title={domainTitle} />
+          <div className="my-2 border-t-2 border-sky-300/60 dark:border-slate-700/70 mx-2" title={domainTitle} />
         )}
 
         <div
@@ -614,9 +681,8 @@ export function Sidebar(): React.ReactElement {
             isOpen || collapsed ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
           }`}
         >
-          <div className="overflow-hidden space-y-1 pt-0.5">
+          <div className="overflow-hidden space-y-1.5 pt-0.5">
             {items.map((item) => {
-              // Dynamically map dashboard key to dedicated role portal path
               const itemHref = item.key === 'dashboard' ? getRolePortalPath(effectiveRole) : item.href;
               const isActive =
                 pathname === itemHref ||
@@ -633,36 +699,36 @@ export function Sidebar(): React.ReactElement {
                   onMouseEnter={() => router.prefetch(itemHref)}
                   onFocus={() => router.prefetch(itemHref)}
                   title={collapsed ? itemLabel : undefined}
-                  className={`group relative flex items-center overflow-hidden ${
+                  className={`mkh-sidebar-rect group relative flex items-center overflow-hidden ${
                     collapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3.5 py-2.5'
-                  } rounded-xl text-[13px] sm:text-sm tracking-tight transition-all duration-300 ease-out cursor-pointer ${
+                  } rounded-xl text-[13px] sm:text-sm tracking-tight backdrop-blur-md cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-r from-amber-400/30 via-sky-400/20 to-indigo-400/15 dark:from-amber-500/25 dark:via-amber-400/15 dark:to-sky-500/10 text-slate-950 dark:text-amber-100 font-extrabold border border-amber-500/60 dark:border-amber-400/50 shadow-[0_4px_14px_-4px_rgba(245,158,11,0.3)] translate-x-1'
-                      : 'text-slate-800 dark:text-slate-100 font-bold border border-transparent hover:text-indigo-950 dark:hover:text-white hover:bg-white/75 dark:hover:bg-white/10 hover:border-sky-300/70 dark:hover:border-sky-400/35 hover:translate-x-1.5 hover:shadow-sm'
+                      ? 'mkh-sidebar-active-glow bg-gradient-to-r from-amber-400/35 via-sky-400/25 to-indigo-400/25 dark:from-amber-500/30 dark:via-sky-500/20 dark:to-indigo-500/20 text-slate-950 dark:text-white font-black border-2 border-amber-500/80 dark:border-amber-400/70 translate-x-1'
+                      : 'bg-white/30 dark:bg-slate-900/30 text-slate-950 dark:text-white font-extrabold border border-sky-200/70 dark:border-slate-700/50 hover:bg-white/60 dark:hover:bg-sky-500/20 hover:border-sky-400/85 dark:hover:border-sky-400/60 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_-6px_rgba(14,165,233,0.35)]'
                   }`}
                 >
                   {/* Hover sheen shimmer */}
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent"
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent"
                   />
 
                   <div className={`relative z-10 flex items-center gap-2.5 ${collapsed ? 'justify-center' : 'min-w-0'}`}>
                     <IconComponent
                       className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${
                         isActive
-                          ? 'text-amber-700 dark:text-amber-300 scale-110'
-                          : 'text-indigo-600 dark:text-sky-300 group-hover:text-amber-600 dark:group-hover:text-amber-300 group-hover:scale-115 group-hover:-rotate-6'
+                          ? 'text-amber-800 dark:text-amber-300 scale-110'
+                          : 'text-indigo-700 dark:text-sky-300 group-hover:text-amber-700 dark:group-hover:text-amber-300 group-hover:scale-115 group-hover:-rotate-6'
                       }`}
                     />
-                    {!collapsed && <span className="truncate">{itemLabel}</span>}
+                    {!collapsed && <span className="truncate drop-shadow-xs">{itemLabel}</span>}
                   </div>
                   {!collapsed && item.badge && (
                     <span
                       className={`relative z-10 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full shrink-0 transition-transform duration-300 group-hover:scale-105 ${
                         isActive
-                          ? 'bg-amber-500/25 text-amber-950 dark:text-amber-200 border border-amber-500/45'
-                          : item.badgeColor || 'bg-slate-200/90 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 border border-slate-300/80 dark:border-slate-600/60'
+                          ? 'bg-amber-500/30 text-slate-950 dark:text-amber-100 border border-amber-500/60'
+                          : item.badgeColor || 'bg-slate-200/80 dark:bg-slate-800/80 text-slate-950 dark:text-white border border-slate-400/60 dark:border-slate-600/60'
                       }`}
                     >
                       {item.badge}
@@ -670,10 +736,10 @@ export function Sidebar(): React.ReactElement {
                   )}
                   {/* Floating tooltip for collapsed mode on hover */}
                   {collapsed && (
-                    <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-extrabold text-slate-900 dark:text-white shadow-xl border border-sky-300 dark:border-slate-700">
+                    <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-extrabold text-slate-950 dark:text-white shadow-xl border border-sky-400 dark:border-slate-700">
                       <span>{itemLabel}</span>
                       {item.badge && (
-                        <span className="font-mono text-[10px] text-teal-700 dark:text-teal-300">({item.badge})</span>
+                        <span className="font-mono text-[10px] text-teal-800 dark:text-teal-200">({item.badge})</span>
                       )}
                     </div>
                   )}
@@ -688,66 +754,69 @@ export function Sidebar(): React.ReactElement {
 
   return (
     <>
-      {/* 1. DESKTOP / PC SIDEBAR (FROSTED GLASS TRANSPARENCY + ANIMATED HOVER) */}
+      {/* 1. DESKTOP / PC SIDEBAR (FROSTED GLASS TRANSPARENCY + CRISP TEXT + ANIMATED HOVER) */}
       <aside
         className={`hidden lg:flex ${
           isCollapsed ? 'w-18' : 'w-72 lg:w-76'
-        } flex-shrink-0 border-r border-sky-200/80 dark:border-slate-700/60 bg-white/70 dark:bg-slate-950/60 backdrop-blur-2xl text-slate-900 dark:text-slate-100 flex-col h-screen sticky top-0 shadow-[8px_0_30px_-10px_rgba(14,165,233,0.16)] dark:shadow-2xl select-none z-20 transition-all duration-300`}
+        } flex-shrink-0 border-r-2 border-sky-300/75 dark:border-sky-400/35 bg-white/45 dark:bg-slate-950/45 backdrop-blur-2xl text-slate-950 dark:text-white flex-col h-screen sticky top-0 shadow-[10px_0_32px_-10px_rgba(14,165,233,0.22)] dark:shadow-2xl select-none z-20 transition-all duration-300`}
       >
         {/* Brand Header */}
         <Link
           href={getRolePortalPath(effectiveRole)}
           className={`flex h-16 items-center ${
             isCollapsed ? 'justify-center px-2' : 'gap-3 px-4'
-          } border-b border-sky-200/70 dark:border-slate-800/70 flex-shrink-0 bg-white/55 dark:bg-slate-900/50 backdrop-blur-md hover:bg-sky-50/80 dark:hover:bg-slate-800/60 transition-all duration-300 group cursor-pointer`}
+          } border-b border-sky-300/60 dark:border-slate-700/60 flex-shrink-0 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md hover:bg-white/55 dark:hover:bg-slate-800/55 transition-all duration-300 group cursor-pointer`}
           title={t('hospital_name')}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/25 to-orange-500/20 border border-amber-500/45 text-amber-700 dark:text-amber-300 shrink-0 group-hover:scale-110 group-hover:rotate-3 shadow-[0_0_16px_rgba(245,158,11,0.2)] transition-all duration-300">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/35 to-orange-500/25 border-2 border-amber-500/60 text-amber-800 dark:text-amber-300 shrink-0 group-hover:scale-110 group-hover:rotate-3 shadow-[0_0_16px_rgba(245,158,11,0.25)] transition-all duration-300">
             <Building2 className="h-5 w-5" />
           </div>
           {!isCollapsed && (
             <div className="min-w-0 flex-1">
-              <span className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight block group-hover:text-indigo-700 dark:group-hover:text-amber-300 transition-colors truncate">
+              <span className="text-sm font-black text-slate-950 dark:text-white tracking-tight leading-tight block group-hover:text-indigo-800 dark:group-hover:text-amber-300 transition-colors truncate">
                 {t('hospital_name')}
               </span>
-              <span className="text-[11px] font-extrabold text-amber-700 dark:text-amber-400 block truncate">
+              <span className="text-[11px] font-extrabold text-amber-800 dark:text-amber-300 block truncate">
                 Enterprise Clinical OS
               </span>
             </div>
           )}
         </Link>
 
-        {/* Navigation Groups (Domain-Driven Flow) */}
-        <nav className={`flex-1 overflow-y-auto space-y-4 ${isCollapsed ? 'p-1.5' : 'p-3'} custom-scrollbar`}>
+        {/* Navigation Groups (Dashboard First -> Staff Portal -> Remaining Domains) */}
+        <nav className={`flex-1 overflow-y-auto space-y-3.5 ${isCollapsed ? 'p-1.5' : 'p-3'} custom-scrollbar`}>
           {isPatientRole ? (
             <div className="space-y-1.5">
-              <span className="px-3 text-xs font-extrabold uppercase tracking-wider text-teal-800 dark:text-teal-300 block mb-1.5">
+              <span className="px-3 text-xs font-black uppercase tracking-wider text-teal-900 dark:text-teal-200 block mb-1.5">
                 {language === 'om' ? 'Kutaa Dhukkubsataa' : language === 'am' ? 'የታካሚ ክፍል' : 'Patient Care Portal'}
               </span>
               {patientItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/35 text-teal-900 dark:text-teal-200 font-extrabold text-sm hover:translate-x-1 transition-all duration-300"
+                  className="mkh-sidebar-rect flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-2 border-teal-500/50 text-slate-950 dark:text-white font-extrabold text-sm hover:translate-x-1 transition-all duration-300"
                 >
-                  <item.icon className="w-4.5 h-4.5" />
+                  <item.icon className="w-4.5 h-4.5 text-teal-700 dark:text-teal-300" />
                   <span>{t(item.key)}</span>
                 </Link>
               ))}
             </div>
           ) : (
-            domains.map((domain) => renderNavGroup(domain, isCollapsed))
+            <>
+              {renderPrimaryDashboardCard(isCollapsed, false)}
+              {domains.map((domain) => renderNavGroup(domain, isCollapsed))}
+            </>
           )}
         </nav>
 
         {/* Hospital Footer status & Collapse Toggle */}
-        <div className="p-2.5 border-t border-sky-200/70 dark:border-slate-800/70 bg-white/55 dark:bg-slate-900/50 backdrop-blur-md space-y-2 text-xs">
+        <div className="p-2.5 border-t border-sky-300/60 dark:border-slate-700/60 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md space-y-2 text-xs">
           {!isCollapsed ? (
             <>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                  <span className="text-[11px] font-mono font-extrabold text-amber-950 dark:text-amber-200 bg-amber-200/80 dark:bg-amber-950/70 px-2.5 py-0.5 rounded-md border border-amber-400/60 dark:border-amber-600/40 truncate">
+                  <span className="text-[11px] font-mono font-extrabold text-amber-950 dark:text-amber-100 bg-amber-300/60 dark:bg-amber-900/60 px-2.5 py-0.5 rounded-md border border-amber-500/60 dark:border-amber-500/50 truncate">
                     {effectiveRole.toUpperCase()} {simulatedRole ? '(SIM)' : ''}
                   </span>
                 </div>
@@ -755,7 +824,7 @@ export function Sidebar(): React.ReactElement {
                   type="button"
                   onClick={toggleCollapse}
                   title="Collapse sidebar to icon mode"
-                  className="p-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-sky-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-900 dark:text-white hover:bg-white/60 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
                   aria-label="Collapse sidebar"
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -764,11 +833,11 @@ export function Sidebar(): React.ReactElement {
 
               {/* Administrative Supervisory Authority & Workstation Inspector */}
               {isSupervisorRole && (
-                <div className="rounded-xl bg-white/75 dark:bg-slate-900/70 backdrop-blur-md border border-amber-400/50 dark:border-amber-500/35 p-2.5 space-y-2 shadow-sm">
+                <div className="rounded-xl bg-white/40 dark:bg-slate-900/45 backdrop-blur-md border-2 border-amber-400/65 dark:border-amber-400/45 p-2.5 space-y-2 shadow-sm hover:border-amber-500 transition-colors">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
+                    <div className="flex items-center gap-1.5 text-amber-900 dark:text-amber-200">
                       <Eye className="w-4 h-4" />
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider">
+                      <span className="text-[11px] font-black uppercase tracking-wider">
                         {language === 'om' ? "To'annoo Ogeessotaa" : language === 'am' ? 'የስራ ክትትል' : 'Staff Oversight'}
                       </span>
                     </div>
@@ -787,7 +856,7 @@ export function Sidebar(): React.ReactElement {
                     )}
                   </div>
 
-                  <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 leading-tight">
+                  <p className="text-[11px] font-bold text-slate-900 dark:text-slate-100 leading-tight">
                     {language === 'om'
                       ? "Kutaa hojii ogeessa kamiyyuu akka supervisor-tti to'achuuf filadhu:"
                       : 'Switch workstation perspective to supervise staff activities:'}
@@ -801,7 +870,7 @@ export function Sidebar(): React.ReactElement {
                       setSimulatedRole(nextRole === 'admin' ? null : nextRole);
                       router.push(getRolePortalPath(nextRole));
                     }}
-                    className="w-full bg-white/95 dark:bg-slate-950/90 border border-amber-400/70 dark:border-amber-500/45 text-slate-900 dark:text-amber-100 text-xs rounded-lg px-2.5 py-1.5 font-bold focus:outline-none focus:border-amber-500 cursor-pointer"
+                    className="w-full bg-white/80 dark:bg-slate-950/75 border-2 border-amber-400/75 dark:border-amber-500/50 text-slate-950 dark:text-white text-xs rounded-lg px-2.5 py-1.5 font-extrabold focus:outline-none focus:border-amber-500 cursor-pointer"
                   >
                     <option value="admin">🛡️ ADMIN (Executive)</option>
                     <option value="doctor">🩺 DOCTOR (Clinical & EMR)</option>
@@ -842,7 +911,7 @@ export function Sidebar(): React.ReactElement {
                 type="button"
                 onClick={toggleCollapse}
                 title="Expand sidebar"
-                className="p-1.5 rounded-md text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-sky-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-md text-slate-900 dark:text-white hover:text-amber-600 dark:hover:text-amber-300 hover:bg-white/60 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
                 aria-label="Expand sidebar"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -862,24 +931,24 @@ export function Sidebar(): React.ReactElement {
 
       {/* 3. MOBILE SLIDE-OVER DRAWER PANEL */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-white/85 dark:bg-slate-950/80 backdrop-blur-2xl text-slate-900 dark:text-slate-100 shadow-2xl flex flex-col lg:hidden transform transition-transform duration-300 ease-out border-r border-sky-200/80 dark:border-slate-700/60 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-white/55 dark:bg-slate-950/60 backdrop-blur-2xl text-slate-950 dark:text-white shadow-2xl flex flex-col lg:hidden transform transition-transform duration-300 ease-out border-r-2 border-sky-300/75 dark:border-sky-400/35 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Drawer Header with Brand & Close Button */}
-        <div className="flex h-16 items-center justify-between border-b border-sky-200/70 dark:border-slate-800/70 px-4 bg-white/60 dark:bg-slate-900/55 backdrop-blur-md shrink-0">
+        <div className="flex h-16 items-center justify-between border-b border-sky-300/60 dark:border-slate-700/60 px-4 bg-white/40 dark:bg-slate-900/45 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 border border-amber-500/45 text-amber-700 dark:text-amber-300 shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/25 border-2 border-amber-500/60 text-amber-800 dark:text-amber-300 shrink-0">
               <Building2 className="h-4.5 w-4.5" />
             </div>
-            <span className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+            <span className="text-sm font-black text-slate-950 dark:text-white truncate">
               {t('hospital_name')}
             </span>
           </div>
           <button
             type="button"
             onClick={() => setIsMobileOpen(false)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-200/80 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/70 dark:bg-slate-800/80 text-slate-950 dark:text-white hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
             aria-label="Close menu"
           >
             <X className="h-4 w-4" />
@@ -887,10 +956,10 @@ export function Sidebar(): React.ReactElement {
         </div>
 
         {/* Scrollable Workstation Links */}
-        <nav className="flex-1 overflow-y-auto space-y-4 p-3 custom-scrollbar">
+        <nav className="flex-1 overflow-y-auto space-y-3.5 p-3 custom-scrollbar">
           {isPatientRole ? (
             <div className="space-y-1.5">
-              <span className="px-3 text-xs font-extrabold uppercase tracking-wider text-teal-800 dark:text-teal-300 block mb-1.5">
+              <span className="px-3 text-xs font-black uppercase tracking-wider text-teal-900 dark:text-teal-200 block mb-1.5">
                 {language === 'om' ? 'Kutaa Dhukkubsataa' : language === 'am' ? 'የታካሚ ክፍል' : 'Patient Care Portal'}
               </span>
               {patientItems.map((item) => (
@@ -898,20 +967,23 @@ export function Sidebar(): React.ReactElement {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMobileOpen(false)}
-                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/35 text-teal-900 dark:text-teal-200 font-extrabold text-sm"
+                  className="mkh-sidebar-rect flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white/45 dark:bg-slate-900/45 backdrop-blur-md border-2 border-teal-500/50 text-slate-950 dark:text-white font-extrabold text-sm"
                 >
-                  <item.icon className="w-4.5 h-4.5" />
+                  <item.icon className="w-4.5 h-4.5 text-teal-700 dark:text-teal-300" />
                   <span>{t(item.key)}</span>
                 </Link>
               ))}
             </div>
           ) : (
-            domains.map((domain) => renderNavGroup(domain))
+            <>
+              {renderPrimaryDashboardCard(false, true)}
+              {domains.map((domain) => renderNavGroup(domain))}
+            </>
           )}
         </nav>
 
         {/* Mobile Drawer Footer with Logout Button */}
-        <div className="p-3 border-t border-sky-200/70 dark:border-slate-800/70 bg-white/60 dark:bg-slate-900/55 backdrop-blur-md shrink-0 space-y-2">
+        <div className="p-3 border-t border-sky-300/60 dark:border-slate-700/60 bg-white/40 dark:bg-slate-900/45 backdrop-blur-md shrink-0 space-y-2">
           {isSupervisorRole && (
             <select
               value={effectiveRole}
@@ -921,7 +993,7 @@ export function Sidebar(): React.ReactElement {
                 setIsMobileOpen(false);
                 router.push(getRolePortalPath(nextRole));
               }}
-              className="w-full bg-white/95 dark:bg-slate-950/90 border border-amber-400/70 dark:border-amber-500/45 text-slate-900 dark:text-amber-100 text-xs rounded-lg p-2 font-bold"
+              className="w-full bg-white/80 dark:bg-slate-950/75 border-2 border-amber-400/75 dark:border-amber-500/50 text-slate-950 dark:text-white text-xs rounded-lg p-2 font-extrabold"
             >
               <option value="admin">🛡️ ADMIN (Executive)</option>
               <option value="doctor">🩺 DOCTOR (Clinical)</option>

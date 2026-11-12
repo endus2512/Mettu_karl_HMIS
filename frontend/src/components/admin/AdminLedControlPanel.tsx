@@ -160,23 +160,24 @@ export function AdminLedControlPanel(): React.ReactElement {
   return (
     <div
       id="admin-led-signage-studio"
-      className={`bg-gradient-to-br from-white via-cyan-50/45 to-amber-50/45 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] border-2 border-cyan-300/75 dark:border-cyan-400/35 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${
+      className={`relative overflow-hidden bg-gradient-to-br from-white via-cyan-100/60 to-amber-100/60 dark:from-[#16233d] dark:via-[#172d48] dark:to-[#1a223a] border-[2.5px] border-cyan-400/90 dark:border-cyan-400/55 rounded-2xl shadow-[0_12px_28px_-8px_rgba(6,182,212,0.25)] hover:shadow-[0_16px_36px_-8px_rgba(6,182,212,0.42)] hover:-translate-y-1 transition-all duration-300 group ${
         isExpanded ? 'p-4 sm:p-5 space-y-4' : 'p-4 sm:p-5'
       }`}
     >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-cyan-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '2.0s' }} />
       {/* Header Row */}
       <div
-        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-          isExpanded ? 'border-b border-cyan-200 dark:border-slate-700 pb-3.5' : ''
+        className={`relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+          isExpanded ? 'border-b-2 border-cyan-200 dark:border-slate-700 pb-3.5' : ''
         }`}
       >
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-cyan-500/20">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-cyan-500/25 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
             <Monitor className="w-5.5 h-5.5" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
                 {lang === 'om'
                   ? "Boordii Digital LED Gamoo (Arduino Signage)"
                   : lang === 'am'

@@ -309,17 +309,18 @@ export function AdminUserDirectoryPanel() {
   return (
     <section
       id="user-directory-recovery"
-      className="bg-gradient-to-br from-white via-amber-50/45 to-sky-50/55 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] border-2 border-amber-300/70 dark:border-amber-400/35 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+      className="relative bg-gradient-to-br from-white via-amber-100/60 to-sky-100/65 dark:from-[#16233d] dark:via-[#222944] dark:to-[#162138] border-[2.5px] border-amber-400/90 dark:border-amber-400/55 rounded-2xl shadow-[0_12px_28px_-8px_rgba(245,158,11,0.25)] hover:shadow-[0_16px_36px_-8px_rgba(245,158,11,0.4)] hover:-translate-y-1 transition-all duration-300 overflow-hidden group"
     >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-amber-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '1.4s' }} />
       {/* Compact Header (Minimized by Default) */}
-      <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="relative z-10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3.5">
-          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/25">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
             <BookUser className="w-5.5 h-5.5" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
                 Staff &amp; Patient Directory, Biography &amp; Password Vault
               </h2>
               {data && (

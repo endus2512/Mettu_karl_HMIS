@@ -196,23 +196,24 @@ export function AdminWorkforceMonitor(): React.ReactElement {
   return (
     <div
       id="admin-workforce-monitor"
-      className={`bg-gradient-to-br from-white via-emerald-50/45 to-teal-50/45 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] border-2 border-emerald-300/75 dark:border-emerald-400/35 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${
+      className={`relative overflow-hidden bg-gradient-to-br from-white via-emerald-100/60 to-teal-100/65 dark:from-[#16233d] dark:via-[#182e46] dark:to-[#142336] border-[2.5px] border-emerald-400/90 dark:border-emerald-400/55 rounded-2xl shadow-[0_12px_28px_-8px_rgba(16,185,129,0.24)] hover:shadow-[0_16px_36px_-8px_rgba(16,185,129,0.4)] hover:-translate-y-1 transition-all duration-300 group ${
         isMinimized ? 'p-4 sm:p-5' : 'p-4 sm:p-5 space-y-4'
       }`}
     >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-emerald-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '0.8s' }} />
       {/* Header Row */}
       <div
-        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${
-          isMinimized ? '' : 'pb-3 border-b border-emerald-200 dark:border-slate-700'
+        className={`relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${
+          isMinimized ? '' : 'pb-3 border-b-2 border-emerald-200 dark:border-slate-700'
         }`}
       >
         <div className="flex items-center gap-3.5">
-          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/25">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/30 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
             <Activity className="w-5.5 h-5.5" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
                 {lang === 'om'
                   ? "To'annoo Hojjettoota Hojirra Jiran (Live Workforce)"
                   : lang === 'am'

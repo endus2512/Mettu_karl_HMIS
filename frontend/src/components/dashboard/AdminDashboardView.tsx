@@ -261,20 +261,21 @@ export function AdminDashboardView(): React.ReactElement {
       {/* ================================================================= */}
       {/* 1. COMPACT EXECUTIVE COCKPIT HEADER WITH QUICK CONTROLS            */}
       {/* ================================================================= */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gradient-to-br from-white via-sky-50/80 to-indigo-50/70 dark:from-[#17243b] dark:via-[#1c2b46] dark:to-[#18233a] border-2 border-sky-200/90 dark:border-sky-400/35 rounded-3xl p-4 sm:p-5 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-        <div className="space-y-1">
+      <div className="relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gradient-to-br from-white via-sky-100/80 to-indigo-100/75 dark:from-[#16233d] dark:via-[#1d2e4f] dark:to-[#182644] border-[2.5px] border-sky-400/90 dark:border-sky-400/55 rounded-3xl p-4 sm:p-5 shadow-[0_14px_34px_-8px_rgba(14,165,233,0.28)] hover:shadow-[0_18px_40px_-8px_rgba(14,165,233,0.42)] hover:-translate-y-1 transition-all duration-300 group">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/40 dark:via-sky-200/15 to-transparent mkh-panel-sweep" />
+        <div className="relative z-10 space-y-1">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shadow-md shadow-amber-500/25 shrink-0">
+            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shadow-md shadow-amber-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0">
               <Building2 className="w-5.5 h-5.5" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-2.5 flex-wrap">
                 <span>{language === 'om' ? "Wiirtuu Bulchiinsa Hospitaala Mattuu Kaarl" : language === 'am' ? 'የመቱ ካርል ሪፈራል ሆስፒታል የበላይ አስተዳደር' : 'Mettu Karl Referral Hospital Executive Command'}</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-400/25 text-amber-900 dark:text-amber-200 border border-amber-400/50 font-mono font-extrabold">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-400/30 text-amber-950 dark:text-amber-100 border-2 border-amber-500/60 font-mono font-black">
                   ADMIN COMMAND
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mt-0.5">
+              <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5">
                 {language === 'om'
                   ? "To'annoo kutaalee yaalaa, karoora ogeeyyii, fi murtiiwwan hatattamaa hospitaalaa"
                   : 'Hospital-wide departmental monitoring, staffing oversight, and live operational control'}
@@ -284,15 +285,15 @@ export function AdminDashboardView(): React.ReactElement {
         </div>
 
         {/* Quick Status Badges & Admin Action Controls */}
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="relative z-10 flex flex-wrap items-center gap-2.5 shrink-0">
           {/* Emergency Status Pill */}
           <div
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold border transition-transform hover:scale-[1.03] ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black border-2 transition-transform hover:scale-[1.04] ${
               emergencyCode === 'code_blue'
-                ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border-rose-400 animate-pulse'
+                ? 'bg-rose-100 dark:bg-rose-950/85 text-rose-900 dark:text-rose-100 border-rose-500 animate-pulse'
                 : emergencyCode === 'mci'
-                ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border-amber-400 animate-pulse'
-                : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 border-emerald-400/60'
+                ? 'bg-amber-100 dark:bg-amber-950/85 text-amber-950 dark:text-amber-100 border-amber-500 animate-pulse'
+                : 'bg-emerald-100/95 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border-emerald-500/75'
             }`}
           >
             <span className={`h-2.5 w-2.5 rounded-full ${emergencyCode === 'nominal' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
@@ -306,7 +307,7 @@ export function AdminDashboardView(): React.ReactElement {
           </div>
 
           {/* Active Shift Pill (Online Centralized) */}
-          <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-[#141f35] border-2 border-sky-200 dark:border-sky-500/35 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 hover:border-sky-400 transition-colors">
+          <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/90 dark:bg-[#142038] border-2 border-sky-400/80 dark:border-sky-400/50 text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white hover:border-sky-500 transition-colors">
             <Clock className="w-4 h-4 text-amber-500" />
             <span>
               {onlineShift
@@ -317,7 +318,7 @@ export function AdminDashboardView(): React.ReactElement {
                 ? (lang === 'om' ? 'Shiftii Galgalaa (16:00-24:00)' : 'Afternoon Shift')
                 : (lang === 'om' ? 'Shiftii Halkan (00:00-08:00)' : 'Night Shift')}
             </span>
-            <span className="text-xs text-teal-700 dark:text-teal-300 font-mono font-extrabold pl-1.5 border-l border-slate-300 dark:border-slate-600">
+            <span className="text-xs text-teal-800 dark:text-teal-200 font-mono font-black pl-1.5 border-l-2 border-sky-300 dark:border-slate-600">
               {serverTime}
             </span>
           </div>
@@ -335,18 +336,19 @@ export function AdminDashboardView(): React.ReactElement {
 
       {/* Broadcast Banner */}
       {broadcastMessage && (
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-amber-100/90 dark:bg-amber-500/20 border-2 border-amber-400/70 dark:border-amber-400/45 text-xs sm:text-sm shadow-sm">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <Volume2 className="w-4.5 h-4.5 text-amber-700 dark:text-amber-300 shrink-0" />
-            <span className="font-extrabold text-amber-950 dark:text-amber-200">{language === 'om' ? "Beeksisa Hospitaalaa:" : "Broadcast:"}</span>
-            <span className="font-semibold text-slate-900 dark:text-slate-100 truncate">{broadcastMessage}</span>
+        <div className="relative overflow-hidden flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-amber-100 via-orange-50 to-amber-100/95 dark:from-amber-500/25 dark:via-orange-500/20 dark:to-amber-600/25 border-[2.5px] border-amber-500/85 dark:border-amber-400/60 text-xs sm:text-sm shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/40 dark:via-amber-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '1.2s' }} />
+          <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+            <Volume2 className="w-4.5 h-4.5 text-amber-800 dark:text-amber-200 shrink-0 animate-pulse" />
+            <span className="font-black text-amber-950 dark:text-amber-100">{language === 'om' ? "Beeksisa Hospitaalaa:" : "Broadcast:"}</span>
+            <span className="font-bold text-slate-950 dark:text-white truncate">{broadcastMessage}</span>
           </div>
           <MorphingArrowButton
             variant="amber-soft"
             size="xs"
             label={language === 'om' ? 'Jijjiiri' : 'Edit'}
             onClick={() => setIsEditModalOpen(true)}
-            className="shrink-0"
+            className="relative z-10 shrink-0"
           />
         </div>
       )}
@@ -354,8 +356,9 @@ export function AdminDashboardView(): React.ReactElement {
       {/* ================================================================= */}
       {/* 2. ONE UNIFIED RECTANGLE HOLDING 4 COMPACT ANIMATED 3D MINI CUBES */}
       {/* ================================================================= */}
-      <div className="rounded-3xl border-2 border-sky-300/85 dark:border-sky-400/45 bg-gradient-to-br from-white/95 via-sky-50/85 to-indigo-50/85 dark:from-[#121d36]/95 dark:via-[#162442]/95 dark:to-[#131d38]/95 backdrop-blur-md p-3 sm:p-4 shadow-[0_12px_30px_-8px_rgba(14,165,233,0.22)] hover:shadow-[0_16px_36px_-8px_rgba(14,165,233,0.34)] transition-all duration-300 animate-smooth-in">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-3xl mx-auto">
+      <div className="relative overflow-hidden rounded-3xl border-[2.5px] border-sky-400/90 dark:border-sky-400/60 bg-gradient-to-br from-sky-100/85 via-white/95 to-indigo-100/85 dark:from-[#132140]/95 dark:via-[#18294e]/95 dark:to-[#1a2448]/95 backdrop-blur-md p-3.5 sm:p-4 shadow-[0_14px_34px_-8px_rgba(14,165,233,0.3)] hover:shadow-[0_18px_42px_-8px_rgba(14,165,233,0.45)] hover:-translate-y-0.5 transition-all duration-300 animate-smooth-in">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-white/45 dark:via-sky-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '0.6s' }} />
+        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-3xl mx-auto">
           {/* Mini Cube 1: Bed Occupancy */}
           <div
             onClick={() => setIsEditModalOpen(true)}
@@ -524,23 +527,24 @@ export function AdminDashboardView(): React.ReactElement {
         <AdminOversightHub />
 
         {/* 3E. Staff Workstation Portals (Minimized by Default) */}
-        <div className={`bg-gradient-to-br from-white/95 via-teal-50/60 to-sky-50/70 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] backdrop-blur-md border-2 border-teal-300/80 dark:border-teal-400/35 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${showPortals ? 'p-4 sm:p-5 space-y-3.5' : 'p-4 sm:p-5'}`}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className={`relative overflow-hidden bg-gradient-to-br from-white via-teal-100/65 to-sky-100/75 dark:from-[#16233d] dark:via-[#1a2c4a] dark:to-[#162138] backdrop-blur-md border-[2.5px] border-teal-400/90 dark:border-teal-400/55 rounded-2xl shadow-[0_12px_28px_-8px_rgba(20,184,166,0.26)] hover:shadow-[0_16px_34px_-8px_rgba(20,184,166,0.4)] hover:-translate-y-1 transition-all duration-300 group ${showPortals ? 'p-4 sm:p-5 space-y-3.5' : 'p-4 sm:p-5'}`}>
+          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-teal-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '1.8s' }} />
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3.5">
-              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md shadow-teal-500/20">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md shadow-teal-500/25 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
                 <Eye className="w-5.5 h-5.5" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+                  <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
                     {language === 'om' ? "Kutaalee Hojii Ogeessotaa (Role Portals)" : "Staff Workstation Portals (Supervisor Jump)"}
                   </h2>
-                  <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-teal-100 dark:bg-teal-500/20 text-teal-950 dark:text-teal-200 border border-teal-400/70 dark:border-teal-400/40">
+                  <span className="text-xs font-mono font-black px-2.5 py-0.5 rounded-full bg-teal-100 dark:bg-teal-500/25 text-teal-950 dark:text-teal-100 border-2 border-teal-500/60 dark:border-teal-400/50">
                     7 Portals Active
                   </span>
                 </div>
                 {!showPortals && (
-                  <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">
+                  <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5">
                     Doctor • Nurse • Pharmacy • Laboratory • Billing • Reception • Patient
                   </p>
                 )}
@@ -558,26 +562,26 @@ export function AdminDashboardView(): React.ReactElement {
           </div>
 
           {showPortals && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-3 border-t border-teal-200 dark:border-slate-700">
+            <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-3 border-t-2 border-teal-300/70 dark:border-slate-700">
               {[
-                { href: '/portal/doctor', icon: Stethoscope, title: 'Doctor', sub: 'EMR & OPD', color: 'border-teal-400/60 dark:border-teal-500/40 hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-500/15', iconColor: 'text-teal-700 dark:text-teal-300' },
-                { href: '/portal/nurse', icon: BedDouble, title: 'Nurse', sub: 'Wards & MAR', color: 'border-emerald-400/60 dark:border-emerald-500/40 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/15', iconColor: 'text-emerald-700 dark:text-emerald-300' },
-                { href: '/portal/pharmacy', icon: Pill, title: 'Pharmacy', sub: 'FEFO Dispensary', color: 'border-amber-400/60 dark:border-amber-500/40 hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/15', iconColor: 'text-amber-700 dark:text-amber-300' },
-                { href: '/portal/lab', icon: FlaskConical, title: 'Laboratory', sub: 'LIS & Blood', color: 'border-cyan-400/60 dark:border-cyan-500/40 hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-500/15', iconColor: 'text-cyan-700 dark:text-cyan-300' },
-                { href: '/portal/billing', icon: CreditCard, title: 'Billing', sub: 'Telebirr & POS', color: 'border-blue-400/60 dark:border-blue-500/40 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/15', iconColor: 'text-blue-700 dark:text-blue-300' },
-                { href: '/portal/reception', icon: Ticket, title: 'Reception', sub: 'Triage & Fayda', color: 'border-purple-400/60 dark:border-purple-500/40 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/15', iconColor: 'text-purple-700 dark:text-purple-300' },
-                { href: '/patient-portal', icon: Users, title: 'Patient', sub: 'Health Portal', color: 'border-rose-400/60 dark:border-rose-500/40 hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/15', iconColor: 'text-rose-700 dark:text-rose-300' },
+                { href: '/portal/doctor', icon: Stethoscope, title: 'Doctor', sub: 'EMR & OPD', color: 'border-teal-400/80 dark:border-teal-500/50 hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-500/20', iconColor: 'text-teal-700 dark:text-teal-300' },
+                { href: '/portal/nurse', icon: BedDouble, title: 'Nurse', sub: 'Wards & MAR', color: 'border-emerald-400/80 dark:border-emerald-500/50 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/20', iconColor: 'text-emerald-700 dark:text-emerald-300' },
+                { href: '/portal/pharmacy', icon: Pill, title: 'Pharmacy', sub: 'FEFO Dispensary', color: 'border-amber-400/80 dark:border-amber-500/50 hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/20', iconColor: 'text-amber-700 dark:text-amber-300' },
+                { href: '/portal/lab', icon: FlaskConical, title: 'Laboratory', sub: 'LIS & Blood', color: 'border-cyan-400/80 dark:border-cyan-500/50 hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-500/20', iconColor: 'text-cyan-700 dark:text-cyan-300' },
+                { href: '/portal/billing', icon: CreditCard, title: 'Billing', sub: 'Telebirr & POS', color: 'border-blue-400/80 dark:border-blue-500/50 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/20', iconColor: 'text-blue-700 dark:text-blue-300' },
+                { href: '/portal/reception', icon: Ticket, title: 'Reception', sub: 'Triage & Fayda', color: 'border-purple-400/80 dark:border-purple-500/50 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/20', iconColor: 'text-purple-700 dark:text-purple-300' },
+                { href: '/patient-portal', icon: Users, title: 'Patient', sub: 'Health Portal', color: 'border-rose-400/80 dark:border-rose-500/50 hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/20', iconColor: 'text-rose-700 dark:text-rose-300' },
               ].map((portal) => {
                 const Icon = portal.icon;
                 return (
                   <Link
                     key={portal.href}
                     href={portal.href}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl bg-white/95 dark:bg-[#131d31] border-2 ${portal.color} transition-all duration-300 text-center group hover:-translate-y-1 hover:shadow-md`}
+                    className={`flex flex-col items-center justify-center p-3 rounded-xl bg-white/95 dark:bg-[#131d31] border-2 ${portal.color} transition-all duration-300 text-center group hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-lg`}
                   >
-                    <Icon className={`w-5 h-5 ${portal.iconColor} group-hover:scale-115 transition-transform duration-300 mb-1.5`} />
-                    <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">{portal.title}</span>
-                    <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200">{portal.sub}</span>
+                    <Icon className={`w-5 h-5 ${portal.iconColor} group-hover:scale-115 group-hover:rotate-6 transition-transform duration-300 mb-1.5`} />
+                    <span className="text-xs sm:text-sm font-black text-slate-950 dark:text-white">{portal.title}</span>
+                    <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{portal.sub}</span>
                   </Link>
                 );
               })}
@@ -586,25 +590,26 @@ export function AdminDashboardView(): React.ReactElement {
         </div>
 
         {/* 3F. Live Ward Bed Capacity (Minimized by Default) */}
-        <div className={`rounded-2xl border-2 border-indigo-300/70 dark:border-indigo-400/35 bg-gradient-to-br from-white via-indigo-50/40 to-sky-50/50 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${showWardTable ? 'p-4 sm:p-5 space-y-4' : 'p-4 sm:p-5'}`}>
-          <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${showWardTable ? 'pb-3 border-b border-indigo-200 dark:border-slate-700' : ''}`}>
+        <div className={`relative overflow-hidden rounded-2xl border-[2.5px] border-indigo-400/90 dark:border-indigo-400/55 bg-gradient-to-br from-white via-indigo-100/55 to-sky-100/65 dark:from-[#16233d] dark:via-[#1b2a4a] dark:to-[#162038] shadow-[0_12px_28px_-8px_rgba(99,102,241,0.26)] hover:shadow-[0_16px_34px_-8px_rgba(99,102,241,0.4)] hover:-translate-y-1 transition-all duration-300 group ${showWardTable ? 'p-4 sm:p-5 space-y-4' : 'p-4 sm:p-5'}`}>
+          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-indigo-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '2.4s' }} />
+          <div className={`relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${showWardTable ? 'pb-3 border-b-2 border-indigo-200 dark:border-slate-700' : ''}`}>
             <div className="flex items-center gap-3.5">
-              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/25">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/30 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
                 <BedDouble className="w-5.5 h-5.5" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+                  <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
                     {language === 'om' ? "Haala Siree & Kutaalee Yaalaa (Ward Capacity)" : "Live Ward Bed Capacity & Allocation"}
                   </h2>
                   {!showWardTable && (
-                    <span className="text-xs sm:text-sm font-mono font-extrabold text-indigo-800 dark:text-sky-200">
+                    <span className="text-xs sm:text-sm font-mono font-black text-indigo-900 dark:text-sky-100">
                       {wards.length} Wards • {occupiedBeds}/{totalBeds} Beds ({occupancyPercent}%)
                     </span>
                   )}
                 </div>
                 {showWardTable && (
-                  <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">
+                  <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5">
                     {language === 'om' ? "Kutaalee yaalaa gurguddoo fi to'annoo siree battalaa" : "Departmental census with real-time room capacity overrides"}
                   </p>
                 )}
