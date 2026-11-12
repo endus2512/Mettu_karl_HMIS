@@ -3,6 +3,7 @@ Authentication endpoints: login, 2-step MFA, token refresh, logout, and profile.
 """
 from datetime import datetime, timezone
 import json
+import os
 import re
 import secrets
 from typing import Annotated, List, Optional
@@ -14,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_client_ip, get_current_user, require_admin, require_roles, require_staff
 from app.core.audit import record_audit_event
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.rate_limiter import (
     check_patient_login_rate_limit,
@@ -1590,6 +1592,14 @@ async def control_staff_access_and_role(
     """
     target = await get_user_by_id(db, user_id)
     if not target or target.role == UserRole.PATIENT:
+        if os.environ.get("VERCEL") and "sqlite" in settings.DATABASE_URL:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=(
+                    "Staff account not found on this serverless instance: Vercel is running on ephemeral "
+                    "/tmp SQLite without a shared PostgreSQL DATABASE_URL."
+                ),
+            )
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Staff account not found")
 
     if target.id == current_user.id or target.username == "admin":

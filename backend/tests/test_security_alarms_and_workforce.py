@@ -637,3 +637,37 @@ async def test_spontaneous_verification_wait_token_flow_and_replay_protection(
     )
     assert rej_replay.status_code == 401
 
+
+@pytest.mark.asyncio
+async def test_postgres_url_normalization_and_ephemeral_vercel_404_diagnostic(
+    client: AsyncClient,
+    admin_auth_headers: dict[str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify Neon/Vercel Postgres URLs normalize cleanly for asyncpg and 404 flags ephemeral SQLite."""
+    from app.core.config import Settings, _default_database_url
+
+    normalized = Settings.normalize_database_url(
+        "postgres://u:p@ep-cool-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    )
+    assert normalized.startswith("postgresql+asyncpg://u:p@ep-cool-pooler.us-east-1.aws.neon.tech/neondb")
+    assert "sslmode=" not in normalized
+    assert "channel_binding=" not in normalized
+    assert "ssl=require" in normalized
+
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("POSTGRES_URL", "postgresql://user:pw@db.example.com:5432/his?sslmode=verify-full")
+    resolved = Settings.normalize_database_url(_default_database_url())
+    assert resolved == "postgresql+asyncpg://user:pw@db.example.com:5432/his?ssl=require"
+
+    # When running with VERCEL=1 + sqlite, missing staff ID clearly reports ephemeral /tmp SQLite cause
+    missing_res = await client.post(
+        "/api/v1/auth/staff/999999/status",
+        json={"action": "activate", "assigned_role": "doctor"},
+        headers=admin_auth_headers,
+    )
+    assert missing_res.status_code == 404
+    assert "ephemeral" in missing_res.json()["detail"].lower()
+
+

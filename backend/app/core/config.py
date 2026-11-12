@@ -7,9 +7,31 @@ Provides type-safe configuration with validation.
 import os
 from functools import lru_cache
 from typing import List
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _default_database_url() -> str:
+    """Resolve database URL from standard Postgres env vars or fall back to SQLite."""
+    for env_key in (
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL",
+        "POSTGRES_URL_NON_POOLING",
+        "STORAGE_POSTGRES_URL",
+        "STORAGE_DATABASE_URL",
+        "NEON_DATABASE_URL",
+    ):
+        val = (os.environ.get(env_key) or "").strip()
+        if val:
+            return val
+    return (
+        "sqlite+aiosqlite:////tmp/mettu_his.db"
+        if os.environ.get("VERCEL")
+        else "sqlite+aiosqlite:///./mettu_his.db"
+    )
 
 
 class Settings(BaseSettings):
@@ -33,23 +55,45 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Database
-    DATABASE_URL: str = (
-        "sqlite+aiosqlite:////tmp/mettu_his.db"
-        if os.environ.get("VERCEL")
-        else "sqlite+aiosqlite:///./mettu_his.db"
-    )
+    DATABASE_URL: str = Field(default_factory=_default_database_url)
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def normalize_database_url(cls, v: str) -> str:
-        """Convert postgres:// or postgresql:// URLs to SQLAlchemy asyncpg driver format."""
-        if not isinstance(v, str):
-            return v
-        url = v.strip()
+        """Convert Postgres URLs to asyncpg format and normalize SSL query params."""
+        url = v.strip() if isinstance(v, str) else ""
+        if not url:
+            url = _default_database_url()
         if url.startswith("postgres://"):
-            return "postgresql+asyncpg://" + url[len("postgres://") :]
-        if url.startswith("postgresql://"):
-            return "postgresql+asyncpg://" + url[len("postgresql://") :]
+            url = "postgresql+asyncpg://" + url[len("postgres://") :]
+        elif url.startswith("postgresql+psycopg2://"):
+            url = "postgresql+asyncpg://" + url[len("postgresql+psycopg2://") :]
+        elif url.startswith("postgresql+psycopg://"):
+            url = "postgresql+asyncpg://" + url[len("postgresql+psycopg://") :]
+        elif url.startswith("postgresql://"):
+            url = "postgresql+asyncpg://" + url[len("postgresql://") :]
+
+        if url.startswith("postgresql+asyncpg://") and "?" in url:
+            parsed = urlparse(url)
+            cleaned_params: list[tuple[str, str]] = []
+            has_ssl = False
+            sslmode_val: str | None = None
+            for k, val in parse_qsl(parsed.query, keep_blank_values=True):
+                kl = k.lower()
+                if kl == "channel_binding":
+                    continue
+                if kl == "sslmode":
+                    sslmode_val = val.lower()
+                    continue
+                if kl == "ssl":
+                    has_ssl = True
+                cleaned_params.append((k, val))
+            if sslmode_val and not has_ssl:
+                if sslmode_val in {"require", "verify-ca", "verify-full"}:
+                    cleaned_params.append(("ssl", "require"))
+                elif sslmode_val == "disable":
+                    cleaned_params.append(("ssl", "disable"))
+            url = urlunparse(parsed._replace(query=urlencode(cleaned_params)))
         return url
 
     # Redis
