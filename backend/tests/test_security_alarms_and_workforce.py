@@ -671,3 +671,208 @@ async def test_postgres_url_normalization_and_ephemeral_vercel_404_diagnostic(
     assert "ephemeral" in missing_res.json()["detail"].lower()
 
 
+@pytest.mark.asyncio
+async def test_admin_directory_biography_edit_recovery_and_strict_blocking(
+    client: AsyncClient,
+    admin_auth_headers: dict[str, str],
+    doctor_auth_headers: dict[str, str],
+) -> None:
+    """
+    Verify:
+    1) Staff & Patient registration + full biography/profile view & edit by Admin.
+    2) Admin credential recovery (lookup saved username + reset password + clear lockout).
+    3) Approved returning staff can log in anytime using username or staff_id + password.
+    4) Unapproved, blocked, or completely unknown staff/patients are strictly rejected.
+    """
+    # 0. RBAC: Doctor cannot access admin directory or recovery endpoints
+    rbac_res = await client.get("/api/v1/auth/admin/directory", headers=doctor_auth_headers)
+    assert rbac_res.status_code == 403
+
+    # 1. Self-register a new Nurse with full profile + biography
+    reg_staff = await client.post(
+        "/api/v1/auth/staff/register",
+        headers={"X-Forwarded-For": "10.50.1.15"},
+        json={
+            "staff_id": "REC-NURSE-501",
+            "full_name": "Bontu Gemechu Tola",
+            "email": "bontu.tola@mettukarl.gov.et",
+            "phone_number": "+251933445566",
+            "requested_role": "nurse",
+            "department": "ICU",
+            "license_number": "EFDA-NR-90501",
+            "biography": "BSc Nursing (Jimma Univ), 6 years ICU & trauma triage experience at Mettu Karl.",
+            "password": "NurseInitialPass2026!",
+        },
+    )
+    assert reg_staff.status_code == 201
+    staff_payload = reg_staff.json()
+    staff_uid = staff_payload["id"]
+    staff_username = staff_payload["username"]
+
+    # Pending user MUST be blocked before Admin approval
+    pending_login = await client.post(
+        "/api/v1/auth/login",
+        json={"username": staff_username, "password": "NurseInitialPass2026!"},
+    )
+    assert pending_login.status_code == 403
+
+    # Admin approves once
+    approve_res = await client.post(
+        f"/api/v1/auth/staff/requests/{staff_uid}/approve",
+        json={"assigned_role": "nurse"},
+        headers=admin_auth_headers,
+    )
+    assert approve_res.status_code == 200
+
+    # Approved returning staff can log in anytime with username OR staff_id
+    return_by_username = await client.post(
+        "/api/v1/auth/login",
+        json={"username": staff_username, "password": "NurseInitialPass2026!"},
+    )
+    assert return_by_username.status_code == 200
+    assert return_by_username.json()["role"] == "nurse"
+
+    return_by_staff_id = await client.post(
+        "/api/v1/auth/login",
+        json={"username": "REC-NURSE-501", "password": "NurseInitialPass2026!"},
+    )
+    assert return_by_staff_id.status_code == 200
+    assert return_by_staff_id.json()["role"] == "nurse"
+
+    # Register a new Patient
+    reg_patient = await client.post(
+        "/api/v1/auth/patient/register",
+        json={
+            "full_name": "Tolasa Bekele Daba",
+            "phone_number": "+251944556677",
+            "fayda_id": "FAN-8844-1122-3399",
+            "birth_place": "Mettu",
+            "birth_date": "1994-05-12",
+            "gender": "male",
+            "password": "PatientSecret2026!",
+        },
+    )
+    assert reg_patient.status_code == 200
+    pat_me = await client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {reg_patient.json()['access_token']}"},
+    )
+    assert pat_me.status_code == 200
+    pat_uid = pat_me.json()["id"]
+
+    # 2. Admin searches directory & inspects saved credentials + biography for Staff and Patient
+    dir_staff = await client.get(
+        "/api/v1/auth/admin/directory",
+        params={"account_type": "staff", "search": "Bontu"},
+        headers=admin_auth_headers,
+    )
+    assert dir_staff.status_code == 200
+    staff_items = dir_staff.json()["items"]
+    assert len(staff_items) == 1
+    assert staff_items[0]["username"] == staff_username
+    assert "Jimma Univ" in (staff_items[0]["biography"] or "")
+
+    dir_pat = await client.get(
+        "/api/v1/auth/admin/directory",
+        params={"account_type": "patient", "search": "FAN-8844-1122-3399"},
+        headers=admin_auth_headers,
+    )
+    assert dir_pat.status_code == 200
+    pat_items = dir_pat.json()["items"]
+    assert len(pat_items) == 1
+    assert pat_items[0]["id"] == pat_uid
+    assert pat_items[0]["city"] == "Mettu"
+
+    # Admin edits both Staff & Patient biography/profile details
+    edit_staff = await client.patch(
+        f"/api/v1/auth/admin/users/{staff_uid}",
+        json={
+            "department": "Emergency ICU",
+            "biography": "Senior ICU Charge Nurse — Mettu Karl Referral Hospital.",
+            "phone_number": "+251933998877",
+        },
+        headers=admin_auth_headers,
+    )
+    assert edit_staff.status_code == 200
+    assert edit_staff.json()["department"] == "Emergency ICU"
+    assert "Senior ICU Charge Nurse" in (edit_staff.json()["biography"] or "")
+
+    edit_pat = await client.patch(
+        f"/api/v1/auth/admin/users/{pat_uid}",
+        json={
+            "city": "Gore",
+            "biography": "Outpatient hypertension follow-up patient; allergic to penicillin.",
+        },
+        headers=admin_auth_headers,
+    )
+    assert edit_pat.status_code == 200
+    assert edit_pat.json()["city"] == "Gore"
+    assert "hypertension" in (edit_pat.json()["biography"] or "")
+
+    # 3. Admin resets forgotten passwords for Staff and Patient
+    reset_staff = await client.post(
+        f"/api/v1/auth/admin/users/{staff_uid}/reset-password",
+        json={"new_password": "RecoveredNurse2026!", "clear_lockout": True, "reason": "Staff forgot password"},
+        headers=admin_auth_headers,
+    )
+    assert reset_staff.status_code == 200
+    assert reset_staff.json()["username"] == staff_username
+
+    staff_new_login = await client.post(
+        "/api/v1/auth/login",
+        json={"username": staff_username, "password": "RecoveredNurse2026!"},
+    )
+    assert staff_new_login.status_code == 200
+
+    # Patient wrong password fails strictly (no demo OTP bypass for registered patient!)
+    pat_bad = await client.post(
+        "/api/v1/auth/patient/login",
+        json={"identifier": "FAN-8844-1122-3399", "password_or_otp": "123456"},
+    )
+    assert pat_bad.status_code == 401
+
+    reset_pat = await client.post(
+        f"/api/v1/auth/admin/users/{pat_uid}/reset-password",
+        json={"clear_lockout": True, "reason": "Patient forgot password at reception"},
+        headers=admin_auth_headers,
+    )
+    assert reset_pat.status_code == 200
+    pat_temp_pw = reset_pat.json()["temporary_password"]
+
+    pat_recovered_login = await client.post(
+        "/api/v1/auth/patient/login",
+        json={"identifier": "FAN-8844-1122-3399", "password_or_otp": pat_temp_pw},
+    )
+    assert pat_recovered_login.status_code == 200
+
+    # 4. Strict blocking of unknown strangers & Admin-blocked users
+    unknown_staff = await client.post(
+        "/api/v1/auth/login",
+        json={"username": "completely_unknown_intruder", "password": "SomePassword2026!"},
+    )
+    assert unknown_staff.status_code == 401
+
+    unknown_patient = await client.post(
+        "/api/v1/auth/patient/login",
+        headers={"X-Forwarded-For": "10.50.1.99"},
+        json={"identifier": "+251987654321", "password_or_otp": "123456"},
+    )
+    assert unknown_patient.status_code == 401
+
+    # Block patient & confirm blocked patient is denied
+    block_pat = await client.patch(
+        f"/api/v1/auth/admin/users/{pat_uid}",
+        json={"is_active": False},
+        headers=admin_auth_headers,
+    )
+    assert block_pat.status_code == 200
+    assert block_pat.json()["is_active"] is False
+
+    blocked_pat_login = await client.post(
+        "/api/v1/auth/patient/login",
+        json={"identifier": "FAN-8844-1122-3399", "password_or_otp": pat_temp_pw},
+    )
+    assert blocked_pat_login.status_code == 403
+
+
+

@@ -399,6 +399,9 @@ export default function LoginPage() {
   const [signupDept, setSignupDept] = useState('doctor');
   const [signupRole, setSignupRole] = useState('doctor');
   const [signupLicenseNumber, setSignupLicenseNumber] = useState('');
+  const [signupPhone, setSignupPhone] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupBiography, setSignupBiography] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
   const [signupError, setSignupError] = useState<string | null>(null);
@@ -1061,6 +1064,7 @@ export default function LoginPage() {
     setIsSubmittingSignup(true);
     try {
       const res = await apiClient.post<{
+        username?: string;
         staff_id: string;
         full_name?: string;
         requested_role?: string;
@@ -1071,16 +1075,20 @@ export default function LoginPage() {
       }>('/auth/staff/register', {
         full_name: signupFullName.trim(),
         staff_id: signupStaffId.trim(),
+        phone_number: signupPhone.trim() || undefined,
+        email: signupEmail.trim() || undefined,
         department: signupDept,
         requested_role: signupRole,
         license_number: signupLicenseNumber.trim() || undefined,
+        biography: signupBiography.trim() || undefined,
         password: signupPassword,
       });
 
+      const savedUname = res.data.username ? ` | Username: ${res.data.username}` : '';
       const pendingMsg =
         language === 'om'
-          ? `Galmeen keessan (${res.data.staff_id}) haala Eegama Bulchiinsaa (PENDING ADMIN APPROVAL) keessa jira. Hanga Admin Hospitaalaa eeyyamutti eegaa — yeroo Admin Allow godhu battalumatti mirkanooftanii gara dashboard keessanitti darbitu.`
-          : `Registration (${res.data.staff_id}) saved as PENDING ADMIN APPROVAL. Stay on this page — as soon as the Hospital Admin clicks Allow, you will be verified and redirected to your portal automatically.`;
+          ? `Galmeen keessan (${res.data.staff_id}${savedUname}) haala Eegama Bulchiinsaa (PENDING ADMIN APPROVAL) keessa jira. Hanga Admin Hospitaalaa eeyyamutti eegaa — yeroo Admin Allow godhu battalumatti mirkanooftanii gara dashboard keessanitti darbitu.`
+          : `Registration (${res.data.staff_id}${savedUname}) saved as PENDING ADMIN APPROVAL. Stay on this page — as soon as the Hospital Admin clicks Allow, you will be verified and redirected to your portal automatically.`;
 
       setLoginError(null);
       setSignupNotice(pendingMsg);
@@ -1101,6 +1109,9 @@ export default function LoginPage() {
       setSignupPassword('');
       setSignupConfirmPassword('');
       setSignupLicenseNumber('');
+      setSignupPhone('');
+      setSignupEmail('');
+      setSignupBiography('');
 
       notifications.show({
         title:
@@ -2123,6 +2134,54 @@ export default function LoginPage() {
                         </div>
                       </div>
 
+                      {/* CONTACT & PERSONAL BIOGRAPHY (VIEWABLE/EDITABLE BY ADMIN FOR RECOVERY & OVERSIGHT) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            {language === 'om' ? 'Lakkoofsa Bilbilaa (Phone)' : 'Phone Number'}
+                          </label>
+                          <input
+                            type="tel"
+                            value={signupPhone}
+                            onChange={(e) => setSignupPhone(e.target.value)}
+                            placeholder="+2519XXXXXXXX"
+                            className="block w-full h-[44px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            {language === 'om' ? 'Imeelii (Email)' : 'Work Email (Optional)'}
+                          </label>
+                          <input
+                            type="email"
+                            value={signupEmail}
+                            onChange={(e) => setSignupEmail(e.target.value)}
+                            placeholder="name@mettukarl.gov.et"
+                            className="block w-full h-[44px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                          {language === 'om'
+                            ? 'Seenaa fi Muuxannoo Hojii (Biography / Qualification)'
+                            : 'Staff Biography, Qualification & Background'}
+                        </label>
+                        <textarea
+                          rows={2}
+                          maxLength={2000}
+                          value={signupBiography}
+                          onChange={(e) => setSignupBiography(e.target.value)}
+                          placeholder={
+                            language === 'om'
+                              ? 'Fkn. Barnoota yaalaa, muuxannoo hojii fi kutaa keessa hojjettan...'
+                              : 'e.g. Degree, specialty, years of experience, clinic assignment...'
+                          }
+                          className="block w-full rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 resize-y"
+                        />
+                      </div>
+
                       {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
@@ -2492,6 +2551,54 @@ export default function LoginPage() {
                           </div>
                         </div>
                       )}
+
+                      {/* CONTACT & PERSONAL BIOGRAPHY (VIEWABLE/EDITABLE BY ADMIN FOR RECOVERY & OVERSIGHT) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            {language === 'om' ? 'Lakkoofsa Bilbilaa (Phone)' : 'Phone Number'}
+                          </label>
+                          <input
+                            type="tel"
+                            value={signupPhone}
+                            onChange={(e) => setSignupPhone(e.target.value)}
+                            placeholder="+2519XXXXXXXX"
+                            className="block w-full h-[44px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            {language === 'om' ? 'Imeelii (Email)' : 'Work Email (Optional)'}
+                          </label>
+                          <input
+                            type="email"
+                            value={signupEmail}
+                            onChange={(e) => setSignupEmail(e.target.value)}
+                            placeholder="name@mettukarl.gov.et"
+                            className="block w-full h-[44px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                          {language === 'om'
+                            ? 'Seenaa fi Muuxannoo Hojii (Biography / Qualification)'
+                            : 'Staff Biography, Qualification & Background'}
+                        </label>
+                        <textarea
+                          rows={2}
+                          maxLength={2000}
+                          value={signupBiography}
+                          onChange={(e) => setSignupBiography(e.target.value)}
+                          placeholder={
+                            language === 'om'
+                              ? 'Fkn. Barnoota yaalaa, muuxannoo hojii fi kutaa keessa hojjettan...'
+                              : 'e.g. Degree, specialty, years of experience, clinic assignment...'
+                          }
+                          className="block w-full rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 resize-y"
+                        />
+                      </div>
 
                       {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -75,6 +75,7 @@ async def ensure_database_ready() -> None:
                     ("last_ip", "VARCHAR(64)"),
                     ("last_activity_path", "VARCHAR(255)"),
                     ("pending_wait_jti", "VARCHAR(64)"),
+                    ("biography", "TEXT"),
                 ]
                 for col_name, col_type in additions:
                     if col_name not in existing:

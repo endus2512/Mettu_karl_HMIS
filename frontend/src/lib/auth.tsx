@@ -260,57 +260,20 @@ export function AuthProvider({
             identifier,
             password_or_otp: passwordOrOtp,
           },
+          { timeout: 25000 },
         );
 
         saveTokens(response.data.access_token, response.data.refresh_token);
         await refreshUser();
-      } catch {
-        // Resilient fallback for demo patient mode
-        const isChaltu =
-          identifier.toLowerCase().includes('chaltu') ||
-          identifier.includes('7721') ||
-          identifier.includes('922');
-        const fullName = isChaltu ? 'Chaltu Daba Tolasa' : 'Gudeta Hailu Tadesse';
-        const patId = isChaltu ? 2 : 1;
-        const mrn = isChaltu ? 'MKH-2026-0042' : 'MKH-2026-0001';
-        const fhirId = isChaltu ? 'pat-mkrh-0042' : 'pat-mkrh-0001';
-        const faydaId = isChaltu ? 'FAN-7721-9981-3310' : 'FAN-9901-2384-5120';
-        const phone = isChaltu ? '+251 922 445 566' : '+251 911 002 233';
-
-        const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-        const payload = btoa(
-          JSON.stringify({
-            sub: String(100 + patId),
-            username: isChaltu ? 'pat_chaltu' : 'pat_gudeta',
-            full_name: fullName,
-            role: 'patient',
-            patient_id: patId,
-            mrn: mrn,
-            fhir_id: fhirId,
-            fayda_id: faydaId,
-            phone: phone,
-            exp: Math.floor(Date.now() / 1000) + 86400 * 7,
-          }),
-        );
-        const demoToken = `${header}.${payload}.demo-patient-sig`;
-        saveTokens(demoToken, demoToken);
-
-        setState({
-          user: {
-            id: 100 + patId,
-            username: isChaltu ? 'pat_chaltu' : 'pat_gudeta',
-            email: `${isChaltu ? 'chaltu' : 'gudeta'}@patient.mettukarl.gov.et`,
-            role: 'patient',
-            isActive: true,
-            patientId: patId,
-            mrn: mrn,
-            fhirId: fhirId,
-            faydaId: faydaId,
-            phone: phone,
-          },
-          isLoading: false,
-          isAuthenticated: true,
-        });
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response) {
+          const respData = err.response.data as { detail?: string | Array<{ msg?: string }> } | undefined;
+          const detailMsg = Array.isArray(respData?.detail)
+            ? respData.detail.map((item) => item?.msg).filter(Boolean).join(', ')
+            : respData?.detail;
+          throw new Error(detailMsg || 'Account not recognized or blocked by Hospital Administration.');
+        }
+        throw new Error('Unable to reach hospital authentication server. Access denied.');
       }
     },
     [refreshUser],
@@ -354,8 +317,16 @@ export function AuthProvider({
       }
 
       if (isPatientIdentifier) {
-        await patientLogin(cleanUser, password);
-        return { mfaRequired: false, role: 'patient' };
+        try {
+          await patientLogin(cleanUser, password);
+          return { mfaRequired: false, role: 'patient' };
+        } catch (patErr: unknown) {
+          const msg = patErr instanceof Error ? patErr.message : '';
+          // If a staff account uses a phone number or MKH-prefixed Staff ID, fall through to primary /auth/login
+          if (!msg.toLowerCase().includes('staff accounts must use')) {
+            throw patErr;
+          }
+        }
       }
 
       try {
@@ -404,53 +375,24 @@ export function AuthProvider({
               },
             };
           }
-          if (status >= 400 && status < 500 && status !== 404 && status !== 408) {
-            const respData = err.response.data as
-              | { detail?: string | Array<{ msg?: string }> }
-              | undefined;
-            const detailMsg = Array.isArray(respData?.detail)
-              ? respData.detail
-                  .map((item) => item?.msg)
-                  .filter(Boolean)
-                  .join(', ')
-              : respData?.detail;
-            throw new Error(detailMsg || 'Invalid username or password');
-          }
+          const respData = err.response.data as
+            | { detail?: string | Array<{ msg?: string }> }
+            | undefined;
+          const detailMsg = Array.isArray(respData?.detail)
+            ? respData.detail
+                .map((item) => item?.msg)
+                .filter(Boolean)
+                .join(', ')
+            : respData?.detail;
+          throw new Error(
+            detailMsg ||
+              (status === 401 || status === 403
+                ? 'Invalid username or password, or account not approved by Admin.'
+                : 'Hospital authentication service error. Access denied.'),
+          );
         }
 
-        // Staff offline fallback roles (only when backend server is unreachable)
-        let role: User['role'] = 'doctor';
-        if (lower.includes('admin') || lower.includes('super')) role = 'admin';
-        else if (lower.includes('nurse')) role = 'nurse';
-        else if (lower.includes('pharm')) role = 'pharmacist';
-        else if (lower.includes('insur') || lower.includes('ins_') || lower.includes('fatuma')) role = 'insurance_officer';
-        else if (lower.includes('tech') || lower.includes('lab') || lower.includes('gemechu')) role = 'technician';
-        else if (lower.includes('bill')) role = 'billing';
-
-        const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-        const payload = btoa(
-          JSON.stringify({
-            sub: '1',
-            username: cleanUser || 'dr_bekele',
-            role: role,
-            exp: Math.floor(Date.now() / 1000) + 86400 * 7,
-          })
-        );
-        const demoToken = `${header}.${payload}.demo-sig`;
-        saveTokens(demoToken, demoToken);
-
-        setState({
-          user: {
-            id: 1,
-            username: cleanUser || 'dr_bekele',
-            email: `${cleanUser || 'dr_bekele'}@mettukarl.gov.et`,
-            role: role,
-            isActive: true,
-          },
-          isLoading: false,
-          isAuthenticated: true,
-        });
-        return { mfaRequired: false, role };
+        throw new Error('Unable to connect to Mettu Karl Hospital authentication server. Access denied.');
       }
     },
     [refreshUser, patientLogin],

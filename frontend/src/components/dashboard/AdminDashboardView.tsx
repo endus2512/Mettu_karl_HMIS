@@ -18,6 +18,7 @@ import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
 import { AdminLedControlPanel } from '@/components/admin/AdminLedControlPanel';
 import { AdminStaffApprovalPanel } from '@/components/admin/AdminStaffApprovalPanel';
 import { AdminWorkforceMonitor } from '@/components/admin/AdminWorkforceMonitor';
+import { AdminUserDirectoryPanel } from '@/components/admin/AdminUserDirectoryPanel';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
 import {
@@ -447,6 +448,9 @@ export function AdminDashboardView(): React.ReactElement {
 
         {/* 3B. Live Workforce Activity & Access Control (Minimized by Default) */}
         <AdminWorkforceMonitor />
+
+        {/* 3B2. Staff & Patient Directory, Biography & Password Recovery (Minimized by Default) */}
+        <AdminUserDirectoryPanel />
 
         {/* 3C. Digital LED Marquee Board (Minimized; All Edits Inside Settings) */}
         <AdminLedControlPanel />

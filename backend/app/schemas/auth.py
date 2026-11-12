@@ -11,7 +11,7 @@ from app.models.user import UserRole
 
 class LoginRequest(BaseModel):
     """Initial login payload with username and password."""
-    username: str = Field(..., min_length=3, max_length=50)
+    username: str = Field(..., min_length=3, max_length=128)
     password: str = Field(..., min_length=6)
 
 
@@ -89,6 +89,7 @@ class UserResponse(BaseModel):
     staff_id: Optional[str] = None
     department: Optional[str] = None
     license_number: Optional[str] = None
+    biography: Optional[str] = None
     approval_status: str = "approved"
     requested_role: Optional[str] = None
     risk_flag: Optional[str] = None
@@ -113,6 +114,7 @@ class StaffRegisterRequest(BaseModel):
     department: str = Field(..., min_length=2, max_length=100)
     requested_role: str = Field(..., min_length=2, max_length=50)
     license_number: Optional[str] = Field(None, max_length=100)
+    biography: Optional[str] = Field(None, max_length=2000)
     password: str = Field(..., min_length=8, max_length=128)
 
 
@@ -140,6 +142,7 @@ class PendingStaffUserResponse(BaseModel):
     department: Optional[str] = None
     license_number: Optional[str] = None
     phone_number: Optional[str] = None
+    biography: Optional[str] = None
     role: UserRole
     requested_role: Optional[str] = None
     role_group: Optional[str] = None
@@ -181,6 +184,7 @@ class StaffWorkforceItemResponse(BaseModel):
     department: Optional[str] = None
     license_number: Optional[str] = None
     phone_number: Optional[str] = None
+    biography: Optional[str] = None
     role: UserRole
     requested_role: Optional[str] = None
     approval_status: str
@@ -269,3 +273,89 @@ class StaffApprovalStatusResponse(BaseModel):
     temp_token: Optional[str] = None
     username: Optional[str] = None
     user_id: Optional[int] = None
+
+
+class AdminDirectoryUserResponse(BaseModel):
+    """Complete Admin directory & recovery view for Staff and Patient profiles/biographies."""
+    id: int
+    account_type: Literal["staff", "patient"]
+    username: str
+    email: str
+    full_name: str
+    role: UserRole
+    staff_id: Optional[str] = None
+    department: Optional[str] = None
+    license_number: Optional[str] = None
+    phone_number: Optional[str] = None
+    fayda_id: Optional[str] = None
+    patient_id: Optional[int] = None
+    mrn: Optional[str] = None
+    birth_date: Optional[str] = None
+    gender: Optional[str] = None
+    city: Optional[str] = None
+    biography: Optional[str] = None
+    approval_status: str = "approved"
+    requested_role: Optional[str] = None
+    risk_flag: Optional[str] = None
+    rejection_reason: Optional[str] = None
+    is_active: bool
+    is_locked: bool = False
+    failed_attempts: int = 0
+    created_at: datetime
+    approved_at: Optional[datetime] = None
+    first_login_at: Optional[datetime] = None
+    last_login_at: Optional[datetime] = None
+    last_seen_at: Optional[datetime] = None
+    last_ip: Optional[str] = None
+    last_activity_path: Optional[str] = None
+
+
+class AdminDirectoryListResponse(BaseModel):
+    """Unified directory payload listing all Staff and Patient accounts."""
+    total_users: int
+    staff_count: int
+    patient_count: int
+    items: List[AdminDirectoryUserResponse]
+
+
+class AdminUserProfileUpdateRequest(BaseModel):
+    """Admin payload to inspect & edit any Staff or Patient registration, identity, or biography."""
+    username: Optional[str] = Field(None, min_length=3, max_length=64)
+    full_name: Optional[str] = Field(None, min_length=2, max_length=255)
+    email: Optional[EmailStr] = None
+    phone_number: Optional[str] = Field(None, max_length=20)
+    staff_id: Optional[str] = Field(None, max_length=64)
+    department: Optional[str] = Field(None, max_length=100)
+    license_number: Optional[str] = Field(None, max_length=100)
+    fayda_id: Optional[str] = Field(None, max_length=50)
+    biography: Optional[str] = Field(None, max_length=2000)
+    role: Optional[UserRole] = None
+    is_active: Optional[bool] = None
+    approval_status: Optional[Literal["pending", "approved", "rejected"]] = None
+    birth_date: Optional[str] = Field(None, max_length=20)
+    gender: Optional[str] = Field(None, max_length=16)
+    city: Optional[str] = Field(None, max_length=100)
+    mrn: Optional[str] = Field(None, max_length=64)
+
+
+class AdminPasswordResetRequest(BaseModel):
+    """Admin-assisted credential recovery for forgotten staff/patient passwords."""
+    new_password: Optional[str] = Field(None, min_length=6, max_length=128)
+    clear_lockout: bool = True
+    activate_account: bool = False
+    reason: Optional[str] = Field(None, max_length=255)
+
+
+class AdminPasswordResetResponse(BaseModel):
+    """Recovery confirmation returned to Admin to share safely with the verified user."""
+    user_id: int
+    username: str
+    full_name: str
+    role: UserRole
+    staff_id: Optional[str] = None
+    fayda_id: Optional[str] = None
+    temporary_password: str
+    is_active: bool
+    approval_status: str
+    lockout_cleared: bool = True
+    message: str

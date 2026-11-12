@@ -239,7 +239,7 @@ export function getRolePortalPath(role?: UserRole | string | null): string {
     case 'super_admin':
       return '/portal/admin';
     default:
-      return '/portal/doctor';
+      return '/login';
   }
 }
 

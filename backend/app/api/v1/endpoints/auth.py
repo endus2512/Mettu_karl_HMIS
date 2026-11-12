@@ -1,12 +1,12 @@
 """
 Authentication endpoints: login, 2-step MFA, token refresh, logout, and profile.
 """
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import json
 import os
 import re
 import secrets
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from jose import JWTError
@@ -33,9 +33,15 @@ from app.core.security import (
     hash_password,
 )
 from app.models.notification import ClinicalNotification
+from app.models.patient import Gender, Patient
 from app.models.user import ApprovalStatus, User, UserRole
 from app.schemas.auth import (
+    AdminDirectoryListResponse,
+    AdminDirectoryUserResponse,
+    AdminPasswordResetRequest,
+    AdminPasswordResetResponse,
     AdminSecurityAlarmResponse,
+    AdminUserProfileUpdateRequest,
     LoginRequest,
     MFALoginRequest,
     MFASetupResponse,
@@ -238,8 +244,40 @@ async def patient_login(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Staff accounts must use the primary hospital staff workstation login.",
             )
-        # Verify password or permitted demo OTP
-        if not verify_password(pwd, user.hashed_password) and pwd not in ("123456", "990100", "772100", "PatientPass2026!"):
+        approval_state = getattr(user, "approval_status", ApprovalStatus.APPROVED.value)
+        if not user.is_active or approval_state != ApprovalStatus.APPROVED.value:
+            await record_audit_event(
+                db,
+                user_id=user.id,
+                action="PATIENT_LOGIN_BLOCKED",
+                resource="PatientPortal",
+                resource_id=str(user.id),
+                ip_address=client_ip,
+                result="blocked",
+                detail={"identifier_masked": mask_pii(identifier), "approval_status": approval_state},
+            )
+            await emit_admin_security_alarm(
+                db,
+                event_type="BLOCKED_PATIENT_LOGIN_ATTEMPT",
+                title=f"BLOCKED PATIENT LOGIN: {user.full_name} ({user.fayda_id or user.username})",
+                message=(
+                    f"Blocked or unapproved patient account {user.full_name} ({user.username}) attempted login "
+                    f"from IP {client_ip or 'unknown'}."
+                ),
+                severity="warning",
+                category="patient_login_blocked_alarm",
+                actor_user=user,
+                client_ip=client_ip,
+                commit=True,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your patient portal account is currently suspended or blocked. Please contact Hospital Administration.",
+            )
+
+        is_seeded_demo_patient = user.username in ("pat_gudeta", "pat_chaltu")
+        demo_otp_ok = is_seeded_demo_patient and pwd in ("123456", "990100", "772100", "PatientPass2026!")
+        if not verify_password(pwd, user.hashed_password) and not demo_otp_ok:
             await record_patient_login_failure(client_ip, identifier)
             await record_audit_event(
                 db,
@@ -258,10 +296,25 @@ async def patient_login(
         if user.patient_id:
             pat_res = await db.execute(select(Patient).where(Patient.id == user.patient_id))
             patient = pat_res.scalar_one_or_none()
+        now = datetime.now(timezone.utc)
+        user.last_login_at = now
+        user.last_seen_at = now
+        if client_ip:
+            user.last_ip = client_ip
+        user.last_activity_path = "/patient-portal"
+        await db.commit()
     else:
-        # Check standard permitted hospital OTPs / passcodes
-        valid_otps = ("123456", "990100", "772100", "PatientPass2026!")
-        if pwd not in valid_otps:
+        norm_ident = identifier.replace(" ", "").lower()
+        demo_accounts = {
+            "fan-9901-2384-5120": ("pat_gudeta", "Gudeta Hailu Tadesse", 1, "FAN-9901-2384-5120", "+251911002233"),
+            "+251911002233": ("pat_gudeta", "Gudeta Hailu Tadesse", 1, "FAN-9901-2384-5120", "+251911002233"),
+            "pat_gudeta": ("pat_gudeta", "Gudeta Hailu Tadesse", 1, "FAN-9901-2384-5120", "+251911002233"),
+            "fan-7721-9981-3310": ("pat_chaltu", "Chaltu Daba Tolasa", 2, "FAN-7721-9981-3310", "+251922445566"),
+            "+251922445566": ("pat_chaltu", "Chaltu Daba Tolasa", 2, "FAN-7721-9981-3310", "+251922445566"),
+            "pat_chaltu": ("pat_chaltu", "Chaltu Daba Tolasa", 2, "FAN-7721-9981-3310", "+251922445566"),
+        }
+        demo_spec = demo_accounts.get(norm_ident)
+        if not demo_spec or pwd not in ("123456", "990100", "772100", "PatientPass2026!"):
             await record_patient_login_failure(client_ip, identifier)
             await record_audit_event(
                 db,
@@ -273,53 +326,27 @@ async def patient_login(
                 result="failure",
                 detail={"identifier_masked": mask_pii(identifier)},
             )
+            await emit_admin_security_alarm(
+                db,
+                event_type="UNRECOGNIZED_PATIENT_LOGIN_ATTEMPT",
+                title=f"UNREGISTERED PATIENT LOGIN BLOCKED ({mask_pii(identifier)})",
+                message=(
+                    f"Unknown patient portal login attempt for identifier {mask_pii(identifier)} "
+                    f"from IP {client_ip or 'unknown'} was rejected."
+                ),
+                severity="warning",
+                category="unknown_login_alarm",
+                actor_name=mask_pii(identifier),
+                actor_role="patient",
+                client_ip=client_ip,
+                commit=True,
+            )
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid Fayda ID, Phone, or Password/OTP (Eenyummaan ykn koodiin dogoggora).",
+                detail="Account not registered or not recognized by Mettu Karl Hospital. Please register first or contact Admin.",
             )
 
-        # Match patient in patients master table or Fayda format
-        pat_stmt = select(Patient).where(
-            (Patient.phone_number == identifier) |
-            (Patient.mrn == identifier)
-        )
-        pat_res = await db.execute(pat_stmt)
-        patient = pat_res.scalar_one_or_none()
-
-        # Isolate Chaltu vs Gudeta vs Any other patient
-        is_chaltu = (
-            "chaltu" in identifier.lower() or
-            "7721" in identifier or
-            "922" in identifier or
-            "0042" in identifier
-        )
-        is_gudeta = (
-            "gudeta" in identifier.lower() or
-            "9901" in identifier or
-            "911" in identifier or
-            "0001" in identifier
-        )
-
-        clean_user = identifier.replace("+", "").replace("-", "").replace(" ", "").lower()
-        if is_chaltu:
-            full_name = "Chaltu Daba Tolasa"
-            pat_id = 2
-            fayda_id = "FAN-7721-9981-3310"
-            phone_num = "+251922445566"
-            username = "pat_chaltu"
-        elif is_gudeta:
-            full_name = "Gudeta Hailu Tadesse"
-            pat_id = 1
-            fayda_id = "FAN-9901-2384-5120"
-            phone_num = "+251911002233"
-            username = "pat_gudeta"
-        else:
-            full_name = f"{patient.first_name} {patient.last_name}" if patient else f"Patient {clean_user[:10].capitalize()}"
-            pat_id = patient.id if patient else (abs(hash(clean_user)) % 1000 + 10)
-            fayda_id = identifier if identifier.startswith("FAN-") else f"FAN-{abs(hash(clean_user)) % 9000 + 1000}-0000"
-            phone_num = identifier if not identifier.startswith("FAN-") else "+251900000000"
-            username = f"pat_{clean_user[:20]}"
-
+        username, full_name, pat_id, fayda_id, phone_num = demo_spec
         user = User(
             username=username,
             email=f"{username}@patient.mettukarl.gov.et",
@@ -330,6 +357,7 @@ async def patient_login(
             fayda_id=fayda_id,
             phone_number=phone_num,
             is_active=True,
+            approval_status=ApprovalStatus.APPROVED.value,
         )
         db.add(user)
         try:
@@ -337,9 +365,7 @@ async def patient_login(
             await db.refresh(user)
         except Exception:
             await db.rollback()
-            # If username already exists, fetch it
-            user_res = await db.execute(select(User).where(User.username == username))
-            existing_user = user_res.scalar_one_or_none()
+            existing_user = (await db.execute(select(User).where(User.username == username))).scalar_one_or_none()
             if existing_user:
                 user = existing_user
 
@@ -986,6 +1012,7 @@ async def register_staff_request(
         department=clean_dept,
         license_number=clean_license,
         phone_number=payload.phone_number.strip() if payload.phone_number else None,
+        biography=payload.biography.strip() if payload.biography else None,
         approval_status=ApprovalStatus.PENDING.value,
         requested_role=req_role_lower,
         risk_flag=risk_flag,
@@ -1543,6 +1570,7 @@ async def list_staff_workforce_status(
                 department=u.department,
                 license_number=u.license_number,
                 phone_number=u.phone_number,
+                biography=u.biography,
                 role=u.role,
                 requested_role=u.requested_role,
                 approval_status=getattr(u, "approval_status", ApprovalStatus.APPROVED.value),
@@ -1685,6 +1713,7 @@ async def control_staff_access_and_role(
         department=target.department,
         license_number=target.license_number,
         phone_number=target.phone_number,
+        biography=target.biography,
         role=target.role,
         requested_role=target.requested_role,
         approval_status=getattr(target, "approval_status", ApprovalStatus.APPROVED.value),
@@ -1699,4 +1728,360 @@ async def control_staff_access_and_role(
         last_activity_path=target.last_activity_path,
         work_status=work_status,
         idle_seconds=idle_seconds,
+    )
+
+
+def _serialize_directory_user(
+    u: User,
+    patient_map: dict[int, Patient],
+    now: datetime,
+) -> AdminDirectoryUserResponse:
+    """Serialize any Staff or Patient user record with full saved credentials & biography."""
+    patient = patient_map.get(u.patient_id) if u.patient_id else None
+    is_locked = bool(u.locked_until and u.locked_until > now)
+    return AdminDirectoryUserResponse(
+        id=u.id,
+        account_type="patient" if u.role == UserRole.PATIENT else "staff",
+        username=u.username,
+        email=u.email,
+        full_name=u.full_name,
+        role=u.role,
+        staff_id=u.staff_id,
+        department=u.department,
+        license_number=u.license_number,
+        phone_number=u.phone_number,
+        fayda_id=u.fayda_id,
+        patient_id=u.patient_id,
+        mrn=patient.mrn if patient else None,
+        birth_date=patient.birth_date.isoformat() if patient and patient.birth_date else None,
+        gender=patient.gender.value if patient and patient.gender else None,
+        city=patient.city if patient else None,
+        biography=u.biography,
+        approval_status=getattr(u, "approval_status", ApprovalStatus.APPROVED.value),
+        requested_role=u.requested_role,
+        risk_flag=u.risk_flag,
+        rejection_reason=u.rejection_reason,
+        is_active=u.is_active,
+        is_locked=is_locked,
+        failed_attempts=int(u.failed_attempts or 0),
+        created_at=u.created_at,
+        approved_at=u.approved_at,
+        first_login_at=u.first_login_at,
+        last_login_at=u.last_login_at,
+        last_seen_at=u.last_seen_at,
+        last_ip=u.last_ip,
+        last_activity_path=u.last_activity_path,
+    )
+
+
+@router.get(
+    "/admin/directory",
+    response_model=AdminDirectoryListResponse,
+    summary="Admin Complete User Directory, Saved Usernames & Biographies (Staff & Patients)",
+)
+async def list_admin_user_directory(
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    account_type: Optional[Literal["staff", "patient"]] = Query(None),
+    search: Optional[str] = Query(None, max_length=100),
+) -> AdminDirectoryListResponse:
+    """
+    Allows Hospital Administration to look up forgotten usernames, inspect every saved
+    registration detail and biography for both Staff and Patients, and manage recovery.
+    """
+    all_users = list((await db.execute(select(User).order_by(desc(User.created_at), desc(User.id)))).scalars().all())
+    patient_ids = [u.patient_id for u in all_users if u.patient_id]
+    patient_map: dict[int, Patient] = {}
+    if patient_ids:
+        pat_rows = list((await db.execute(select(Patient).where(Patient.id.in_(patient_ids)))).scalars().all())
+        patient_map = {p.id: p for p in pat_rows}
+
+    staff_count = sum(1 for u in all_users if u.role != UserRole.PATIENT)
+    patient_count = sum(1 for u in all_users if u.role == UserRole.PATIENT)
+
+    now = datetime.now(timezone.utc)
+    needle = search.strip().lower() if search and search.strip() else None
+
+    items: List[AdminDirectoryUserResponse] = []
+    for u in all_users:
+        user_acct_type = "patient" if u.role == UserRole.PATIENT else "staff"
+        if account_type and user_acct_type != account_type:
+            continue
+        dto = _serialize_directory_user(u, patient_map, now)
+        if needle:
+            haystack = " ".join(
+                str(v)
+                for v in (
+                    dto.username,
+                    dto.full_name,
+                    dto.email,
+                    dto.staff_id,
+                    dto.fayda_id,
+                    dto.phone_number,
+                    dto.department,
+                    dto.license_number,
+                    dto.mrn,
+                    dto.city,
+                    dto.biography,
+                    dto.role.value,
+                )
+                if v
+            ).lower()
+            if needle not in haystack:
+                continue
+        items.append(dto)
+
+    return AdminDirectoryListResponse(
+        total_users=staff_count + patient_count,
+        staff_count=staff_count,
+        patient_count=patient_count,
+        items=items,
+    )
+
+
+@router.patch(
+    "/admin/users/{user_id}",
+    response_model=AdminDirectoryUserResponse,
+    summary="Admin View/Edit Staff or Patient Profile, Credentials Metadata & Biography",
+)
+async def update_admin_directory_user(
+    user_id: int,
+    payload: AdminUserProfileUpdateRequest,
+    request: Request,
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> AdminDirectoryUserResponse:
+    """
+    Allows Hospital Administration to edit saved usernames, profile fields, role,
+    patient demographics, and personal biographies for both Staff and Patients.
+    """
+    target = await get_user_by_id(db, user_id)
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User account not found.")
+
+    if target.role == UserRole.SUPER_ADMIN and current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Root Super Admin can edit a Super Admin profile.",
+        )
+
+    if target.role == UserRole.SUPER_ADMIN and (
+        payload.is_active is False
+        or (payload.approval_status and payload.approval_status != ApprovalStatus.APPROVED.value)
+        or (payload.role and payload.role != UserRole.SUPER_ADMIN)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Root Super Administrator cannot be deactivated or demoted.",
+        )
+
+    if payload.role is not None and payload.role != target.role:
+        await _assert_role_grant_permitted(
+            actor=current_user,
+            target=target,
+            target_role=payload.role,
+            request=request,
+            db=db,
+        )
+
+    if payload.username is not None:
+        clean_username = payload.username.strip()
+        if len(clean_username) < 3:
+            raise HTTPException(status_code=422, detail="Username must be at least 3 characters.")
+        if clean_username != target.username:
+            dup = (await db.execute(select(User).where(User.username == clean_username, User.id != target.id))).scalar_one_or_none()
+            if dup:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username is already taken by another account.")
+            target.username = clean_username
+
+    if payload.email is not None:
+        clean_email = str(payload.email).strip().lower()
+        if clean_email != target.email:
+            dup = (await db.execute(select(User).where(User.email == clean_email, User.id != target.id))).scalar_one_or_none()
+            if dup:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email is already in use by another account.")
+            target.email = clean_email
+
+    if payload.staff_id is not None:
+        clean_staff_id = payload.staff_id.strip() or None
+        if clean_staff_id and clean_staff_id != target.staff_id:
+            dup = (await db.execute(select(User).where(User.staff_id == clean_staff_id, User.id != target.id))).scalar_one_or_none()
+            if dup:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Staff ID is already assigned to another user.")
+        target.staff_id = clean_staff_id
+
+    if payload.fayda_id is not None:
+        clean_fayda = payload.fayda_id.strip() or None
+        if clean_fayda and clean_fayda != target.fayda_id:
+            dup = (await db.execute(select(User).where(User.fayda_id == clean_fayda, User.id != target.id))).scalar_one_or_none()
+            if dup:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Fayda ID is already assigned to another user.")
+        target.fayda_id = clean_fayda
+
+    if payload.full_name is not None:
+        target.full_name = payload.full_name.strip()
+    if payload.phone_number is not None:
+        target.phone_number = payload.phone_number.strip() or None
+    if payload.department is not None:
+        target.department = payload.department.strip() or None
+    if payload.license_number is not None:
+        target.license_number = payload.license_number.strip() or None
+    if payload.biography is not None:
+        target.biography = payload.biography.strip() or None
+    if payload.role is not None:
+        target.role = payload.role
+
+    now = datetime.now(timezone.utc)
+    if payload.approval_status is not None:
+        target.approval_status = payload.approval_status
+        if payload.approval_status == ApprovalStatus.APPROVED.value:
+            target.approved_at = target.approved_at or now
+            target.approved_by = current_user.id
+            target.rejection_reason = None
+            if payload.is_active is None:
+                target.is_active = True
+        else:
+            if payload.is_active is None:
+                target.is_active = False
+
+    if payload.is_active is not None:
+        if target.id == current_user.id and not payload.is_active:
+            raise HTTPException(status_code=400, detail="Administrator cannot deactivate their own active session.")
+        target.is_active = payload.is_active
+
+    patient: Optional[Patient] = None
+    if target.patient_id:
+        patient = (await db.execute(select(Patient).where(Patient.id == target.patient_id))).scalar_one_or_none()
+
+    if patient is not None:
+        if payload.full_name is not None:
+            parts = target.full_name.split()
+            patient.first_name = parts[0] if parts else patient.first_name
+            patient.last_name = " ".join(parts[1:]) if len(parts) > 1 else patient.last_name
+        if payload.phone_number is not None:
+            patient.phone_number = target.phone_number
+        if payload.email is not None:
+            patient.email = target.email
+        if payload.city is not None:
+            patient.city = payload.city.strip() or None
+        if payload.gender is not None:
+            g_norm = payload.gender.strip().lower()
+            if g_norm in {g.value for g in Gender}:
+                patient.gender = Gender(g_norm)
+            else:
+                raise HTTPException(status_code=422, detail="Gender must be one of: male, female, other, unknown.")
+        if payload.birth_date is not None and payload.birth_date.strip():
+            try:
+                patient.birth_date = date.fromisoformat(payload.birth_date.strip())
+            except ValueError:
+                raise HTTPException(status_code=422, detail="birth_date must be formatted as YYYY-MM-DD.")
+        if payload.mrn is not None and payload.mrn.strip():
+            clean_mrn = payload.mrn.strip()
+            if clean_mrn != patient.mrn:
+                dup_mrn = (await db.execute(select(Patient).where(Patient.mrn == clean_mrn, Patient.id != patient.id))).scalar_one_or_none()
+                if dup_mrn:
+                    raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="MRN is already assigned to another patient.")
+                patient.mrn = clean_mrn
+
+    await record_audit_event(
+        db,
+        user_id=current_user.id,
+        action="ADMIN_USER_PROFILE_UPDATED",
+        resource="User",
+        resource_id=str(target.id),
+        ip_address=get_client_ip(request),
+        result="success",
+        detail={
+            "target_username": target.username,
+            "target_role": target.role.value,
+            "updated_fields": sorted(payload.model_dump(exclude_unset=True).keys()),
+        },
+    )
+    await db.commit()
+    await db.refresh(target)
+    patient_map = {patient.id: patient} if patient else {}
+    return _serialize_directory_user(target, patient_map, datetime.now(timezone.utc))
+
+
+@router.post(
+    "/admin/users/{user_id}/reset-password",
+    response_model=AdminPasswordResetResponse,
+    summary="Admin Password & Lockout Recovery for Staff or Patients",
+)
+async def reset_user_password_by_admin(
+    user_id: int,
+    payload: AdminPasswordResetRequest,
+    request: Request,
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> AdminPasswordResetResponse:
+    """
+    Allows Hospital Administration to issue a new/temporary password, clear login lockouts,
+    and optionally activate an account for any Staff or Patient who forgot their password.
+    """
+    target = await get_user_by_id(db, user_id)
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User account not found.")
+
+    if target.role == UserRole.SUPER_ADMIN and current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Root Super Admin can reset a Super Admin password.",
+        )
+
+    temp_password = (
+        payload.new_password.strip()
+        if payload.new_password and payload.new_password.strip()
+        else f"Mkh#{secrets.token_hex(4)}"
+    )
+    if len(temp_password) < 6:
+        raise HTTPException(status_code=422, detail="Password must be at least 6 characters.")
+
+    now = datetime.now(timezone.utc)
+    target.hashed_password = hash_password(temp_password)
+
+    if payload.clear_lockout:
+        target.failed_attempts = 0
+        target.locked_until = None
+        for ident in filter(None, {target.username, target.fayda_id, target.phone_number, target.staff_id, target.email}):
+            await clear_patient_login_rate_limit(target.last_ip or "127.0.0.1", ident)
+
+    if payload.activate_account and target.role != UserRole.SUPER_ADMIN:
+        target.is_active = True
+        target.approval_status = ApprovalStatus.APPROVED.value
+        target.rejection_reason = None
+        target.approved_at = target.approved_at or now
+        target.approved_by = current_user.id
+
+    await record_audit_event(
+        db,
+        user_id=current_user.id,
+        action="ADMIN_PASSWORD_RESET",
+        resource="User",
+        resource_id=str(target.id),
+        ip_address=get_client_ip(request),
+        result="success",
+        detail={
+            "target_username": target.username,
+            "target_role": target.role.value,
+            "lockout_cleared": payload.clear_lockout,
+            "activate_account": payload.activate_account,
+            "reason": payload.reason,
+        },
+    )
+    await db.commit()
+    await db.refresh(target)
+
+    return AdminPasswordResetResponse(
+        user_id=target.id,
+        username=target.username,
+        full_name=target.full_name,
+        role=target.role,
+        staff_id=target.staff_id,
+        fayda_id=target.fayda_id,
+        temporary_password=temp_password,
+        is_active=target.is_active,
+        approval_status=getattr(target, "approval_status", ApprovalStatus.APPROVED.value),
+        lockout_cleared=payload.clear_lockout,
+        message=f"Password updated and recovery credentials issued for {target.full_name} ({target.username}).",
     )
