@@ -1439,11 +1439,11 @@ export function AdminOversightHub(): React.ReactElement {
                                           {person.avatar}
                                         </div>
                                         <div className="min-w-0">
-                                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
+                                          <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
                                             {person.name}
                                           </h4>
-                                          <p className="text-[11px] font-medium text-teal-600 dark:text-teal-400 truncate">{roleTitle}</p>
-                                          <span className="font-mono text-[10px] text-slate-400">{person.code}</span>
+                                          <p className="text-[11px] font-bold text-teal-700 dark:text-teal-300 truncate">{roleTitle}</p>
+                                          <span className="font-mono text-[10px] font-bold text-slate-600 dark:text-slate-300">{person.code}</span>
                                         </div>
                                       </div>
 
@@ -1454,18 +1454,18 @@ export function AdminOversightHub(): React.ReactElement {
                                     </div>
 
                                     {/* Dept & Location Details */}
-                                    <div className="mt-2.5 space-y-1 bg-slate-50/80 dark:bg-slate-900/60 p-2 rounded-lg border border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-600 dark:text-slate-300">
+                                    <div className="mt-2.5 space-y-1 bg-slate-100/90 dark:bg-slate-900/70 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[11px] text-slate-800 dark:text-slate-100">
                                       <div className="flex items-center justify-between">
-                                        <span className="text-slate-400">{txt.labelDept}</span>
-                                        <span className="font-medium text-slate-800 dark:text-slate-200 truncate ml-2">{dept}</span>
+                                        <span className="font-semibold text-slate-600 dark:text-slate-300">{txt.labelDept}</span>
+                                        <span className="font-bold text-slate-900 dark:text-white truncate ml-2">{dept}</span>
                                       </div>
                                       <div className="flex items-center justify-between">
-                                        <span className="text-slate-400">{txt.labelLocation}</span>
-                                        <span className="font-normal text-slate-600 dark:text-slate-400 truncate ml-2">{location}</span>
+                                        <span className="font-semibold text-slate-600 dark:text-slate-300">{txt.labelLocation}</span>
+                                        <span className="font-semibold text-slate-800 dark:text-slate-200 truncate ml-2">{location}</span>
                                       </div>
                                       <div className="flex items-center justify-between">
-                                        <span className="text-slate-400">{txt.labelPhone}</span>
-                                        <span className="font-mono font-medium text-teal-600 dark:text-teal-400">{person.phone}</span>
+                                        <span className="font-semibold text-slate-600 dark:text-slate-300">{txt.labelPhone}</span>
+                                        <span className="font-mono font-bold text-teal-800 dark:text-teal-300">{person.phone}</span>
                                       </div>
                                     </div>
                                   </div>

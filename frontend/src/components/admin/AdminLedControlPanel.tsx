@@ -556,10 +556,10 @@ export function AdminLedControlPanel(): React.ReactElement {
                     key={preset.val}
                     type="button"
                     onClick={() => updateDraft({ speed: preset.val })}
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-mono border cursor-pointer ${
+                    className={`px-2 py-0.5 rounded-md text-[11px] font-mono font-bold border cursor-pointer ${
                       Math.abs(draft.speed - preset.val) < 0.03
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-400/60'
-                        : 'bg-[#141c2c] text-slate-400 border-[#222d42] hover:text-white'
+                        ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-950 dark:text-amber-200 border-amber-500'
+                        : 'bg-slate-100 dark:bg-[#141c2c] text-slate-800 dark:text-slate-200 border-slate-300 dark:border-[#222d42] hover:border-amber-400'
                     }`}
                   >
                     {preset.label}
@@ -570,9 +570,9 @@ export function AdminLedControlPanel(): React.ReactElement {
           </div>
 
           {/* 4. Typography Size, Spacing, Glow & Effects */}
-          <div className="bg-[#0c121e] border border-[#1b2436] rounded-xl p-3.5 space-y-3">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-white">
-              <Sliders className="w-3.5 h-3.5 text-amber-400" />
+          <div className="bg-white/95 dark:bg-[#0c121e] border border-slate-300 dark:border-[#1b2436] rounded-xl p-3.5 space-y-3">
+            <div className="flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
+              <Sliders className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <span>
                 {lang === 'om'
                   ? '4. Guddina Qubee, Iftina & Iddoo (Scale & Effects):'
@@ -583,9 +583,9 @@ export function AdminLedControlPanel(): React.ReactElement {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Font Size / Scale */}
               <div>
-                <div className="flex justify-between text-[11px] text-slate-400 mb-0.5">
+                <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-200 mb-0.5">
                   <span>{lang === 'om' ? 'Guddina Qubee' : 'Font Scale'}</span>
-                  <span className="font-mono text-white">{draft.fontScale.toFixed(2)}x</span>
+                  <span className="font-mono font-extrabold text-slate-900 dark:text-white">{draft.fontScale.toFixed(2)}x</span>
                 </div>
                 <input
                   type="range"
@@ -594,16 +594,16 @@ export function AdminLedControlPanel(): React.ReactElement {
                   step="0.05"
                   value={draft.fontScale}
                   onChange={(e) => updateDraft({ fontScale: Number(e.target.value) })}
-                  className="w-full accent-amber-400 cursor-pointer"
+                  className="w-full accent-amber-500 cursor-pointer"
                   aria-label="Font Size Scale"
                 />
               </div>
 
               {/* Letter Spacing */}
               <div>
-                <div className="flex justify-between text-[11px] text-slate-400 mb-0.5">
+                <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-200 mb-0.5">
                   <span>{lang === 'om' ? 'Fageenya Qubee' : 'Letter Spacing'}</span>
-                  <span className="font-mono text-white">{draft.letterSpacing.toFixed(2)}em</span>
+                  <span className="font-mono font-extrabold text-slate-900 dark:text-white">{draft.letterSpacing.toFixed(2)}em</span>
                 </div>
                 <input
                   type="range"
@@ -612,16 +612,16 @@ export function AdminLedControlPanel(): React.ReactElement {
                   step="0.01"
                   value={draft.letterSpacing}
                   onChange={(e) => updateDraft({ letterSpacing: Number(e.target.value) })}
-                  className="w-full accent-amber-400 cursor-pointer"
+                  className="w-full accent-amber-500 cursor-pointer"
                   aria-label="Letter Spacing"
                 />
               </div>
 
               {/* Glow Intensity */}
               <div>
-                <div className="flex justify-between text-[11px] text-slate-400 mb-0.5">
+                <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-200 mb-0.5">
                   <span>{lang === 'om' ? 'Iftina LED (Glow)' : 'Glow Intensity'}</span>
-                  <span className="font-mono text-white">{draft.glowIntensity}%</span>
+                  <span className="font-mono font-extrabold text-slate-900 dark:text-white">{draft.glowIntensity}%</span>
                 </div>
                 <input
                   type="range"
@@ -630,16 +630,16 @@ export function AdminLedControlPanel(): React.ReactElement {
                   step="5"
                   value={draft.glowIntensity}
                   onChange={(e) => updateDraft({ glowIntensity: Number(e.target.value) })}
-                  className="w-full accent-amber-400 cursor-pointer"
+                  className="w-full accent-amber-500 cursor-pointer"
                   aria-label="LED Glow Intensity"
                 />
               </div>
 
               {/* Vertical Fine Offset on Building */}
               <div>
-                <div className="flex justify-between text-[11px] text-slate-400 mb-0.5">
+                <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-200 mb-0.5">
                   <span>{lang === 'om' ? 'Iddoo Ol/Gadi (Pos Y)' : 'Vertical Offset'}</span>
-                  <span className="font-mono text-white">{draft.offsetY}px</span>
+                  <span className="font-mono font-extrabold text-slate-900 dark:text-white">{draft.offsetY}px</span>
                 </div>
                 <input
                   type="range"
@@ -648,21 +648,21 @@ export function AdminLedControlPanel(): React.ReactElement {
                   step="1"
                   value={draft.offsetY}
                   onChange={(e) => updateDraft({ offsetY: Number(e.target.value) })}
-                  className="w-full accent-teal-400 cursor-pointer"
+                  className="w-full accent-teal-500 cursor-pointer"
                   aria-label="Vertical Position Nudge"
                 />
               </div>
             </div>
 
             {/* Matrix Grid & Scanline Effect Toggles */}
-            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#192234]">
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 dark:border-[#192234]">
               <button
                 type="button"
                 onClick={() => updateDraft({ showGridDots: !draft.showGridDots })}
-                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
                   draft.showGridDots
-                    ? 'bg-teal-500/20 text-teal-300 border-teal-500/50'
-                    : 'bg-[#141c2c] text-slate-400 border-[#222d42]'
+                    ? 'bg-teal-100 dark:bg-teal-500/20 text-teal-950 dark:text-teal-200 border-teal-500'
+                    : 'bg-slate-100 dark:bg-[#141c2c] text-slate-800 dark:text-slate-200 border-slate-300 dark:border-[#222d42]'
                 }`}
               >
                 {draft.showGridDots ? '● ' : '○ '}
@@ -672,10 +672,10 @@ export function AdminLedControlPanel(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => updateDraft({ showScanlines: !draft.showScanlines })}
-                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
                   draft.showScanlines
-                    ? 'bg-teal-500/20 text-teal-300 border-teal-500/50'
-                    : 'bg-[#141c2c] text-slate-400 border-[#222d42]'
+                    ? 'bg-teal-100 dark:bg-teal-500/20 text-teal-950 dark:text-teal-200 border-teal-500'
+                    : 'bg-slate-100 dark:bg-[#141c2c] text-slate-800 dark:text-slate-200 border-slate-300 dark:border-[#222d42]'
                 }`}
               >
                 {draft.showScanlines ? '≡ ' : '— '}

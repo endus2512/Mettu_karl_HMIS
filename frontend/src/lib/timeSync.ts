@@ -101,10 +101,35 @@ const DEFAULT_SYNC_DATA: TimeSyncData = {
   },
 };
 
+export function formatTime12Hour(date: Date): string {
+  const hours24 = date.getHours();
+  const period = hours24 >= 12 ? 'PM' : 'AM';
+  const hours12 = hours24 % 12 || 12;
+  const h = String(hours12).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  const s = String(date.getSeconds()).padStart(2, '0');
+  return `${h}:${m}:${s} ${period}`;
+}
+
+export function normalizeServerTime12Hour(rawTime: string): string {
+  const trimmed = (rawTime || '').trim();
+  if (/AM|PM$/i.test(trimmed)) return trimmed;
+  const parts = trimmed.split(':').map((p) => parseInt(p, 10));
+  if (parts.length >= 2 && !Number.isNaN(parts[0]) && !Number.isNaN(parts[1])) {
+    const h24 = parts[0];
+    const period = h24 >= 12 ? 'PM' : 'AM';
+    const h12 = String(h24 % 12 || 12).padStart(2, '0');
+    const mm = String(parts[1]).padStart(2, '0');
+    const ss = String(Number.isNaN(parts[2]) ? 0 : parts[2]).padStart(2, '0');
+    return `${h12}:${mm}:${ss} ${period}`;
+  }
+  return trimmed || '12:00:00 PM';
+}
+
 export function useHospitalTimeSync() {
   const [syncData, setSyncData] = useState<TimeSyncData>(DEFAULT_SYNC_DATA);
   const [serverOffsetMs, setServerOffsetMs] = useState<number>(0);
-  const [currentDisplayTime, setCurrentDisplayTime] = useState<string>('08:45:00');
+  const [currentDisplayTime, setCurrentDisplayTime] = useState<string>('08:45:00 AM');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
@@ -117,7 +142,7 @@ export function useHospitalTimeSync() {
         const serverMs = new Date(res.data.server_timestamp_iso).getTime();
         const clientMs = Date.now();
         setServerOffsetMs(serverMs - clientMs);
-        setCurrentDisplayTime(res.data.server_time);
+        setCurrentDisplayTime(normalizeServerTime12Hour(res.data.server_time));
       }
     } catch {
       // Fallback gracefully without throwing
@@ -135,14 +160,11 @@ export function useHospitalTimeSync() {
     return () => clearInterval(syncInterval);
   }, [fetchTimeSync]);
 
-  // High precision client-side ticking synchronized with server offset
+  // High precision client-side ticking synchronized with server offset (12-hour up to 12:00)
   useEffect(() => {
     const tickInterval = setInterval(() => {
       const syncedNow = new Date(Date.now() + serverOffsetMs);
-      const hours = String(syncedNow.getHours()).padStart(2, '0');
-      const minutes = String(syncedNow.getMinutes()).padStart(2, '0');
-      const seconds = String(syncedNow.getSeconds()).padStart(2, '0');
-      setCurrentDisplayTime(`${hours}:${minutes}:${seconds}`);
+      setCurrentDisplayTime(formatTime12Hour(syncedNow));
     }, 1000);
     return () => clearInterval(tickInterval);
   }, [serverOffsetMs]);

@@ -334,9 +334,9 @@ export function Header(): React.ReactElement {
   const roleLabel = `${effectiveRole.replace('_', ' ').toUpperCase()}${simulatedRole ? ' (SIM)' : ''}`;
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-[#1b2334] bg-[#0b0f17] px-3 sm:px-6 sticky top-0 z-30 shadow-md select-none text-white">
-      {/* LEFT: Mobile Drawer Trigger & Breadcrumb Navigation */}
-      <div className="flex items-center gap-3 shrink-0">
+    <header className="flex h-16 items-center justify-between border-b-2 border-sky-400/75 dark:border-sky-400/40 bg-gradient-to-r from-sky-100/95 via-white/95 to-indigo-100/95 dark:from-[#0f1c36]/95 dark:via-[#152546]/95 dark:to-[#182245]/95 backdrop-blur-xl px-3 sm:px-6 sticky top-0 z-30 shadow-[0_8px_24px_-8px_rgba(14,165,233,0.22)] select-none text-slate-900 dark:text-white transition-all duration-300">
+      {/* LEFT: Mobile Drawer Trigger & Unified Online Time • Calendar • Shift Cube Rectangle */}
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <button
           type="button"
           onClick={() => {
@@ -344,81 +344,74 @@ export function Header(): React.ReactElement {
               window.dispatchEvent(new CustomEvent('toggle-mkh-sidebar'));
             }
           }}
-          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-[#141b29] hover:bg-[#1c263a] text-amber-400 hover:text-white border border-[#222b3d] transition-colors shrink-0 cursor-pointer"
+          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-white/90 dark:bg-[#141b29] hover:bg-sky-50 dark:hover:bg-[#1c263a] text-amber-700 dark:text-amber-400 border-2 border-sky-300 dark:border-sky-500/40 transition-colors shrink-0 cursor-pointer shadow-xs"
           title="Toggle Navigation Menu"
           aria-label="Toggle Navigation Menu"
         >
           <Menu className="h-4.5 w-4.5" />
         </button>
 
-        {/* Clean Executive Breadcrumb Trail (Matching Uploaded Image Style) */}
-        <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-medium select-none shrink-0 whitespace-nowrap">
-          <Link href="/dashboard" className="text-slate-400 hover:text-amber-300 transition-colors">
-            Enterprise
-          </Link>
-          <span className="text-slate-600">/</span>
-          <span className="text-slate-200 font-semibold tracking-wide">
-            Core Overview
-          </span>
-        </div>
-      </div>
-
-      {/* CENTER: OMNISEARCH COMMAND PALETTE (Ctrl+K) */}
-      <div className="hidden md:flex items-center mx-2 lg:mx-4 shrink-0">
-        <OmnisearchCommandCenter />
-      </div>
-
-      {/* RIGHT: COMMAND COCKPIT & GOLD PRIMARY ACTION (Matching Uploaded Image) */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Hospital Utilities Capsule (Time -> Calendar -> Shift -> Bell -> Lang -> Theme) */}
-        <div className="flex items-center gap-1 sm:gap-1.5 rounded-xl border border-[#222b3d] bg-[#101624] px-2 py-1 shadow-xs">
-          {/* Live Online Server Clock & NTP Indicator */}
-          <div
-            className="flex items-center gap-1.5 text-xs font-mono font-bold text-teal-300 pr-2 border-r border-[#1e283c] select-none"
-            title={`Hospital NTP Server Clock: ${serverTime} EAT (${ethiopian.habasha_time_str})`}
-          >
-            <Clock className="h-3.5 w-3.5 text-teal-400 animate-pulse" />
-            <span>{serverTime}</span>
+        {/* ONE COMPACT CUBE-COLORED ONLINE RECTANGLE: TIME (12H) + CALENDAR + SHIFT */}
+        <button
+          type="button"
+          onClick={() => setCalendarModalOpen(true)}
+          title={`Online NTP Synced • EAT UTC+3 (${ethiopian.habasha_time_str}) — Click to configure calendar & shift`}
+          className="group flex items-center gap-2 sm:gap-2.5 rounded-2xl border-2 border-sky-400/85 dark:border-sky-400/50 bg-gradient-to-br from-white via-sky-50 to-indigo-100/90 dark:from-[#172744] dark:via-[#1b2e52] dark:to-[#1d2849] px-3 py-1.5 shadow-[0_6px_16px_-4px_rgba(14,165,233,0.26),3px_3px_0_0_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:border-sky-500 hover:shadow-[0_10px_22px_-4px_rgba(14,165,233,0.38),4px_4px_0_0_rgba(56,189,248,0.4)] transition-all duration-300 cursor-pointer min-w-0 max-w-full"
+        >
+          {/* Online Live Dot + 12-Hour Clock (up to 12:00) */}
+          <div className="flex items-center gap-1.5 text-xs sm:text-[13px] font-mono font-extrabold text-teal-900 dark:text-teal-200 shrink-0">
             <span
-              className={`flex h-1.5 w-1.5 rounded-full ${ntpSynced ? 'bg-emerald-400 shadow-[0_0_6px_#34d399]' : 'bg-amber-400'}`}
-              title={ntpSynced ? 'Online NTP Synchronized' : 'Syncing'}
+              className={`h-2 w-2 rounded-full shrink-0 ${
+                ntpSynced
+                  ? 'bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse'
+                  : 'bg-amber-500 animate-pulse'
+              }`}
             />
+            <Clock className="h-3.5 w-3.5 text-teal-700 dark:text-teal-300 shrink-0" />
+            <span>{serverTime}</span>
           </div>
 
-          {/* Calendar (Online Editable Modal) */}
-          <button
-            type="button"
-            onClick={() => setCalendarModalOpen(true)}
-            title="Kalandarii fi shiftii online jijjiiri (Online Hospital Time/Shift Config)"
-            className="hidden xl:flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-amber-300 transition-colors cursor-pointer select-none pr-2 border-r border-[#1e283c]"
-          >
-            <Calendar className="h-3.5 w-3.5 text-amber-400" />
-            <span className="hover:underline underline-offset-2">{dateDisplay}</span>
+          {/* Calendar Date */}
+          <div className="hidden xl:flex items-center gap-1.5 text-xs font-extrabold text-slate-800 dark:text-slate-100 pl-2 border-l border-sky-300/80 dark:border-sky-400/35 shrink-0">
+            <Calendar className="h-3.5 w-3.5 text-amber-600 dark:text-amber-300 shrink-0" />
+            <span className="group-hover:text-indigo-700 dark:group-hover:text-amber-200 transition-colors">
+              {dateDisplay}
+            </span>
+          </div>
+
+          {/* Active Shift */}
+          <div className="hidden md:flex items-center gap-1.5 text-xs font-extrabold text-indigo-900 dark:text-amber-200 pl-2 border-l border-sky-300/80 dark:border-sky-400/35 min-w-0">
+            {shift.type === 'morning' ? (
+              <Sun className="h-3.5 w-3.5 text-amber-600 dark:text-amber-300 shrink-0" />
+            ) : shift.type === 'afternoon' ? (
+              <CloudSun className="h-3.5 w-3.5 text-sky-600 dark:text-sky-300 shrink-0" />
+            ) : shift.type === 'night' ? (
+              <Moon className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-300 shrink-0" />
+            ) : (
+              <Clock className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-300 shrink-0" />
+            )}
+            <span className="truncate max-w-[170px]">{shiftDisplay}</span>
             {!shift.is_auto && (
-              <span className="px-1 py-0.2 text-[9px] bg-amber-500/20 text-amber-400 rounded-sm font-semibold border border-amber-500/40">
+              <span className="px-1.5 py-0.5 text-[9px] bg-amber-200 dark:bg-amber-500/25 text-amber-950 dark:text-amber-200 rounded font-extrabold border border-amber-400/70 shrink-0">
                 MANUAL
               </span>
             )}
-          </button>
-
-          {/* Shift indicator */}
-          <div className="hidden 2xl:flex items-center gap-1.5 text-xs font-medium text-amber-300 select-none pr-2 border-r border-[#1e283c]">
-            {shift.type === 'morning' ? (
-              <Sun className="h-3.5 w-3.5 text-amber-400" />
-            ) : shift.type === 'afternoon' ? (
-              <CloudSun className="h-3.5 w-3.5 text-sky-400" />
-            ) : shift.type === 'night' ? (
-              <Moon className="h-3.5 w-3.5 text-indigo-400" />
-            ) : (
-              <Clock className="h-3.5 w-3.5 text-emerald-400" />
-            )}
-            <span>{shiftDisplay}</span>
           </div>
+        </button>
+      </div>
 
-          {/* Edge Offline / Online Connectivity & Sync Capsule */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-[#1e283c] bg-[#101726] text-xs">
+      {/* CENTER: OMNISEARCH COMMAND PALETTE (Ctrl+K) */}
+      <div className="hidden lg:flex items-center mx-2 shrink-0">
+        <OmnisearchCommandCenter />
+      </div>
+
+      {/* RIGHT: SYNC CAPSULE, UTILITIES, PROFILE & LOGOUT */}
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        {/* Edge Offline / Online Connectivity & Sync Capsule + Dark Icon Strip */}
+        <div className="flex items-center gap-1 sm:gap-1.5 rounded-2xl border-2 border-sky-400/60 dark:border-sky-400/40 bg-[#101c34]/95 dark:bg-[#0f1a30]/95 px-2.5 py-1 shadow-[0_4px_12px_-4px_rgba(14,165,233,0.3)] text-white">
+          <div className="flex items-center gap-1.5 pr-1.5 border-r border-slate-700 text-xs">
             {isOnline ? (
-              <span className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]" title="Central DB Online">
+              <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]" title="Central DB Online">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -426,7 +419,7 @@ export function Header(): React.ReactElement {
                 <span className="hidden xl:inline font-mono">ONLINE</span>
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 text-amber-400 font-semibold text-[11px]" title="Edge Offline Mode (IndexedDB Active)">
+              <span className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]" title="Edge Offline Mode (IndexedDB Active)">
                 <WifiOff className="h-3 w-3 text-amber-400 animate-pulse" />
                 <span className="hidden xl:inline font-mono">OFFLINE</span>
               </span>
@@ -450,14 +443,14 @@ export function Header(): React.ReactElement {
                 onClick={handleManualSync}
                 disabled={isSyncing || !isOnline}
                 title="Central database synced. Click to check for edge batch updates."
-                className="hidden xl:flex items-center gap-1 px-1 py-0.5 rounded text-slate-400 hover:text-slate-200 text-[10px] cursor-pointer"
+                className="hidden xl:flex items-center gap-1 px-1 py-0.5 rounded text-slate-300 hover:text-white text-[10px] cursor-pointer"
               >
                 <RefreshCw className={`h-2.5 w-2.5 ${isSyncing ? 'animate-spin text-teal-400' : ''}`} />
               </button>
             )}
 
             {syncStatusMsg && (
-              <span className="hidden 2xl:inline text-[10px] text-teal-300 font-medium truncate max-w-[130px]" title={syncStatusMsg}>
+              <span className="hidden 2xl:inline text-[10px] text-teal-300 font-medium truncate max-w-[110px]" title={syncStatusMsg}>
                 {syncStatusMsg}
               </span>
             )}
@@ -469,31 +462,31 @@ export function Header(): React.ReactElement {
           </div>
 
           {/* Language Selector */}
-          <div className="flex items-center px-0.5 border-l border-[#1e283c]">
+          <div className="flex items-center px-0.5 border-l border-slate-700">
             <LanguageSelect variant="dark" />
           </div>
 
           {/* Theme Toggle */}
-          <div className="flex items-center px-0.5 border-l border-[#1e283c]">
+          <div className="flex items-center px-0.5 border-l border-slate-700">
             <ThemeToggle variant="cockpit" />
           </div>
 
           {/* Zen Mode / Salphaa Toggle */}
-          <div className="hidden sm:flex items-center px-1 border-l border-[#1e283c]">
+          <div className="hidden sm:flex items-center px-1 border-l border-slate-700">
             <ZenModeToggle variant="header" />
           </div>
         </div>
 
-        {/* Clinician Profile Avatar & Name */}
-        <div className="flex items-center gap-2 pl-1 pr-1 border-r border-[#1e283c] shrink-0">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold text-xs flex items-center justify-center ring-2 ring-amber-400/30 shrink-0 shadow-xs">
+        {/* Clinician Profile Avatar & Name (Universal Bright & Dark Contrast) */}
+        <div className="flex items-center gap-2 pl-1 pr-2 border-r-2 border-sky-300/60 dark:border-slate-700 shrink-0">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-extrabold text-xs flex items-center justify-center ring-2 ring-amber-400/50 shrink-0 shadow-xs">
             {profile.initials}
           </div>
           <div className="hidden lg:block text-left min-w-0">
-            <p className="text-xs font-bold text-white truncate leading-tight">
+            <p className="text-xs font-extrabold text-slate-900 dark:text-white truncate leading-tight">
               {profile.name}
             </p>
-            <p className="text-[10px] text-amber-400/90 capitalize truncate">
+            <p className="text-[10px] font-extrabold text-amber-800 dark:text-amber-300 capitalize truncate">
               {roleLabel}
             </p>
           </div>
