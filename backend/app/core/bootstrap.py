@@ -25,7 +25,7 @@ async def ensure_database_ready() -> None:
             return
 
         from app.core.database import AsyncSessionLocal, engine
-        from app.core.security import hash_password
+        from app.core.security import encrypt_credential_vault, hash_password
         from app.models import Base  # noqa: F401 - ensures all models are registered
         from app.models.hrm import HospitalSignageConfig
         from app.models.user import User, UserRole
@@ -76,6 +76,7 @@ async def ensure_database_ready() -> None:
                     ("last_activity_path", "VARCHAR(255)"),
                     ("pending_wait_jti", "VARCHAR(64)"),
                     ("biography", "TEXT"),
+                    ("credential_vault_enc", "TEXT"),
                 ]
                 for col_name, col_type in additions:
                     if col_name not in existing:
@@ -102,6 +103,7 @@ async def ensure_database_ready() -> None:
                                 email=uemail,
                                 full_name=fname,
                                 hashed_password=hash_password(pwd),
+                                credential_vault_enc=encrypt_credential_vault(pwd),
                                 role=urole,
                                 is_active=True,
                             )
@@ -149,6 +151,7 @@ async def ensure_database_ready() -> None:
                                 email=uemail,
                                 full_name=fname,
                                 hashed_password=hash_password(pwd),
+                                credential_vault_enc=encrypt_credential_vault(pwd),
                                 role=UserRole.PATIENT,
                                 patient_id=pat_id,
                                 fayda_id=fayda,

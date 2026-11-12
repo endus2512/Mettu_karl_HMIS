@@ -30,6 +30,8 @@ from app.core.security import (
     create_staff_wait_token,
     decode_staff_wait_token,
     decode_token,
+    decrypt_credential_vault,
+    encrypt_credential_vault,
     hash_password,
 )
 from app.models.notification import ClinicalNotification
@@ -302,6 +304,8 @@ async def patient_login(
         if client_ip:
             user.last_ip = client_ip
         user.last_activity_path = "/patient-portal"
+        if not getattr(user, "credential_vault_enc", None):
+            user.credential_vault_enc = encrypt_credential_vault(pwd)
         await db.commit()
     else:
         norm_ident = identifier.replace(" ", "").lower()
@@ -352,6 +356,7 @@ async def patient_login(
             email=f"{username}@patient.mettukarl.gov.et",
             full_name=full_name,
             hashed_password=hash_password(pwd),
+            credential_vault_enc=encrypt_credential_vault(pwd),
             role=UserRole.PATIENT,
             patient_id=pat_id,
             fayda_id=fayda_id,
@@ -495,6 +500,7 @@ async def patient_register(
         email=f"{username}@patient.mettukarl.gov.et",
         full_name=full_name,
         hashed_password=hash_password(reg_data.password),
+        credential_vault_enc=encrypt_credential_vault(reg_data.password),
         role=UserRole.PATIENT,
         patient_id=patient.id,
         fayda_id=fayda_val,
@@ -1007,6 +1013,7 @@ async def register_staff_request(
         email=staff_email,
         full_name=clean_full_name,
         hashed_password=hash_password(payload.password),
+        credential_vault_enc=encrypt_credential_vault(payload.password),
         role=UserRole.RECEPTIONIST,
         staff_id=clean_staff_id,
         department=clean_dept,
@@ -1757,6 +1764,7 @@ def _serialize_directory_user(
         gender=patient.gender.value if patient and patient.gender else None,
         city=patient.city if patient else None,
         biography=u.biography,
+        saved_password=decrypt_credential_vault(getattr(u, "credential_vault_enc", None)),
         approval_status=getattr(u, "approval_status", ApprovalStatus.APPROVED.value),
         requested_role=u.requested_role,
         risk_flag=u.risk_flag,
@@ -1928,6 +1936,14 @@ async def update_admin_directory_user(
         target.license_number = payload.license_number.strip() or None
     if payload.biography is not None:
         target.biography = payload.biography.strip() or None
+    if payload.new_password is not None and payload.new_password.strip():
+        clean_pw = payload.new_password.strip()
+        if len(clean_pw) < 6:
+            raise HTTPException(status_code=422, detail="Password must be at least 6 characters.")
+        target.hashed_password = hash_password(clean_pw)
+        target.credential_vault_enc = encrypt_credential_vault(clean_pw)
+        target.failed_attempts = 0
+        target.locked_until = None
     if payload.role is not None:
         target.role = payload.role
 
@@ -2039,6 +2055,7 @@ async def reset_user_password_by_admin(
 
     now = datetime.now(timezone.utc)
     target.hashed_password = hash_password(temp_password)
+    target.credential_vault_enc = encrypt_credential_vault(temp_password)
 
     if payload.clear_lockout:
         target.failed_attempts = 0

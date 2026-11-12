@@ -294,6 +294,7 @@ class AdminDirectoryUserResponse(BaseModel):
     gender: Optional[str] = None
     city: Optional[str] = None
     biography: Optional[str] = None
+    saved_password: Optional[str] = None
     approval_status: str = "approved"
     requested_role: Optional[str] = None
     risk_flag: Optional[str] = None
@@ -329,6 +330,7 @@ class AdminUserProfileUpdateRequest(BaseModel):
     license_number: Optional[str] = Field(None, max_length=100)
     fayda_id: Optional[str] = Field(None, max_length=50)
     biography: Optional[str] = Field(None, max_length=2000)
+    new_password: Optional[str] = Field(None, min_length=6, max_length=128)
     role: Optional[UserRole] = None
     is_active: Optional[bool] = None
     approval_status: Optional[Literal["pending", "approved", "rejected"]] = None

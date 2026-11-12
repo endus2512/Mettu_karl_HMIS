@@ -442,25 +442,25 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
   return (
     <div
       id="admin-staff-approval-queue"
-      className={`bg-[#101624] border rounded-2xl shadow-lg transition-all ${
+      className={`bg-gradient-to-br from-white via-rose-50/40 to-amber-50/45 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] border-2 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${
         unreadAlarms.length > 0 || counts.pending > 0
-          ? 'border-amber-500/45'
-          : 'border-[#222b3d]'
-      } ${isMinimized ? 'p-4' : 'p-4 sm:p-5 space-y-4'}`}
+          ? 'border-amber-400 dark:border-amber-400/65'
+          : 'border-rose-200/80 dark:border-slate-600/60'
+      } ${isMinimized ? 'p-4 sm:p-5' : 'p-4 sm:p-5 space-y-4'}`}
     >
       {/* Header Row */}
       <div
         className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${
-          isMinimized ? '' : 'pb-3 border-b border-[#1c2536]'
+          isMinimized ? '' : 'pb-3 border-b border-amber-200 dark:border-slate-700'
         }`}
       >
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
-            <ShieldAlert className="w-5 h-5" />
+        <div className="flex items-center gap-3.5">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/20">
+            <ShieldAlert className="w-5.5 h-5.5" />
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm font-extrabold text-white">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
                 {lang === 'om'
                   ? "To'annoo Nageenyaa & Mirkaneessa Galmee (Admin Guard)"
                   : lang === 'am'
@@ -468,30 +468,30 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
                   : 'Staff Sign-Up Verification & Security Guard'}
               </h2>
               {unreadAlarms.length > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-600/30 text-rose-200 border border-rose-500/60 flex items-center gap-1 animate-pulse">
-                  <BellRing className="w-3 h-3 text-rose-300" />
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-rose-100 dark:bg-rose-600/35 text-rose-800 dark:text-rose-200 border border-rose-400 flex items-center gap-1 animate-pulse">
+                  <BellRing className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
                   {unreadAlarms.length} LIVE ALARMS
                 </span>
               )}
               {counts.pending > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-100 dark:bg-amber-500/25 text-amber-900 dark:text-amber-200 border border-amber-400">
                   {counts.pending} PENDING
                 </span>
               )}
               {counts.flagged > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" />
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-rose-100 dark:bg-rose-500/25 text-rose-800 dark:text-rose-200 border border-rose-400 flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" />
                   {counts.flagged} RISK ALERTS
                 </span>
               )}
               {isMinimized && unreadAlarms.length === 0 && counts.pending === 0 && (
-                <span className="text-[11px] font-mono text-emerald-400/90">
+                <span className="text-xs sm:text-sm font-mono font-extrabold text-emerald-700 dark:text-emerald-300">
                   0 Pending • All Clear
                 </span>
               )}
             </div>
             {!isMinimized && (
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">
                 {lang === 'om'
                   ? 'Hojjetaan haaraan yoo galmaa’e ykn Doctor/Nurse/Pharmacy yeroo jalqabaaf seenuu yoo yaale battalumatti alarmii erga; Admin eyyamee ykn cufee to’ata.'
                   : 'All self-registered accounts stay locked until Admin approval. Live alarms notify Admin immediately on every new sign-up, first-time login, or blocked attempt.'}
@@ -506,13 +506,13 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
             type="button"
             onClick={() => setSoundEnabled(!soundEnabled)}
             title={soundEnabled ? 'Mute alarm siren' : 'Enable alarm siren'}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[11px] font-semibold cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs sm:text-sm font-extrabold hover:scale-[1.03] transition-all cursor-pointer ${
               soundEnabled
-                ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
-                : 'bg-[#151e30] border-[#25334d] text-slate-400'
+                ? 'bg-rose-100 dark:bg-rose-500/20 border-rose-400 text-rose-800 dark:text-rose-200'
+                : 'bg-white dark:bg-[#1a2640] border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300'
             }`}
           >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             <span>{soundEnabled ? 'Alarm ON' : 'Muted'}</span>
           </button>
 
@@ -569,9 +569,9 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
           <button
             type="button"
             onClick={() => setIsMinimized((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#25334d] bg-[#151e30] hover:bg-[#1c2840] text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#1a2640] hover:bg-sky-50 dark:hover:bg-[#233252] text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white hover:scale-[1.03] transition-all cursor-pointer"
           >
-            {isMinimized ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+            {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
             <span>
               {isMinimized
                 ? lang === 'om'

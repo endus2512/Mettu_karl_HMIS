@@ -159,30 +159,30 @@ export function AdminLedControlPanel(): React.ReactElement {
   return (
     <div
       id="admin-led-signage-studio"
-      className={`bg-[#101624] border border-[#222b3d] rounded-2xl shadow-lg transition-all ${
-        isExpanded ? 'p-4 sm:p-5 space-y-4' : 'p-4'
+      className={`bg-gradient-to-br from-white via-cyan-50/45 to-amber-50/45 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] border-2 border-cyan-300/75 dark:border-cyan-400/35 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${
+        isExpanded ? 'p-4 sm:p-5 space-y-4' : 'p-4 sm:p-5'
       }`}
     >
       {/* Header Row */}
       <div
         className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-          isExpanded ? 'border-b border-[#1c2436] pb-3.5' : ''
+          isExpanded ? 'border-b border-cyan-200 dark:border-slate-700 pb-3.5' : ''
         }`}
       >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="h-9 w-9 rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-400 flex items-center justify-center shrink-0">
-            <Monitor className="w-4.5 h-4.5" />
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-cyan-500/20">
+            <Monitor className="w-5.5 h-5.5" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
                 {lang === 'om'
                   ? "Boordii Digital LED Gamoo (Arduino Signage)"
                   : lang === 'am'
                   ? 'የሆስፒታሉ ዲጂታል የLED ማስታወቂያ ሰሌዳ'
                   : 'Hospital Digital LED Board (Arduino Marquee)'}
               </h2>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 border border-emerald-400/60">
                 {draft.isPlaying ? 'LIVE SCROLL' : 'PAUSED'}
               </span>
               <span
@@ -233,9 +233,9 @@ export function AdminLedControlPanel(): React.ReactElement {
               )}
             </div>
             {!showSettings && (
-              <p className="text-xs text-slate-400 truncate mt-0.5 max-w-2xl">
-                <span className="text-slate-500 mr-1.5">Active text:</span>
-                <span className="font-mono text-amber-200/90">{draft.message}</span>
+              <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 truncate mt-0.5 max-w-2xl">
+                <span className="text-slate-500 dark:text-slate-400 mr-1.5">Active text:</span>
+                <span className="font-mono text-cyan-800 dark:text-amber-300">{draft.message}</span>
               </p>
             )}
           </div>
@@ -246,13 +246,13 @@ export function AdminLedControlPanel(): React.ReactElement {
             <button
               type="button"
               onClick={() => setShowPreviewOnly((prev) => !prev)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-extrabold transition-all hover:scale-[1.03] cursor-pointer ${
                 showPreviewOnly
-                  ? 'bg-teal-500/15 border-teal-500/40 text-teal-300'
-                  : 'border-[#25334d] bg-[#151e30] hover:bg-[#1c2840] text-slate-200'
+                  ? 'bg-teal-100 dark:bg-teal-500/20 border-teal-400 text-teal-900 dark:text-teal-200'
+                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-[#1a2640] hover:bg-sky-50 dark:hover:bg-[#233252] text-slate-800 dark:text-white'
               }`}
             >
-              <Eye className="w-3.5 h-3.5" />
+              <Eye className="w-4 h-4" />
               <span>{showPreviewOnly ? (lang === 'om' ? 'Dhoksi' : 'Hide Preview') : (lang === 'om' ? 'Ilaali' : 'Preview')}</span>
             </button>
           )}
@@ -262,9 +262,9 @@ export function AdminLedControlPanel(): React.ReactElement {
               type="button"
               disabled={isSaving}
               onClick={handleSave}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500 disabled:opacity-60 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/20 cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-yellow-400 disabled:opacity-60 text-slate-950 font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/25 cursor-pointer"
             >
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-4 h-4" />
               <span>{isSaving ? 'Publishing...' : 'Save & Publish Live'}</span>
             </button>
           )}
@@ -272,13 +272,13 @@ export function AdminLedControlPanel(): React.ReactElement {
           <button
             type="button"
             onClick={() => setShowSettings((prev) => !prev)}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl border text-xs sm:text-sm font-extrabold transition-all hover:scale-[1.03] cursor-pointer ${
               showSettings
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
-                : 'bg-[#151e30] hover:bg-amber-500/15 border-amber-500/40 text-amber-300'
+                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/25'
+                : 'bg-amber-50 dark:bg-[#1a2640] hover:bg-amber-100 dark:hover:bg-amber-500/20 border-amber-400 text-amber-900 dark:text-amber-300'
             }`}
           >
-            <Settings className={`w-3.5 h-3.5 ${showSettings ? 'animate-spin' : ''}`} style={{ animationDuration: '8s' }} />
+            <Settings className={`w-4 h-4 ${showSettings ? 'animate-spin' : ''}`} style={{ animationDuration: '8s' }} />
             <span>
               {showSettings
                 ? lang === 'om'
@@ -288,7 +288,7 @@ export function AdminLedControlPanel(): React.ReactElement {
                 ? "Qindaa'ina (Settings)"
                 : 'Settings'}
             </span>
-            {showSettings ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            {showSettings ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
         </div>
       </div>

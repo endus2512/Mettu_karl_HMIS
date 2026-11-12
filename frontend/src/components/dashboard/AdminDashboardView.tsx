@@ -260,20 +260,20 @@ export function AdminDashboardView(): React.ReactElement {
       {/* ================================================================= */}
       {/* 1. COMPACT EXECUTIVE COCKPIT HEADER WITH QUICK CONTROLS            */}
       {/* ================================================================= */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#101624] border border-[#222b3d] rounded-2xl p-4 sm:p-5 shadow-lg">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gradient-to-br from-white via-sky-50/80 to-indigo-50/70 dark:from-[#17243b] dark:via-[#1c2b46] dark:to-[#18233a] border-2 border-sky-200/90 dark:border-sky-400/35 rounded-3xl p-4 sm:p-5 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center border border-amber-500/30">
-              <Building2 className="w-4.5 h-4.5" />
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shadow-md shadow-amber-500/25 shrink-0">
+              <Building2 className="w-5.5 h-5.5" />
             </div>
             <div>
-              <h1 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5 flex-wrap">
                 <span>{language === 'om' ? "Wiirtuu Bulchiinsa Hospitaala Mattuu Kaarl" : language === 'am' ? 'የመቱ ካርል ሪፈራል ሆስፒታል የበላይ አስተዳደር' : 'Mettu Karl Referral Hospital Executive Command'}</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-400/25 text-amber-900 dark:text-amber-200 border border-amber-400/50 font-mono font-extrabold">
                   ADMIN COMMAND
                 </span>
               </h1>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mt-0.5">
                 {language === 'om'
                   ? "To'annoo kutaalee yaalaa, karoora ogeeyyii, fi murtiiwwan hatattamaa hospitaalaa"
                   : 'Hospital-wide departmental monitoring, staffing oversight, and live operational control'}
@@ -283,18 +283,18 @@ export function AdminDashboardView(): React.ReactElement {
         </div>
 
         {/* Quick Status Badges & Admin Action Controls */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           {/* Emergency Status Pill */}
           <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold border transition-transform hover:scale-[1.03] ${
               emergencyCode === 'code_blue'
-                ? 'bg-rose-950/80 text-rose-300 border-rose-500/50 animate-pulse'
+                ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border-rose-400 animate-pulse'
                 : emergencyCode === 'mci'
-                ? 'bg-amber-950/80 text-amber-300 border-amber-500/50 animate-pulse'
-                : 'bg-emerald-950/50 text-emerald-300 border-emerald-500/30'
+                ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border-amber-400 animate-pulse'
+                : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 border-emerald-400/60'
             }`}
           >
-            <span className={`h-2 w-2 rounded-full ${emergencyCode === 'nominal' ? 'bg-emerald-400' : 'bg-rose-500'}`} />
+            <span className={`h-2.5 w-2.5 rounded-full ${emergencyCode === 'nominal' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
             <span>
               {emergencyCode === 'code_blue'
                 ? 'CODE BLUE ACTIVE'
@@ -305,8 +305,8 @@ export function AdminDashboardView(): React.ReactElement {
           </div>
 
           {/* Active Shift Pill (Online Centralized) */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#141c2e] border border-[#23314a] text-xs font-semibold text-slate-300">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
+          <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-[#141f35] border-2 border-sky-200 dark:border-sky-500/35 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 hover:border-sky-400 transition-colors">
+            <Clock className="w-4 h-4 text-amber-500" />
             <span>
               {onlineShift
                 ? (lang === 'om' ? onlineShift.name_om : lang === 'am' ? onlineShift.name_am : onlineShift.name_en)
@@ -316,7 +316,7 @@ export function AdminDashboardView(): React.ReactElement {
                 ? (lang === 'om' ? 'Shiftii Galgalaa (16:00-24:00)' : 'Afternoon Shift')
                 : (lang === 'om' ? 'Shiftii Halkan (00:00-08:00)' : 'Night Shift')}
             </span>
-            <span className="text-[10px] text-teal-400 font-mono pl-1 border-l border-slate-700">
+            <span className="text-xs text-teal-700 dark:text-teal-300 font-mono font-extrabold pl-1.5 border-l border-slate-300 dark:border-slate-600">
               {serverTime}
             </span>
           </div>
@@ -325,9 +325,9 @@ export function AdminDashboardView(): React.ReactElement {
           <button
             type="button"
             onClick={() => setIsEditModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/25 hover:scale-[1.03] active:scale-95 transition-all cursor-pointer"
           >
-            <Sliders className="w-3.5 h-3.5 text-slate-950" />
+            <Sliders className="w-4 h-4 text-slate-950" />
             <span>{language === 'om' ? "To'adhu & Gulaali (Controls)" : language === 'am' ? 'አስተዳድርና አርትዕ' : 'Admin Controls'}</span>
           </button>
         </div>
@@ -352,88 +352,139 @@ export function AdminDashboardView(): React.ReactElement {
       )}
 
       {/* ================================================================= */}
-      {/* 2. HIGH-SIGNAL EXECUTIVE KPI STRIP (ALWAYS VISIBLE AT A GLANCE)   */}
+      {/* 2. PORTABLE 3D CUBE KPI TILES (PC, TABLET & MOBILE RESPONSIVE)    */}
       {/* ================================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* Card 1: Bed Occupancy */}
-        <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-3.5 shadow-sm relative group hover:border-amber-500/40 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">1. {language === 'om' ? 'Siree Dhukkubsataa' : 'Bed Occupancy'}</span>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
+        {/* Cube 1: Bed Occupancy */}
+        <div className="aspect-square rounded-3xl border-2 border-sky-300/80 dark:border-sky-400/45 bg-gradient-to-br from-sky-50 via-white to-amber-50/80 dark:from-[#1b2c4a] dark:via-[#1e3152] dark:to-[#242c4c] p-3.5 sm:p-5 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_10px_24px_-6px_rgba(14,165,233,0.22),5px_5px_0_0_rgba(56,189,248,0.24)] hover:-translate-y-2 hover:scale-[1.03] hover:border-sky-400 hover:shadow-[0_18px_36px_-8px_rgba(14,165,233,0.38),8px_8px_0_0_rgba(56,189,248,0.35)] transition-all duration-300 ease-out">
+          <div className="pointer-events-none absolute -right-8 -top-8 w-24 h-24 rounded-full bg-sky-400/20 blur-xl group-hover:scale-150 transition-transform duration-500" />
+          <div className="flex items-start justify-between gap-2 relative z-10">
+            <span className="text-xs sm:text-sm md:text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+              1. {language === 'om' ? 'Siree Dhukkubsataa' : 'Bed Occupancy'}
+            </span>
             <button
               type="button"
               onClick={() => setIsEditModalOpen(true)}
               title="Edit Bed Capacity"
-              className="text-slate-500 hover:text-amber-400 cursor-pointer"
+              className="h-9 w-9 rounded-2xl bg-sky-500/15 dark:bg-sky-400/20 border border-sky-400/40 text-sky-700 dark:text-sky-200 flex items-center justify-center shrink-0 group-hover:rotate-6 group-hover:scale-110 transition-transform duration-300 cursor-pointer"
             >
-              <Edit3 className="w-3.5 h-3.5" />
+              <Edit3 className="w-4 h-4" />
             </button>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black tracking-tight text-white">{occupiedBeds}</span>
-              <span className="text-xs font-medium text-slate-500">/ {totalBeds}</span>
+
+          <div className="relative z-10 space-y-2 my-auto">
+            <div className="flex items-baseline justify-between gap-1 flex-wrap">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl sm:text-4xl font-black tracking-tight text-slate-950 dark:text-white">
+                  {occupiedBeds}
+                </span>
+                <span className="text-xs sm:text-sm font-extrabold text-slate-600 dark:text-slate-300">
+                  / {totalBeds}
+                </span>
+              </div>
+              <span
+                className={`text-xs sm:text-sm font-mono font-extrabold px-2.5 py-0.5 rounded-xl border ${
+                  occupancyPercent > 85
+                    ? 'bg-rose-100 dark:bg-rose-950/75 text-rose-800 dark:text-rose-200 border-rose-400'
+                    : 'bg-emerald-100 dark:bg-emerald-500/25 text-emerald-900 dark:text-emerald-200 border-emerald-400'
+                }`}
+              >
+                {occupancyPercent}%
+              </span>
             </div>
-            <span
-              className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${
-                occupancyPercent > 85
-                  ? 'bg-rose-950/70 text-rose-300 border border-rose-500/40'
-                  : 'bg-emerald-950/70 text-emerald-300 border border-emerald-500/40'
-              }`}
-            >
-              {occupancyPercent}%
-            </span>
+            <div className="h-2.5 w-full bg-slate-200 dark:bg-slate-700/80 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  occupancyPercent > 85
+                    ? 'bg-gradient-to-r from-rose-500 to-orange-500'
+                    : 'bg-gradient-to-r from-sky-500 to-emerald-500'
+                }`}
+                style={{ width: `${Math.min(occupancyPercent, 100)}%` }}
+              />
+            </div>
           </div>
-          <div className="mt-2 h-1.5 w-full bg-[#1b2336] rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                occupancyPercent > 85 ? 'bg-rose-500' : 'bg-emerald-500'
-              }`}
-              style={{ width: `${Math.min(occupancyPercent, 100)}%` }}
-            />
-          </div>
+
+          <p className="relative z-10 text-xs sm:text-[13px] font-bold text-slate-700 dark:text-slate-200 leading-snug line-clamp-2">
+            {language === 'om' ? `${wards.length} Kutaalee Yaalaa • Hordoffii Kallattii` : `${wards.length} Hospital Wards Monitored Live`}
+          </p>
         </div>
 
-        {/* Card 2: Active Consultations */}
-        <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-3.5 shadow-sm hover:border-teal-500/40 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">2. {language === 'om' ? 'Qorannoo Yaalaa (Active)' : 'Active Consultations'}</span>
-            <Stethoscope className="w-4 h-4 text-teal-400" />
+        {/* Cube 2: Active Consultations */}
+        <div className="aspect-square rounded-3xl border-2 border-teal-300/80 dark:border-teal-400/45 bg-gradient-to-br from-teal-50 via-white to-cyan-50/80 dark:from-[#143342] dark:via-[#173c4d] dark:to-[#1a334c] p-3.5 sm:p-5 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_10px_24px_-6px_rgba(20,184,166,0.22),5px_5px_0_0_rgba(45,212,191,0.24)] hover:-translate-y-2 hover:scale-[1.03] hover:border-teal-400 hover:shadow-[0_18px_36px_-8px_rgba(20,184,166,0.38),8px_8px_0_0_rgba(45,212,191,0.35)] transition-all duration-300 ease-out">
+          <div className="pointer-events-none absolute -right-8 -top-8 w-24 h-24 rounded-full bg-teal-400/20 blur-xl group-hover:scale-150 transition-transform duration-500" />
+          <div className="flex items-start justify-between gap-2 relative z-10">
+            <span className="text-xs sm:text-sm md:text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+              2. {language === 'om' ? 'Qorannoo Yaalaa (Active)' : 'Active Consultations'}
+            </span>
+            <div className="h-9 w-9 rounded-2xl bg-teal-500/15 dark:bg-teal-400/20 border border-teal-400/45 text-teal-700 dark:text-teal-200 flex items-center justify-center shrink-0 group-hover:-rotate-6 group-hover:scale-110 transition-transform duration-300">
+              <Stethoscope className="w-4.5 h-4.5" />
+            </div>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-black tracking-tight text-teal-300">142</span>
-            <span className="text-[11px] text-slate-400">OPD & IPD Daily</span>
+
+          <div className="relative z-10 my-auto space-y-1">
+            <span className="block text-2xl sm:text-4xl font-black tracking-tight text-teal-700 dark:text-teal-300">
+              142
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-2.5 py-0.5 rounded-xl bg-teal-100 dark:bg-teal-500/25 text-teal-900 dark:text-teal-200 border border-teal-400/50">
+              <span className="h-2 w-2 rounded-full bg-teal-500 animate-ping" />
+              OPD &amp; IPD Daily
+            </span>
           </div>
-          <p className="mt-2 text-[11px] text-slate-400 truncate">
+
+          <p className="relative z-10 text-xs sm:text-[13px] font-bold text-slate-700 dark:text-slate-200 leading-snug line-clamp-2">
             {language === 'om' ? 'Doktoorota 12 fi Ispeeshaalistoota 6 hojiirra jiru' : '12 Doctors & 6 Specialists active on shift'}
           </p>
         </div>
 
-        {/* Card 3: Revenue & Telebirr */}
-        <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-3.5 shadow-sm hover:border-emerald-500/40 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">3. {language === 'om' ? 'Galii Telebirr & CBHI' : 'Revenue & Telebirr'}</span>
-            <CreditCard className="w-4 h-4 text-emerald-400" />
+        {/* Cube 3: Revenue & Telebirr */}
+        <div className="aspect-square rounded-3xl border-2 border-emerald-300/80 dark:border-emerald-400/45 bg-gradient-to-br from-emerald-50 via-white to-teal-50/80 dark:from-[#12362e] dark:via-[#164037] dark:to-[#173242] p-3.5 sm:p-5 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_10px_24px_-6px_rgba(16,185,129,0.22),5px_5px_0_0_rgba(52,211,153,0.24)] hover:-translate-y-2 hover:scale-[1.03] hover:border-emerald-400 hover:shadow-[0_18px_36px_-8px_rgba(16,185,129,0.38),8px_8px_0_0_rgba(52,211,153,0.35)] transition-all duration-300 ease-out">
+          <div className="pointer-events-none absolute -right-8 -top-8 w-24 h-24 rounded-full bg-emerald-400/20 blur-xl group-hover:scale-150 transition-transform duration-500" />
+          <div className="flex items-start justify-between gap-2 relative z-10">
+            <span className="text-xs sm:text-sm md:text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+              3. {language === 'om' ? 'Galii Telebirr & CBHI' : 'Revenue & Telebirr'}
+            </span>
+            <div className="h-9 w-9 rounded-2xl bg-emerald-500/15 dark:bg-emerald-400/20 border border-emerald-400/45 text-emerald-700 dark:text-emerald-200 flex items-center justify-center shrink-0 group-hover:rotate-6 group-hover:scale-110 transition-transform duration-300">
+              <CreditCard className="w-4.5 h-4.5" />
+            </div>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-black tracking-tight text-emerald-300">284.5K</span>
-            <span className="text-[11px] font-mono text-emerald-400/90 font-semibold">ETB Today</span>
+
+          <div className="relative z-10 my-auto space-y-1">
+            <span className="block text-2xl sm:text-4xl font-black tracking-tight text-emerald-700 dark:text-emerald-300">
+              284.5K
+            </span>
+            <span className="inline-block text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-xl bg-emerald-100 dark:bg-emerald-500/25 text-emerald-900 dark:text-emerald-200 border border-emerald-400/50">
+              ETB Collected Today
+            </span>
           </div>
-          <p className="mt-2 text-[11px] text-slate-400 truncate">
+
+          <p className="relative z-10 text-xs sm:text-[13px] font-bold text-slate-700 dark:text-slate-200 leading-snug line-clamp-2">
             {language === 'om' ? 'Telebirr 68% • CBHI 24% • Kaashii 8%' : 'Telebirr 68% • CBHI 24% • Cash 8%'}
           </p>
         </div>
 
-        {/* Card 4: System Telemetry */}
-        <div className="rounded-xl border border-[#222b3d] bg-[#101624] p-3.5 shadow-sm hover:border-amber-500/40 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">4. {language === 'om' ? 'Haala Sirna Yaalaa' : 'System Telemetry'}</span>
-            <ShieldCheck className="w-4 h-4 text-amber-400" />
+        {/* Cube 4: System Telemetry */}
+        <div className="aspect-square rounded-3xl border-2 border-indigo-300/80 dark:border-indigo-400/45 bg-gradient-to-br from-indigo-50 via-white to-violet-50/80 dark:from-[#1f274a] dark:via-[#242e57] dark:to-[#29244f] p-3.5 sm:p-5 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_10px_24px_-6px_rgba(99,102,241,0.22),5px_5px_0_0_rgba(129,140,248,0.24)] hover:-translate-y-2 hover:scale-[1.03] hover:border-indigo-400 hover:shadow-[0_18px_36px_-8px_rgba(99,102,241,0.38),8px_8px_0_0_rgba(129,140,248,0.35)] transition-all duration-300 ease-out">
+          <div className="pointer-events-none absolute -right-8 -top-8 w-24 h-24 rounded-full bg-indigo-400/20 blur-xl group-hover:scale-150 transition-transform duration-500" />
+          <div className="flex items-start justify-between gap-2 relative z-10">
+            <span className="text-xs sm:text-sm md:text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+              4. {language === 'om' ? 'Haala Sirna Yaalaa' : 'System Telemetry'}
+            </span>
+            <div className="h-9 w-9 rounded-2xl bg-indigo-500/15 dark:bg-indigo-400/20 border border-indigo-400/45 text-indigo-700 dark:text-indigo-200 flex items-center justify-center shrink-0 group-hover:-rotate-6 group-hover:scale-110 transition-transform duration-300">
+              <ShieldCheck className="w-4.5 h-4.5" />
+            </div>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-black tracking-tight text-white">99.98%</span>
-            <span className="text-[11px] text-emerald-400 font-mono">100% HA Node</span>
+
+          <div className="relative z-10 my-auto space-y-1">
+            <span className="block text-2xl sm:text-4xl font-black tracking-tight text-indigo-800 dark:text-indigo-200">
+              99.98%
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-xl bg-emerald-100 dark:bg-emerald-500/25 text-emerald-900 dark:text-emerald-200 border border-emerald-400/50">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              100% HA Node
+            </span>
           </div>
-          <p className="mt-2 text-[11px] text-slate-400 truncate">
+
+          <p className="relative z-10 text-xs sm:text-[13px] font-bold text-slate-700 dark:text-slate-200 leading-snug line-clamp-2">
             {language === 'om' ? 'Kuusaan Qabbanaa 4.2°C • EEU Ibsaa Hojirra' : 'Cold Chain 4.2°C • EEU Grid Normal'}
           </p>
         </div>
@@ -459,23 +510,23 @@ export function AdminDashboardView(): React.ReactElement {
         <AdminOversightHub />
 
         {/* 3E. Staff Workstation Portals (Minimized by Default) */}
-        <div className={`bg-[#101624] border border-[#222b3d] rounded-2xl shadow-lg transition-all ${showPortals ? 'p-4 space-y-3' : 'p-4'}`}>
+        <div className={`bg-gradient-to-br from-white via-teal-50/45 to-sky-50/55 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] border-2 border-teal-300/70 dark:border-teal-400/35 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${showPortals ? 'p-4 sm:p-5 space-y-3.5' : 'p-4 sm:p-5'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0">
-                <Eye className="w-4.5 h-4.5" />
+            <div className="flex items-center gap-3.5">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md shadow-teal-500/20">
+                <Eye className="w-5.5 h-5.5" />
               </div>
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-sm font-bold text-white tracking-tight">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
                     {language === 'om' ? "Kutaalee Hojii Ogeessotaa (Role Portals)" : "Staff Workstation Portals (Supervisor Jump)"}
                   </h2>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">
+                  <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-teal-100 dark:bg-teal-500/20 text-teal-900 dark:text-teal-200 border border-teal-300 dark:border-teal-400/40">
                     7 Portals Active
                   </span>
                 </div>
                 {!showPortals && (
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">
                     Doctor • Nurse • Pharmacy • Laboratory • Billing • Reception • Patient
                   </p>
                 )}
@@ -485,9 +536,9 @@ export function AdminDashboardView(): React.ReactElement {
             <button
               type="button"
               onClick={() => setShowPortals((prev) => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#25334d] bg-[#151e30] hover:bg-[#1c2840] text-xs font-semibold text-slate-200 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-teal-300 dark:border-teal-400/40 bg-teal-50 dark:bg-[#1a2942] hover:bg-teal-100 dark:hover:bg-[#223556] text-xs sm:text-sm font-extrabold text-teal-900 dark:text-teal-200 hover:scale-[1.03] transition-all cursor-pointer shrink-0 self-start sm:self-auto"
             >
-              {showPortals ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              {showPortals ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               <span>{showPortals ? (language === 'om' ? 'Xiqeessi (Minimize)' : 'Minimize') : (language === 'om' ? 'Bani (Expand)' : 'Expand')}</span>
             </button>
           </div>
@@ -561,25 +612,25 @@ export function AdminDashboardView(): React.ReactElement {
         </div>
 
         {/* 3F. Live Ward Bed Capacity (Minimized by Default) */}
-        <div className={`rounded-2xl border border-[#222b3d] bg-[#101624] shadow-lg transition-all ${showWardTable ? 'p-4 sm:p-5 space-y-4' : 'p-4'}`}>
-          <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${showWardTable ? 'pb-3 border-b border-[#1b2336]' : ''}`}>
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
-                <BedDouble className="w-4.5 h-4.5" />
+        <div className={`rounded-2xl border-2 border-indigo-300/70 dark:border-indigo-400/35 bg-gradient-to-br from-white via-indigo-50/40 to-sky-50/50 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${showWardTable ? 'p-4 sm:p-5 space-y-4' : 'p-4 sm:p-5'}`}>
+          <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${showWardTable ? 'pb-3 border-b border-indigo-200 dark:border-slate-700' : ''}`}>
+            <div className="flex items-center gap-3.5">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/25">
+                <BedDouble className="w-5.5 h-5.5" />
               </div>
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-sm font-bold text-white tracking-tight">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
                     {language === 'om' ? "Haala Siree & Kutaalee Yaalaa (Ward Capacity)" : "Live Ward Bed Capacity & Allocation"}
                   </h2>
                   {!showWardTable && (
-                    <span className="text-[11px] font-mono text-slate-300">
+                    <span className="text-xs sm:text-sm font-mono font-extrabold text-indigo-800 dark:text-sky-200">
                       {wards.length} Wards • {occupiedBeds}/{totalBeds} Beds ({occupancyPercent}%)
                     </span>
                   )}
                 </div>
                 {showWardTable && (
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">
                     {language === 'om' ? "Kutaalee yaalaa gurguddoo fi to'annoo siree battalaa" : "Departmental census with real-time room capacity overrides"}
                   </p>
                 )}
@@ -590,17 +641,17 @@ export function AdminDashboardView(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(true)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-100 dark:bg-amber-500/20 hover:bg-amber-200 dark:hover:bg-amber-500/30 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-400/45 text-xs sm:text-sm font-extrabold hover:scale-[1.03] transition-all cursor-pointer"
               >
-                <Edit3 className="w-3.5 h-3.5" />
+                <Edit3 className="w-4 h-4" />
                 <span>{language === 'om' ? 'Kutaalee Gulaali' : 'Edit Wards'}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setShowWardTable((prev) => !prev)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#25334d] bg-[#151e30] hover:bg-[#1c2840] text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-indigo-300 dark:border-indigo-400/40 bg-indigo-50 dark:bg-[#1a2942] hover:bg-indigo-100 dark:hover:bg-[#223556] text-xs sm:text-sm font-extrabold text-indigo-900 dark:text-indigo-200 hover:scale-[1.03] transition-all cursor-pointer"
               >
-                {showWardTable ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                {showWardTable ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 <span>{showWardTable ? (language === 'om' ? 'Xiqeessi (Minimize)' : 'Minimize') : (language === 'om' ? 'Bani (Expand)' : 'Expand')}</span>
               </button>
             </div>

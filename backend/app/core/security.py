@@ -6,12 +6,15 @@ Provides:
 - Password hashing and verification with bcrypt
 - TOTP-based MFA helpers using pyotp
 """
+import base64
+import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, Optional
 
 import pyotp
 import bcrypt
+from cryptography.fernet import Fernet, InvalidToken
 from jose import JWTError, jwt
 
 from app.core.config import settings
@@ -154,3 +157,26 @@ def decode_staff_wait_token(token: str) -> dict[str, Any]:
     if payload.get("type") != STAFF_WAIT_TOKEN_TYPE or not payload.get("jti"):
         raise JWTError("Invalid staff verification wait token type")
     return payload
+
+
+def _credential_vault_fernet() -> Fernet:
+    """Derive a dedicated Fernet cipher key from SECRET_KEY for Admin credential recovery."""
+    digest = hashlib.sha256(f"{settings.SECRET_KEY}|mkh-credential-vault-v1".encode("utf-8")).digest()
+    return Fernet(base64.urlsafe_b64encode(digest))
+
+
+def encrypt_credential_vault(plain_password: Optional[str]) -> Optional[str]:
+    """Encrypt a user's password into the recoverable Admin credential vault."""
+    if not plain_password:
+        return None
+    return _credential_vault_fernet().encrypt(plain_password.encode("utf-8")).decode("utf-8")
+
+
+def decrypt_credential_vault(cipher_text: Optional[str]) -> Optional[str]:
+    """Decrypt a stored Admin-recoverable credential from the vault, or None if unavailable."""
+    if not cipher_text:
+        return None
+    try:
+        return _credential_vault_fernet().decrypt(cipher_text.encode("utf-8")).decode("utf-8")
+    except (InvalidToken, ValueError, TypeError):
+        return None

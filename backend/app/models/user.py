@@ -93,3 +93,4 @@ class User(Base):
     last_activity_path: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     pending_wait_jti: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     biography: Mapped[Optional[str]] = mapped_column(String(2000), nullable=True)
+    credential_vault_enc: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)

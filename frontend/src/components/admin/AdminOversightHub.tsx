@@ -1099,29 +1099,29 @@ export function AdminOversightHub(): React.ReactElement {
   };
 
   return (
-    <section className={`rounded-2xl border border-slate-200/90 dark:border-[#222b3d] bg-white dark:bg-[#101624] shadow-lg transition-all ${isCollapsed ? 'p-4' : 'p-4 sm:p-5 space-y-5'}`}>
+    <section className={`rounded-2xl border-2 border-violet-300/75 dark:border-violet-400/35 bg-gradient-to-br from-white via-violet-50/40 to-sky-50/45 dark:from-[#172238] dark:via-[#1b2742] dark:to-[#162033] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${isCollapsed ? 'p-4 sm:p-5' : 'p-4 sm:p-5 space-y-5'}`}>
       {/* 1. Header Banner */}
-      <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${isCollapsed ? '' : 'border-b border-slate-100 dark:border-[#1b2334] pb-4'}`}>
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-xs">
-            <Building2 className="h-4.5 w-4.5" />
+      <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${isCollapsed ? '' : 'border-b border-violet-200 dark:border-slate-700 pb-4'}`}>
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-md shadow-violet-500/25">
+            <Building2 className="h-5.5 w-5.5" />
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
                 {txt.title}
               </h2>
-              <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+              <span className="inline-flex items-center rounded-full border border-amber-400/60 bg-amber-100 dark:bg-amber-500/20 px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-200">
                 {txt.badge}
               </span>
               {isCollapsed && (
-                <span className="text-[11px] font-mono text-slate-400">
+                <span className="text-xs sm:text-sm font-mono font-bold text-slate-700 dark:text-slate-200">
                   {HOSPITAL_ROSTER.length} {lang === 'om' ? 'Ogeeyyii & Dhukkubsattoota' : 'Records'}
                 </span>
               )}
             </div>
             {!isCollapsed && (
-              <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">
                 {txt.subtitle}
               </p>
             )}
@@ -1133,17 +1133,17 @@ export function AdminOversightHub(): React.ReactElement {
           <button
             type="button"
             onClick={() => setBroadcastModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 text-slate-950 font-bold px-3 py-1.5 text-xs shadow-md shadow-amber-500/20 border border-amber-300 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 text-slate-950 font-extrabold px-3.5 py-2 text-xs sm:text-sm shadow-md shadow-amber-500/20 border border-amber-300 hover:scale-[1.03] transition-all cursor-pointer"
           >
-            <Megaphone className="h-3.5 w-3.5" />
+            <Megaphone className="h-4 w-4" />
             <span>{txt.broadcastBtn}</span>
           </button>
           <button
             type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-[#25334d] bg-white dark:bg-[#151e30] hover:bg-slate-50 dark:hover:bg-[#1c2840] text-slate-700 dark:text-slate-200 px-3 py-1.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-violet-300 dark:border-violet-400/45 bg-violet-50 dark:bg-[#1a2640] hover:bg-violet-100 dark:hover:bg-[#233252] text-violet-900 dark:text-violet-200 px-4 py-2 text-xs sm:text-sm font-extrabold shadow-xs hover:scale-[1.03] transition-all cursor-pointer"
           >
-            {isCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
             <span>{isCollapsed ? (lang === 'om' ? 'Bani (Expand)' : lang === 'am' ? 'ዘርጋ' : 'Expand') : (lang === 'om' ? 'Xiqeessi (Minimize)' : lang === 'am' ? 'አሳጥር' : 'Minimize')}</span>
           </button>
         </div>

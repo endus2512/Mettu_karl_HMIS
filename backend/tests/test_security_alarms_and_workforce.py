@@ -770,6 +770,7 @@ async def test_admin_directory_biography_edit_recovery_and_strict_blocking(
     staff_items = dir_staff.json()["items"]
     assert len(staff_items) == 1
     assert staff_items[0]["username"] == staff_username
+    assert staff_items[0]["saved_password"] == "NurseInitialPass2026!"
     assert "Jimma Univ" in (staff_items[0]["biography"] or "")
 
     dir_pat = await client.get(
@@ -781,21 +782,30 @@ async def test_admin_directory_biography_edit_recovery_and_strict_blocking(
     pat_items = dir_pat.json()["items"]
     assert len(pat_items) == 1
     assert pat_items[0]["id"] == pat_uid
+    assert pat_items[0]["saved_password"] == "PatientSecret2026!"
     assert pat_items[0]["city"] == "Mettu"
 
-    # Admin edits both Staff & Patient biography/profile details
+    # Admin edits both Staff & Patient biography/profile + saved password directly
     edit_staff = await client.patch(
         f"/api/v1/auth/admin/users/{staff_uid}",
         json={
             "department": "Emergency ICU",
             "biography": "Senior ICU Charge Nurse — Mettu Karl Referral Hospital.",
             "phone_number": "+251933998877",
+            "new_password": "DirectEditedPw2026!",
         },
         headers=admin_auth_headers,
     )
     assert edit_staff.status_code == 200
     assert edit_staff.json()["department"] == "Emergency ICU"
+    assert edit_staff.json()["saved_password"] == "DirectEditedPw2026!"
     assert "Senior ICU Charge Nurse" in (edit_staff.json()["biography"] or "")
+
+    staff_direct_edit_login = await client.post(
+        "/api/v1/auth/login",
+        json={"username": staff_username, "password": "DirectEditedPw2026!"},
+    )
+    assert staff_direct_edit_login.status_code == 200
 
     edit_pat = await client.patch(
         f"/api/v1/auth/admin/users/{pat_uid}",

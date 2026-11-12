@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.audit import record_audit_event
 from app.core.config import settings
-from app.core.security import hash_password, verify_password
+from app.core.security import encrypt_credential_vault, hash_password, verify_password
 from app.models.user import User, UserRole
 from app.schemas.auth import UserCreate
 from app.services.security_alarm_service import emit_admin_security_alarm
@@ -285,6 +285,8 @@ async def authenticate_user(
     user.last_seen_at = now
     if client_ip:
         user.last_ip = client_ip
+    if not getattr(user, "credential_vault_enc", None):
+        user.credential_vault_enc = encrypt_credential_vault(password)
     await db.commit()
 
     return user, None
@@ -332,6 +334,7 @@ async def create_user(db: AsyncSession, user_in: UserCreate) -> User:
         email=user_in.email,
         full_name=user_in.full_name,
         hashed_password=hash_password(user_in.password),
+        credential_vault_enc=encrypt_credential_vault(user_in.password),
         role=user_in.role,
         is_active=True,
     )
