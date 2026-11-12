@@ -19,6 +19,7 @@ from app.core.config import settings
 # Token type constants
 ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
+STAFF_WAIT_TOKEN_TYPE = "staff_approval_wait"
 
 
 def hash_password(plain_password: str) -> str:
@@ -132,3 +133,24 @@ def verify_totp(secret: str, token: str) -> bool:
     """
     totp = pyotp.TOTP(secret)
     return totp.verify(token, valid_window=1)
+
+
+def create_staff_wait_token(user_id: int, jti: str, expires_minutes: int = 240) -> str:
+    """Create a single-use wait token allowing a pending staff applicant to poll approval status."""
+    now = datetime.now(timezone.utc)
+    payload: dict[str, Any] = {
+        "sub": str(user_id),
+        "type": STAFF_WAIT_TOKEN_TYPE,
+        "jti": jti,
+        "iat": now,
+        "exp": now + timedelta(minutes=expires_minutes),
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def decode_staff_wait_token(token: str) -> dict[str, Any]:
+    """Decode and validate a pending staff wait token strictly enforcing token type."""
+    payload = decode_token(token)
+    if payload.get("type") != STAFF_WAIT_TOKEN_TYPE or not payload.get("jti"):
+        raise JWTError("Invalid staff verification wait token type")
+    return payload

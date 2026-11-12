@@ -20,8 +20,11 @@ import { useTranslation, type Language } from '@/lib/i18n';
 import { playClinicalAudioAlert } from '@/lib/notifications';
 import {
   REQUEST_TO_DEFAULT_ROLE,
+  STAFF_ROLE_GROUPS,
   STAFF_ROLE_OPTIONS,
+  resolveStaffRoleGroup,
   formatRelativeTimestamp,
+  type StaffRoleGroupKey,
 } from '@/lib/staffRoles';
 import {
   ShieldAlert,
@@ -39,6 +42,9 @@ import {
   Volume2,
   VolumeX,
   Check,
+  ChevronDown,
+  ChevronRight,
+  Layers,
 } from 'lucide-react';
 
 interface StaffEnrollmentRequest {
@@ -52,6 +58,7 @@ interface StaffEnrollmentRequest {
   phone_number?: string | null;
   role: UserRole;
   requested_role?: string | null;
+  role_group?: StaffRoleGroupKey | string | null;
   approval_status: 'pending' | 'approved' | 'rejected' | string;
   risk_flag?: string | null;
   rejection_reason?: string | null;
@@ -80,6 +87,7 @@ interface SecurityAlarmItem {
   license_number?: string | null;
   ip_address?: string | null;
   risk_flag?: string | null;
+  role_group?: StaffRoleGroupKey | string | null;
   user_approval_status?: string | null;
   user_is_active?: boolean | null;
   user_current_role?: UserRole | null;
@@ -102,6 +110,8 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
   const [alarmRoles, setAlarmRoles] = useState<Record<number, UserRole>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [filterTab, setFilterTab] = useState<'pending' | 'flagged' | 'all'>('pending');
+  const [selectedRoleGroup, setSelectedRoleGroup] = useState<StaffRoleGroupKey | 'all'>('all');
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedRoles, setSelectedRoles] = useState<Record<number, UserRole>>({});
   const [rejectReasons, setRejectReasons] = useState<Record<number, string>>({});
@@ -195,10 +205,38 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
   }, [fetchRequests]);
 
   const unreadAlarms = useMemo(() => alarms.filter((a) => !a.is_read), [alarms]);
-  const visibleAlarms = useMemo(
-    () => (showAllAlarms ? alarms : unreadAlarms.slice(0, 6)),
-    [alarms, unreadAlarms, showAllAlarms],
-  );
+  const visibleAlarms = useMemo(() => {
+    const base = showAllAlarms ? alarms : unreadAlarms.slice(0, 12);
+    if (selectedRoleGroup === 'all') return base;
+    return base.filter(
+      (a) =>
+        resolveStaffRoleGroup(a.role_group, a.requested_role || a.actor_role, a.risk_flag) ===
+        selectedRoleGroup,
+    );
+  }, [alarms, unreadAlarms, showAllAlarms, selectedRoleGroup]);
+
+  const chunkedAlarms = useMemo(() => {
+    const buckets: Record<StaffRoleGroupKey, SecurityAlarmItem[]> = {
+      doctor: [],
+      nurse: [],
+      pharmacist: [],
+      lab_diag: [],
+      support_finance: [],
+      admin_security: [],
+    };
+    for (const alarm of visibleAlarms) {
+      const groupKey = resolveStaffRoleGroup(
+        alarm.role_group,
+        alarm.requested_role || alarm.actor_role,
+        alarm.risk_flag,
+      );
+      buckets[groupKey].push(alarm);
+    }
+    return STAFF_ROLE_GROUPS.map((meta) => ({
+      meta,
+      items: buckets[meta.key],
+    })).filter((g) => g.items.length > 0);
+  }, [visibleAlarms]);
 
   const counts = useMemo(() => {
     let pending = 0;
@@ -214,7 +252,7 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
     return { pending, flagged, approved, rejected, total: requests.length };
   }, [requests]);
 
-  const filteredRequests = useMemo(() => {
+  const filteredByTabAndSearch = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return requests.filter((r) => {
       if (filterTab === 'pending' && r.approval_status !== 'pending') return false;
@@ -229,6 +267,57 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
       );
     });
   }, [requests, filterTab, searchQuery]);
+
+  const roleChunkCounts = useMemo(() => {
+    const map: Record<StaffRoleGroupKey, number> = {
+      doctor: 0,
+      nurse: 0,
+      pharmacist: 0,
+      lab_diag: 0,
+      support_finance: 0,
+      admin_security: 0,
+    };
+    for (const r of filteredByTabAndSearch) {
+      const gKey = resolveStaffRoleGroup(r.role_group, r.requested_role || r.role, r.risk_flag);
+      map[gKey]++;
+    }
+    return map;
+  }, [filteredByTabAndSearch]);
+
+  const filteredRequests = useMemo(() => {
+    if (selectedRoleGroup === 'all') return filteredByTabAndSearch;
+    return filteredByTabAndSearch.filter(
+      (r) =>
+        resolveStaffRoleGroup(r.role_group, r.requested_role || r.role, r.risk_flag) ===
+        selectedRoleGroup,
+    );
+  }, [filteredByTabAndSearch, selectedRoleGroup]);
+
+  const chunkedRequests = useMemo(() => {
+    const buckets: Record<StaffRoleGroupKey, StaffEnrollmentRequest[]> = {
+      doctor: [],
+      nurse: [],
+      pharmacist: [],
+      lab_diag: [],
+      support_finance: [],
+      admin_security: [],
+    };
+    for (const req of filteredRequests) {
+      const gKey = resolveStaffRoleGroup(req.role_group, req.requested_role || req.role, req.risk_flag);
+      buckets[gKey].push(req);
+    }
+    return STAFF_ROLE_GROUPS.map((meta) => ({
+      meta,
+      items: buckets[meta.key],
+    })).filter((g) => g.items.length > 0);
+  }, [filteredRequests]);
+
+  function toggleGroupCollapse(sectionKey: string): void {
+    setCollapsedGroups((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  }
 
   async function handleAckAlarm(alarmId: number): Promise<void> {
     setBusyAlarmId(alarmId);
@@ -458,19 +547,60 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
         </div>
       </div>
 
-      {/* Live Real-Time Security Alarms Feed */}
+      {/* Profession / Role Chunk Filter Pills (Doctors, Nurses, Pharmacy, etc.) */}
+      <div
+        id="admin-role-chunk-filters"
+        className="flex flex-wrap items-center gap-1.5 pt-1"
+      >
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 mr-1">
+          <Layers className="w-3.5 h-3.5 text-amber-400" />
+          <span>{lang === 'om' ? 'Gahee Hojiin Qoodi:' : 'Group by Role:'}</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setSelectedRoleGroup('all')}
+          className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer ${
+            selectedRoleGroup === 'all'
+              ? 'bg-amber-500 text-slate-950 border-amber-400'
+              : 'bg-[#0a0f18] text-slate-300 border-[#222b3d] hover:border-slate-500'
+          }`}
+        >
+          {lang === 'om' ? 'Hunda (Qoodamee)' : 'All Roles (Chunked)'} ({filteredByTabAndSearch.length})
+        </button>
+        {STAFF_ROLE_GROUPS.map((group) => {
+          const count = roleChunkCounts[group.key];
+          const isSelected = selectedRoleGroup === group.key;
+          if (count === 0 && !isSelected) return null;
+          return (
+            <button
+              key={group.key}
+              type="button"
+              onClick={() => setSelectedRoleGroup(isSelected ? 'all' : group.key)}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer ${
+                isSelected
+                  ? 'bg-teal-500 text-slate-950 border-teal-400'
+                  : `${group.badgeClass} hover:brightness-110`
+              }`}
+            >
+              {lang === 'om' ? group.labelOm : group.shortLabel} ({count})
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Live Real-Time Security Alarms Feed — Grouped by Role Chunk */}
       {(unreadAlarms.length > 0 || showAllAlarms) && (
         <div
           id="admin-live-security-alarms"
-          className="rounded-xl border border-rose-500/40 bg-rose-950/15 p-3.5 space-y-2.5"
+          className="rounded-xl border border-rose-500/40 bg-rose-950/15 p-3.5 space-y-3"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <BellRing className="w-4 h-4 text-rose-400 animate-pulse" />
               <span className="text-xs font-extrabold text-rose-200 uppercase tracking-wide">
                 {lang === 'om'
-                  ? `Alarmii Nageenyaa Battalaa (${unreadAlarms.length} Haaraa)`
-                  : `Real-Time Security & First-Login Alarms (${unreadAlarms.length} Unread)`}
+                  ? `Alarmii Nageenyaa Battalaa — Gahee Hojiin Qoodame (${unreadAlarms.length} Haaraa)`
+                  : `Real-Time Security & Sign-Up Alarms — Grouped by Role (${unreadAlarms.length} Unread)`}
               </span>
             </div>
             <button
@@ -484,123 +614,171 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
             </button>
           </div>
 
-          <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
-            {visibleAlarms.map((alarm) => {
-              const isEmergency = alarm.severity === 'emergency' || alarm.severity === 'critical';
-              const canManageTarget =
-                Boolean(alarm.actor_user_id) &&
-                alarm.username !== 'admin' &&
-                alarm.actor_user_id !== user?.id;
-              const isBusy = busyAlarmId === alarm.id;
-
-              return (
-                <div
-                  key={alarm.id}
-                  className={`rounded-lg border p-2.5 flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 ${
-                    alarm.is_read
-                      ? 'bg-[#0b101b] border-[#1f293d] opacity-80'
-                      : isEmergency
-                      ? 'bg-[#1b1122] border-rose-500/50'
-                      : 'bg-[#141a2b] border-amber-500/40'
-                  }`}
-                >
-                  <div className="space-y-1 min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/25 text-rose-200 border border-rose-500/50">
-                        {alarm.event_type}
-                      </span>
-                      <span className="text-xs font-bold text-white">{alarm.actor_name}</span>
-                      {(alarm.staff_id || alarm.username) && (
-                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-teal-300">
-                          {alarm.staff_id || alarm.username}
+          {chunkedAlarms.length === 0 ? (
+            <div className="text-[11px] text-slate-400 py-2">
+              {lang === 'om'
+                ? 'Garee kana keessa alarmiin haaraan hin jiru.'
+                : 'No security alarms in this role group.'}
+            </div>
+          ) : (
+            <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
+              {chunkedAlarms.map(({ meta, items }) => {
+                const collapseKey = `alarm:${meta.key}`;
+                const isCollapsed = Boolean(collapsedGroups[collapseKey]);
+                return (
+                  <section
+                    key={meta.key}
+                    id={`alarm-chunk-${meta.key}`}
+                    className={`rounded-xl border p-2.5 space-y-2 ${meta.accentClass}`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleGroupCollapse(collapseKey)}
+                      className="w-full flex items-center justify-between gap-2 text-left cursor-pointer"
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        {isCollapsed ? (
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5 text-slate-300" />
+                        )}
+                        <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-extrabold border ${meta.badgeClass}`}>
+                          {lang === 'om' ? meta.labelOm : meta.labelEn}
                         </span>
-                      )}
-                      {alarm.user_approval_status && (
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300 uppercase">
-                          Account: {alarm.user_approval_status}
-                          {alarm.user_is_active ? ' / ACTIVE' : ' / LOCKED'}
+                        <span className="text-[11px] font-bold text-slate-300">
+                          {items.length} {items.length === 1 ? 'Alarm' : 'Alarms'}
                         </span>
-                      )}
-                      <span className="text-[10px] text-slate-400">
-                        {formatRelativeTimestamp(alarm.created_at)}
                       </span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 leading-snug">{alarm.message}</p>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-slate-400">
-                      <span>
-                        Role Claimed:{' '}
-                        <strong className="text-amber-300 uppercase">
-                          {alarm.requested_role || alarm.actor_role}
-                        </strong>
-                      </span>
-                      {alarm.department && <span>Dept: {alarm.department}</span>}
-                      {alarm.license_number && (
-                        <span className="font-mono text-cyan-300">License: {alarm.license_number}</span>
-                      )}
-                      {alarm.ip_address && <span className="font-mono">IP: {alarm.ip_address}</span>}
-                    </div>
-                  </div>
+                    </button>
 
-                  {/* Direct 1-Click Admin Alarm Actions */}
-                  <div className="flex flex-wrap items-center gap-1.5 shrink-0">
-                    {canManageTarget && (
-                      <>
-                        <select
-                          aria-label={`Alarm permission for ${alarm.actor_name}`}
-                          value={alarmRoles[alarm.id] || 'receptionist'}
-                          disabled={isBusy}
-                          onChange={(e) =>
-                            setAlarmRoles((prev) => ({
-                              ...prev,
-                              [alarm.id]: e.target.value as UserRole,
-                            }))
-                          }
-                          className="h-7 rounded-lg bg-[#090e18] border border-[#24324c] px-2 text-[11px] text-white"
-                        >
-                          {STAFF_ROLE_OPTIONS.filter((opt) => !opt.superAdminOnly || isSuperAdmin).map(
-                            (opt) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ),
-                          )}
-                        </select>
-                        <button
-                          type="button"
-                          disabled={isBusy}
-                          onClick={() => void handleAlarmDecision(alarm, 'activate')}
-                          className="h-7 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                        >
-                          <UserCheck className="w-3 h-3" />
-                          <span>Allow</span>
-                        </button>
-                        <button
-                          type="button"
-                          disabled={isBusy}
-                          onClick={() => void handleAlarmDecision(alarm, 'block')}
-                          className="h-7 px-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                        >
-                          <UserX className="w-3 h-3" />
-                          <span>Block</span>
-                        </button>
-                      </>
+                    {!isCollapsed && (
+                      <div className="space-y-2">
+                        {items.map((alarm) => {
+                          const isEmergency = alarm.severity === 'emergency' || alarm.severity === 'critical';
+                          const canManageTarget =
+                            Boolean(alarm.actor_user_id) &&
+                            alarm.username !== 'admin' &&
+                            alarm.actor_user_id !== user?.id;
+                          const isBusy = busyAlarmId === alarm.id;
+
+                          return (
+                            <div
+                              key={alarm.id}
+                              className={`rounded-lg border p-2.5 flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 ${
+                                alarm.is_read
+                                  ? 'bg-[#0b101b] border-[#1f293d] opacity-80'
+                                  : isEmergency
+                                  ? 'bg-[#1b1122] border-rose-500/50'
+                                  : 'bg-[#141a2b] border-amber-500/40'
+                              }`}
+                            >
+                              <div className="space-y-1 min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/25 text-rose-200 border border-rose-500/50">
+                                    {alarm.event_type}
+                                  </span>
+                                  <span className="text-xs font-bold text-white">{alarm.actor_name}</span>
+                                  {(alarm.staff_id || alarm.username) && (
+                                    <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-teal-300">
+                                      {alarm.staff_id || alarm.username}
+                                    </span>
+                                  )}
+                                  {alarm.user_approval_status && (
+                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300 uppercase">
+                                      {alarm.user_approval_status}
+                                      {alarm.user_is_active ? ' / ACTIVE' : ' / LOCKED'}
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-slate-400">
+                                    {formatRelativeTimestamp(alarm.created_at)}
+                                  </span>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10.5px] text-slate-300">
+                                  <span>
+                                    Role:{' '}
+                                    <strong className="text-amber-300 uppercase">
+                                      {alarm.requested_role || alarm.actor_role}
+                                    </strong>
+                                  </span>
+                                  {alarm.department && <span>Dept: {alarm.department}</span>}
+                                  {alarm.license_number && (
+                                    <span className="font-mono text-cyan-300">
+                                      License: {alarm.license_number}
+                                    </span>
+                                  )}
+                                  {alarm.phone_number && <span>Tel: {alarm.phone_number}</span>}
+                                  {alarm.ip_address && (
+                                    <span className="font-mono text-slate-400">IP: {alarm.ip_address}</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Direct 1-Click Admin Alarm Actions */}
+                              <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                                {canManageTarget && (
+                                  <>
+                                    <select
+                                      aria-label={`Alarm permission for ${alarm.actor_name}`}
+                                      value={alarmRoles[alarm.id] || 'receptionist'}
+                                      disabled={isBusy}
+                                      onChange={(e) =>
+                                        setAlarmRoles((prev) => ({
+                                          ...prev,
+                                          [alarm.id]: e.target.value as UserRole,
+                                        }))
+                                      }
+                                      className="h-7 rounded-lg bg-[#090e18] border border-[#24324c] px-2 text-[11px] text-white"
+                                    >
+                                      {STAFF_ROLE_OPTIONS.filter((opt) => !opt.superAdminOnly || isSuperAdmin).map(
+                                        (opt) => (
+                                          <option key={opt.value} value={opt.value}>
+                                            {opt.label}
+                                          </option>
+                                        ),
+                                      )}
+                                    </select>
+                                    <button
+                                      type="button"
+                                      disabled={isBusy}
+                                      onClick={() => void handleAlarmDecision(alarm, 'activate')}
+                                      className="h-7 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                                    >
+                                      <UserCheck className="w-3 h-3" />
+                                      <span>Allow</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={isBusy}
+                                      onClick={() => void handleAlarmDecision(alarm, 'block')}
+                                      className="h-7 px-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                                    >
+                                      <UserX className="w-3 h-3" />
+                                      <span>Block</span>
+                                    </button>
+                                  </>
+                                )}
+                                {!alarm.is_read && (
+                                  <button
+                                    type="button"
+                                    disabled={isBusy}
+                                    onClick={() => void handleAckAlarm(alarm.id)}
+                                    className="h-7 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-[11px] font-semibold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                                  >
+                                    <Check className="w-3 h-3" />
+                                    <span>Acknowledge</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     )}
-                    {!alarm.is_read && (
-                      <button
-                        type="button"
-                        disabled={isBusy}
-                        onClick={() => void handleAckAlarm(alarm.id)}
-                        className="h-7 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-[11px] font-semibold flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                      >
-                        <Check className="w-3 h-3" />
-                        <span>Acknowledge</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  </section>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -635,12 +813,12 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
         />
       </div>
 
-      {/* Requests List */}
+      {/* Requests List — Chunked cleanly by Job Role (Doctors / Nurses / Pharmacy / Lab / Support / Risk) */}
       {isLoading && requests.length === 0 ? (
         <div className="py-8 text-center text-xs text-slate-400">
           {lang === 'om' ? 'Gaaffiiwwan fe’amaa jiru...' : 'Loading enrollment verification queue...'}
         </div>
-      ) : filteredRequests.length === 0 ? (
+      ) : chunkedRequests.length === 0 ? (
         <div className="py-6 px-4 rounded-xl bg-[#0b101a] border border-[#1a2233] text-center text-xs text-slate-400 flex flex-col items-center gap-1.5">
           <ShieldCheck className="w-6 h-6 text-teal-400" />
           <span>
@@ -654,153 +832,202 @@ export function AdminStaffApprovalPanel(): React.ReactElement {
           </span>
         </div>
       ) : (
-        <div className="space-y-2.5 max-h-[420px] overflow-y-auto pr-1 custom-scrollbar">
-          {filteredRequests.map((item) => {
-            const isPending = item.approval_status === 'pending';
-            const isApproved = item.approval_status === 'approved';
-            const isRejected = item.approval_status === 'rejected';
-            const isBusy = busyId === item.id;
+        <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1 custom-scrollbar">
+          {chunkedRequests.map(({ meta, items }) => {
+            const collapseKey = `req:${meta.key}`;
+            const isCollapsed = Boolean(collapsedGroups[collapseKey]);
+            const pendingInGroup = items.filter((it) => it.approval_status === 'pending').length;
 
             return (
-              <div
-                key={item.id}
-                className={`rounded-xl border p-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 transition-colors ${
-                  item.risk_flag && isPending
-                    ? 'bg-rose-950/20 border-rose-500/40'
-                    : isPending
-                    ? 'bg-[#131b2c] border-amber-500/30'
-                    : 'bg-[#0b101b] border-[#1b2436]'
-                }`}
+              <section
+                key={meta.key}
+                id={`approval-chunk-${meta.key}`}
+                className={`rounded-xl border p-3 space-y-2.5 ${meta.accentClass}`}
               >
-                {/* Identity & Security Context */}
-                <div className="space-y-1 min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-bold text-white truncate">
-                      {item.full_name}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[11px] font-mono text-teal-300">
-                      {item.staff_id || item.username}
-                    </span>
-                    {isPending && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-[10px] font-bold text-amber-300">
-                        <Clock className="w-3 h-3" />
-                        PENDING APPROVAL
-                      </span>
+                {/* Profession Folder Header */}
+                <button
+                  type="button"
+                  onClick={() => toggleGroupCollapse(collapseKey)}
+                  className="w-full flex items-center justify-between gap-2 text-left cursor-pointer"
+                >
+                  <span className="inline-flex items-center gap-2 flex-wrap">
+                    {isCollapsed ? (
+                      <ChevronRight className="w-4 h-4 text-slate-300" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-slate-300" />
                     )}
-                    {isApproved && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-[10px] font-bold text-emerald-300">
-                        <CheckCircle2 className="w-3 h-3" />
-                        APPROVED ({item.role.toUpperCase()})
-                      </span>
-                    )}
-                    {isRejected && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-[10px] font-bold text-rose-300">
-                        <XCircle className="w-3 h-3" />
-                        REJECTED / BLOCKED
-                      </span>
-                    )}
-                    {item.risk_flag && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-600/25 border border-rose-500/60 text-[10px] font-extrabold text-rose-200">
-                        <AlertTriangle className="w-3 h-3 text-rose-400" />
-                        {item.risk_flag}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-400">
-                    <span>
-                      Requested Role:{' '}
-                      <strong className="text-amber-300">
-                        {(item.requested_role || item.role).toUpperCase()}
-                      </strong>
-                    </span>
-                    {item.department && <span>Dept: {item.department}</span>}
-                    {item.license_number && (
-                      <span className="font-mono text-cyan-300">
-                        License: {item.license_number}
-                      </span>
-                    )}
-                    {item.phone_number && <span>Phone: {item.phone_number}</span>}
-                    {item.requested_ip && (
-                      <span className="font-mono">IP: {item.requested_ip}</span>
-                    )}
-                    {!item.is_active && (
-                      <span className="inline-flex items-center gap-1 text-rose-300 font-semibold">
-                        <Lock className="w-3 h-3" />
-                        Login Locked
-                      </span>
-                    )}
-                  </div>
-
-                  {item.rejection_reason && (
-                    <p className="text-[11px] text-rose-300/90">
-                      Rejection Note: {item.rejection_reason}
-                    </p>
-                  )}
-                </div>
-
-                {/* Admin Decision Controls */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
-                  <select
-                    aria-label={`Assign RBAC role for ${item.full_name}`}
-                    value={selectedRoles[item.id] || 'receptionist'}
-                    onChange={(e) =>
-                      setSelectedRoles((prev) => ({
-                        ...prev,
-                        [item.id]: e.target.value as UserRole,
-                      }))
-                    }
-                    disabled={isBusy}
-                    className="h-8 rounded-lg bg-[#090e18] border border-[#24324c] px-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
-                  >
-                    {STAFF_ROLE_OPTIONS.filter((opt) => !opt.superAdminOnly || isSuperAdmin).map(
-                      (opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          Grant: {opt.label}
-                        </option>
-                      ),
-                    )}
-                  </select>
-
-                  <input
-                    type="text"
-                    value={rejectReasons[item.id] || ''}
-                    onChange={(e) =>
-                      setRejectReasons((prev) => ({
-                        ...prev,
-                        [item.id]: e.target.value,
-                      }))
-                    }
-                    placeholder="Rejection note (optional)..."
-                    disabled={isBusy}
-                    className="h-8 w-full sm:w-44 rounded-lg bg-[#090e18] border border-[#24324c] px-2.5 text-[11px] text-slate-200 placeholder:text-slate-500 focus:border-rose-500 focus:outline-none"
-                  />
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      disabled={isBusy}
-                      onClick={() => void handleApprove(item)}
-                      className="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${meta.badgeClass}`}
                     >
-                      <UserCheck className="w-3.5 h-3.5" />
-                      <span>{isApproved ? 'Update Role' : 'Approve'}</span>
-                    </button>
-
-                    {!isRejected && (
-                      <button
-                        type="button"
-                        disabled={isBusy}
-                        onClick={() => void handleReject(item)}
-                        className="h-8 px-3 rounded-lg bg-rose-600/90 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                      >
-                        <UserX className="w-3.5 h-3.5" />
-                        <span>{isApproved ? 'Revoke' : 'Reject'}</span>
-                      </button>
+                      {lang === 'om' ? meta.labelOm : meta.labelEn}
+                    </span>
+                    <span className="text-xs font-bold text-slate-200">
+                      {items.length} {items.length === 1 ? 'Staff Request' : 'Staff Requests'}
+                    </span>
+                    {pendingInGroup > 0 && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        {pendingInGroup} Pending
+                      </span>
                     )}
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    {isCollapsed ? 'Expand' : 'Collapse'}
+                  </span>
+                </button>
+
+                {/* Simplified Profession Cards */}
+                {!isCollapsed && (
+                  <div className="space-y-2">
+                    {items.map((item) => {
+                      const isPending = item.approval_status === 'pending';
+                      const isApproved = item.approval_status === 'approved';
+                      const isRejected = item.approval_status === 'rejected';
+                      const isBusy = busyId === item.id;
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={`rounded-xl border p-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3 transition-colors ${
+                            item.risk_flag && isPending
+                              ? 'bg-rose-950/35 border-rose-500/45'
+                              : isPending
+                              ? 'bg-[#121a2b] border-amber-500/35'
+                              : 'bg-[#0b101b] border-[#1b2436]'
+                          }`}
+                        >
+                          {/* Identity & Security Context */}
+                          <div className="space-y-1 min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-bold text-white truncate">
+                                {item.full_name}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[11px] font-mono text-teal-300">
+                                {item.staff_id || item.username}
+                              </span>
+                              {isPending && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-[10px] font-bold text-amber-300">
+                                  <Clock className="w-3 h-3" />
+                                  PENDING APPROVAL
+                                </span>
+                              )}
+                              {isApproved && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-[10px] font-bold text-emerald-300">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  APPROVED ({item.role.toUpperCase()})
+                                </span>
+                              )}
+                              {isRejected && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-[10px] font-bold text-rose-300">
+                                  <XCircle className="w-3 h-3" />
+                                  REJECTED / BLOCKED
+                                </span>
+                              )}
+                              {item.risk_flag && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-600/25 border border-rose-500/60 text-[10px] font-extrabold text-rose-200">
+                                  <AlertTriangle className="w-3 h-3 text-rose-400" />
+                                  {item.risk_flag}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-400">
+                              <span>
+                                Requested:{' '}
+                                <strong className="text-amber-300">
+                                  {(item.requested_role || item.role).toUpperCase()}
+                                </strong>
+                              </span>
+                              {item.license_number && (
+                                <span className="font-mono text-cyan-300">
+                                  License: {item.license_number}
+                                </span>
+                              )}
+                              {item.phone_number && <span>Tel: {item.phone_number}</span>}
+                              {item.requested_ip && (
+                                <span className="font-mono">IP: {item.requested_ip}</span>
+                              )}
+                              {!item.is_active && (
+                                <span className="inline-flex items-center gap-1 text-rose-300 font-semibold">
+                                  <Lock className="w-3 h-3" />
+                                  Locked
+                                </span>
+                              )}
+                            </div>
+
+                            {item.rejection_reason && (
+                              <p className="text-[11px] text-rose-300/90">
+                                Rejection Note: {item.rejection_reason}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Admin Decision Controls */}
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
+                            <select
+                              aria-label={`Assign RBAC role for ${item.full_name}`}
+                              value={selectedRoles[item.id] || 'receptionist'}
+                              onChange={(e) =>
+                                setSelectedRoles((prev) => ({
+                                  ...prev,
+                                  [item.id]: e.target.value as UserRole,
+                                }))
+                              }
+                              disabled={isBusy}
+                              className="h-8 rounded-lg bg-[#090e18] border border-[#24324c] px-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
+                            >
+                              {STAFF_ROLE_OPTIONS.filter(
+                                (opt) => !opt.superAdminOnly || isSuperAdmin,
+                              ).map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                  Grant: {opt.label}
+                                </option>
+                              ))}
+                            </select>
+
+                            <input
+                              type="text"
+                              value={rejectReasons[item.id] || ''}
+                              onChange={(e) =>
+                                setRejectReasons((prev) => ({
+                                  ...prev,
+                                  [item.id]: e.target.value,
+                                }))
+                              }
+                              placeholder="Note (optional)..."
+                              disabled={isBusy}
+                              className="h-8 w-full sm:w-40 rounded-lg bg-[#090e18] border border-[#24324c] px-2.5 text-[11px] text-slate-200 placeholder:text-slate-500 focus:border-rose-500 focus:outline-none"
+                            />
+
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                disabled={isBusy}
+                                onClick={() => void handleApprove(item)}
+                                className="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                              >
+                                <UserCheck className="w-3.5 h-3.5" />
+                                <span>{isApproved ? 'Update Role' : 'Approve'}</span>
+                              </button>
+
+                              {!isRejected && (
+                                <button
+                                  type="button"
+                                  disabled={isBusy}
+                                  onClick={() => void handleReject(item)}
+                                  className="h-8 px-3 rounded-lg bg-rose-600/90 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                                >
+                                  <UserX className="w-3.5 h-3.5" />
+                                  <span>{isApproved ? 'Revoke' : 'Reject'}</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                </div>
-              </div>
+                )}
+              </section>
             );
           })}
         </div>

@@ -91,3 +91,4 @@ class User(Base):
     last_seen_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     last_ip: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     last_activity_path: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    pending_wait_jti: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)

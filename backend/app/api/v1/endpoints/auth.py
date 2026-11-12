@@ -4,11 +4,12 @@ Authentication endpoints: login, 2-step MFA, token refresh, logout, and profile.
 from datetime import datetime, timezone
 import json
 import re
+import secrets
 from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from jose import JWTError
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_client_ip, get_current_user, require_admin, require_roles, require_staff
@@ -24,6 +25,8 @@ from app.core.redis_client import redis_delete, redis_get, redis_set
 from app.core.security import (
     create_access_token,
     create_refresh_token,
+    create_staff_wait_token,
+    decode_staff_wait_token,
     decode_token,
     hash_password,
 )
@@ -40,6 +43,8 @@ from app.schemas.auth import (
     PendingStaffUserResponse,
     RefreshTokenRequest,
     StaffApprovalDecisionRequest,
+    StaffApprovalStatusRequest,
+    StaffApprovalStatusResponse,
     StaffHeartbeatRequest,
     StaffRegisterRequest,
     StaffRegistrationResponse,
@@ -54,14 +59,18 @@ from app.services.auth_service import (
     authenticate_user,
     create_user,
     get_user_by_id,
+    get_user_by_username,
     setup_mfa,
     verify_and_enable_mfa,
     verify_totp_code,
 )
 from app.services.security_alarm_service import (
+    ROLE_GROUP_ORDER,
     STAFF_ALARM_CATEGORIES,
+    classify_staff_role_group,
     compute_staff_work_status,
     emit_admin_security_alarm,
+    portal_path_for_role,
     record_staff_session_start,
 )
 
@@ -93,6 +102,30 @@ async def login(
             or "rejected" in lower_err
             or "disabled" in lower_err
         )
+        pending_headers: dict[str, str] | None = None
+        if "pending" in lower_err:
+            pending_user = await get_user_by_username(db, login_data.username)
+            if (
+                pending_user is not None
+                and getattr(pending_user, "approval_status", ApprovalStatus.APPROVED.value)
+                == ApprovalStatus.PENDING.value
+            ):
+                wait_jti = secrets.token_hex(16)
+                pending_user.pending_wait_jti = wait_jti
+                await db.commit()
+                safe_sid = (pending_user.staff_id or pending_user.username).encode(
+                    "ascii", "ignore"
+                ).decode("ascii")
+                safe_req_role = (pending_user.requested_role or pending_user.role.value).encode(
+                    "ascii", "ignore"
+                ).decode("ascii")
+                pending_headers = {
+                    "X-Pending-Verification-Token": create_staff_wait_token(
+                        pending_user.id, wait_jti
+                    ),
+                    "X-Pending-Staff-Id": safe_sid,
+                    "X-Pending-Requested-Role": safe_req_role,
+                }
         raise HTTPException(
             status_code=(
                 status.HTTP_403_FORBIDDEN
@@ -100,6 +133,7 @@ async def login(
                 else status.HTTP_401_UNAUTHORIZED
             ),
             detail=error_msg or "Invalid username or password",
+            headers=pending_headers,
         )
 
     # If MFA is required
@@ -939,6 +973,7 @@ async def register_staff_request(
     risk_flag = _detect_impersonation_risk(clean_full_name, req_role_lower)
 
     # Zero-privilege pending state: account is inactive and defaults to minimal non-admin role until Admin acts
+    wait_jti = secrets.token_hex(16)
     new_staff = User(
         username=username_slug,
         email=staff_email,
@@ -954,6 +989,7 @@ async def register_staff_request(
         risk_flag=risk_flag,
         requested_ip=client_ip,
         is_active=False,
+        pending_wait_jti=wait_jti,
     )
     db.add(new_staff)
     await db.commit()
@@ -993,6 +1029,7 @@ async def register_staff_request(
         commit=True,
     )
 
+    wait_token = create_staff_wait_token(new_staff.id, wait_jti)
     return StaffRegistrationResponse(
         id=new_staff.id,
         username=new_staff.username,
@@ -1002,6 +1039,7 @@ async def register_staff_request(
         department=clean_dept,
         approval_status=ApprovalStatus.PENDING.value,
         risk_flag=risk_flag,
+        verification_wait_token=wait_token,
         message=(
             "Account created in PENDING ADMIN APPROVAL status. Access remains locked until verified by the Hospital Administrator."
         ),
@@ -1053,17 +1091,164 @@ async def _mark_user_alarms_handled(db: AsyncSession, target_user_id: int, actor
         await db.commit()
 
 
+def _to_pending_staff_response(u: User) -> PendingStaffUserResponse:
+    """Serialize self-registered staff account with consistent profession chunk tag."""
+    resp = PendingStaffUserResponse.model_validate(u)
+    resp.role_group = classify_staff_role_group(u.requested_role or u.role.value, u.risk_flag)
+    return resp
+
+
+@router.post(
+    "/staff/approval-status",
+    response_model=StaffApprovalStatusResponse,
+    summary="Live Verification Poll & Single-Use Spontaneous Entry Upon Admin Approval",
+)
+async def check_and_exchange_staff_approval(
+    payload: StaffApprovalStatusRequest,
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> StaffApprovalStatusResponse:
+    """
+    Allows a newly registered (or verified-password pending) staff applicant waiting on `/login`
+    to discover spontaneously when Hospital Administration clicks Allow/Approve, verify their
+    identity once, and transition automatically into their assigned workstation portal.
+    Never issues tokens while pending or rejected, and consumes the wait token on single claim.
+    """
+    try:
+        claims = decode_staff_wait_token(payload.wait_token)
+        user_id = int(claims["sub"])
+        jti = str(claims["jti"])
+    except (JWTError, KeyError, TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired staff verification wait session.",
+        )
+
+    user = await get_user_by_id(db, user_id)
+    if not user or user.role == UserRole.PATIENT or not user.pending_wait_jti or user.pending_wait_jti != jti:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Verification wait session has expired or was already claimed.",
+        )
+
+    approval_state = getattr(user, "approval_status", ApprovalStatus.APPROVED.value)
+    if approval_state == ApprovalStatus.PENDING.value:
+        return StaffApprovalStatusResponse(
+            status="pending",
+            staff_id=user.staff_id or user.username,
+            full_name=user.full_name,
+            requested_role=user.requested_role,
+            message="Account is pending Hospital Administrator verification and approval.",
+        )
+
+    if approval_state == ApprovalStatus.REJECTED.value or not user.is_active:
+        await db.execute(
+            update(User)
+            .where(User.id == user.id, User.pending_wait_jti == jti)
+            .values(pending_wait_jti=None)
+        )
+        user.pending_wait_jti = None
+        await db.commit()
+        return StaffApprovalStatusResponse(
+            status="rejected",
+            staff_id=user.staff_id or user.username,
+            full_name=user.full_name,
+            requested_role=user.requested_role,
+            rejection_reason=user.rejection_reason,
+            message=user.rejection_reason or "Account registration was blocked/rejected by Hospital Administration.",
+        )
+
+    # Atomic single-use redemption so no duplicate claim/replay can occur
+    consume = await db.execute(
+        update(User)
+        .where(User.id == user.id, User.pending_wait_jti == jti)
+        .values(pending_wait_jti=None)
+    )
+    if (consume.rowcount or 0) == 0:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Verification wait session already redeemed.",
+        )
+    user.pending_wait_jti = None
+
+    if user.is_mfa_enabled:
+        temp_token = create_access_token(
+            subject=user.id,
+            extra_claims={"temp": True, "action": "mfa_verification"},
+        )
+        await db.commit()
+        return StaffApprovalStatusResponse(
+            status="approved",
+            staff_id=user.staff_id or user.username,
+            full_name=user.full_name,
+            requested_role=user.requested_role,
+            assigned_role=user.role,
+            portal_path=portal_path_for_role(user.role),
+            requires_mfa=True,
+            temp_token=temp_token,
+            username=user.username,
+            user_id=user.id,
+            message="Account verified by Hospital Administrator. Complete 2FA to continue.",
+        )
+
+    client_ip = get_client_ip(request)
+    portal_path = portal_path_for_role(user.role)
+    access_token = create_access_token(
+        subject=user.id,
+        extra_claims={
+            "role": user.role.value,
+            "username": user.username,
+            "full_name": user.full_name,
+        },
+    )
+    refresh_token = create_refresh_token(subject=user.id)
+    await redis_set(f"refresh_token:{user.id}", refresh_token, expire_seconds=7 * 86400)
+
+    await record_audit_event(
+        db,
+        user_id=user.id,
+        action="STAFF_AUTO_VERIFIED_ENTRY",
+        resource="User",
+        resource_id=str(user.id),
+        ip_address=client_ip,
+        result="success",
+        detail={"assigned_role": user.role.value, "portal_path": portal_path},
+    )
+    await record_staff_session_start(
+        db,
+        user,
+        client_ip=client_ip,
+        entry_path=portal_path,
+    )
+
+    return StaffApprovalStatusResponse(
+        status="approved",
+        staff_id=user.staff_id or user.username,
+        full_name=user.full_name,
+        requested_role=user.requested_role,
+        assigned_role=user.role,
+        portal_path=portal_path,
+        access_token=access_token,
+        refresh_token=refresh_token,
+        username=user.username,
+        user_id=user.id,
+        message=f"Verified by Hospital Administration as {user.role.value.upper()}. Redirecting to dashboard.",
+    )
+
+
 @router.get(
     "/staff/requests",
     response_model=List[PendingStaffUserResponse],
-    summary="List Self-Registered Staff Enrollment Requests (Admin Only)",
+    summary="List Self-Registered Staff Enrollment Requests Chunked by Role (Admin Only)",
 )
 async def list_staff_enrollment_requests(
     current_user: Annotated[User, Depends(require_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     status_filter: str = Query("all", pattern="^(all|pending|approved|rejected)$"),
-) -> List[User]:
-    """List pending, flagged, approved, or rejected staff self-enrollment requests."""
+    role_group: Optional[str] = Query(None),
+) -> List[PendingStaffUserResponse]:
+    """List staff self-enrollment requests grouped and ordered cleanly by profession role."""
     stmt = select(User).where(
         (User.role != UserRole.PATIENT)
         & ((User.staff_id.is_not(None)) | (User.approval_status != ApprovalStatus.APPROVED.value))
@@ -1072,19 +1257,24 @@ async def list_staff_enrollment_requests(
         stmt = stmt.where(User.approval_status == status_filter)
 
     rows = list((await db.execute(stmt)).scalars().all())
+    serialized = [_to_pending_staff_response(u) for u in rows]
+    if role_group:
+        serialized = [item for item in serialized if item.role_group == role_group]
+
     priority_order = {
         ApprovalStatus.PENDING.value: 0,
         ApprovalStatus.REJECTED.value: 1,
         ApprovalStatus.APPROVED.value: 2,
     }
-    rows.sort(
+    serialized.sort(
         key=lambda u: (
             priority_order.get(u.approval_status, 3),
+            ROLE_GROUP_ORDER.get(u.role_group or "support_finance", 9),
             0 if u.risk_flag else 1,
             -u.id,
         )
     )
-    return rows
+    return serialized
 
 
 @router.post(
@@ -1098,7 +1288,7 @@ async def approve_staff_request(
     request: Request,
     current_user: Annotated[User, Depends(require_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> User:
+) -> PendingStaffUserResponse:
     """Verify and activate a pending staff applicant with an explicit RBAC role."""
     target = await get_user_by_id(db, user_id)
     if not target or target.role == UserRole.PATIENT:
@@ -1143,7 +1333,7 @@ async def approve_staff_request(
             "assigned_role": target_role.value,
         },
     )
-    return target
+    return _to_pending_staff_response(target)
 
 
 @router.post(
@@ -1157,7 +1347,7 @@ async def reject_staff_request(
     request: Request,
     current_user: Annotated[User, Depends(require_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> User:
+) -> PendingStaffUserResponse:
     """Reject a staff enrollment request and permanently keep access disabled."""
     target = await get_user_by_id(db, user_id)
     if not target or target.role == UserRole.PATIENT:
@@ -1191,7 +1381,7 @@ async def reject_staff_request(
             "reason": reason,
         },
     )
-    return target
+    return _to_pending_staff_response(target)
 
 
 @router.get(
@@ -1241,6 +1431,9 @@ async def list_admin_security_alarms(
         meta = parsed_meta[n.id]
         uid = meta.get("user_id") or n.sender_id
         linked_user = users_map.get(uid) if isinstance(uid, int) else None
+        req_role = meta.get("requested_role") or (linked_user.requested_role if linked_user else None)
+        act_role = str(meta.get("actor_role") or n.sender_role or "staff")
+        r_flag = meta.get("risk_flag") or (linked_user.risk_flag if linked_user else None)
         alarms.append(
             AdminSecurityAlarmResponse(
                 id=n.id,
@@ -1250,17 +1443,21 @@ async def list_admin_security_alarms(
                 category=n.category,
                 event_type=str(meta.get("event_type") or n.category.upper()),
                 actor_name=str(meta.get("full_name") or n.sender_name or "Unknown"),
-                actor_role=str(meta.get("actor_role") or n.sender_role or "staff"),
+                actor_role=act_role,
                 actor_user_id=uid if isinstance(uid, int) else None,
                 staff_id=meta.get("staff_id") or (linked_user.staff_id if linked_user else None),
                 username=meta.get("username") or (linked_user.username if linked_user else None),
                 email=meta.get("email") or (linked_user.email if linked_user else None),
                 phone_number=meta.get("phone_number") or (linked_user.phone_number if linked_user else None),
-                requested_role=meta.get("requested_role") or (linked_user.requested_role if linked_user else None),
+                requested_role=req_role,
                 department=meta.get("department") or n.department or (linked_user.department if linked_user else None),
                 license_number=meta.get("license_number") or (linked_user.license_number if linked_user else None),
                 ip_address=meta.get("ip_address"),
-                risk_flag=meta.get("risk_flag") or (linked_user.risk_flag if linked_user else None),
+                risk_flag=r_flag,
+                role_group=classify_staff_role_group(
+                    req_role or (linked_user.role.value if linked_user else act_role),
+                    r_flag,
+                ),
                 user_approval_status=(
                     getattr(linked_user, "approval_status", "approved")
                     if linked_user

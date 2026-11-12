@@ -32,6 +32,54 @@ STAFF_ALARM_CATEGORIES = (
 WORKING_NOW_THRESHOLD_SECONDS = 300   # Active within last 5 minutes
 RECENT_THRESHOLD_SECONDS = 1800       # Active within last 30 minutes
 
+ROLE_GROUP_ORDER = {
+    "doctor": 0,
+    "nurse": 1,
+    "pharmacist": 2,
+    "lab_diag": 3,
+    "support_finance": 4,
+    "admin_security": 5,
+}
+
+
+def classify_staff_role_group(
+    role_or_dept: Optional[str],
+    risk_flag: Optional[str] = None,
+) -> str:
+    """Group staff requests and alarms into clean profession/workstation buckets."""
+    if risk_flag:
+        return "admin_security"
+    val = (role_or_dept or "").strip().lower()
+    if val in {"doctor", "specialist", "consultant"}:
+        return "doctor"
+    if val in {"nurse", "paramedic"}:
+        return "nurse"
+    if val in {"pharmacist", "pharmacy"}:
+        return "pharmacist"
+    if val in {"lab_tech", "lab_technician", "technician", "radiographer", "biomedical", "laboratory", "lab"}:
+        return "lab_diag"
+    if val in {"admin", "ict_admin", "super_admin", "superadmin", "root", "unverified"}:
+        return "admin_security"
+    return "support_finance"
+
+
+def portal_path_for_role(role: UserRole) -> str:
+    """Resolve authoritative workstation portal path for a verified staff role."""
+    mapping = {
+        UserRole.DOCTOR: "/portal/doctor",
+        UserRole.NURSE: "/portal/nurse",
+        UserRole.PHARMACIST: "/portal/pharmacy",
+        UserRole.LAB_TECH: "/portal/lab",
+        UserRole.TECHNICIAN: "/portal/lab",
+        UserRole.BILLING: "/portal/billing",
+        UserRole.INSURANCE_OFFICER: "/portal/billing",
+        UserRole.RECEPTIONIST: "/portal/reception",
+        UserRole.ADMIN: "/portal/admin",
+        UserRole.SUPER_ADMIN: "/portal/admin",
+        UserRole.PATIENT: "/patient-portal",
+    }
+    return mapping.get(role, "/portal/doctor")
+
 
 def _utc_aware(dt: Optional[datetime]) -> Optional[datetime]:
     """Normalize naive datetimes (e.g. from SQLite) to UTC-aware datetimes."""

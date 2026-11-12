@@ -73,6 +73,12 @@ def create_application() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=[
+            "X-Pending-Verification-Token",
+            "X-Pending-Staff-Id",
+            "X-Pending-Requested-Role",
+            "X-Pending-Full-Name",
+        ],
     )
 
     # Hardened HTTP Security Headers Middleware

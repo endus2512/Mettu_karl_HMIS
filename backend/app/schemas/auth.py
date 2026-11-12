@@ -126,6 +126,7 @@ class StaffRegistrationResponse(BaseModel):
     department: str
     approval_status: str
     risk_flag: Optional[str] = None
+    verification_wait_token: Optional[str] = None
     message: str
 
 
@@ -141,6 +142,7 @@ class PendingStaffUserResponse(BaseModel):
     phone_number: Optional[str] = None
     role: UserRole
     requested_role: Optional[str] = None
+    role_group: Optional[str] = None
     approval_status: str
     risk_flag: Optional[str] = None
     rejection_reason: Optional[str] = None
@@ -235,6 +237,7 @@ class AdminSecurityAlarmResponse(BaseModel):
     license_number: Optional[str] = None
     ip_address: Optional[str] = None
     risk_flag: Optional[str] = None
+    role_group: Optional[str] = None
     user_approval_status: Optional[str] = None
     user_is_active: Optional[bool] = None
     user_current_role: Optional[str] = None
@@ -242,3 +245,27 @@ class AdminSecurityAlarmResponse(BaseModel):
     created_at: datetime
     reacted_at: Optional[datetime] = None
     reaction_by: Optional[str] = None
+
+
+class StaffApprovalStatusRequest(BaseModel):
+    """Single-use wait token payload for live approval verification."""
+    wait_token: str = Field(..., min_length=16, max_length=2048)
+
+
+class StaffApprovalStatusResponse(BaseModel):
+    """Live approval verification state; issues real tokens ONLY after Admin activates account."""
+    status: Literal["pending", "approved", "rejected"]
+    staff_id: Optional[str] = None
+    full_name: str
+    requested_role: Optional[str] = None
+    assigned_role: Optional[UserRole] = None
+    portal_path: Optional[str] = None
+    rejection_reason: Optional[str] = None
+    message: str
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
+    token_type: str = "bearer"
+    requires_mfa: bool = False
+    temp_token: Optional[str] = None
+    username: Optional[str] = None
+    user_id: Optional[int] = None

@@ -398,3 +398,242 @@ async def test_workforce_presence_heartbeat_logout_and_admin_block_activate(
     )
     assert me_ok.status_code == 200
     assert me_ok.json()["role"] == "doctor"
+
+
+@pytest.mark.asyncio
+async def test_role_chunked_requests_and_alarms_isolation(
+    client: AsyncClient,
+    admin_auth_headers: dict[str, str],
+) -> None:
+    """Requests and live alarms classify and filter applicants cleanly into profession role chunks."""
+    applicants = [
+        ("REG-NUR-201", "Nurse Bekelech Demissie", "nurse", "Emergency", "RN-99101"),
+        ("REG-DOC-202", "Dr. Tolosa Bikila", "doctor", "Internal Medicine", "MD-88202"),
+        ("REG-PHA-203", "Phm. Chaltu Negassa", "pharmacist", "Clinical Pharmacy", "EFDA-77303"),
+        ("REG-ADM-204", "Fake Admin Applicant", "admin", "ICT Infrastructure", None),
+    ]
+    for staff_id, full_name, req_role, dept, license_no in applicants:
+        res = await client.post(
+            "/api/v1/auth/staff/register",
+            headers={"X-Forwarded-For": "10.40.1.1"},
+            json={
+                "staff_id": staff_id,
+                "full_name": full_name,
+                "password": "StrongStaffPass2026!",
+                "requested_role": req_role,
+                "department": dept,
+                "license_number": license_no,
+                "phone_number": "+251911223344",
+            },
+        )
+        assert res.status_code == 201
+        data = res.json()
+        assert data["verification_wait_token"]
+
+    all_requests = await client.get(
+        "/api/v1/auth/staff/requests?status_filter=pending",
+        headers=admin_auth_headers,
+    )
+    assert all_requests.status_code == 200
+    req_rows = all_requests.json()
+    by_sid = {item["staff_id"]: item for item in req_rows}
+    assert by_sid["REG-DOC-202"]["role_group"] == "doctor"
+    assert by_sid["REG-NUR-201"]["role_group"] == "nurse"
+    assert by_sid["REG-PHA-203"]["role_group"] == "pharmacist"
+    assert by_sid["REG-ADM-204"]["role_group"] == "admin_security"
+
+    # ?role_group= filter returns only matching profession chunk
+    doc_only = await client.get(
+        "/api/v1/auth/staff/requests?status_filter=pending&role_group=doctor",
+        headers=admin_auth_headers,
+    )
+    assert doc_only.status_code == 200
+    doc_rows = doc_only.json()
+    assert len(doc_rows) >= 1
+    assert all(row["role_group"] == "doctor" for row in doc_rows)
+    assert any(row["staff_id"] == "REG-DOC-202" for row in doc_rows)
+
+    # Alarms endpoint also tags each alarm with its canonical role_group
+    alarms_res = await client.get(
+        "/api/v1/auth/staff/alarms?limit=50",
+        headers=admin_auth_headers,
+    )
+    assert alarms_res.status_code == 200
+    alarm_groups = {
+        a["staff_id"]: a["role_group"]
+        for a in alarms_res.json()
+        if a.get("staff_id") in by_sid
+    }
+    assert alarm_groups.get("REG-DOC-202") == "doctor"
+    assert alarm_groups.get("REG-NUR-201") == "nurse"
+    assert alarm_groups.get("REG-PHA-203") == "pharmacist"
+    assert alarm_groups.get("REG-ADM-204") == "admin_security"
+
+
+@pytest.mark.asyncio
+async def test_spontaneous_verification_wait_token_flow_and_replay_protection(
+    client: AsyncClient,
+    admin_auth_headers: dict[str, str],
+) -> None:
+    """
+    Zero-Trust spontaneous approval:
+    - Self-signup returns verification_wait_token while remaining is_active=False.
+    - Wrong password on pending account returns 401 with zero pending-wait headers.
+    - Correct password on pending account returns 403 WITH X-Pending-Verification-Token.
+    - Polling /staff/approval-status returns pending (zero JWT) until Admin approves.
+    - Once approved, first poll returns approved + valid JWT + portal_path and triggers STAFF_FIRST_LOGIN alarm;
+      replaying the consumed wait_token fails with 401.
+    - Rejected applicant poll returns rejected with zero tokens and consumes wait_token.
+    """
+    reg_nurse = await client.post(
+        "/api/v1/auth/staff/register",
+        headers={"X-Forwarded-For": "10.40.2.10"},
+        json={
+            "staff_id": "WAIT-NUR-301",
+            "full_name": "Nurse Bontu Kebede",
+            "password": "NurseWaitPass2026!",
+            "requested_role": "nurse",
+            "department": "Maternity",
+            "license_number": "RN-30199",
+        },
+    )
+    assert reg_nurse.status_code == 201
+    nurse_data = reg_nurse.json()
+    nurse_id = nurse_data["id"]
+    signup_wait_token = nurse_data["verification_wait_token"]
+    assert isinstance(signup_wait_token, str) and len(signup_wait_token) > 20
+
+    # Too-short wait token fails Pydantic validation (422); forged JWT signature fails decode (401)
+    short_poll = await client.post(
+        "/api/v1/auth/staff/approval-status",
+        json={"wait_token": "short"},
+    )
+    assert short_poll.status_code == 422
+
+    bad_poll = await client.post(
+        "/api/v1/auth/staff/approval-status",
+        json={"wait_token": "not-a-valid-jwt-token-at-all"},
+    )
+    assert bad_poll.status_code == 401
+
+    # Poll while still pending -> 200 pending, zero JWT tokens issued
+    pending_poll = await client.post(
+        "/api/v1/auth/staff/approval-status",
+        json={"wait_token": signup_wait_token},
+    )
+    assert pending_poll.status_code == 200
+    pending_json = pending_poll.json()
+    assert pending_json["status"] == "pending"
+    assert pending_json["access_token"] is None
+    assert pending_json["refresh_token"] is None
+
+    # Wrong password on pending account MUST NOT emit X-Pending-Verification-Token
+    wrong_pw = await client.post(
+        "/api/v1/auth/login",
+        headers={"X-Forwarded-For": "10.40.2.11"},
+        json={"username": "wait-nur-301", "password": "WrongPassword999!"},
+    )
+    assert wrong_pw.status_code == 401
+    assert "x-pending-verification-token" not in {k.lower() for k in wrong_pw.headers.keys()}
+
+    # Correct password while pending returns 403 WITH refreshed X-Pending-Verification-Token
+    valid_pw_pending = await client.post(
+        "/api/v1/auth/login",
+        headers={"X-Forwarded-For": "10.40.2.11"},
+        json={"username": "wait-nur-301", "password": "NurseWaitPass2026!"},
+    )
+    assert valid_pw_pending.status_code == 403
+    login_wait_token = valid_pw_pending.headers.get("X-Pending-Verification-Token")
+    assert login_wait_token
+    assert valid_pw_pending.headers.get("X-Pending-Staff-Id") == "WAIT-NUR-301"
+    assert valid_pw_pending.headers.get("X-Pending-Requested-Role") == "nurse"
+
+    # Admin approves the Nurse applicant
+    approve_res = await client.post(
+        f"/api/v1/auth/staff/requests/{nurse_id}/approve",
+        json={"assigned_role": "nurse"},
+        headers=admin_auth_headers,
+    )
+    assert approve_res.status_code == 200
+
+    # Waiting /login session polls with login_wait_token -> spontaneously receives tokens + /portal/nurse
+    approved_poll = await client.post(
+        "/api/v1/auth/staff/approval-status",
+        headers={"X-Forwarded-For": "10.40.2.11"},
+        json={"wait_token": login_wait_token},
+    )
+    assert approved_poll.status_code == 200
+    approved_json = approved_poll.json()
+    assert approved_json["status"] == "approved"
+    assert approved_json["assigned_role"] == "nurse"
+    assert approved_json["portal_path"] == "/portal/nurse"
+    assert approved_json["access_token"]
+    assert approved_json["refresh_token"]
+
+    # Issued access_token works immediately on protected /auth/me
+    me_auto = await client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {approved_json['access_token']}"},
+    )
+    assert me_auto.status_code == 200
+    assert me_auto.json()["role"] == "nurse"
+
+    # First-time entry alarm recorded for spontaneous login
+    alarms = await client.get("/api/v1/auth/staff/alarms?limit=50", headers=admin_auth_headers)
+    assert any(
+        a["event_type"] == "STAFF_FIRST_LOGIN" and a["actor_user_id"] == nurse_id
+        for a in alarms.json()
+    )
+
+    # Replaying either the consumed login_wait_token or older signup_wait_token MUST fail with 401
+    replay1 = await client.post(
+        "/api/v1/auth/staff/approval-status",
+        json={"wait_token": login_wait_token},
+    )
+    replay2 = await client.post(
+        "/api/v1/auth/staff/approval-status",
+        json={"wait_token": signup_wait_token},
+    )
+    assert replay1.status_code == 401
+    assert replay2.status_code == 401
+
+    # Rejection flow: applicant polls -> gets rejected + zero tokens -> wait_token invalidated
+    reg_reject = await client.post(
+        "/api/v1/auth/staff/register",
+        headers={"X-Forwarded-For": "10.40.2.20"},
+        json={
+            "staff_id": "WAIT-REJ-302",
+            "full_name": "Denied Applicant",
+            "password": "DeniedPass2026!",
+            "requested_role": "doctor",
+            "department": "Surgery",
+            "license_number": "INVALID-000",
+        },
+    )
+    assert reg_reject.status_code == 201
+    rej_id = reg_reject.json()["id"]
+    rej_wait_token = reg_reject.json()["verification_wait_token"]
+
+    rej_action = await client.post(
+        f"/api/v1/auth/staff/requests/{rej_id}/reject",
+        json={"rejection_reason": "Unverified license number"},
+        headers=admin_auth_headers,
+    )
+    assert rej_action.status_code == 200
+
+    rej_poll = await client.post(
+        "/api/v1/auth/staff/approval-status",
+        json={"wait_token": rej_wait_token},
+    )
+    assert rej_poll.status_code == 200
+    rej_json = rej_poll.json()
+    assert rej_json["status"] == "rejected"
+    assert rej_json["access_token"] is None
+    assert "Unverified license" in (rej_json.get("rejection_reason") or "")
+
+    rej_replay = await client.post(
+        "/api/v1/auth/staff/approval-status",
+        json={"wait_token": rej_wait_token},
+    )
+    assert rej_replay.status_code == 401
+

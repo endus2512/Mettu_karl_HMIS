@@ -67,11 +67,14 @@ import {
   Mail,
   Send,
   PhoneCall,
+  Loader2,
+  Clock,
 } from 'lucide-react';
 import axios from 'axios';
 import apiClient from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { useTranslation, type Language } from '@/lib/i18n';
+import { playClinicalAudioAlert } from '@/lib/notifications';
 import { DigitalLedBoard } from '@/components/common/DigitalLedBoard';
 import {
   DEFAULT_LED_SIGNAGE_CONFIG,
@@ -347,9 +350,22 @@ const BUILDING_PARTS = [
 // Main Component
 // ---------------------------------------------------------------------------
 
+interface PendingStaffWaitState {
+  waitToken: string;
+  staffId: string;
+  fullName: string;
+  requestedRole: string;
+  status: 'pending' | 'approved' | 'rejected';
+  assignedRole?: string;
+  portalPath?: string;
+  message?: string;
+}
+
+const PENDING_WAIT_STORAGE_KEY = 'mkh_staff_pending_wait';
+
 export default function LoginPage() {
   const router = useRouter();
-  const { login, verifyMFA, patientRegister, user } = useAuth();
+  const { login, completeTokenSession, verifyMFA, patientRegister, user } = useAuth();
   const { language, setLanguage } = useTranslation();
 
   const [step, setStep] = useState<'credentials' | 'mfa'>('credentials');
@@ -387,6 +403,7 @@ export default function LoginPage() {
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
   const [signupError, setSignupError] = useState<string | null>(null);
   const [signupNotice, setSignupNotice] = useState<string | null>(null);
+  const [pendingWait, setPendingWait] = useState<PendingStaffWaitState | null>(null);
 
   const isClinicalSignup =
     signupDept === 'doctor' ||
@@ -553,6 +570,178 @@ export default function LoginPage() {
     };
   }, []);
 
+  // Hydrate same-tab live approval waiting session on mount if not already logged in
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (localStorage.getItem('access_token')) {
+      sessionStorage.removeItem(PENDING_WAIT_STORAGE_KEY);
+      return;
+    }
+    try {
+      const raw = sessionStorage.getItem(PENDING_WAIT_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as PendingStaffWaitState;
+      if (parsed?.waitToken && parsed.status === 'pending') {
+        setPendingWait(parsed);
+        setFormType('login');
+        setIsFormOpen(true);
+      }
+    } catch {
+      sessionStorage.removeItem(PENDING_WAIT_STORAGE_KEY);
+    }
+  }, []);
+
+  // Poll backend spontaneously while pending staff waits for Admin verification;
+  // immediately celebrate and auto-route into their assigned portal once Allowed/Approved.
+  useEffect(() => {
+    if (!pendingWait || pendingWait.status !== 'pending' || !pendingWait.waitToken) {
+      return;
+    }
+
+    let cancelled = false;
+    const pollApproval = async () => {
+      if (cancelled) return;
+      try {
+        const res = await apiClient.post<{
+          status: 'pending' | 'approved' | 'rejected';
+          staff_id?: string | null;
+          full_name: string;
+          requested_role?: string | null;
+          assigned_role?: string | null;
+          portal_path?: string | null;
+          rejection_reason?: string | null;
+          message: string;
+          access_token?: string | null;
+          refresh_token?: string | null;
+          requires_mfa?: boolean;
+          temp_token?: string | null;
+        }>(
+          '/auth/staff/approval-status',
+          { wait_token: pendingWait.waitToken },
+          { timeout: 10000 },
+        );
+
+        if (cancelled) return;
+        const data = res.data;
+
+        if (data.status === 'rejected') {
+          sessionStorage.removeItem(PENDING_WAIT_STORAGE_KEY);
+          setSignupNotice(null);
+          setPendingWait((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: 'rejected',
+                  fullName: data.full_name || prev.fullName,
+                  message: data.rejection_reason || data.message,
+                }
+              : null,
+          );
+          notifications.show({
+            title:
+              language === 'om'
+                ? 'Galmeen Cufame / Kufaa Ta’e'
+                : 'Application Rejected by Admin',
+            message: data.rejection_reason || data.message,
+            color: 'red',
+          });
+          return;
+        }
+
+        if (data.status === 'approved') {
+          cancelled = true;
+          sessionStorage.removeItem(PENDING_WAIT_STORAGE_KEY);
+
+          if (data.requires_mfa && data.temp_token) {
+            setPendingWait(null);
+            setMfaToken(data.temp_token);
+            setStep('mfa');
+            setFormType('login');
+            setIsFormOpen(true);
+            notifications.show({
+              title: language === 'om' ? 'Eeyyamni Mirkanaa’e (2FA)' : 'Verified — Enter MFA Code',
+              message: data.message,
+              color: 'teal',
+            });
+            return;
+          }
+
+          if (data.access_token && data.refresh_token) {
+            const resolvedRole = await completeTokenSession({
+              access_token: data.access_token,
+              refresh_token: data.refresh_token,
+            });
+            const assignedRole = data.assigned_role || resolvedRole;
+            const destination = data.portal_path || getRolePortalPath(assignedRole);
+
+            setSignupNotice(null);
+            setPendingWait({
+              waitToken: pendingWait.waitToken,
+              staffId: data.staff_id || pendingWait.staffId,
+              fullName: data.full_name || pendingWait.fullName,
+              requestedRole: pendingWait.requestedRole,
+              assignedRole,
+              portalPath: destination,
+              status: 'approved',
+              message: data.message,
+            });
+
+            playClinicalAudioAlert('info');
+            notifications.show({
+              title:
+                language === 'om'
+                  ? 'Systemiin Isin Mirkaneesseera!'
+                  : 'Verified by Hospital Admin!',
+              message:
+                language === 'om'
+                  ? `Baga nagaan dhuftan ${data.full_name} — gara dashboard (${assignedRole.toUpperCase()}) keessaniitti darbaa jirtu...`
+                  : `You are verified (${assignedRole.toUpperCase()}). Redirecting automatically to your dashboard...`,
+              color: 'teal',
+            });
+          }
+        }
+      } catch (err: unknown) {
+        if (cancelled) return;
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          sessionStorage.removeItem(PENDING_WAIT_STORAGE_KEY);
+          setPendingWait(null);
+        }
+      }
+    };
+
+    void pollApproval();
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void pollApproval();
+      }
+    }, 2500);
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void pollApproval();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [pendingWait?.waitToken, pendingWait?.status, completeTokenSession, router, language]);
+
+  // Execute spontaneous redirect into verified staff dashboard once approval state displays
+  useEffect(() => {
+    if (pendingWait?.status !== 'approved' || !pendingWait.portalPath) {
+      return;
+    }
+    const destination = pendingWait.portalPath;
+    const timer = window.setTimeout(() => {
+      window.location.href = destination;
+    }, 850);
+    return () => window.clearTimeout(timer);
+  }, [pendingWait?.status, pendingWait?.portalPath]);
+
   // Load remember-me username if previously saved
   useEffect(() => {
     const savedUsername = localStorage.getItem('mettu_his_remember_username');
@@ -621,6 +810,36 @@ export default function LoginPage() {
       }
 
       const response = await login(data.username, data.password);
+
+      if (response?.pendingVerification) {
+        const pv = response.pendingVerification;
+        const waitObj: PendingStaffWaitState = {
+          waitToken: pv.waitToken,
+          staffId: pv.staffId,
+          fullName: pv.staffId,
+          requestedRole: pv.requestedRole,
+          status: 'pending',
+          message: pv.message,
+        };
+        setLoginError(null);
+        setSignupNotice(null);
+        setPendingWait(waitObj);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(PENDING_WAIT_STORAGE_KEY, JSON.stringify(waitObj));
+        }
+        notifications.show({
+          title:
+            language === 'om'
+              ? 'Eeyyama Admin Eegamaa Jira (Live Auto-Verify)'
+              : 'Waiting for Live Admin Approval',
+          message:
+            language === 'om'
+              ? 'Yeroo Admin eeyyamuuf (Allow) sirni battalumatti isin mirkaneessee gara dashboard keessanitti isin dabarsa.'
+              : 'Stay on this screen — once Admin clicks Allow, you will be automatically verified and redirected to your portal.',
+          color: 'amber',
+        });
+        return;
+      }
 
       if (response && response.mfaRequired && response.mfaToken) {
         setMfaToken(response.mfaToken);
@@ -843,8 +1062,11 @@ export default function LoginPage() {
     try {
       const res = await apiClient.post<{
         staff_id: string;
+        full_name?: string;
+        requested_role?: string;
         approval_status: string;
         risk_flag?: string | null;
+        verification_wait_token?: string | null;
         message: string;
       }>('/auth/staff/register', {
         full_name: signupFullName.trim(),
@@ -857,11 +1079,25 @@ export default function LoginPage() {
 
       const pendingMsg =
         language === 'om'
-          ? `Galmeen keessan (${res.data.staff_id}) haala Eegama Bulchiinsaa (PENDING APPROVAL) keessa jira. Hanga Admin Hospitaalaa mirkaneessutti seenuun hin danda'amu.`
-          : `Registration (${res.data.staff_id}) saved as PENDING ADMIN APPROVAL. Access stays locked until verified by the Hospital Administrator.`;
+          ? `Galmeen keessan (${res.data.staff_id}) haala Eegama Bulchiinsaa (PENDING ADMIN APPROVAL) keessa jira. Hanga Admin Hospitaalaa eeyyamutti eegaa — yeroo Admin Allow godhu battalumatti mirkanooftanii gara dashboard keessanitti darbitu.`
+          : `Registration (${res.data.staff_id}) saved as PENDING ADMIN APPROVAL. Stay on this page — as soon as the Hospital Admin clicks Allow, you will be verified and redirected to your portal automatically.`;
 
       setLoginError(null);
       setSignupNotice(pendingMsg);
+      if (res.data.verification_wait_token) {
+        const waitObj: PendingStaffWaitState = {
+          waitToken: res.data.verification_wait_token,
+          staffId: res.data.staff_id,
+          fullName: res.data.full_name || signupFullName.trim(),
+          requestedRole: res.data.requested_role || signupRole,
+          status: 'pending',
+          message: pendingMsg,
+        };
+        setPendingWait(waitObj);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(PENDING_WAIT_STORAGE_KEY, JSON.stringify(waitObj));
+        }
+      }
       setSignupPassword('');
       setSignupConfirmPassword('');
       setSignupLicenseNumber('');
@@ -1492,8 +1728,84 @@ export default function LoginPage() {
                       </button>
                     </div>
 
-                    {/* Pending Staff Approval Notice */}
-                    {signupNotice && (
+                    {/* Live Spontaneous Verification Waiting Card (After Staff Sign-Up or Pending Login) */}
+                    {pendingWait && (
+                      <div
+                        id="staff-pending-verification-wait"
+                        data-testid="signup-pending-alert"
+                        className={`rounded-xl border px-3.5 py-3 text-xs space-y-1.5 transition-all ${
+                          pendingWait.status === 'approved'
+                            ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 shadow-md shadow-emerald-500/15'
+                            : pendingWait.status === 'rejected'
+                            ? 'border-rose-500/50 bg-rose-500/10 text-rose-700 dark:text-rose-200'
+                            : 'border-amber-500/50 bg-amber-500/10 text-amber-900 dark:text-amber-200'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 font-extrabold">
+                            {pendingWait.status === 'approved' ? (
+                              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            ) : pendingWait.status === 'rejected' ? (
+                              <ShieldAlert className="h-4 w-4 text-rose-500 shrink-0" />
+                            ) : (
+                              <Loader2 className="h-4 w-4 text-amber-500 animate-spin shrink-0" />
+                            )}
+                            <span>
+                              {pendingWait.status === 'approved'
+                                ? language === 'om'
+                                  ? 'SYSTEMIIN MIRKANAAFOOFTEETTA! (VERIFIED)'
+                                  : 'VERIFIED BY HOSPITAL ADMIN!'
+                                : pendingWait.status === 'rejected'
+                                ? language === 'om'
+                                  ? 'GALMEEN CUFAME / KUFAA TA’E'
+                                  : 'BLOCKED / REJECTED BY ADMIN'
+                                : language === 'om'
+                                ? 'PENDING ADMIN APPROVAL — Eeyyama Eegamaa Jira'
+                                : 'PENDING ADMIN APPROVAL — Live Verification Active'}
+                            </span>
+                          </div>
+                          {pendingWait.status !== 'approved' && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPendingWait(null);
+                                setSignupNotice(null);
+                                if (typeof window !== 'undefined') {
+                                  sessionStorage.removeItem(PENDING_WAIT_STORAGE_KEY);
+                                }
+                              }}
+                              className="text-[11px] opacity-75 hover:opacity-100 cursor-pointer"
+                              title="Dismiss"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="text-[11px] leading-relaxed">
+                          {pendingWait.status === 'approved' ? (
+                            <span>
+                              {language === 'om'
+                                ? `Baga nagaan dhuftan ${pendingWait.fullName} (${pendingWait.staffId}). Gaheen ${(pendingWait.assignedRole || pendingWait.requestedRole).toUpperCase()} isiniif mirkanaa’eera — gara ${pendingWait.portalPath || '/portal'} tti ofumaan darbaa jirtu...`
+                                : `Welcome ${pendingWait.fullName} (${pendingWait.staffId}). Verified for ${(pendingWait.assignedRole || pendingWait.requestedRole).toUpperCase()} — automatically opening ${pendingWait.portalPath || '/portal'}...`}
+                            </span>
+                          ) : pendingWait.status === 'rejected' ? (
+                            <span>{pendingWait.message}</span>
+                          ) : (
+                            <span className="flex items-start gap-1.5">
+                              <Clock className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-500" />
+                              <span>
+                                {language === 'om'
+                                  ? `${pendingWait.fullName} (${pendingWait.staffId} • ${pendingWait.requestedRole.toUpperCase()}): Alarmiin Admin’f ergameera. Yeroo Admin Allow godhu battalumatti verify taatanii dashboard keessanitti ofumaan darbitu.`
+                                  : `${pendingWait.fullName} (${pendingWait.staffId} • ${pendingWait.requestedRole.toUpperCase()}): Security alarm sent to Admin. Stay here — the moment Admin clicks Allow, you will be automatically verified and routed to your workstation.`}
+                              </span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pending Staff Approval Notice fallback when no live ticket */}
+                    {!pendingWait && signupNotice && (
                       <div
                         data-testid="signup-pending-alert"
                         className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2.5 text-xs font-medium text-amber-800 dark:text-amber-300 flex items-start gap-2"

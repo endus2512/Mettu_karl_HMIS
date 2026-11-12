@@ -48,6 +48,13 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
+export interface PendingVerificationTicket {
+  waitToken: string;
+  staffId: string;
+  requestedRole: string;
+  message: string;
+}
+
 interface AuthContextValue extends AuthState {
   simulatedRole: UserRole | null;
   setSimulatedRole: (role: UserRole | null) => void;
@@ -55,7 +62,16 @@ interface AuthContextValue extends AuthState {
   login: (
     username: string,
     password: string,
-  ) => Promise<{ mfaRequired: boolean; mfaToken?: string; role?: User['role'] }>;
+  ) => Promise<{
+    mfaRequired: boolean;
+    mfaToken?: string;
+    role?: User['role'];
+    pendingVerification?: PendingVerificationTicket;
+  }>;
+  completeTokenSession: (tokens: {
+    access_token: string;
+    refresh_token: string;
+  }) => Promise<User['role']>;
   patientLogin: (
     identifier: string,
     passwordOrOtp: string,
@@ -304,7 +320,12 @@ export function AuthProvider({
     async (
       username: string,
       password: string,
-    ): Promise<{ mfaRequired: boolean; mfaToken?: string; role?: User['role'] }> => {
+    ): Promise<{
+      mfaRequired: boolean;
+      mfaToken?: string;
+      role?: User['role'];
+      pendingVerification?: PendingVerificationTicket;
+    }> => {
       const cleanUser = username.trim();
       const lower = cleanUser.toLowerCase();
 
@@ -366,6 +387,23 @@ export function AuthProvider({
         // surface the real error rather than issuing a `.demo-sig` token that bounces back to /login.
         if (axios.isAxiosError(err) && err.response) {
           const status = err.response.status;
+          const headers = err.response.headers as Record<string, string | undefined> | undefined;
+          const pendingWaitToken = headers?.['x-pending-verification-token'];
+          if (status === 403 && pendingWaitToken) {
+            const respData = err.response.data as { detail?: string } | undefined;
+            return {
+              mfaRequired: false,
+              pendingVerification: {
+                waitToken: pendingWaitToken,
+                staffId: headers?.['x-pending-staff-id'] || cleanUser,
+                requestedRole: headers?.['x-pending-requested-role'] || 'staff',
+                message:
+                  typeof respData?.detail === 'string' && respData.detail
+                    ? respData.detail
+                    : 'Account is pending Hospital Administrator verification and approval.',
+              },
+            };
+          }
           if (status >= 400 && status < 500 && status !== 404 && status !== 408) {
             const respData = err.response.data as
               | { detail?: string | Array<{ msg?: string }> }
@@ -519,11 +557,22 @@ export function AuthProvider({
     [refreshUser],
   );
 
+  const completeTokenSession = useCallback(
+    async (tokens: { access_token: string; refresh_token: string }): Promise<User['role']> => {
+      saveTokens(tokens.access_token, tokens.refresh_token);
+      await refreshUser();
+      const decoded = decodeJwtPayload<{ role?: User['role'] }>(tokens.access_token);
+      return decoded?.role || 'doctor';
+    },
+    [refreshUser],
+  );
+
   const logout = useCallback(async (): Promise<void> => {
     // 1. Instant spontaneous wipe of client authentication state
     clearTokens();
     if (typeof window !== 'undefined') {
       localStorage.removeItem('mkh_simulated_role');
+      sessionStorage.removeItem('mkh_staff_pending_wait');
     }
     setSimulatedRoleState(null);
     setState({ user: null, isLoading: false, isAuthenticated: false });
@@ -543,6 +592,7 @@ export function AuthProvider({
       setSimulatedRole,
       activeRole,
       login,
+      completeTokenSession,
       patientLogin,
       patientRegister,
       verifyMFA,
@@ -555,6 +605,7 @@ export function AuthProvider({
       setSimulatedRole,
       activeRole,
       login,
+      completeTokenSession,
       patientLogin,
       patientRegister,
       verifyMFA,
