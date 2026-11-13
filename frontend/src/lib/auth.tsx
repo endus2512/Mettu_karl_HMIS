@@ -80,6 +80,7 @@ interface AuthContextValue extends AuthState {
     passwordOrOtp: string,
   ) => Promise<void>;
   patientRegister: (data: {
+    username?: string;
     full_name: string;
     phone_number: string;
     fayda_id?: string;
@@ -407,6 +408,7 @@ export function AuthProvider({
 
   const patientRegister = useCallback(
     async (data: {
+      username?: string;
       full_name: string;
       phone_number: string;
       fayda_id?: string;
@@ -435,7 +437,7 @@ export function AuthProvider({
         const cleanName = data.full_name.trim();
         const cleanPhone = data.phone_number.trim();
         const faydaId = data.fayda_id?.trim() || `FAN-${patId}-9981-2026`;
-        const username = `pat_${cleanPhone.replace(/\D/g, '').slice(-8)}`;
+        const username = data.username?.trim() || `pat_${cleanPhone.replace(/\D/g, '').slice(-8)}`;
 
         const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
         const payload = btoa(

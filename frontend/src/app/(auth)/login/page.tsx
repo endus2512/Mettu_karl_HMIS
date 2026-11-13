@@ -395,6 +395,7 @@ export default function LoginPage() {
 
   // Staff Sign up state
   const [signupFullName, setSignupFullName] = useState('');
+  const [signupUsername, setSignupUsername] = useState('');
   const [signupStaffId, setSignupStaffId] = useState('');
   const [signupDept, setSignupDept] = useState('doctor');
   const [signupRole, setSignupRole] = useState('doctor');
@@ -422,6 +423,7 @@ export default function LoginPage() {
     signupRole === 'admin' || signupRole === 'ict_admin' || signupRole === 'auditor';
 
   // Formal Patient Registration state
+  const [patientUsername, setPatientUsername] = useState('');
   const [patientFullName, setPatientFullName] = useState('');
   const [patientPhone, setPatientPhone] = useState('');
   const [patientFaydaId, setPatientFaydaId] = useState('');
@@ -953,13 +955,13 @@ export default function LoginPage() {
   // Handle Patient Registration Submit
   async function handlePatientSignupSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!patientFullName.trim() || !patientPhone.trim() || !patientPassword) {
+    if (!patientUsername.trim() || !patientFullName.trim() || !patientPhone.trim() || !patientPassword) {
       notifications.show({
         title: language === 'om' ? 'Dirree Hin Guutamne' : 'Missing Information',
         message:
           language === 'om'
-            ? 'Maaloo Maqaa, Lakkoofsa Bilbilaa fi Jecha Icciitii guutaa.'
-            : 'Please enter Full Name, Phone Number, and Password.',
+            ? 'Maaloo Maqaa Fayyadamaa, Maqaa Guutuu, Lakkoofsa Bilbilaa fi Jecha Icciitii guutaa.'
+            : 'Please enter Username, Full Name, Phone Number, and Password.',
         color: 'red',
       });
       return;
@@ -979,6 +981,7 @@ export default function LoginPage() {
     setIsSubmittingSignup(true);
     try {
       await patientRegister({
+        username: patientUsername.trim(),
         full_name: patientFullName.trim(),
         phone_number: patientPhone.trim(),
         fayda_id: patientFaydaId.trim() || undefined,
@@ -1019,7 +1022,7 @@ export default function LoginPage() {
     setSignupError(null);
     setSignupNotice(null);
 
-    if (!signupFullName.trim() || !signupStaffId.trim() || !signupPassword) {
+    if (!signupUsername.trim() || !signupFullName.trim() || !signupStaffId.trim() || !signupPassword) {
       const msg =
         language === 'om'
           ? 'Maaloo dirreewwan barbaachisan hunda guutaa.'
@@ -1084,6 +1087,7 @@ export default function LoginPage() {
         verification_wait_token?: string | null;
         message: string;
       }>('/auth/staff/register', {
+        username: signupUsername.trim(),
         full_name: signupFullName.trim(),
         staff_id: signupStaffId.trim(),
         phone_number: signupPhone.trim() || undefined,
@@ -1123,6 +1127,7 @@ export default function LoginPage() {
       setSignupPhone('');
       setSignupEmail('');
       setSignupBiography('');
+      setSignupUsername('');
 
       notifications.show({
         title:
@@ -1906,6 +1911,26 @@ export default function LoginPage() {
                     </div>
 
                     <form onSubmit={handlePatientSignupSubmit} className="space-y-3">
+                      {/* USERNAME */}
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                          {language === 'om' ? 'Maqaa Fayyadamaa' : language === 'am' ? 'የተጠቃሚ ስም' : 'Username'} *
+                        </label>
+                        <div className="relative">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <User className="h-4 w-4" />
+                          </div>
+                          <input
+                            type="text"
+                            required
+                            value={patientUsername}
+                            onChange={(e) => setPatientUsername(e.target.value)}
+                            placeholder={language === 'om' ? 'Fkn. chaltuu2024' : 'e.g. chaltuu2024'}
+                            className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                          />
+                        </div>
+                      </div>
+
                       {/* FULL NAME */}
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -2033,54 +2058,6 @@ export default function LoginPage() {
                             className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                           />
                         </div>
-                      </div>
-
-                      {/* CONTACT & PERSONAL BIOGRAPHY (VIEWABLE/EDITABLE BY ADMIN FOR RECOVERY & OVERSIGHT) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            {language === 'om' ? 'Lakkoofsa Bilbilaa (Phone)' : 'Phone Number'}
-                          </label>
-                          <input
-                            type="tel"
-                            value={signupPhone}
-                            onChange={(e) => setSignupPhone(e.target.value)}
-                            placeholder="+2519XXXXXXXX"
-                            className="block w-full h-[44px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            {language === 'om' ? 'Imeelii (Email)' : 'Work Email (Optional)'}
-                          </label>
-                          <input
-                            type="email"
-                            value={signupEmail}
-                            onChange={(e) => setSignupEmail(e.target.value)}
-                            placeholder="name@mettukarl.gov.et"
-                            className="block w-full h-[44px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                          {language === 'om'
-                            ? 'Seenaa fi Muuxannoo Hojii (Biography / Qualification)'
-                            : 'Staff Biography, Qualification & Background'}
-                        </label>
-                        <textarea
-                          rows={2}
-                          maxLength={2000}
-                          value={signupBiography}
-                          onChange={(e) => setSignupBiography(e.target.value)}
-                          placeholder={
-                            language === 'om'
-                              ? 'Fkn. Barnoota yaalaa, muuxannoo hojii fi kutaa keessa hojjettan...'
-                              : 'e.g. Degree, specialty, years of experience, clinic assignment...'
-                          }
-                          className="block w-full rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 resize-y"
-                        />
                       </div>
 
                       {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
@@ -2245,6 +2222,26 @@ export default function LoginPage() {
                           <span>{signupNotice}</span>
                         </div>
                       )}
+                      {/* USERNAME */}
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                          {language === 'om' ? 'Maqaa Fayyadamaa' : language === 'am' ? 'የተጠቃሚ ስም' : 'Username'} *
+                        </label>
+                        <div className="relative">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <User className="h-4 w-4" />
+                          </div>
+                          <input
+                            type="text"
+                            required
+                            value={signupUsername}
+                            onChange={(e) => setSignupUsername(e.target.value)}
+                            placeholder={language === 'om' ? 'Fkn. dr.tolasaa' : 'e.g. dr.abebe'}
+                            className="block w-full h-[46px] rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                          />
+                        </div>
+                      </div>
+
                       {/* FULL NAME */}
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">

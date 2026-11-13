@@ -29,6 +29,7 @@ class PatientLoginRequest(BaseModel):
 
 class PatientRegisterRequest(BaseModel):
     """Payload for patient self-registration in Patient Portal."""
+    username: Optional[str] = Field(None, min_length=3, max_length=50, description="Username (optional, auto-generated if not provided)")
     full_name: str = Field(..., min_length=3, max_length=150, description="Full Name of the Patient")
     phone_number: str = Field(..., min_length=7, max_length=20, description="Mobile Phone Number")
     fayda_id: Optional[str] = Field(None, max_length=50, description="Fayda National ID (FAN/FIN)")

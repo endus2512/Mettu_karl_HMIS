@@ -450,17 +450,21 @@ async def patient_register(
     full_name = reg_data.full_name.strip()
     clean_user = phone.replace("+", "").replace("-", "").replace(" ", "")
 
+    # Use provided username or auto-generate from phone number
+    username = reg_data.username.strip() if reg_data.username else f"pat_{clean_user[-8:] if len(clean_user) >= 8 else clean_user}"
+
     # Check if patient user already exists
     user_stmt = select(User).where(
         (User.phone_number == phone) |
-        ((User.fayda_id == fayda) if fayda else False)
+        ((User.fayda_id == fayda) if fayda else False) |
+        (User.username == username)
     )
     user_res = await db.execute(user_stmt)
     existing_user = user_res.scalar_one_or_none()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Fayda ID ykn Lakkoofsi bilbilaa kun kanaan dura galmaa'eera. Maaloo seensa (Login) fayyadamaa / An account with this Fayda ID or Phone already exists. Please log in.",
+            detail="Fayda ID ykn Lakkoofsi bilbilaa ykn Maqaa Fayyadamaa kun kanaan dura galmaa'eera. Maaloo seensa (Login) fayyadamaa / An account with this Fayda ID, Phone, or Username already exists. Please log in.",
         )
 
     parts = full_name.split()
@@ -494,7 +498,6 @@ async def patient_register(
     await db.commit()
     await db.refresh(patient)
 
-    username = f"pat_{clean_user[-8:] if len(clean_user) >= 8 else clean_user}"
     fayda_val = fayda or f"FAN-{mrn_num}-1000"
 
     user = User(
