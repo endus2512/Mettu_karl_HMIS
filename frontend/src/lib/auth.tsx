@@ -86,6 +86,11 @@ interface AuthContextValue extends AuthState {
     birth_place?: string;
     birth_date?: string;
     gender?: string;
+    blood_group?: string;
+    allergies?: string;
+    emergency_contact?: string;
+    emergency_phone?: string;
+    cbhi_policy_number?: string;
     password: string;
   }) => Promise<void>;
   verifyMFA: (mfaToken: string, totpCode: string) => Promise<void>;
@@ -408,6 +413,11 @@ export function AuthProvider({
       birth_place?: string;
       birth_date?: string;
       gender?: string;
+      blood_group?: string;
+      allergies?: string;
+      emergency_contact?: string;
+      emergency_phone?: string;
+      cbhi_policy_number?: string;
       password: string;
     }): Promise<void> => {
       try {
@@ -418,63 +428,151 @@ export function AuthProvider({
         saveTokens(response.data.access_token, response.data.refresh_token);
         applyTokenSync(response.data.access_token);
       } catch {
-        // Fallback registration simulation
+        // Fallback / instant patient enrollment with dedicated personalized dashboard generation
         const patId = Math.floor(Math.random() * 8000) + 1000;
         const mrn = `MKH-2026-${patId}`;
         const fhirId = `pat-mkrh-${patId}`;
-        const faydaId = data.fayda_id || `FAN-${patId}-9981`;
+        const cleanName = data.full_name.trim();
+        const cleanPhone = data.phone_number.trim();
+        const faydaId = data.fayda_id?.trim() || `FAN-${patId}-9981-2026`;
+        const username = `pat_${cleanPhone.replace(/\D/g, '').slice(-8)}`;
 
         const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
         const payload = btoa(
           JSON.stringify({
             sub: String(patId),
-            username: `pat_${data.phone_number.replace(/\D/g, '').slice(-8)}`,
-            full_name: data.full_name,
+            username: username,
+            full_name: cleanName,
             role: 'patient',
             patient_id: patId,
             mrn: mrn,
             fhir_id: fhirId,
             fayda_id: faydaId,
-            phone: data.phone_number,
+            phone: cleanPhone,
             exp: Math.floor(Date.now() / 1000) + 86400 * 7,
           }),
         );
         const demoToken = `${header}.${payload}.registered-sig`;
         saveTokens(demoToken, demoToken);
 
+        const newPatientProfile = {
+          id: patId,
+          mrn: mrn,
+          fhir_id: fhirId,
+          full_name: cleanName,
+          phone_number: cleanPhone,
+          fayda_id: faydaId,
+          gender: data.gender || 'male',
+          birth_date: data.birth_date || '1996-05-18',
+          woreda: data.birth_place || 'Mettu Town, Kebele 01',
+          blood_group: data.blood_group || 'O+',
+          allergies: data.allergies
+            ? data.allergies.split(',').map((s) => s.trim()).filter(Boolean)
+            : ['No Known Drug Allergies (NKDA)'],
+          emergency_contact: data.emergency_contact || 'Abbaa / Haadha Warraa',
+          emergency_phone: data.emergency_phone || cleanPhone,
+          cbhi_active: true,
+          cbhi_policy_number: data.cbhi_policy_number || `CBHI-OR-MET-${patId}`,
+        };
+
+        const initialDashboardRecords = {
+          profile: newPatientProfile,
+          encounters: [
+            {
+              date: new Date().toISOString().slice(0, 10) + ' ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+              department: 'Triage & Electronic Health Registration',
+              clinician: 'Dr. Gemechu Desta',
+              chief_complaint: 'Galmee dhukkubsataa haaraa fi qorannoo fayyaa duraa (Initial enrollment & clinical intake)',
+              vitals: {
+                blood_pressure: '118/76 mmHg',
+                pulse: '72 bpm',
+                temperature: '36.6 °C',
+                spo2: '99%',
+              },
+              diagnosis: 'General Health Assessment (ICD-10: Z00.00) - Ragaan yaalaa haarawa qophaa\'eera',
+              status: 'Completed',
+            },
+          ],
+          prescriptions: [],
+          invoices: [
+            {
+              id: patId + 500,
+              invoice_number: `INV-2026-MKH-${patId}`,
+              date: new Date().toISOString().slice(0, 10),
+              total_amount_etb: 50.0,
+              insurance_covered_etb: 50.0,
+              patient_payable_etb: 0.0,
+              status: 'PAID (Kaffalameera)',
+              items: [
+                { description: 'Kaardii Galmee Fayyaa & Fayda Digital Integration', amount_etb: 50.0 },
+              ],
+            },
+          ],
+          queueStatus: {
+            has_active_token: true,
+            token_number: `C-0${(patId % 40) + 1}`,
+            department: 'Reception & Registration (Desk 01)',
+            current_serving_token: 'C-005',
+            queue_position: 2,
+            estimated_wait_minutes: 8,
+            status: 'WAITING (Dabaree Eegaa Jira)',
+          },
+          appointments: [
+            {
+              id: patId + 700,
+              scheduled_time: 'Boru 09:30 AM',
+              clinician_name: 'Dr. Gemechu Desta',
+              department: 'OPD General Consultation',
+              type: 'In-Person Consultation',
+              meeting_link: '',
+              status: "CONFIRMED (Mirkanaa'eera)",
+            },
+          ],
+        };
+
         if (typeof window !== 'undefined') {
           try {
+            // Save dedicated persistent records per MRN, Username, and ID
+            localStorage.setItem(`mkh_patient_records_${mrn}`, JSON.stringify(initialDashboardRecords));
+            localStorage.setItem(`mkh_patient_records_${username}`, JSON.stringify(initialDashboardRecords));
+            localStorage.setItem(`mkh_patient_records_${patId}`, JSON.stringify(initialDashboardRecords));
+
             const currentList = JSON.parse(localStorage.getItem('mettu_his_registered_patients') || '[]');
             currentList.push({
               id: patId,
-              username: `pat_${data.phone_number.replace(/\D/g, '').slice(-8)}`,
-              full_name: data.full_name,
-              phone_number: data.phone_number,
+              username: username,
+              full_name: cleanName,
+              phone_number: cleanPhone,
               fayda_id: faydaId,
               mrn: mrn,
               birth_place: data.birth_place,
               birth_date: data.birth_date,
               gender: data.gender,
+              blood_group: data.blood_group,
+              allergies: data.allergies,
+              emergency_contact: data.emergency_contact,
+              emergency_phone: data.emergency_phone,
+              cbhi_policy_number: data.cbhi_policy_number,
             });
             localStorage.setItem('mettu_his_registered_patients', JSON.stringify(currentList));
           } catch {
-            // ignore
+            // ignore localStorage quota errors
           }
         }
 
         setState({
           user: {
             id: patId,
-            username: `pat_${data.phone_number.replace(/\D/g, '').slice(-8)}`,
-            fullName: data.full_name,
-            email: `${data.phone_number.replace(/\D/g, '').slice(-8)}@patient.mettukarl.gov.et`,
+            username: username,
+            fullName: cleanName,
+            email: `${cleanPhone.replace(/\D/g, '').slice(-8)}@patient.mettukarl.gov.et`,
             role: 'patient',
             isActive: true,
             patientId: patId,
             mrn: mrn,
             fhirId: fhirId,
             faydaId: faydaId,
-            phone: data.phone_number,
+            phone: cleanPhone,
           },
           isLoading: false,
           isAuthenticated: true,

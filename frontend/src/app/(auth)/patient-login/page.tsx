@@ -32,6 +32,8 @@ import {
   MapPin,
   ArrowRight,
   Check,
+  Droplet,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
@@ -51,6 +53,11 @@ const patientRegisterSchema = z.object({
   fayda_id: z.string().optional(),
   birth_date: z.string().optional(),
   gender: z.enum(['male', 'female']).default('male'),
+  blood_group: z.string().optional(),
+  allergies: z.string().optional(),
+  emergency_contact: z.string().optional(),
+  emergency_phone: z.string().optional(),
+  cbhi_policy_number: z.string().optional(),
   password: z.string().min(4, 'Password must be at least 4 characters'),
 });
 
@@ -94,6 +101,11 @@ export default function PatientLoginPage(): React.ReactElement {
       fayda_id: '',
       birth_date: '1995-05-12',
       gender: 'male',
+      blood_group: 'O+',
+      allergies: 'None (NKDA)',
+      emergency_contact: '',
+      emergency_phone: '+251 9',
+      cbhi_policy_number: '',
       password: '',
     },
   });
@@ -500,6 +512,71 @@ export default function PatientLoginPage(): React.ReactElement {
                     <option value="male">{language === 'am' ? 'ወንድ (Male)' : language === 'en' ? 'Male' : 'Dhiira (Male)'}</option>
                     <option value="female">{language === 'am' ? 'ሴት (Female)' : language === 'en' ? 'Female' : 'Dubara (Female)'}</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Biography: Blood Group & Allergies */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <Droplet className="w-3.5 h-3.5 text-rose-500" />
+                    <span>{language === 'am' ? 'የደም አይነት (Blood Group)' : 'Garee Dhiigaa (Blood Group)'}</span>
+                  </label>
+                  <select
+                    {...registerEnroll('blood_group')}
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  >
+                    <option value="O+">O+ (Universal Common)</option>
+                    <option value="A+">A+</option>
+                    <option value="B+">B+</option>
+                    <option value="AB+">AB+</option>
+                    <option value="O-">O- (Universal Donor)</option>
+                    <option value="A-">A-</option>
+                    <option value="B-">B-</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{language === 'am' ? 'አለርጂዎች (Allergies)' : 'Alarjiikii (Allergies)'}</span>
+                  </label>
+                  <input
+                    type="text"
+                    {...registerEnroll('allergies')}
+                    placeholder="fkn: Penicillin ykn Hin qabu"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  />
+                </div>
+              </div>
+
+              {/* Emergency Contact & CBHI Insurance */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <User className="w-3.5 h-3.5 text-sky-500" />
+                    <span>{language === 'am' ? 'አስቸኳይ ተጠሪ ሰው' : 'Nama Yeroo Muddamaa (Emergency)'}</span>
+                  </label>
+                  <input
+                    type="text"
+                    {...registerEnroll('emergency_contact')}
+                    placeholder="fkn: Tolasa Gudeta (Abbaa)"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>{language === 'am' ? 'የCBHI መድህን ፖሊሲ' : 'Waraqaa CBHI (Policy No.)'}</span>
+                  </label>
+                  <input
+                    type="text"
+                    {...registerEnroll('cbhi_policy_number')}
+                    placeholder="fkn: CBHI-OR-MET-001"
+                    className="block w-full h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  />
                 </div>
               </div>
 
