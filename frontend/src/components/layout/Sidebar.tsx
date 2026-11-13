@@ -797,16 +797,45 @@ export function Sidebar(): React.ReactElement {
               <span className="px-3 text-xs font-black uppercase tracking-wider text-teal-900 dark:text-teal-200 block mb-1.5">
                 {language === 'om' ? 'Kutaa Dhukkubsataa' : language === 'am' ? 'የታካሚ ክፍል' : 'Patient Care Portal'}
               </span>
-              {patientItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="mkh-sidebar-rect flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-2 border-teal-500/50 text-slate-950 dark:text-white font-extrabold text-sm hover:translate-x-1 transition-all duration-300"
-                >
-                  <item.icon className="w-4.5 h-4.5 text-teal-700 dark:text-teal-300" />
-                  <span>{t(item.key)}</span>
-                </Link>
-              ))}
+              {patientItems.map((item) => {
+                const IconComponent = item.icon;
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    prefetch={true}
+                    className={`mkh-sidebar-rect group relative flex items-center overflow-hidden ${
+                      isCollapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3.5 py-2.5'
+                    } rounded-xl backdrop-blur-md cursor-pointer ${
+                      isActive
+                        ? 'mkh-sidebar-active-glow bg-gradient-to-r from-teal-500/25 via-emerald-500/20 to-sky-500/25 dark:from-teal-500/30 dark:via-emerald-500/25 dark:to-sky-500/25 border-2 border-teal-500/85 dark:border-teal-400/70 text-slate-950 dark:text-white font-black translate-x-1'
+                        : 'bg-white/30 dark:bg-slate-900/30 text-slate-950 dark:text-white font-extrabold border border-sky-200/70 dark:border-slate-700/50 hover:bg-white/60 dark:hover:bg-teal-500/20 hover:border-teal-400/85 dark:hover:border-teal-400/60 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_-6px_rgba(20,184,166,0.35)]'
+                    } transition-all duration-300`}
+                  >
+                    <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent" />
+                    <div className={`relative z-10 flex items-center gap-2.5 ${isCollapsed ? 'justify-center' : 'min-w-0'}`}>
+                      <IconComponent className="h-4.5 w-4.5 text-teal-700 dark:text-teal-300 shrink-0 group-hover:scale-115 group-hover:rotate-6 transition-transform duration-300" />
+                      {!isCollapsed && <span className="truncate text-sm">{t(item.key)}</span>}
+                    </div>
+                    {!isCollapsed && item.badge && (
+                      <span className={`relative z-10 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full shrink-0 ${
+                        isActive ? 'bg-teal-500/30 text-slate-950 dark:text-teal-100 border border-teal-500/60' : 'bg-teal-500/20 dark:bg-teal-500/25 text-teal-950 dark:text-teal-100 border border-teal-500/45'
+                      }`}>
+                        {item.badge}
+                      </span>
+                    )}
+                    {isCollapsed && (
+                      <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-extrabold text-slate-950 dark:text-white shadow-xl border border-teal-400 dark:border-slate-700">
+                        <span>{t(item.key)}</span>
+                        {item.badge && (
+                          <span className="font-mono text-[10px] text-teal-800 dark:text-teal-200">({item.badge})</span>
+                        )}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <>

@@ -888,170 +888,205 @@ export default function PatientPortalPage(): React.ReactElement {
 
   return (
     <ProtectedRoute allowedRoles={['patient', 'super_admin']} moduleName="Patient Portal" category="clinical">
-      <div className="flex h-screen bg-slate-100 text-slate-900 overflow-hidden">
+      <div className="flex h-screen bg-gradient-to-br from-slate-100 via-sky-50/70 to-indigo-50/50 dark:from-[#080e1a] dark:via-[#0d1628] dark:to-[#09101f] text-slate-900 dark:text-slate-100 overflow-hidden">
         {/* =========================================================================
             1. DEDICATED PATIENT LEFTSIDE NAVIGATION (SIDEBAR - DESKTOP & MOBILE DRAWER)
             ========================================================================= */}
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex w-72 lg:w-80 shrink-0 border-r border-[#1b2334] bg-[#0b0f17] flex-col h-screen sticky top-0 shadow-2xl select-none z-30">
+        <aside className="hidden lg:flex w-72 lg:w-80 shrink-0 border-r-2 border-sky-300/50 dark:border-sky-400/25 bg-white/25 dark:bg-slate-950/25 backdrop-blur-3xl flex-col h-screen sticky top-0 shadow-[10px_0_42px_-10px_rgba(14,165,233,0.18)] dark:shadow-2xl select-none z-30 transition-all duration-300 relative">
+          {/* Animated top gradient accent line */}
+          <div aria-hidden="true" className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-teal-400 to-indigo-400 dark:from-amber-500 dark:via-teal-500 dark:to-indigo-500 mkh-sidebar-gradient opacity-70" />
+
           {/* Sidebar Top: Hospital Brand */}
-          <div className="h-18 flex items-center gap-3 border-b border-[#1b2334] px-4 py-3 bg-[#0e131f] shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 text-slate-950 font-black shadow-md shadow-amber-500/20 border border-amber-300 text-xl shrink-0">
+          <div className="h-18 flex items-center gap-3 border-b border-sky-300/40 dark:border-slate-700/40 px-4 py-3 bg-white/20 dark:bg-slate-900/25 backdrop-blur-2xl shrink-0 hover:bg-white/40 dark:hover:bg-slate-800/40 transition-all duration-300 group cursor-pointer relative overflow-hidden">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-amber-200/30 dark:via-amber-300/10 to-transparent" />
+            <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/40 to-orange-500/30 border-2 border-amber-500/50 text-amber-800 dark:text-amber-300 shrink-0 group-hover:scale-110 group-hover:rotate-6 shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all duration-300 text-xl font-black">
               MK
             </div>
-            <div className="min-w-0 flex-1">
-              <h2 className="text-xs sm:text-sm font-bold text-white leading-tight truncate">
+            <div className="min-w-0 flex-1 relative z-10">
+              <h2 className="text-xs sm:text-sm font-black text-slate-950 dark:text-white leading-tight truncate group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
                 {t('hospital_name')}
               </h2>
-              <span className="inline-block rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.2 text-[10px] font-semibold uppercase tracking-wider mt-0.5">
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal-400/20 text-teal-950 dark:text-teal-100 border-2 border-teal-500/45 px-2 py-0.2 text-[10px] font-bold uppercase tracking-wider mt-0.5 font-mono">
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse" />
                 {t('patient_portal')}
               </span>
             </div>
           </div>
 
           {/* Sidebar Patient Profile Capsule */}
-          <div className="p-3.5 border-b border-[#1b2334] bg-[#0e131f]/60 shrink-0">
-            <div className="rounded-2xl border border-[#222b3d] bg-[#131824] p-3 shadow-md space-y-2">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 font-bold text-sm shadow-xs border border-amber-500/30">
+          <div className="p-3.5 border-b border-sky-300/40 dark:border-slate-700/40 bg-white/20 dark:bg-slate-900/25 backdrop-blur-2xl shrink-0">
+            <div className="relative overflow-hidden rounded-2xl border-2 border-teal-400/45 dark:border-teal-400/35 bg-white/35 dark:bg-slate-900/35 backdrop-blur-md p-3 shadow-md hover:border-teal-500/80 hover:shadow-[0_8px_28px_-6px_rgba(20,184,166,0.35)] transition-all duration-300 space-y-2 group">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-teal-200/30 dark:via-teal-300/15 to-transparent mkh-panel-sweep" />
+              {/* Floating glow orb */}
+              <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6 w-16 h-16 rounded-full bg-teal-400/20 blur-xl mkh-sidebar-orb" />
+              <div className="relative z-10 flex items-center gap-2.5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-bold text-sm shadow-lg shadow-teal-500/30 border border-white/60 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
                   {profile?.blood_group || 'O+'}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-bold text-white truncate">
+                  <p className="text-xs sm:text-sm font-black text-slate-950 dark:text-white truncate">
                     {profile?.full_name || user?.fullName || user?.username || 'Dhukkubsataa'}
                   </p>
-                  <p className="text-[11px] font-mono font-medium text-amber-400 truncate">
+                  <p className="text-[11px] font-mono font-bold text-teal-800 dark:text-teal-300 truncate">
                     MRN: {profile?.mrn || user?.mrn || 'MKH-2026-REG'}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-1 border-t border-[#1b2334] text-[10px] font-medium">
-                <span className="text-slate-400 font-mono">{profile?.fayda_id || user?.faydaId || 'FAN-REG-2026'}</span>
-                <span className="bg-[#102419] text-[#34d399] border border-[#059669]/40 px-1.5 py-0.5 rounded font-semibold">
+              <div className="relative z-10 flex items-center justify-between pt-1 border-t border-sky-300/40 dark:border-slate-700/40 text-[10px] font-medium">
+                <span className="text-slate-700 dark:text-slate-200 font-mono">{profile?.fayda_id || user?.faydaId || 'FAN-REG-2026'}</span>
+                <span className="bg-emerald-500/15 text-emerald-950 dark:text-emerald-100 border border-emerald-500/35 px-1.5 py-0.5 rounded font-bold">
                   CBHI 80%
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Sidebar Navigation Items (5 Workstations with Executive Gold Rounded Active State) */}
-          <nav className="flex-1 overflow-y-auto p-3 space-y-2">
-            <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          {/* Sidebar Navigation Items — Each with unique color, floating orbs, sweep + dramatic hover */}
+          <nav className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+            <p className="px-3 text-xs font-black uppercase tracking-wider text-teal-900 dark:text-teal-200 block mb-1.5 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse" />
               {language === 'am' ? 'የታካሚ አገልግሎቶች' : language === 'en' ? 'Patient Workstations' : 'Kutaalee Yaalaa'}
             </p>
 
-            {/* Item 1: Queue */}
+            {/* Item 1: Queue — AMBER identity */}
             <button
               type="button"
               onClick={() => setActiveTab('queue')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer ${
                 activeTab === 'queue'
-                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
-                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
-              }`}
+                  ? 'mkh-sidebar-active-glow bg-gradient-to-r from-amber-500/25 via-orange-500/20 to-amber-400/25 dark:from-amber-500/30 dark:via-orange-500/25 dark:to-amber-400/25 border-2 border-amber-500/85 dark:border-amber-400/70 text-slate-950 dark:text-white font-black translate-x-1 shadow-[0_8px_24px_-6px_rgba(245,158,11,0.4)]'
+                  : 'bg-white/15 dark:bg-slate-900/15 text-slate-950 dark:text-white font-extrabold border border-amber-200/40 dark:border-amber-500/15 hover:bg-amber-50/40 dark:hover:bg-amber-500/15 hover:border-amber-400/80 dark:hover:border-amber-400/50 hover:translate-x-1.5 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_28px_-6px_rgba(245,158,11,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Ticket className={`h-4 w-4 shrink-0 ${activeTab === 'queue' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-amber-200/50 dark:via-amber-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-amber-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+                <Ticket className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${activeTab === 'queue' ? 'text-amber-700 dark:text-amber-200 scale-110' : 'text-amber-600 dark:text-amber-400 group-hover:scale-125 group-hover:-rotate-12'}`} />
                 <span className="truncate text-xs sm:text-sm">{t('queue_tracking')}</span>
               </div>
               {queueStatus?.has_active_token && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-slate-950 shrink-0">
+                <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] font-mono font-extrabold bg-amber-500/25 text-amber-950 dark:text-amber-100 border border-amber-500/50 shrink-0 group-hover:scale-110 transition-transform">
                   {queueStatus.token_number}
                 </span>
               )}
             </button>
 
-            {/* Item 2: Medical History */}
+            {/* Item 2: Medical History — INDIGO identity */}
             <button
               type="button"
               onClick={() => setActiveTab('history')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer ${
                 activeTab === 'history'
-                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
-                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
-              }`}
+                  ? 'mkh-sidebar-active-glow bg-gradient-to-r from-indigo-500/25 via-violet-500/20 to-sky-500/25 dark:from-indigo-500/30 dark:via-violet-500/25 dark:to-sky-500/25 border-2 border-indigo-500/85 dark:border-indigo-400/70 text-slate-950 dark:text-white font-black translate-x-1 shadow-[0_8px_24px_-6px_rgba(99,102,241,0.4)]'
+                  : 'bg-white/15 dark:bg-slate-900/15 text-slate-950 dark:text-white font-extrabold border border-indigo-200/40 dark:border-indigo-500/15 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/15 hover:border-indigo-400/80 dark:hover:border-indigo-400/50 hover:translate-x-1.5 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_28px_-6px_rgba(99,102,241,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <FileText className={`h-4 w-4 shrink-0 ${activeTab === 'history' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-indigo-200/50 dark:via-indigo-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-indigo-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+                <FileText className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${activeTab === 'history' ? 'text-indigo-700 dark:text-indigo-200 scale-110' : 'text-indigo-600 dark:text-indigo-400 group-hover:scale-125 group-hover:rotate-12'}`} />
                 <span className="truncate text-xs sm:text-sm">{t('medical_history')}</span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
-                activeTab === 'history' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-300 border border-slate-700'
+              <span className={`relative z-10 px-2 py-0.5 rounded-full text-[10px] font-mono font-extrabold shrink-0 transition-transform duration-300 group-hover:scale-110 ${
+                activeTab === 'history' ? 'bg-indigo-500/30 text-slate-950 dark:text-indigo-100 border border-indigo-500/60' : 'bg-indigo-500/20 dark:bg-indigo-500/25 text-indigo-950 dark:text-indigo-100 border border-indigo-500/45'
               }`}>
                 {encounters.length}
               </span>
             </button>
 
-            {/* Item 3: Prescriptions */}
+            {/* Item 3: Prescriptions — VIOLET identity */}
             <button
               type="button"
               onClick={() => setActiveTab('prescriptions')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer ${
                 activeTab === 'prescriptions'
-                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
-                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
-              }`}
+                  ? 'mkh-sidebar-active-glow bg-gradient-to-r from-violet-500/25 via-purple-500/20 to-fuchsia-500/25 dark:from-violet-500/30 dark:via-purple-500/25 dark:to-fuchsia-500/25 border-2 border-violet-500/85 dark:border-violet-400/70 text-slate-950 dark:text-white font-black translate-x-1 shadow-[0_8px_24px_-6px_rgba(139,92,246,0.4)]'
+                  : 'bg-white/15 dark:bg-slate-900/15 text-slate-950 dark:text-white font-extrabold border border-violet-200/40 dark:border-violet-500/15 hover:bg-violet-50/40 dark:hover:bg-violet-500/15 hover:border-violet-400/80 dark:hover:border-violet-400/50 hover:translate-x-1.5 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_28px_-6px_rgba(139,92,246,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Pill className={`h-4 w-4 shrink-0 ${activeTab === 'prescriptions' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-violet-200/50 dark:via-violet-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-violet-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+                <Pill className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${activeTab === 'prescriptions' ? 'text-violet-700 dark:text-violet-200 scale-110' : 'text-violet-600 dark:text-violet-400 group-hover:scale-125 group-hover:-rotate-12'}`} />
                 <span className="truncate text-xs sm:text-sm">{t('my_prescriptions')}</span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
-                activeTab === 'prescriptions' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-300 border border-slate-700'
+              <span className={`relative z-10 px-2 py-0.5 rounded-full text-[10px] font-mono font-extrabold shrink-0 transition-transform duration-300 group-hover:scale-110 ${
+                activeTab === 'prescriptions' ? 'bg-violet-500/30 text-slate-950 dark:text-violet-100 border border-violet-500/60' : 'bg-violet-500/20 dark:bg-violet-500/25 text-violet-950 dark:text-violet-100 border border-violet-500/45'
               }`}>
                 {prescriptions.length}
               </span>
             </button>
 
-            {/* Item 4: Billing & Telebirr */}
+            {/* Item 4: Billing & Telebirr — EMERALD identity */}
             <button
               type="button"
               onClick={() => setActiveTab('billing')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer ${
                 activeTab === 'billing'
-                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
-                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
-              }`}
+                  ? 'mkh-sidebar-active-glow bg-gradient-to-r from-emerald-500/25 via-teal-500/20 to-green-500/25 dark:from-emerald-500/30 dark:via-teal-500/25 dark:to-green-500/25 border-2 border-emerald-500/85 dark:border-emerald-400/70 text-slate-950 dark:text-white font-black translate-x-1 shadow-[0_8px_24px_-6px_rgba(16,185,129,0.4)]'
+                  : 'bg-white/15 dark:bg-slate-900/15 text-slate-950 dark:text-white font-extrabold border border-emerald-200/40 dark:border-emerald-500/15 hover:bg-emerald-50/40 dark:hover:bg-emerald-500/15 hover:border-emerald-400/80 dark:hover:border-emerald-400/50 hover:translate-x-1.5 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_28px_-6px_rgba(16,185,129,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <CreditCard className={`h-4 w-4 shrink-0 ${activeTab === 'billing' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-emerald-200/50 dark:via-emerald-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-emerald-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+                <CreditCard className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${activeTab === 'billing' ? 'text-emerald-700 dark:text-emerald-200 scale-110' : 'text-emerald-600 dark:text-emerald-400 group-hover:scale-125 group-hover:rotate-12'}`} />
                 <span className="truncate text-xs sm:text-sm">{t('billing_telebirr')}</span>
               </div>
               {invoices.some((i) => i.status.includes('PENDING')) && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-600 text-white shrink-0 animate-pulse">
+                <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/25 text-rose-950 dark:text-rose-100 border border-rose-500/60 shrink-0 animate-pulse">
                   Pay
                 </span>
               )}
             </button>
 
-            {/* Item 5: Telemedicine */}
+            {/* Item 5: Telemedicine — SKY identity */}
             <button
               type="button"
               onClick={() => setActiveTab('telemed')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer ${
                 activeTab === 'telemed'
-                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
-                  : 'border-[#222b3d] bg-[#101624] text-slate-300 hover:border-amber-500/40 hover:bg-[#151c2e] hover:text-amber-200'
-              }`}
+                  ? 'mkh-sidebar-active-glow bg-gradient-to-r from-sky-500/25 via-cyan-500/20 to-blue-500/25 dark:from-sky-500/30 dark:via-cyan-500/25 dark:to-blue-500/25 border-2 border-sky-500/85 dark:border-sky-400/70 text-slate-950 dark:text-white font-black translate-x-1 shadow-[0_8px_24px_-6px_rgba(14,165,233,0.4)]'
+                  : 'bg-white/15 dark:bg-slate-900/15 text-slate-950 dark:text-white font-extrabold border border-sky-200/40 dark:border-sky-500/15 hover:bg-sky-50/40 dark:hover:bg-sky-500/15 hover:border-sky-400/80 dark:hover:border-sky-400/50 hover:translate-x-1.5 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_28px_-6px_rgba(14,165,233,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Video className={`h-4 w-4 shrink-0 ${activeTab === 'telemed' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-sky-200/50 dark:via-sky-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-sky-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+                <Video className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${activeTab === 'telemed' ? 'text-sky-700 dark:text-sky-200 scale-110' : 'text-sky-600 dark:text-sky-400 group-hover:scale-125 group-hover:-rotate-12'}`} />
                 <span className="truncate text-xs sm:text-sm">{t('telemedicine_tab')}</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#102419] text-[#34d399] border border-[#059669]/40 shrink-0">
+              <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-950 dark:text-emerald-100 border border-emerald-500/45 shrink-0 flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
                 Live
               </span>
             </button>
+
+            {/* Logout Button — ROSE identity with dramatic hover */}
+            <button
+              type="button"
+              onClick={handleInstantLogout}
+              title={language === 'om' ? "Poortaalii Keessaa Ba'i (Logout)" : language === 'am' ? 'ከፖርታል ውጣ' : 'Sign out of Patient Portal'}
+              className="mkh-sidebar-rect group relative flex items-center overflow-hidden justify-center gap-2 px-3.5 py-3 rounded-xl bg-gradient-to-r from-rose-600/90 to-red-600/90 hover:from-rose-500 hover:to-red-500 text-white font-extrabold text-xs sm:text-sm shadow-[0_8px_24px_-6px_rgba(244,63,94,0.45)] hover:shadow-[0_12px_32px_-6px_rgba(244,63,94,0.6)] hover:scale-[1.04] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer border border-rose-400/40 w-full"
+            >
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-rose-400/20 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+              <LogOut className="h-4 w-4 shrink-0 relative z-10 group-hover:scale-110 transition-transform" />
+              <span className="relative z-10">{language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Logout'}</span>
+            </button>
           </nav>
 
-          {/* Sidebar Footer: Helpline */}
-          <div className="p-3.5 border-t border-slate-800 bg-slate-900/80 shrink-0">
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-2.5 text-center">
-              <span className="inline-flex items-center justify-center gap-1 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                <Phone className="h-3 w-3 text-teal-400" />
+          {/* Sidebar Footer: Helpline — with animated sweep + glow orb */}
+          <div className="p-2.5 border-t border-sky-300/40 dark:border-slate-700/40 bg-white/20 dark:bg-slate-900/25 backdrop-blur-2xl shrink-0">
+            <div className="relative overflow-hidden rounded-xl border-2 border-sky-400/45 dark:border-sky-400/30 bg-white/30 dark:bg-slate-900/30 backdrop-blur-md p-2.5 text-center hover:border-sky-500/80 hover:shadow-[0_8px_28px_-6px_rgba(14,165,233,0.35)] transition-all duration-300 group">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-sky-200/40 dark:via-sky-300/15 to-transparent mkh-panel-sweep" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-3 -top-3 w-10 h-10 rounded-full bg-sky-400/20 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+              <span className="relative z-10 inline-flex items-center justify-center gap-1 text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 tracking-wider">
+                <Phone className="h-3 w-3 text-teal-500 dark:text-teal-400 group-hover:scale-110 transition-transform" />
                 <span>{language === 'am' ? 'የእርዳታ መስመር' : language === 'en' ? 'Help Desk' : 'Deeggarsa'}</span>
               </span>
-              <span className="text-xs font-black text-teal-400 font-mono">907 / 047-111-2233</span>
+              <span className="relative z-10 block text-xs font-black text-teal-800 dark:text-teal-300 font-mono">907 / 047-111-2233</span>
             </div>
           </div>
         </aside>
@@ -1059,27 +1094,29 @@ export default function PatientPortalPage(): React.ReactElement {
         {/* Mobile Backdrop Overlay */}
         {mobileMenuOpen && (
           <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden transition-opacity cursor-pointer"
+            className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden animate-in fade-in duration-200 cursor-pointer"
             onClick={() => setMobileMenuOpen(false)}
           />
         )}
 
         {/* Mobile Drawer (Slide-out) */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-slate-950 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${
+          className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-white/55 dark:bg-slate-950/60 backdrop-blur-2xl text-slate-950 dark:text-white flex flex-col shadow-2xl transition-transform duration-300 ease-out lg:hidden border-r-2 border-sky-300/75 dark:border-sky-400/35 ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
           {/* Drawer Top Header with Close Button */}
-          <div className="h-16 flex items-center justify-between border-b border-slate-800 px-4 bg-slate-900/95 shrink-0">
-            <div className="flex items-center gap-2.5">
-              <span className="text-xl"></span>
-              <span className="text-xs font-black text-white">{t('patient_portal')}</span>
+          <div className="h-16 flex items-center justify-between border-b border-sky-300/60 dark:border-slate-700/60 px-4 bg-white/40 dark:bg-slate-900/45 backdrop-blur-md shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/35 to-orange-500/25 border-2 border-amber-500/60 text-amber-800 dark:text-amber-300 shrink-0 font-black">
+                MK
+              </div>
+              <span className="text-xs font-black text-slate-950 dark:text-white truncate">{t('patient_portal')}</span>
             </div>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/70 dark:bg-slate-800/80 text-slate-950 dark:text-white hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
@@ -1087,17 +1124,18 @@ export default function PatientPortalPage(): React.ReactElement {
           </div>
 
           {/* Drawer Profile Capsule */}
-          <div className="p-3.5 border-b border-slate-800 bg-slate-900/40 shrink-0">
-            <div className="rounded-2xl border-2 border-slate-800 bg-slate-900/90 p-3 shadow-md space-y-2">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white font-black text-sm shadow-xs border border-teal-400/30">
+          <div className="p-3.5 border-b border-sky-300/60 dark:border-slate-700/60 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md shrink-0">
+            <div className="relative overflow-hidden rounded-2xl border-2 border-teal-400/65 dark:border-teal-400/45 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-3 shadow-md space-y-2">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/40 dark:via-teal-200/15 to-transparent mkh-panel-sweep" />
+              <div className="relative z-10 flex items-center gap-2.5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-black text-sm shadow-md shadow-teal-500/25 border border-white/60">
                   {profile?.blood_group || 'O+'}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-black text-white truncate">
+                  <p className="text-xs sm:text-sm font-black text-slate-950 dark:text-white truncate">
                     {profile?.full_name || user?.fullName || user?.username || 'Dhukkubsataa'}
                   </p>
-                  <p className="text-[11px] font-mono font-bold text-teal-400 truncate">
+                  <p className="text-[11px] font-mono font-bold text-teal-800 dark:text-teal-300 truncate">
                     MRN: {profile?.mrn || user?.mrn || 'MKH-2026-REG'}
                   </p>
                 </div>
@@ -1105,94 +1143,124 @@ export default function PatientPortalPage(): React.ReactElement {
             </div>
           </div>
 
-          {/* Drawer Nav Items */}
-          <nav className="flex-1 overflow-y-auto p-3 space-y-2">
+          {/* Drawer Nav Items — Each with unique color, floating orbs, sweep + dramatic hover */}
+          <nav className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+            {/* Queue — AMBER */}
             <button
               type="button"
               onClick={() => { setActiveTab('queue'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                activeTab === 'queue' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
-              }`}
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer w-full ${
+                activeTab === 'queue' ? 'mkh-sidebar-active-glow bg-gradient-to-r from-amber-500/25 via-orange-500/20 to-amber-400/25 dark:from-amber-500/30 dark:via-orange-500/25 dark:to-amber-400/25 border-2 border-amber-500/85 dark:border-amber-400/70 font-black shadow-[0_8px_24px_-6px_rgba(245,158,11,0.4)]' : 'bg-white/15 dark:bg-slate-900/15 font-extrabold border border-amber-200/40 dark:border-amber-500/15 hover:bg-amber-50/40 dark:hover:bg-amber-500/15 hover:border-amber-400/80 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-6px_rgba(245,158,11,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5">
-                <Ticket className={`h-4 w-4 ${activeTab === 'queue' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-amber-200/50 dark:via-amber-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-amber-400/15 blur-lg mkh-sidebar-orb" />
+              <div className="relative z-10 flex items-center gap-2.5">
+                <Ticket className={`h-4.5 w-4.5 ${activeTab === 'queue' ? 'text-amber-700 dark:text-amber-200 scale-110' : 'text-amber-600 dark:text-amber-400'}`} />
                 <span className="text-xs font-bold">{t('queue_tracking')}</span>
               </div>
               {queueStatus?.has_active_token && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950">
+                <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] font-mono font-extrabold bg-amber-500/25 text-amber-950 dark:text-amber-100 border border-amber-500/50">
                   {queueStatus.token_number}
                 </span>
               )}
             </button>
 
+            {/* Medical History — INDIGO */}
             <button
               type="button"
               onClick={() => { setActiveTab('history'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                activeTab === 'history' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
-              }`}
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer w-full ${
+                activeTab === 'history' ? 'mkh-sidebar-active-glow bg-gradient-to-r from-indigo-500/25 via-violet-500/20 to-sky-500/25 dark:from-indigo-500/30 dark:via-violet-500/25 dark:to-sky-500/25 border-2 border-indigo-500/85 dark:border-indigo-400/70 font-black shadow-[0_8px_24px_-6px_rgba(99,102,241,0.4)]' : 'bg-white/15 dark:bg-slate-900/15 font-extrabold border border-indigo-200/40 dark:border-indigo-500/15 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/15 hover:border-indigo-400/80 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-6px_rgba(99,102,241,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5">
-                <FileText className={`h-4 w-4 ${activeTab === 'history' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-indigo-200/50 dark:via-indigo-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-indigo-400/15 blur-lg mkh-sidebar-orb" />
+              <div className="relative z-10 flex items-center gap-2.5">
+                <FileText className={`h-4.5 w-4.5 ${activeTab === 'history' ? 'text-indigo-700 dark:text-indigo-200 scale-110' : 'text-indigo-600 dark:text-indigo-400'}`} />
                 <span className="text-xs font-bold">{t('medical_history')}</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
+              <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-500/20 dark:bg-indigo-500/25 text-indigo-950 dark:text-indigo-100 border border-indigo-500/45">
                 {encounters.length}
               </span>
             </button>
 
+            {/* Prescriptions — VIOLET */}
             <button
               type="button"
               onClick={() => { setActiveTab('prescriptions'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                activeTab === 'prescriptions' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
-              }`}
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer w-full ${
+                activeTab === 'prescriptions' ? 'mkh-sidebar-active-glow bg-gradient-to-r from-violet-500/25 via-purple-500/20 to-fuchsia-500/25 dark:from-violet-500/30 dark:via-purple-500/25 dark:to-fuchsia-500/25 border-2 border-violet-500/85 dark:border-violet-400/70 font-black shadow-[0_8px_24px_-6px_rgba(139,92,246,0.4)]' : 'bg-white/15 dark:bg-slate-900/15 font-extrabold border border-violet-200/40 dark:border-violet-500/15 hover:bg-violet-50/40 dark:hover:bg-violet-500/15 hover:border-violet-400/80 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-6px_rgba(139,92,246,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5">
-                <Pill className={`h-4 w-4 ${activeTab === 'prescriptions' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-violet-200/50 dark:via-violet-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-violet-400/15 blur-lg mkh-sidebar-orb" />
+              <div className="relative z-10 flex items-center gap-2.5">
+                <Pill className={`h-4.5 w-4.5 ${activeTab === 'prescriptions' ? 'text-violet-700 dark:text-violet-200 scale-110' : 'text-violet-600 dark:text-violet-400'}`} />
                 <span className="text-xs font-bold">{t('my_prescriptions')}</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
+              <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-violet-500/20 dark:bg-violet-500/25 text-violet-950 dark:text-violet-100 border border-violet-500/45">
                 {prescriptions.length}
               </span>
             </button>
 
+            {/* Billing — EMERALD */}
             <button
               type="button"
               onClick={() => { setActiveTab('billing'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                activeTab === 'billing' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
-              }`}
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer w-full ${
+                activeTab === 'billing' ? 'mkh-sidebar-active-glow bg-gradient-to-r from-emerald-500/25 via-teal-500/20 to-green-500/25 dark:from-emerald-500/30 dark:via-teal-500/25 dark:to-green-500/25 border-2 border-emerald-500/85 dark:border-emerald-400/70 font-black shadow-[0_8px_24px_-6px_rgba(16,185,129,0.4)]' : 'bg-white/15 dark:bg-slate-900/15 font-extrabold border border-emerald-200/40 dark:border-emerald-500/15 hover:bg-emerald-50/40 dark:hover:bg-emerald-500/15 hover:border-emerald-400/80 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-6px_rgba(16,185,129,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5">
-                <CreditCard className={`h-4 w-4 ${activeTab === 'billing' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-emerald-200/50 dark:via-emerald-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-emerald-400/15 blur-lg mkh-sidebar-orb" />
+              <div className="relative z-10 flex items-center gap-2.5">
+                <CreditCard className={`h-4.5 w-4.5 ${activeTab === 'billing' ? 'text-emerald-700 dark:text-emerald-200 scale-110' : 'text-emerald-600 dark:text-emerald-400'}`} />
                 <span className="text-xs font-bold">{t('billing_telebirr')}</span>
               </div>
               {invoices.some((i) => i.status.includes('PENDING')) && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white">Pay</span>
+                <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/25 text-rose-950 dark:text-rose-100 border border-rose-500/60 animate-pulse">Pay</span>
               )}
             </button>
 
+            {/* Telemedicine — SKY */}
             <button
               type="button"
               onClick={() => { setActiveTab('telemed'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                activeTab === 'telemed' ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30' : 'border-[#222b3d] bg-[#101624] text-slate-300'
-              }`}
+              className={`mkh-sidebar-rect group relative flex items-center overflow-hidden justify-between px-3.5 py-3 rounded-xl backdrop-blur-md cursor-pointer w-full ${
+                activeTab === 'telemed' ? 'mkh-sidebar-active-glow bg-gradient-to-r from-sky-500/25 via-cyan-500/20 to-blue-500/25 dark:from-sky-500/30 dark:via-cyan-500/25 dark:to-blue-500/25 border-2 border-sky-500/85 dark:border-sky-400/70 font-black shadow-[0_8px_24px_-6px_rgba(14,165,233,0.4)]' : 'bg-white/15 dark:bg-slate-900/15 font-extrabold border border-sky-200/40 dark:border-sky-500/15 hover:bg-sky-50/40 dark:hover:bg-sky-500/15 hover:border-sky-400/80 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-6px_rgba(14,165,233,0.4)]'
+              } transition-all duration-300`}
             >
-              <div className="flex items-center gap-2.5">
-                <Video className={`h-4 w-4 ${activeTab === 'telemed' ? 'text-amber-400' : 'text-slate-400'}`} />
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-sky-200/50 dark:via-sky-300/15 to-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-sky-400/15 blur-lg mkh-sidebar-orb" />
+              <div className="relative z-10 flex items-center gap-2.5">
+                <Video className={`h-4.5 w-4.5 ${activeTab === 'telemed' ? 'text-sky-700 dark:text-sky-200 scale-110' : 'text-sky-600 dark:text-sky-400'}`} />
                 <span className="text-xs font-bold">{t('telemedicine_tab')}</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#102419] text-[#34d399] border border-[#059669]/40">Live</span>
+              <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-950 dark:text-emerald-100 border border-emerald-500/45 flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />Live
+              </span>
+            </button>
+
+            {/* Mobile Logout */}
+            <button
+              type="button"
+              onClick={handleInstantLogout}
+              className="mkh-sidebar-rect group relative flex items-center overflow-hidden justify-center gap-2 px-3.5 py-3 rounded-xl bg-gradient-to-r from-rose-600/90 to-red-600/90 hover:from-rose-500 hover:to-red-500 text-white font-extrabold text-xs shadow-[0_8px_24px_-6px_rgba(244,63,94,0.45)] hover:shadow-[0_12px_32px_-6px_rgba(244,63,94,0.6)] hover:scale-[1.03] active:scale-95 transition-all duration-300 cursor-pointer border border-rose-400/40 w-full"
+            >
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <LogOut className="h-4 w-4 shrink-0 relative z-10 group-hover:scale-110 transition-transform" />
+              <span className="relative z-10">{language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Sign Out'}</span>
             </button>
           </nav>
 
           {/* Drawer Helpline */}
-          <div className="p-3.5 border-t border-[#1b2334] bg-[#0e131f] shrink-0">
-            <div className="rounded-xl border border-[#222b3d] bg-[#0b0f17] p-2 text-center">
-              <span className="block text-[10px] uppercase font-bold text-amber-400">
-                <Phone className="h-3.5 w-3.5 text-amber-400 inline mr-1" /> 907 / 047-111-2233
+          <div className="p-3 border-t border-sky-300/40 dark:border-slate-700/40 bg-white/20 dark:bg-slate-900/25 backdrop-blur-2xl shrink-0">
+            <div className="relative overflow-hidden rounded-xl border-2 border-sky-400/45 dark:border-sky-400/30 bg-white/30 dark:bg-slate-900/30 backdrop-blur-md p-2 text-center hover:border-sky-500/80 transition-all duration-300 group">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-sky-200/40 dark:via-sky-300/15 to-transparent mkh-panel-sweep" />
+              <div aria-hidden="true" className="pointer-events-none absolute -right-3 -top-3 w-10 h-10 rounded-full bg-sky-400/20 blur-lg mkh-sidebar-orb" />
+              <span className="relative z-10 block text-[10px] uppercase font-bold text-teal-800 dark:text-teal-300">
+                <Phone className="h-3.5 w-3.5 text-teal-500 dark:text-teal-400 inline mr-1 group-hover:scale-110 transition-transform" /> 907 / 047-111-2233
               </span>
             </div>
           </div>
@@ -1201,15 +1269,15 @@ export default function PatientPortalPage(): React.ReactElement {
         {/* =========================================================================
             2. MAIN WORKSPACE (RIGHT SIDE: WIDE & BREATHABLE)
             ========================================================================= */}
-        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 pb-20 lg:pb-0">
-          {/* Main Top Header Bar - Midnight Obsidian with Integrated Calendar & Shift Cockpit */}
-          <header className="sticky top-0 z-20 border-b border-[#1b2334] bg-[#0b0f17] text-white px-3 sm:px-6 py-3 shadow-xl flex items-center justify-between gap-2.5 select-none w-full">
+        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden text-slate-900 dark:text-slate-100 pb-20 lg:pb-0">
+          {/* Main Top Header Bar — Frosted Glassmorphism matching Executive Header */}
+          <header className="sticky top-0 z-20 border-b-2 border-sky-400/75 dark:border-sky-400/40 bg-gradient-to-r from-sky-100/95 via-white/95 to-indigo-100/95 dark:from-[#0f1c36]/95 dark:via-[#152546]/95 dark:to-[#182245]/95 backdrop-blur-xl text-slate-900 dark:text-white px-3 sm:px-6 py-3 shadow-[0_8px_24px_-8px_rgba(14,165,233,0.22)] select-none w-full flex items-center justify-between gap-2.5 transition-all duration-300">
             {/* Header Left: Hamburger for mobile + Active Workstation Title */}
             <div className="flex items-center gap-2 sm:gap-2.5 shrink min-w-0">
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-[#141b29] text-amber-400 hover:text-white border border-[#222b3d] active:scale-95 transition-all shadow-sm shrink-0 touch-manipulation cursor-pointer"
+                className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-white/90 dark:bg-[#141b29] hover:bg-sky-50 dark:hover:bg-[#1c263a] text-amber-700 dark:text-amber-400 border-2 border-sky-300 dark:border-sky-500/40 transition-colors shrink-0 cursor-pointer shadow-xs"
                 title="Toggle Patient Menu"
                 aria-label="Toggle Patient Menu"
               >
@@ -1219,21 +1287,21 @@ export default function PatientPortalPage(): React.ReactElement {
               </button>
 
               <span className="text-xl sm:text-2xl drop-shadow-sm shrink-0">
-                {activeTab === 'queue' && <Ticket className='h-5 w-5 text-amber-400 shrink-0' />}
-                {activeTab === 'history' && <FileText className='h-5 w-5 text-amber-400 shrink-0' />}
-                {activeTab === 'prescriptions' && <Pill className='h-5 w-5 text-amber-400 shrink-0' />}
-                {activeTab === 'billing' && <CreditCard className='h-5 w-5 text-amber-400 shrink-0' />}
-                {activeTab === 'telemed' && <Video className='h-5 w-5 text-amber-400 shrink-0' />}
+                {activeTab === 'queue' && <Ticket className='h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0' />}
+                {activeTab === 'history' && <FileText className='h-5 w-5 text-indigo-600 dark:text-sky-400 shrink-0' />}
+                {activeTab === 'prescriptions' && <Pill className='h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0' />}
+                {activeTab === 'billing' && <CreditCard className='h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0' />}
+                {activeTab === 'telemed' && <Video className='h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0' />}
               </span>
               <div className="min-w-0">
-                <h1 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight truncate">
+                <h1 className="text-sm sm:text-base font-black text-slate-950 dark:text-white tracking-tight leading-tight truncate">
                   {activeTab === 'queue' && t('queue_tracking')}
                   {activeTab === 'history' && t('medical_history')}
                   {activeTab === 'prescriptions' && t('my_prescriptions')}
                   {activeTab === 'billing' && t('billing_telebirr')}
                   {activeTab === 'telemed' && t('telemedicine_tab')}
                 </h1>
-                <p className="text-[10px] sm:text-[11px] text-amber-400/90 font-medium uppercase tracking-wider truncate">
+                <p className="text-[10px] sm:text-[11px] text-teal-800 dark:text-teal-200 font-bold uppercase tracking-wider truncate">
                   {t('hospital_name')} • {language === 'am' ? 'የታካሚ ክፍል' : language === 'en' ? 'Patient Portal' : 'Kutaa Dhukkubsataa'}
                 </p>
               </div>
@@ -1242,20 +1310,20 @@ export default function PatientPortalPage(): React.ReactElement {
             {/* Header Center: Calendar, Morning Shift & FHIR Cockpit */}
             <div className="hidden lg:flex items-center gap-2 mx-auto shrink-0">
               {/* 1. Calendar (Kalandarii) */}
-              <div className="flex items-center gap-1.5 rounded-xl bg-[#101624] border border-[#222b3d] px-2.5 py-1 text-xs font-medium text-slate-300 shadow-xs">
-                <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
-                <span className="text-slate-200 tracking-tight">{calendarDate}</span>
+              <div className="flex items-center gap-1.5 rounded-xl bg-white/80 dark:bg-[#101c34]/95 border-2 border-sky-400/60 dark:border-sky-400/40 px-2.5 py-1 text-xs font-bold text-slate-800 dark:text-slate-100 shadow-xs">
+                <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-300 shrink-0" />
+                <span className="text-slate-800 dark:text-slate-100 tracking-tight">{calendarDate}</span>
               </div>
 
               {/* 2. Morning Shift (Dabaree Ganamaa) */}
-              <div className="flex items-center gap-1.5 rounded-xl bg-[#101624] border border-[#222b3d] px-2.5 py-1 text-xs font-medium text-amber-300 shadow-xs">
+              <div className="flex items-center gap-1.5 rounded-xl bg-white/80 dark:bg-[#101c34]/95 border-2 border-sky-400/60 dark:border-sky-400/40 px-2.5 py-1 text-xs font-bold text-amber-700 dark:text-amber-200 shadow-xs">
                 <span className="text-sm">{shiftIcon}</span>
-                <span className="text-amber-300 tracking-tight">{shiftName}</span>
+                <span className="text-amber-700 dark:text-amber-200 tracking-tight">{shiftName}</span>
               </div>
 
               {/* 3. FHIR Status Pill */}
-              <div className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-[#059669]/40 bg-[#102419] px-2.5 py-1 text-[11px] font-semibold text-[#34d399]">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/45 bg-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-200">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>FHIR R4</span>
               </div>
             </div>
@@ -1263,12 +1331,12 @@ export default function PatientPortalPage(): React.ReactElement {
             {/* Header Right: Notifications, Language Selector & Bold Red Logout Button */}
             <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 ml-auto shrink-0">
               {/* Notification Bell with Live Reactions */}
-              <div className="rounded-xl border border-slate-700 bg-slate-900/90 p-0.5 shadow-xs shrink-0">
+              <div className="rounded-xl border-2 border-sky-400/60 dark:border-sky-400/40 bg-white/80 dark:bg-[#101c34]/95 p-0.5 shadow-xs shrink-0">
                 <NotificationBell variant="dark" />
               </div>
 
               {/* Language Selector */}
-              <div className="rounded-xl border border-slate-700 bg-slate-900/90 p-0.5 shadow-xs shrink-0">
+              <div className="rounded-xl border-2 border-sky-400/60 dark:border-sky-400/40 bg-white/80 dark:bg-[#101c34]/95 p-0.5 shadow-xs shrink-0">
                 <LanguageSelect variant="dark" />
               </div>
 
@@ -1280,10 +1348,10 @@ export default function PatientPortalPage(): React.ReactElement {
                 type="button"
                 onClick={handleInstantLogout}
                 title={language === 'om' ? "Poortaalii Dhukkubsataa Keessaa Ba'i (Logout)" : language === 'am' ? 'ከታካሚ ፖርታል ውጣ' : 'Sign out of Patient Portal'}
-                className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 hover:bg-rose-600 hover:border-rose-400 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-rose-300 hover:text-white transition-all duration-150 shadow-sm shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-95 cursor-pointer select-none touch-manipulation shrink-0"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold px-3 sm:px-3.5 py-1.5 text-xs shadow-md shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-95 transition-all duration-150 cursor-pointer select-none shrink-0 border border-rose-400/40"
                 aria-label="Logout"
               >
-                <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-rose-400 group-hover:text-white transition-transform duration-150 group-hover:scale-110 shrink-0" />
+                <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white shrink-0" />
                 <span className="hidden sm:inline font-bold tracking-wide">
                   {language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Logout'}
                 </span>
@@ -1292,28 +1360,29 @@ export default function PatientPortalPage(): React.ReactElement {
           </header>
 
           {/* Strict Clinical Confidentiality & Privacy Enforcement Barrier */}
-          <div className="mx-3 sm:mx-6 lg:mx-10 mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900/60 border-2 border-emerald-500/40 text-xs flex flex-col md:flex-row items-center justify-between gap-3 shadow-md">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0">
+          <div className="relative overflow-hidden mx-3 sm:mx-6 lg:mx-10 mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-100/90 via-teal-50/90 to-white/90 dark:from-emerald-500/15 dark:via-teal-500/10 dark:to-[#161f30] backdrop-blur-md border-2 border-emerald-500/55 dark:border-emerald-500/40 text-xs flex flex-col md:flex-row items-center justify-between gap-3 shadow-md hover:-translate-y-0.5 transition-all duration-300">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/40 dark:via-emerald-200/15 to-transparent mkh-panel-sweep" />
+            <div className="relative z-10 flex items-center gap-3 min-w-0">
+              <div className="h-9 w-9 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 flex items-center justify-center shrink-0">
                 <ShieldCheck className="h-5 w-5 animate-pulse" />
               </div>
               <div className="min-w-0">
-                <span className="font-black text-emerald-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5 truncate">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                <span className="relative z-10 font-black text-emerald-800 dark:text-emerald-200 uppercase tracking-wider text-[11px] flex items-center gap-1.5 truncate">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
                   {language === 'om' ? 'Eenyummaan Dhukkubsataa Cufaa Dha (Confidential Patient Session)' : 'Protected Patient Healthcare Session (ISO 27799 / HIPAA)'}
                 </span>
-                <p className="text-[11px] text-slate-300 font-medium mt-0.5 truncate">
+                <p className="relative z-10 text-[11px] text-slate-700 dark:text-slate-200 font-medium mt-0.5 truncate">
                   {language === 'om'
                     ? `Poortaaliin kun ${profile?.full_name || user?.fullName || 'Dhukkubsataa'} (MRN: ${profile?.mrn || user?.mrn || 'MKH-2026-REG'}) qofaaf qoodameera. Ragaan keessan dhukkubsataa biraatiin akka hin ilaalamne guutummaatti cufameera.`
                     : `Private healthcare session locked exclusively to ${profile?.full_name || user?.fullName || 'Patient Member'} (MRN: ${profile?.mrn || user?.mrn || 'MKH-2026-REG'}). Unauthorized cross-patient access is strictly blocked.`}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+            <div className="relative z-10 flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
               <button
                 type="button"
                 onClick={() => setHealthCardModalOpen(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                className="px-3.5 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-800 dark:text-teal-200 border border-teal-500/40 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <FileText className="h-3.5 w-3.5" />
                 <span>{language === 'om' ? 'Kaardii Digital' : 'Digital ID Card'}</span>
@@ -1321,7 +1390,7 @@ export default function PatientPortalPage(): React.ReactElement {
               <button
                 type="button"
                 onClick={handleOpenBioEdit}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                className="px-3.5 py-1.5 rounded-xl bg-white/70 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-sky-300 dark:border-slate-700 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <Edit2 className="h-3.5 w-3.5" />
                 <span>{language === 'om' ? 'Odeeffannoo Haaromsi' : 'Edit Demographics'}</span>
@@ -1330,45 +1399,57 @@ export default function PatientPortalPage(): React.ReactElement {
           </div>
 
           {/* Patient Safety & Demographic Strip */}
-          <section className="border-b border-teal-100 dark:border-slate-800 bg-white/70 dark:bg-slate-900/90 py-3.5 px-6 sm:px-10">
+          <section className="relative border-b border-sky-300/40 dark:border-slate-800/60 bg-white/40 dark:bg-slate-950/40 backdrop-blur-2xl py-4 px-4 sm:px-8 lg:px-10">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
               {/* Fayda ID Card */}
-              <div className="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 dark:hover:bg-slate-700 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150 select-none">
-                <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  <Fingerprint className="h-3.5 w-3.5 text-emerald-400 inline mr-1" /> {t('fayda_id')}
+              <div className="relative overflow-hidden rounded-2xl border-2 border-teal-400/50 dark:border-teal-400/30 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-3.5 shadow-md hover:border-teal-500 hover:shadow-[0_10px_28px_-6px_rgba(20,184,166,0.35)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 select-none group">
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-teal-300/15 to-transparent" />
+                <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-teal-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+                <span className="relative z-10 block text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1">
+                  <Fingerprint className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0 group-hover:scale-115 transition-transform" />
+                  <span>{t('fayda_id')}</span>
                 </span>
-                <span className="text-xs font-mono font-bold text-teal-800 dark:text-teal-300">
+                <span className="relative z-10 text-xs sm:text-sm font-mono font-black text-teal-900 dark:text-teal-200 block mt-1 truncate">
                   {profile?.fayda_id || user?.faydaId || 'FAN-REG-2026'}
                 </span>
               </div>
 
               {/* CBHI Subsidy */}
-              <div className="rounded-2xl border-2 border-emerald-200 dark:border-emerald-700/60 bg-emerald-50/70 dark:bg-emerald-950/40 p-3 shadow-xs hover:border-emerald-500 hover:ring-2 hover:ring-emerald-400/30 transition-all duration-150 select-none">
-                <span className="block text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
-                  <ShieldCheck className="h-3.5 w-3.5 text-teal-400 inline mr-1" /> {t('cbhi_insurance')}
+              <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-400/50 dark:border-emerald-500/30 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-3.5 shadow-md hover:border-emerald-500 hover:shadow-[0_10px_28px_-6px_rgba(16,185,129,0.35)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 select-none group">
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-emerald-300/15 to-transparent" />
+                <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-emerald-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+                <span className="relative z-10 block text-[10px] font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 group-hover:scale-115 transition-transform" />
+                  <span>{t('cbhi_insurance')}</span>
                 </span>
-                <span className="text-xs font-black text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 mt-0.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="relative z-10 text-xs sm:text-sm font-black text-emerald-800 dark:text-emerald-200 flex items-center gap-1.5 mt-1 truncate">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                   Active (80% {language === 'am' ? 'የተሸፈነ' : language === 'en' ? 'Covered' : 'Uwwifame'})
                 </span>
               </div>
 
               {/* Allergies Warning */}
-              <div className="rounded-2xl border-2 border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 p-3 shadow-xs hover:border-amber-500 hover:ring-2 hover:ring-amber-400/30 transition-all duration-150 select-none">
-                <span className="block text-[10px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1">
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400 inline mr-1" /> {t('allergies')}
+              <div className="relative overflow-hidden rounded-2xl border-2 border-amber-400/50 dark:border-amber-500/30 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-3.5 shadow-md hover:border-amber-500 hover:shadow-[0_10px_28px_-6px_rgba(245,158,11,0.35)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 select-none group">
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-amber-300/15 to-transparent" />
+                <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-amber-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+                <span className="relative z-10 block text-[10px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1">
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 group-hover:scale-115 transition-transform" />
+                  <span>{t('allergies')}</span>
                 </span>
-                <span className="text-xs font-black text-rose-700 dark:text-rose-400 mt-0.5 block">
+                <span className="relative z-10 text-xs sm:text-sm font-black text-rose-700 dark:text-rose-300 mt-1 block truncate">
                   {profile?.allergies.join(', ') || 'No Known Drug Allergies (NKDA)'}
                 </span>
               </div>
 
               {/* Woreda Location */}
-              <div className="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-xs hover:border-teal-500 hover:bg-teal-50/40 dark:hover:bg-slate-700 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150 select-none">
-                <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  <MapPin className="h-3.5 w-3.5 text-sky-400 inline mr-1" /> {t('residence')}
+              <div className="relative overflow-hidden rounded-2xl border-2 border-sky-400/50 dark:border-sky-500/30 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-3.5 shadow-md hover:border-sky-500 hover:shadow-[0_10px_28px_-6px_rgba(14,165,233,0.35)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 select-none group">
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-sky-300/15 to-transparent" />
+                <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-4 w-14 h-14 rounded-full bg-sky-400/15 blur-lg mkh-sidebar-orb group-hover:scale-150 transition-transform duration-500" />
+                <span className="relative z-10 block text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400 shrink-0 group-hover:scale-115 transition-transform" />
+                  <span>{t('residence')}</span>
                 </span>
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate block mt-0.5">
+                <span className="relative z-10 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate block mt-1">
                   {profile?.woreda || 'Mettu Town, Kebele 01'}
                 </span>
               </div>
@@ -1387,23 +1468,26 @@ export default function PatientPortalPage(): React.ReactElement {
             ) : (
               <>
                 {/* Non-Smartphone USSD & SMS Info Strip */}
-                <div className="rounded-2xl border-2 border-emerald-300 dark:border-emerald-700/60 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50/70 dark:from-emerald-950/40 dark:via-slate-900/90 dark:to-emerald-950/30 p-3.5 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs mb-6">
-                  <div className="flex items-center gap-2.5">
-                    <QrCode className="h-5 w-5 text-teal-400" />
+                <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-400/50 dark:border-emerald-500/30 bg-gradient-to-r from-emerald-50/90 via-teal-50/90 to-emerald-50/80 dark:from-emerald-950/50 dark:via-slate-900/90 dark:to-emerald-950/40 backdrop-blur-xl p-4 shadow-md hover:border-emerald-500 hover:shadow-[0_10px_28px_-6px_rgba(16,185,129,0.3)] transition-all duration-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs mb-6 group">
+                  <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-emerald-300/15 to-transparent" />
+                  <div className="relative z-10 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <QrCode className="h-5 w-5" />
+                    </div>
                     <div>
-                      <span className="font-black text-emerald-950 dark:text-emerald-200 block">
+                      <span className="font-black text-emerald-950 dark:text-emerald-200 text-sm block">
                         {language === 'om' ? 'Bilbila Duudaa (Feature Phone) qabduu? Interneetii malee hordofaa!' : 'Using a standard mobile phone? Track without internet!'}
                       </span>
                       <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
                         {language === 'om' ? (
-                          <>Bilbila keessan irraa <strong className="font-mono text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/60 px-1 rounded">*907#</strong> bilbiluun dabaree OPD, qoricha, fi herrega Telebirr hordofaa.</>
+                          <>Bilbila keessan irraa <strong className="font-mono text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/60 px-1.5 py-0.5 rounded font-black">*907#</strong> bilbiluun dabaree OPD, qoricha, fi herrega Telebirr hordofaa.</>
                         ) : (
-                          <>Dial <strong className="font-mono text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/60 px-1 rounded">*907#</strong> from any phone to track your OPD queue token, prescriptions, and Telebirr bills.</>
+                          <>Dial <strong className="font-mono text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/60 px-1.5 py-0.5 rounded font-black">*907#</strong> from any phone to track your OPD queue token, prescriptions, and Telebirr bills.</>
                         )}
                       </span>
                     </div>
                   </div>
-                  <span className="shrink-0 rounded-xl bg-emerald-600 text-white font-mono font-black text-xs px-3 py-1 shadow-2xs">
+                  <span className="relative z-10 shrink-0 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono font-black text-xs px-3.5 py-1.5 shadow-md shadow-emerald-600/30">
                     USSD: *907#
                   </span>
                 </div>
@@ -1412,28 +1496,32 @@ export default function PatientPortalPage(): React.ReactElement {
                 {activeTab === 'queue' && (
                   <div className="space-y-6">
                     {/* Calming Alert Banner with Responsive Rectangular Hover */}
-                    <div className="rounded-3xl border-2 border-amber-300 dark:border-amber-700/60 bg-gradient-to-r from-amber-50/90 via-white to-amber-50/80 dark:from-amber-950/40 dark:via-slate-900/90 dark:to-amber-950/30 p-5 sm:p-6 shadow-sm hover:border-amber-500 hover:ring-4 hover:ring-amber-400/20 transition-all duration-150 flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 border-2 border-amber-400 dark:border-amber-600 text-2xl text-amber-700 dark:text-amber-300">
-                          
+                    <div className="relative overflow-hidden rounded-3xl border-2 border-amber-400/80 dark:border-amber-500/50 bg-gradient-to-r from-amber-50/95 via-white/90 to-amber-50/80 dark:from-amber-950/40 dark:via-slate-900/90 dark:to-amber-950/30 backdrop-blur-xl p-5 sm:p-6 shadow-xl hover:shadow-[0_16px_36px_-8px_rgba(245,158,11,0.35)] hover:border-amber-500 hover:-translate-y-0.5 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between gap-4 group">
+                      <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-300/10 to-transparent" />
+                      <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-amber-400/15 blur-xl group-hover:scale-150 transition-transform duration-500" />
+                      
+                      <div className="relative z-10 flex items-center gap-4">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400/30 to-orange-500/20 border-2 border-amber-400 dark:border-amber-500 text-amber-700 dark:text-amber-300 text-2xl shadow-md group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                          <Ticket className="h-7 w-7" />
                         </div>
                         <div>
-                          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-900/50 border border-amber-300 dark:border-amber-700 px-3 py-0.5 text-[11px] font-black text-amber-900 dark:text-amber-200 mb-1">
+                          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-200/80 dark:bg-amber-500/25 border border-amber-400/70 dark:border-amber-500/50 px-3 py-0.5 text-[11px] font-black text-amber-950 dark:text-amber-200 mb-1">
+                            <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping" />
                             Dabareen Keessan Dhihaateera!
                           </div>
-                          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                            Token Lakkoofsa <span className="text-teal-700 dark:text-teal-400 font-mono">{queueStatus?.token_number}</span>
+                          <h2 className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white">
+                            Token Lakkoofsa <span className="text-amber-700 dark:text-amber-300 font-mono">{queueStatus?.token_number}</span>
                           </h2>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                          <p className="text-xs text-slate-700 dark:text-slate-300 font-medium">
                             {queueStatus?.department} • Please proceed to consultation room.
                           </p>
                         </div>
                       </div>
 
-                      <div className="rounded-2xl border-2 border-teal-200 dark:border-teal-700/60 bg-teal-50/80 dark:bg-teal-950/40 px-6 py-3 text-center shadow-xs">
+                      <div className="relative z-10 rounded-2xl border-2 border-teal-400/60 dark:border-teal-500/40 bg-teal-50/80 dark:bg-teal-950/60 backdrop-blur-md px-6 py-3.5 text-center shadow-md">
                         <span className="block text-[11px] uppercase font-bold text-teal-800 dark:text-teal-300">{t('estimated_wait')}</span>
-                        <span className="text-2xl font-black text-teal-900 dark:text-teal-200">~{queueStatus?.estimated_wait_minutes} {language === 'am' ? 'ደቂቃ' : language === 'en' ? 'Mins' : 'Daqiiqaa'}</span>
-                        <span className="block text-[10px] text-teal-700 dark:text-teal-300 font-medium">
+                        <span className="text-2xl sm:text-3xl font-black text-teal-900 dark:text-teal-200 font-mono">~{queueStatus?.estimated_wait_minutes} {language === 'am' ? 'ደቂቃ' : language === 'en' ? 'Mins' : 'Daqiiqaa'}</span>
+                        <span className="block text-[10px] text-teal-700 dark:text-teal-300 font-bold mt-0.5">
                           {language === 'am' ? `${queueStatus?.queue_position} ሰዎች ከእርስዎ በፊት አሉ` : language === 'en' ? `${queueStatus?.queue_position} patients ahead of you` : `Namoota ${queueStatus?.queue_position} isin dura jiru`}
                         </span>
                       </div>
@@ -1441,23 +1529,26 @@ export default function PatientPortalPage(): React.ReactElement {
 
                     {/* Visual TV Display Simulation */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <div className="lg:col-span-2 rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150 space-y-5">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                      <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border-2 border-sky-300/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl p-6 shadow-xl hover:border-teal-500/80 hover:shadow-[0_16px_36px_-8px_rgba(20,184,166,0.25)] transition-all duration-300 space-y-5 group">
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 dark:via-teal-300/10 to-transparent" />
+                        
+                        <div className="relative z-10 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-4">
                           <div>
-                            <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                              <Tv className="h-4 w-4 text-teal-400 inline mr-1.5" /> {t('queue_tracking')} (Live Screen)
+                            <h3 className="text-base font-black text-slate-950 dark:text-white flex items-center gap-2">
+                              <Tv className="h-5 w-5 text-teal-600 dark:text-teal-400 inline" />
+                              <span>{t('queue_tracking')} (Live Screen)</span>
                             </h3>
-                            <p className="text-xs text-slate-500">{t('hospital_name')} • OPD Block B</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t('hospital_name')} • OPD Block B</p>
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 px-3 py-1 text-xs font-bold flex items-center gap-1.5">
+                            <span className="rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-950 dark:text-emerald-200 px-3 py-1 text-xs font-bold flex items-center gap-1.5">
                               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
                               Live Sync
                             </span>
                             <button
                               type="button"
                               onClick={() => setTokenModalOpen(true)}
-                              className="rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 text-xs font-black shadow-xs flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                              className="rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 text-white px-3.5 py-1 text-xs font-black shadow-md flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 hover:scale-105"
                             >
                               <Plus className="h-3.5 w-3.5" />
                               <span>{language === 'om' ? 'Dabaree Haaraa' : 'Take Ticket'}</span>
@@ -1466,7 +1557,7 @@ export default function PatientPortalPage(): React.ReactElement {
                               <button
                                 type="button"
                                 onClick={handleCancelToken}
-                                className="rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 px-2.5 py-1 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                                className="rounded-xl border border-rose-300 dark:border-rose-700/60 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 px-2.5 py-1 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
                               >
                                 <X className="h-3.5 w-3.5" />
                                 <span>{language === 'om' ? 'Dhiisi' : 'Cancel'}</span>
@@ -1475,70 +1566,75 @@ export default function PatientPortalPage(): React.ReactElement {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {/* Currently Serving in Responsive Rectangle */}
-                          <div className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-5 text-center hover:border-teal-500 hover:bg-teal-50/40 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150">
-                            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">
+                          <div className="relative overflow-hidden rounded-2xl border-2 border-slate-200/90 dark:border-slate-700/80 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md p-5 text-center hover:border-teal-400 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl transition-all duration-300 group/sub">
+                            <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover/sub:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-white/10 to-transparent" />
+                            <span className="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider block mb-1">
                               {t('serving_now')}
                             </span>
-                            <span className="text-4xl sm:text-5xl font-black text-slate-900 font-mono tracking-wider">
+                            <span className="text-4xl sm:text-5xl font-black text-slate-950 dark:text-white font-mono tracking-wider block">
                               {queueStatus?.current_serving_token}
                             </span>
-                            <span className="block text-xs text-teal-800 mt-2 font-bold">
+                            <span className="block text-xs text-teal-800 dark:text-teal-300 mt-2 font-bold">
                               {queueStatus?.department || 'OPD Consultation Room'}
                             </span>
                           </div>
 
                           {/* Patient's Token in Responsive Rectangle */}
-                          <div className="rounded-2xl border-2 border-teal-300 bg-teal-50/80 p-5 text-center hover:border-teal-600 hover:ring-4 hover:ring-teal-400/30 transition-all duration-150">
-                            <span className="text-xs font-bold text-teal-900 uppercase tracking-wider block mb-1">
+                          <div className="relative overflow-hidden rounded-2xl border-2 border-teal-400/80 dark:border-teal-500/70 bg-gradient-to-br from-teal-50/90 via-emerald-50/80 to-teal-50/60 dark:from-teal-950/60 dark:via-slate-900/90 dark:to-emerald-950/50 backdrop-blur-md p-5 text-center hover:border-teal-400 hover:ring-4 hover:ring-teal-400/30 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 group/sub">
+                            <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover/sub:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-teal-300/15 to-transparent" />
+                            <span className="text-xs font-black text-teal-900 dark:text-teal-200 uppercase tracking-wider block mb-1">
                               {t('your_token')}
                             </span>
-                            <span className="text-4xl sm:text-5xl font-black text-teal-700 font-mono tracking-wider">
+                            <span className="text-4xl sm:text-5xl font-black text-teal-700 dark:text-teal-300 font-mono tracking-wider block">
                               {queueStatus?.token_number}
                             </span>
-                            <span className="block text-xs text-teal-900 mt-2 font-black">
+                            <span className="block text-xs text-teal-900 dark:text-teal-200 mt-2 font-black">
                               {language === 'am' ? `ተራ #${queueStatus?.queue_position}ኛ` : language === 'en' ? `Queue Position #${queueStatus?.queue_position}` : `Dabaree #${queueStatus?.queue_position}ffaa`}
                             </span>
                           </div>
                         </div>
 
                         {/* Journey Progress Bar */}
-                        <div>
-                          <div className="flex justify-between text-xs text-slate-600 mb-2 font-bold">
+                        <div className="relative z-10">
+                          <div className="flex justify-between text-xs text-slate-700 dark:text-slate-300 mb-2 font-bold">
                             <span>1. Reception & Triage</span>
-                            <span className="text-teal-700">2. Vitals (Completed)</span>
-                            <span className="text-amber-700">3. Waiting Room (Active)</span>
+                            <span className="text-teal-700 dark:text-teal-300">2. Vitals (Completed)</span>
+                            <span className="text-amber-700 dark:text-amber-300">3. Waiting Room (Active)</span>
                             <span className="text-slate-400">4. Doctor Consultation</span>
                           </div>
-                          <div className="h-3.5 w-full rounded-full bg-slate-100 border border-slate-200 overflow-hidden p-0.5">
-                            <div className="h-full bg-gradient-to-r from-teal-500 via-teal-600 to-amber-500 w-3/4 rounded-full transition-all duration-500" />
+                          <div className="h-3.5 w-full rounded-full bg-slate-200/80 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 overflow-hidden p-0.5">
+                            <div className="h-full bg-gradient-to-r from-teal-500 via-teal-600 to-amber-500 w-3/4 rounded-full transition-all duration-500 shadow-sm" />
                           </div>
                         </div>
                       </div>
 
                       {/* Clinic Directions with Responsive Rectangle Form */}
-                      <div className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 transition-all duration-150 space-y-4">
-                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                          <Compass className="h-4 w-4 text-teal-400 inline mr-1.5" /> Clinic & Room Navigation Guide
+                      <div className="relative overflow-hidden rounded-3xl border-2 border-sky-300/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl p-6 shadow-xl hover:border-teal-500/80 hover:shadow-[0_16px_36px_-8px_rgba(20,184,166,0.25)] transition-all duration-300 space-y-4 group">
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent" />
+                        
+                        <h3 className="relative z-10 text-sm font-black text-slate-950 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                          <Compass className="h-4 w-4 text-teal-600 dark:text-teal-400 inline" />
+                          <span>Clinic & Room Navigation Guide</span>
                         </h3>
-                        <div className="space-y-3 text-xs text-slate-700">
-                          <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                            <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs">01</span>
+                        <div className="relative z-10 space-y-3 text-xs text-slate-700 dark:text-slate-200">
+                          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/60 hover:bg-white/90 dark:hover:bg-slate-800/90 transition-all duration-200">
+                            <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs shrink-0">01</span>
                             <p>Proceed to OPD Building B, 1st Floor, Room 04.</p>
                           </div>
-                          <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                            <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs">02</span>
+                          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/60 hover:bg-white/90 dark:hover:bg-slate-800/90 transition-all duration-200">
+                            <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs shrink-0">02</span>
                             <p>Yeroo maqaan keessan wamamu waraqaa ragaa ykn koodii token agarsiisaa.</p>
                           </div>
-                          <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                            <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs">03</span>
+                          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/60 hover:bg-white/90 dark:hover:bg-slate-800/90 transition-all duration-200">
+                            <span className="rounded-lg bg-teal-600 text-white font-black p-1 text-xs shrink-0">03</span>
                             <p>When laboratory tests or medications are prescribed, your Telebirr digital bill is ready instantly.</p>
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border-2 border-teal-200 bg-teal-50/80 p-3.5 text-xs text-teal-900">
-                          <Phone className="h-4 w-4 text-teal-400 inline mr-1.5" /> <span className="font-bold">Deeggarsa Barbaadduu?</span> Bakka simannaatti (Triage Desk) deemaa ykn bilbila 907 irratti deeggarsa gaafadhaa.
+                        <div className="relative z-10 rounded-2xl border-2 border-teal-400/50 dark:border-teal-500/40 bg-teal-50/80 dark:bg-teal-950/60 backdrop-blur-md p-3.5 text-xs text-teal-950 dark:text-teal-200">
+                          <Phone className="h-4 w-4 text-teal-600 dark:text-teal-400 inline mr-1.5" /> <span className="font-bold">Deeggarsa Barbaadduu?</span> Bakka simannaatti (Triage Desk) deemaa ykn bilbila 907 irratti deeggarsa gaafadhaa.
                         </div>
                       </div>
                     </div>
@@ -1548,10 +1644,10 @@ export default function PatientPortalPage(): React.ReactElement {
                 {/* TAB 2: MEDICAL HISTORY & CLINICAL ENCOUNTERS */}
                 {activeTab === 'history' && (
                   <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-xl font-black text-slate-900">{t('medical_history')}</h2>
-                        <p className="text-xs text-slate-500">
+                        <h2 className="text-xl font-black text-slate-950 dark:text-white">{t('medical_history')}</h2>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                           Ragaalee yaala duraanii, qorannoo doktooraa fi dhukkuba mirkanaa&apos;e (FHIR R4 Encounters)
                         </p>
                       </div>
@@ -1559,20 +1655,20 @@ export default function PatientPortalPage(): React.ReactElement {
                         <button
                           type="button"
                           onClick={() => setHealthCardModalOpen(true)}
-                          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-teal-600 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 text-xs font-black text-teal-800 transition active:scale-95 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-teal-500 bg-teal-500/20 hover:bg-teal-500/30 px-3.5 py-1.5 text-xs font-black text-teal-900 dark:text-teal-200 transition active:scale-95 cursor-pointer shadow-xs"
                         >
-                          <Printer className="h-3.5 w-3.5 text-teal-700" />
+                          <Printer className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                           <span>{language === 'om' ? 'Kaardii EHR & QR' : 'Digital ID Card'}</span>
                         </button>
                         <button
                           type="button"
                           onClick={handleOpenBioEdit}
-                          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 transition active:scale-95 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-sky-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 px-3.5 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 transition active:scale-95 cursor-pointer shadow-xs"
                         >
                           <Edit2 className="h-3.5 w-3.5" />
                           <span>{language === 'om' ? 'Haaromsi' : 'Edit'}</span>
                         </button>
-                        <span className="rounded-xl border-2 border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-bold text-teal-800 font-mono">
+                        <span className="rounded-xl border-2 border-teal-400/50 dark:border-teal-500/40 bg-teal-500/15 px-3 py-1.5 text-xs font-bold text-teal-900 dark:text-teal-200 font-mono">
                           FHIR-ID: {profile?.fhir_id}
                         </span>
                       </div>
@@ -1582,64 +1678,67 @@ export default function PatientPortalPage(): React.ReactElement {
                       {encounters.map((enc, idx) => (
                         <div
                           key={idx}
-                          className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4"
+                          className="relative overflow-hidden rounded-3xl border-2 border-sky-300/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl p-6 shadow-xl hover:border-indigo-500/80 hover:shadow-[0_16px_36px_-8px_rgba(99,102,241,0.25)] hover:-translate-y-1 transition-all duration-300 space-y-4 group"
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                          <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-indigo-300/10 to-transparent" />
+                          <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-indigo-400/15 blur-xl group-hover:scale-150 transition-transform duration-500" />
+
+                          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
                             <div>
-                              <span className="text-[10px] font-black uppercase tracking-wider text-teal-700">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-400">
                                 {enc.department}
                               </span>
-                              <h3 className="text-lg font-black text-slate-900">{enc.clinician}</h3>
+                              <h3 className="text-lg font-black text-slate-950 dark:text-white">{enc.clinician}</h3>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="inline-flex items-center gap-1 text-xs font-mono font-medium text-slate-500">
-                                <Calendar className="h-3.5 w-3.5 text-teal-500" />
+                              <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-slate-600 dark:text-slate-400">
+                                <Calendar className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
                                 <span>{enc.date}</span>
                               </span>
-                              <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-0.5 text-[11px] font-bold">
+                              <span className="rounded-full bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/40 px-3 py-0.5 text-[11px] font-bold">
                                 {enc.status}
                               </span>
                             </div>
                           </div>
 
                           {/* Complaint & Diagnosis with Responsive Rectangular Hover */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                            <div className="rounded-2xl border-2 border-slate-200 bg-slate-50/70 p-4 hover:border-teal-400 hover:bg-white transition-all duration-150">
-                              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div className="rounded-2xl border-2 border-slate-200/90 dark:border-slate-700/80 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md p-4 hover:border-indigo-400 dark:hover:border-indigo-400 transition-all duration-200">
+                              <span className="block text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                                 {t('complaint')}
                               </span>
-                              <p className="text-slate-800 font-medium leading-relaxed">{enc.chief_complaint}</p>
+                              <p className="text-slate-900 dark:text-slate-100 font-medium leading-relaxed">{enc.chief_complaint}</p>
                             </div>
 
-                            <div className="rounded-2xl border-2 border-teal-200 bg-teal-50/60 p-4 hover:border-teal-500 hover:bg-teal-50/90 transition-all duration-150">
-                              <span className="block text-[10px] font-bold uppercase tracking-wider text-teal-800 mb-1">
+                            <div className="rounded-2xl border-2 border-indigo-300/80 dark:border-indigo-500/50 bg-indigo-50/70 dark:bg-indigo-950/40 backdrop-blur-md p-4 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-200">
+                              <span className="block text-[10px] font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-1">
                                 {t('diagnosis')}
                               </span>
-                              <p className="text-teal-950 font-black leading-relaxed">{enc.diagnosis}</p>
+                              <p className="text-indigo-950 dark:text-indigo-100 font-black leading-relaxed">{enc.diagnosis}</p>
                             </div>
                           </div>
 
                           {/* Vitals Grid with Responsive Rectangles */}
-                          <div>
-                            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                          <div className="relative z-10">
+                            <span className="block text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                               {t('vitals')}
                             </span>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                              <div className="rounded-xl border-2 border-slate-200 bg-white p-2.5 text-center hover:border-teal-400 hover:bg-teal-50/30 transition-all">
-                                <span className="block text-[10px] text-slate-500 font-semibold">Dhiibbaa Dhiigaa (BP)</span>
-                                <span className="text-sm font-black text-slate-900">{enc.vitals.blood_pressure}</span>
+                              <div className="rounded-xl border-2 border-slate-200/90 dark:border-slate-700/80 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-2.5 text-center hover:border-indigo-400 hover:scale-105 transition-all">
+                                <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold">Dhiibbaa Dhiigaa (BP)</span>
+                                <span className="text-sm font-black text-slate-950 dark:text-white font-mono">{enc.vitals.blood_pressure}</span>
                               </div>
-                              <div className="rounded-xl border-2 border-slate-200 bg-white p-2.5 text-center hover:border-teal-400 hover:bg-teal-50/30 transition-all">
-                                <span className="block text-[10px] text-slate-500 font-semibold">Rukuttaa Onnee (Pulse)</span>
-                                <span className="text-sm font-black text-slate-900">{enc.vitals.pulse}</span>
+                              <div className="rounded-xl border-2 border-slate-200/90 dark:border-slate-700/80 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-2.5 text-center hover:border-indigo-400 hover:scale-105 transition-all">
+                                <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold">Rukuttaa Onnee (Pulse)</span>
+                                <span className="text-sm font-black text-slate-950 dark:text-white font-mono">{enc.vitals.pulse}</span>
                               </div>
-                              <div className="rounded-xl border-2 border-slate-200 bg-white p-2.5 text-center hover:border-teal-400 hover:bg-teal-50/30 transition-all">
-                                <span className="block text-[10px] text-slate-500 font-semibold">Ho&apos;a Qaamaa (Temp)</span>
-                                <span className="text-sm font-black text-amber-700">{enc.vitals.temperature}</span>
+                              <div className="rounded-xl border-2 border-slate-200/90 dark:border-slate-700/80 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-2.5 text-center hover:border-amber-400 hover:scale-105 transition-all">
+                                <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold">Ho&apos;a Qaamaa (Temp)</span>
+                                <span className="text-sm font-black text-amber-700 dark:text-amber-300 font-mono">{enc.vitals.temperature}</span>
                               </div>
-                              <div className="rounded-xl border-2 border-slate-200 bg-white p-2.5 text-center hover:border-teal-400 hover:bg-teal-50/30 transition-all">
-                                <span className="block text-[10px] text-slate-500 font-semibold">Oksijiinii (SpO2)</span>
-                                <span className="text-sm font-black text-emerald-700">{enc.vitals.spo2}</span>
+                              <div className="rounded-xl border-2 border-slate-200/90 dark:border-slate-700/80 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-2.5 text-center hover:border-emerald-400 hover:scale-105 transition-all">
+                                <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold">Oksijiinii (SpO2)</span>
+                                <span className="text-sm font-black text-emerald-700 dark:text-emerald-300 font-mono">{enc.vitals.spo2}</span>
                               </div>
                             </div>
                           </div>
@@ -1652,10 +1751,10 @@ export default function PatientPortalPage(): React.ReactElement {
                 {/* TAB 3: PRESCRIPTIONS & PHARMACY */}
                 {activeTab === 'prescriptions' && (
                   <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-xl font-black text-slate-900">{t('my_prescriptions')}</h2>
-                        <p className="text-xs text-slate-500">
+                        <h2 className="text-xl font-black text-slate-950 dark:text-white">{t('my_prescriptions')}</h2>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                           Verified e-Prescriptions and instructions for take-home medications
                         </p>
                       </div>
@@ -1663,12 +1762,12 @@ export default function PatientPortalPage(): React.ReactElement {
                         <button
                           type="button"
                           onClick={() => setRefillModalOpen(true)}
-                          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 px-3.5 py-1.5 text-xs font-black text-white shadow-xs transition active:scale-95 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-violet-600 bg-violet-600 hover:bg-violet-700 px-3.5 py-1.5 text-xs font-black text-white shadow-md transition active:scale-95 cursor-pointer hover:scale-105"
                         >
                           <Plus className="h-3.5 w-3.5" />
                           <span>{language === 'om' ? 'Qoricha Haaromsuu Gaafadhu' : 'Request Refill'}</span>
                         </button>
-                        <span className="rounded-xl border-2 border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
+                        <span className="rounded-xl border-2 border-emerald-400/50 dark:border-emerald-500/40 bg-emerald-500/15 px-3 py-1.5 text-xs font-bold text-emerald-900 dark:text-emerald-200">
                           FEFO Dispensed
                         </span>
                       </div>
@@ -1676,7 +1775,7 @@ export default function PatientPortalPage(): React.ReactElement {
 
                     <div className="space-y-4">
                       {prescriptions.length === 0 ? (
-                        <div className="rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-8 text-center space-y-3">
+                        <div className="rounded-3xl border-2 border-dashed border-sky-300/60 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 backdrop-blur-md p-8 text-center space-y-3">
                           <div className="h-12 w-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/20">
                             <Pill className="h-6 w-6" />
                           </div>
@@ -1693,47 +1792,50 @@ export default function PatientPortalPage(): React.ReactElement {
                         prescriptions.map((rx, idx) => (
                           <div
                             key={idx}
-                            className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4"
+                            className="relative overflow-hidden rounded-3xl border-2 border-sky-300/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl p-6 shadow-xl hover:border-violet-500/80 hover:shadow-[0_16px_36px_-8px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 space-y-4 group"
                           >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                            <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-violet-300/10 to-transparent" />
+                            <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-violet-400/15 blur-xl group-hover:scale-150 transition-transform duration-500" />
+
+                            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
                               <div>
-                                <span className="text-xs font-mono font-bold text-teal-700">{rx.prescription_code}</span>
-                                <h3 className="text-sm font-bold text-slate-800">Ajaje: {rx.prescriber_name}</h3>
+                                <span className="text-xs font-mono font-black text-violet-700 dark:text-violet-300">{rx.prescription_code}</span>
+                                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Ajaje: {rx.prescriber_name}</h3>
                               </div>
                               <div className="flex items-center gap-3">
-                                <span className="text-xs text-slate-500 font-medium">Guyyaa: {rx.prescribed_date}</span>
-                                <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1 text-xs font-bold">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Guyyaa: {rx.prescribed_date}</span>
+                                <span className="rounded-full bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/40 px-3 py-1 text-xs font-bold">
                                   {rx.status}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="relative z-10 space-y-3">
                               {rx.items.map((item, i) => (
                                 <div
                                   key={i}
-                                  className="rounded-2xl border-2 border-slate-200 bg-slate-50/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-teal-400 hover:bg-white hover:ring-2 hover:ring-teal-400/20 transition-all duration-150"
+                                  className="rounded-2xl border-2 border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-violet-400 hover:scale-[1.01] transition-all duration-200"
                                 >
                                   <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                      <Pill className="h-5 w-5 text-teal-400" />
-                                      <h4 className="text-sm font-black text-slate-900">{item.drug_name}</h4>
+                                      <Pill className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                      <h4 className="text-sm font-black text-slate-950 dark:text-white">{item.drug_name}</h4>
                                     </div>
-                                    <p className="text-xs text-teal-800 font-bold">
+                                    <p className="text-xs text-violet-900 dark:text-violet-300 font-bold">
                                       Dose: {item.dosage} • {item.frequency} • Guyyoota {item.duration_days}f
                                     </p>
-                                    <p className="text-xs text-slate-600 italic">
+                                    <p className="text-xs text-slate-600 dark:text-slate-300 italic">
                                       {t('instructions')}: &quot;{item.instructions}&quot;
                                     </p>
                                   </div>
 
                                   <div className="shrink-0">
                                     {item.is_dispensed ? (
-                                      <span className="rounded-xl border-2 border-emerald-300 bg-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-900 flex items-center gap-1.5">
-                                        <Check className="h-3.5 w-3.5 text-emerald-400 inline mr-1" /> {t('dispensed')}
+                                      <span className="rounded-xl border-2 border-emerald-400/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-black text-emerald-950 dark:text-emerald-200 flex items-center gap-1.5">
+                                        <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> {t('dispensed')}
                                       </span>
                                     ) : (
-                                      <span className="rounded-xl border-2 border-amber-300 bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-900">
+                                      <span className="rounded-xl border-2 border-amber-400/60 bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-950 dark:text-amber-200">
                                         {t('pending')}
                                       </span>
                                     )}
@@ -1751,15 +1853,15 @@ export default function PatientPortalPage(): React.ReactElement {
                 {/* TAB 4: BILLING & TELEBIRR PAYMENTS */}
                 {activeTab === 'billing' && (
                   <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-xl font-black text-slate-900">{t('billing_telebirr')}</h2>
-                        <p className="text-xs text-slate-500">
+                        <h2 className="text-xl font-black text-slate-950 dark:text-white">{t('billing_telebirr')}</h2>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                           Community-Based Health Insurance (CBHI 80% covered) and Telebirr digital payments
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="rounded-xl border-2 border-teal-300 bg-teal-50 px-3 py-1.5 text-xs font-black text-teal-900">
+                        <span className="rounded-xl border-2 border-emerald-400/50 dark:border-emerald-500/40 bg-emerald-500/15 px-3 py-1.5 text-xs font-black text-emerald-900 dark:text-emerald-200">
                           Telebirr Ready
                         </span>
                       </div>
@@ -1767,7 +1869,7 @@ export default function PatientPortalPage(): React.ReactElement {
 
                     <div className="space-y-4">
                       {invoices.length === 0 ? (
-                        <div className="rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-8 text-center space-y-3">
+                        <div className="rounded-3xl border-2 border-dashed border-sky-300/60 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 backdrop-blur-md p-8 text-center space-y-3">
                           <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto border border-emerald-500/20">
                             <Check className="h-6 w-6" />
                           </div>
@@ -1784,19 +1886,22 @@ export default function PatientPortalPage(): React.ReactElement {
                         invoices.map((inv) => (
                           <div
                             key={inv.id}
-                            className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4"
+                            className="relative overflow-hidden rounded-3xl border-2 border-sky-300/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl p-6 shadow-xl hover:border-emerald-500/80 hover:shadow-[0_16px_36px_-8px_rgba(16,185,129,0.25)] hover:-translate-y-1 transition-all duration-300 space-y-4 group"
                           >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                            <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-emerald-300/10 to-transparent" />
+                            <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-emerald-400/15 blur-xl group-hover:scale-150 transition-transform duration-500" />
+
+                            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
                               <div>
-                                <span className="text-xs font-mono font-bold text-teal-700">{inv.invoice_number}</span>
-                                <p className="text-xs text-slate-500">Guyyaa: {inv.date}</p>
+                                <span className="text-xs font-mono font-black text-emerald-700 dark:text-emerald-300">{inv.invoice_number}</span>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Guyyaa: {inv.date}</p>
                               </div>
                               <div className="flex items-center gap-3">
                                 <span
                                   className={`rounded-full px-3 py-1 text-xs font-black ${
                                     inv.status.includes('PAID')
-                                      ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                                      : 'bg-rose-100 text-rose-900 border border-rose-300 animate-pulse'
+                                      ? 'bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/40'
+                                      : 'bg-rose-500/20 text-rose-950 dark:text-rose-200 border border-rose-500/40 animate-pulse'
                                   }`}
                                 >
                                   {inv.status}
@@ -1805,7 +1910,7 @@ export default function PatientPortalPage(): React.ReactElement {
                                   <button
                                     type="button"
                                     onClick={() => handleOpenPayment(inv)}
-                                    className="rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 px-4 py-2 text-xs font-black text-white shadow-md active:scale-95 transition-all duration-150 cursor-pointer"
+                                    className="rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 px-4 py-2 text-xs font-black text-white shadow-md active:scale-95 transition-all duration-150 cursor-pointer hover:scale-105"
                                   >
                                     {t('telebirr_pay')} →
                                   </button>
@@ -1814,28 +1919,28 @@ export default function PatientPortalPage(): React.ReactElement {
                             </div>
 
                             {/* Breakdown */}
-                            <div className="space-y-2 text-xs">
+                            <div className="relative z-10 space-y-2 text-xs">
                               {inv.items.map((it, idx) => (
-                                <div key={idx} className="flex justify-between text-slate-700 py-1.5 border-b border-slate-100">
+                                <div key={idx} className="flex justify-between text-slate-700 dark:text-slate-300 py-1.5 border-b border-slate-200/60 dark:border-slate-800/60">
                                   <span>{it.description}</span>
-                                  <span className="font-mono font-bold text-slate-900">{it.amount_etb.toFixed(2)} ETB</span>
+                                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{it.amount_etb.toFixed(2)} ETB</span>
                                 </div>
                               ))}
                             </div>
 
                             {/* Totals with Clear CBHI Government Subsidy Breakdown */}
-                            <div className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div className="relative z-10 rounded-2xl border-2 border-slate-200/90 dark:border-slate-700/80 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                               <div>
-                                <span className="block text-slate-500 text-[10px] uppercase font-bold">{t('total_bill')}</span>
-                                <span className="text-base font-black text-slate-900 font-mono">{inv.total_amount_etb.toFixed(2)} ETB</span>
+                                <span className="block text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold">{t('total_bill')}</span>
+                                <span className="text-base font-black text-slate-950 dark:text-white font-mono">{inv.total_amount_etb.toFixed(2)} ETB</span>
                               </div>
                               <div>
-                                <span className="block text-emerald-700 text-[10px] uppercase font-bold">{t('cbhi_subsidy')}</span>
-                                <span className="text-base font-black text-emerald-700 font-mono">-{inv.insurance_covered_etb.toFixed(2)} ETB</span>
+                                <span className="block text-emerald-700 dark:text-emerald-400 text-[10px] uppercase font-bold">{t('cbhi_subsidy')}</span>
+                                <span className="text-base font-black text-emerald-700 dark:text-emerald-400 font-mono">-{inv.insurance_covered_etb.toFixed(2)} ETB</span>
                               </div>
-                              <div className="border-t sm:border-t-0 sm:border-l sm:pl-4 border-slate-200">
-                                <span className="block text-amber-800 text-[10px] uppercase font-bold">{t('patient_copay')}</span>
-                                <span className="text-lg font-black text-amber-900 font-mono">{inv.patient_payable_etb.toFixed(2)} ETB</span>
+                              <div className="border-t sm:border-t-0 sm:border-l sm:pl-4 border-slate-200 dark:border-slate-700">
+                                <span className="block text-amber-800 dark:text-amber-300 text-[10px] uppercase font-bold">{t('patient_copay')}</span>
+                                <span className="text-lg font-black text-amber-900 dark:text-amber-200 font-mono">{inv.patient_payable_etb.toFixed(2)} ETB</span>
                               </div>
                             </div>
                           </div>
@@ -1850,15 +1955,15 @@ export default function PatientPortalPage(): React.ReactElement {
                   <div className="space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-xl font-black text-slate-900">{t('telemedicine_tab')}</h2>
-                        <p className="text-xs text-slate-500">
+                        <h2 className="text-xl font-black text-slate-950 dark:text-white">{t('telemedicine_tab')}</h2>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                           Live video telemedicine consultations with your physician and appointment booking
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setBookingModalOpen(true)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 px-4 py-2 text-xs font-black text-white shadow-sm transition active:scale-95 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-xl border-2 border-sky-600 bg-sky-600 hover:bg-sky-700 px-4 py-2 text-xs font-black text-white shadow-md transition active:scale-95 cursor-pointer hover:scale-105"
                       >
                         <Plus className="h-4 w-4" />
                         <span>{language === 'om' ? 'Beellama Haaraa Qabadhu' : 'Book Appointment'}</span>
@@ -1867,8 +1972,8 @@ export default function PatientPortalPage(): React.ReactElement {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {appointments.length === 0 ? (
-                        <div className="col-span-full rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-8 text-center space-y-3">
-                          <div className="h-12 w-12 rounded-2xl bg-teal-500/10 text-teal-500 flex items-center justify-center mx-auto border border-teal-500/20">
+                        <div className="col-span-full rounded-3xl border-2 border-dashed border-sky-300/60 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 backdrop-blur-md p-8 text-center space-y-3">
+                          <div className="h-12 w-12 rounded-2xl bg-sky-500/10 text-sky-500 flex items-center justify-center mx-auto border border-sky-500/20">
                             <Calendar className="h-6 w-6" />
                           </div>
                           <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
@@ -1884,27 +1989,30 @@ export default function PatientPortalPage(): React.ReactElement {
                         appointments.map((apt) => (
                           <div
                             key={apt.id}
-                            className="rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-sm hover:border-teal-500 hover:ring-2 hover:ring-teal-400/20 hover:shadow-md transition-all duration-150 space-y-4 flex flex-col justify-between"
+                            className="relative overflow-hidden rounded-3xl border-2 border-sky-300/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl p-6 shadow-xl hover:border-sky-500/80 hover:shadow-[0_16px_36px_-8px_rgba(14,165,233,0.25)] hover:-translate-y-1 transition-all duration-300 space-y-4 flex flex-col justify-between group"
                           >
-                            <div className="space-y-3">
+                            <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-sky-300/10 to-transparent" />
+                            <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6 w-20 h-20 rounded-full bg-sky-400/15 blur-xl group-hover:scale-150 transition-transform duration-500" />
+
+                            <div className="relative z-10 space-y-3">
                               <div className="flex items-center justify-between">
-                                <span className="rounded-full bg-teal-100 text-teal-900 border border-teal-300 px-3 py-1 text-xs font-black">
+                                <span className="rounded-full bg-sky-500/20 text-sky-950 dark:text-sky-200 border border-sky-500/40 px-3 py-1 text-xs font-black">
                                   {apt.type}
                                 </span>
-                                <span className="text-xs font-mono font-bold text-amber-800">
+                                <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-300">
                                   ⏰ {apt.scheduled_time}
                                 </span>
                               </div>
 
-                              <h3 className="text-lg font-black text-slate-900">{apt.department}</h3>
-                              <p className="text-xs text-slate-600 font-medium">Doktoora: <span className="text-slate-900 font-bold">{apt.clinician_name}</span></p>
+                              <h3 className="text-lg font-black text-slate-950 dark:text-white">{apt.department}</h3>
+                              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">Doktoora: <span className="text-slate-950 dark:text-white font-bold">{apt.clinician_name}</span></p>
 
-                              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 flex items-center justify-between">
-                                <div>Status: <span className="text-teal-800 font-black">{apt.status}</span></div>
+                              <div className="rounded-2xl border border-slate-200/90 dark:border-slate-700/80 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md p-3 text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                <div>Status: <span className="text-teal-800 dark:text-teal-300 font-black">{apt.status}</span></div>
                                 <button
                                   type="button"
                                   onClick={() => handleCancelAppointment(apt.id)}
-                                  className="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer"
+                                  className="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 hover:underline cursor-pointer"
                                 >
                                   {language === 'om' ? 'Haqi' : 'Cancel'}
                                 </button>
@@ -1918,7 +2026,7 @@ export default function PatientPortalPage(): React.ReactElement {
                                   setActiveMeeting(apt);
                                   setTelemedModalOpen(true);
                                 }}
-                                className="w-full rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:border-teal-700 hover:ring-4 hover:ring-teal-400/30 py-3 text-xs font-black text-white shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all duration-150 cursor-pointer"
+                                className="relative z-10 w-full rounded-xl border-2 border-sky-600 bg-sky-600 hover:bg-sky-700 hover:border-sky-700 hover:ring-4 hover:ring-sky-400/30 py-3 text-xs font-black text-white shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all duration-150 cursor-pointer hover:scale-[1.02]"
                               >
                                 <Video className="h-4 w-4 inline mr-1" /> {t('join_video_call')} →
                               </button>
@@ -1938,17 +2046,23 @@ export default function PatientPortalPage(): React.ReactElement {
             3. TELEBIRR INSTANT PAYMENT MODAL
             ========================================================================= */}
         {payModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-            <div className="w-full max-w-md rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-5 text-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div className="flex items-center gap-2">
-                  <QrCode className="h-6 w-6 text-teal-400" />
-                  <h3 className="text-lg font-black text-slate-900">Telebirr Instant Payment</h3>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+            <div className="relative overflow-hidden w-full max-w-md rounded-3xl border-2 border-teal-500/80 dark:border-teal-400/60 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-2xl p-6 shadow-2xl space-y-5 text-slate-900 dark:text-slate-100 animate-in zoom-in-95 duration-150">
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-teal-300/10 to-transparent" />
+              <div className="relative z-10 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-teal-500/20 text-teal-600 dark:text-teal-300 border border-teal-500/40 flex items-center justify-center">
+                    <QrCode className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-950 dark:text-white">Telebirr Instant Payment</h3>
+                    <p className="text-xs text-teal-800 dark:text-teal-300 font-medium">Digital Cashier & CBHI Gateway</p>
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setPayModalOpen(false)}
-                  className="rounded-lg p-1 text-slate-400 hover:text-slate-700"
+                  className="rounded-xl p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   aria-label="Close"
                 >
                   <X className="h-4 w-4" />
@@ -1956,40 +2070,40 @@ export default function PatientPortalPage(): React.ReactElement {
               </div>
 
               {paymentStep === 'prompt' && (
-                <div className="space-y-4">
-                  <div className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 space-y-2 text-xs">
-                    <div className="flex justify-between text-slate-600">
+                <div className="relative z-10 space-y-4">
+                  <div className="rounded-2xl border-2 border-slate-200/90 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md p-4 space-y-2 text-xs">
+                    <div className="flex justify-between text-slate-600 dark:text-slate-400">
                       <span>Invoice:</span>
-                      <span className="font-mono font-bold text-slate-900">{payingInvoice?.invoice_number}</span>
+                      <span className="font-mono font-bold text-slate-950 dark:text-white">{payingInvoice?.invoice_number}</span>
                     </div>
-                    <div className="flex justify-between text-slate-600">
+                    <div className="flex justify-between text-slate-600 dark:text-slate-400">
                       <span>Payment Gateway:</span>
-                      <span className="text-slate-900 font-bold">{t('hospital_name')}</span>
+                      <span className="text-slate-950 dark:text-white font-bold">{t('hospital_name')}</span>
                     </div>
-                    <div className="flex justify-between text-slate-600 border-t border-slate-200 pt-2 text-sm font-bold">
-                      <span className="text-slate-900">{language === 'am' ? 'የሚከፈል መጠን:' : language === 'en' ? 'Amount to Pay:' : 'Gatiin Kaffalamu:'}</span>
-                      <span className="text-teal-700 font-mono text-base font-black">
+                    <div className="flex justify-between text-slate-600 dark:text-slate-400 border-t border-slate-200/80 dark:border-slate-800/80 pt-2 text-sm font-bold">
+                      <span className="text-slate-950 dark:text-white">{language === 'am' ? 'የሚከፈል መጠን:' : language === 'en' ? 'Amount to Pay:' : 'Gatiin Kaffalamu:'}</span>
+                      <span className="text-teal-700 dark:text-teal-300 font-mono text-base font-black">
                         {payingInvoice?.patient_payable_etb.toFixed(2)} ETB
                       </span>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                       {language === 'am' ? 'የቴሌብር ስልክ ቁጥር' : language === 'en' ? 'Telebirr Phone Number' : 'Lakkoofsa Bilbila Telebirr'}
                     </label>
                     <input
                       type="text"
                       value={telebirrPhone}
                       onChange={(e) => setTelebirrPhone(e.target.value)}
-                      className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-400/20"
+                      className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-400/20"
                     />
                   </div>
 
                   <button
                     type="button"
                     onClick={executeTelebirrPayment}
-                    className="w-full rounded-xl border-2 border-teal-600 bg-teal-600 hover:bg-teal-700 hover:ring-4 hover:ring-teal-400/30 py-3 text-sm font-black text-white shadow-md active:scale-95 transition-all duration-150 cursor-pointer"
+                    className="w-full rounded-xl border-2 border-teal-600 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 hover:ring-4 hover:ring-teal-400/30 py-3 text-sm font-black text-white shadow-md active:scale-95 transition-all duration-150 cursor-pointer"
                   >
                     {language === 'am' ? 'ክፍያውን ጀምር (*127# USSD Push) →' : language === 'en' ? 'Initiate Payment (*127# USSD Push) →' : 'Kaffaltii Eegali (*127# USSD Push) →'}
                   </button>
@@ -1997,33 +2111,33 @@ export default function PatientPortalPage(): React.ReactElement {
               )}
 
               {paymentStep === 'processing' && (
-                <div className="py-8 text-center space-y-4">
+                <div className="relative z-10 py-8 text-center space-y-4">
                   <div className="h-12 w-12 mx-auto animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
-                  <p className="text-sm font-bold text-teal-800">
+                  <p className="text-sm font-bold text-teal-800 dark:text-teal-300">
                     Telebirr wajjin wal qunnamaa jira...
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Bilbila keessan irratti PIN telebirr galchaa mirkaneessaa.
                   </p>
                 </div>
               )}
 
               {paymentStep === 'success' && (
-                <div className="py-4 text-center space-y-4">
-                  <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 text-3xl border-2 border-emerald-500">
-                    <Check className="h-8 w-8 text-emerald-600" />
+                <div className="relative z-10 py-4 text-center space-y-4">
+                  <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 text-3xl border-2 border-emerald-500 shadow-lg">
+                    <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-black text-slate-900">{language === 'am' ? 'ክፍያው ተጠናቋል!' : language === 'en' ? 'Payment Successful!' : 'Kaffaltiin Milkaa\'eera!'}</h4>
-                    <p className="text-xs text-slate-500 mt-1">Transaction ID: <span className="font-mono text-teal-800 font-bold">{txId}</span></p>
-                    <p className="text-xs text-slate-600 mt-2">
+                    <h4 className="text-lg font-black text-slate-950 dark:text-white">{language === 'am' ? 'ክፍያው ተጠናቋል!' : language === 'en' ? 'Payment Successful!' : 'Kaffaltiin Milkaa\'eera!'}</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Transaction ID: <span className="font-mono text-teal-800 dark:text-teal-300 font-bold">{txId}</span></p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-2">
                       Your digital receipt has been generated and dispatched to the hospital pharmacy and laboratory.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setPayModalOpen(false)}
-                    className="w-full rounded-xl border-2 border-slate-300 bg-slate-100 hover:bg-slate-200 py-2.5 text-xs font-bold text-slate-800"
+                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer"
                   >
                     {language === 'am' ? 'ዝጋ (Close)' : language === 'en' ? 'Close' : 'Cufi (Close)'}
                   </button>
@@ -2037,16 +2151,18 @@ export default function PatientPortalPage(): React.ReactElement {
             4. TELEMEDICINE VIDEO MODAL
             ========================================================================= */}
         {telemedModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4">
-            <div className="w-full max-w-3xl rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-4 text-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div className="flex items-center gap-2">
-                  <Video className="h-6 w-6 text-teal-400" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-md p-4 animate-in fade-in duration-200">
+            <div className="relative overflow-hidden w-full max-w-3xl rounded-3xl border-2 border-sky-500/80 dark:border-sky-400/60 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-2xl p-6 shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 animate-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-sky-500/20 text-sky-600 dark:text-sky-300 border border-sky-500/40 flex items-center justify-center">
+                    <Video className="h-5 w-5" />
+                  </div>
                   <div>
-                    <h3 className="text-base font-black text-slate-900">
+                    <h3 className="text-base font-black text-slate-950 dark:text-white">
                       {t('telemedicine_tab')} (Live Consult)
                     </h3>
-                    <p className="text-xs text-teal-700 font-semibold">
+                    <p className="text-xs text-sky-700 dark:text-sky-300 font-semibold">
                       Doktoora: {activeMeeting?.clinician_name} • {activeMeeting?.department}
                     </p>
                   </div>
@@ -2054,7 +2170,7 @@ export default function PatientPortalPage(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setTelemedModalOpen(false)}
-                  className="rounded-lg p-1 text-slate-400 hover:text-slate-700"
+                  className="rounded-xl p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   aria-label="Close"
                 >
                   <X className="h-4 w-4" />
@@ -2062,7 +2178,7 @@ export default function PatientPortalPage(): React.ReactElement {
               </div>
 
               {/* Video Frame */}
-              <div className="relative aspect-video w-full rounded-2xl bg-slate-900 border-2 border-slate-300 overflow-hidden flex items-center justify-center text-white">
+              <div className="relative aspect-video w-full rounded-2xl bg-slate-950 border-2 border-slate-300 dark:border-slate-700 overflow-hidden flex items-center justify-center text-white shadow-inner">
                 {camOff ? (
                   <div className="text-center text-slate-400">
                     <Video className="h-12 w-12 text-teal-400 mx-auto mb-2" />
@@ -2079,7 +2195,7 @@ export default function PatientPortalPage(): React.ReactElement {
                 )}
 
                 {/* Self View Floating Box */}
-                <div className="absolute bottom-4 right-4 h-28 w-40 rounded-xl bg-slate-800/95 border-2 border-slate-600 p-2 flex flex-col justify-between shadow-lg">
+                <div className="absolute bottom-4 right-4 h-28 w-40 rounded-xl bg-slate-900/95 border-2 border-slate-700 p-2 flex flex-col justify-between shadow-lg">
                   <span className="text-[10px] text-teal-300 font-bold">Patient (You)</span>
                   <div className="text-center text-xs text-slate-300">{profile?.full_name}</div>
                   <div className="flex justify-end gap-1 text-[10px]">
@@ -2095,7 +2211,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   type="button"
                   onClick={() => setMicMuted(!micMuted)}
                   className={`rounded-xl p-3 font-bold border-2 transition-all cursor-pointer ${
-                    micMuted ? 'bg-rose-600 border-rose-700 text-white' : 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200'
+                    micMuted ? 'bg-rose-600 border-rose-700 text-white' : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                   title={micMuted ? 'Unmute' : 'Mute'}
                 >
@@ -2106,7 +2222,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   type="button"
                   onClick={() => setCamOff(!camOff)}
                   className={`rounded-xl p-3 font-bold border-2 transition-all cursor-pointer ${
-                    camOff ? 'bg-rose-600 border-rose-700 text-white' : 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200'
+                    camOff ? 'bg-rose-600 border-rose-700 text-white' : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                   title={camOff ? 'Turn Cam On' : 'Turn Cam Off'}
                 >
@@ -2129,22 +2245,24 @@ export default function PatientPortalPage(): React.ReactElement {
             5. APPOINTMENT BOOKING MODAL
             ========================================================================= */}
         {bookingModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-            <div className="w-full max-w-lg rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-4 text-slate-900 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-6 w-6 text-teal-600" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+            <div className="relative overflow-hidden w-full max-w-lg rounded-3xl border-2 border-teal-500/80 dark:border-teal-400/60 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-2xl p-6 shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 animate-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-teal-500/20 text-teal-600 dark:text-teal-300 border border-teal-500/40 flex items-center justify-center">
+                    <Calendar className="h-5 w-5" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-900">
+                    <h3 className="text-lg font-black text-slate-950 dark:text-white">
                       {language === 'om' ? 'Beellama Yaalaa Qabadhu' : language === 'am' ? 'የህክምና ቀጠሮ ይያዙ' : 'Book Clinical Appointment'}
                     </h3>
-                    <p className="text-xs text-slate-500">Mettu Karl Referral Hospital • OPD & Telemed</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Mettu Karl Referral Hospital • OPD & Telemed</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setBookingModalOpen(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="rounded-xl p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -2152,13 +2270,13 @@ export default function PatientPortalPage(): React.ReactElement {
 
               <form onSubmit={handleBookAppointment} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {language === 'om' ? 'Kutaa Yaalaa (Department / Specialty)' : 'Department / Specialty'}
                   </label>
                   <select
                     value={bookingDept}
                     onChange={(e) => setBookingDept(e.target.value)}
-                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                   >
                     <option value="OPD Internal Medicine (Room 04)">OPD Internal Medicine (Room 04)</option>
                     <option value="Cardiology Clinic (Room 12)">Cardiology Clinic (Room 12)</option>
@@ -2170,13 +2288,13 @@ export default function PatientPortalPage(): React.ReactElement {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {language === 'om' ? 'Ogeessa Yaalaa (Attending Physician)' : 'Attending Physician'}
                   </label>
                   <select
                     value={bookingDoctor}
                     onChange={(e) => setBookingDoctor(e.target.value)}
-                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                   >
                     <option value="Dr. Gemechu Desta">Dr. Gemechu Desta (Senior Internist)</option>
                     <option value="Dr. Bekele Tadesse">Dr. Bekele Tadesse (Cardiologist)</option>
@@ -2187,24 +2305,24 @@ export default function PatientPortalPage(): React.ReactElement {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       {language === 'om' ? 'Guyyaa (Date)' : 'Appointment Date'}
                     </label>
                     <input
                       type="date"
                       value={bookingDate}
                       onChange={(e) => setBookingDate(e.target.value)}
-                      className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                      className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       {language === 'om' ? 'Sa\'aatii (Time Slot)' : 'Time Slot'}
                     </label>
                     <select
                       value={bookingTime}
                       onChange={(e) => setBookingTime(e.target.value)}
-                      className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                      className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                     >
                       <option value="09:00 AM">09:00 AM</option>
                       <option value="10:30 AM">10:30 AM</option>
@@ -2216,7 +2334,7 @@ export default function PatientPortalPage(): React.ReactElement {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {language === 'om' ? 'Gosa Yaalaa (Consultation Mode)' : 'Consultation Mode'}
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -2225,41 +2343,41 @@ export default function PatientPortalPage(): React.ReactElement {
                       onClick={() => setBookingType('In-Person Consultation')}
                       className={`p-3 rounded-xl border-2 text-xs font-black text-left transition cursor-pointer ${
                         bookingType === 'In-Person Consultation'
-                          ? 'border-teal-600 bg-teal-50 text-teal-900 ring-2 ring-teal-400/20'
-                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-white'
+                          ? 'border-teal-500 bg-teal-500/20 text-teal-950 dark:text-teal-200 ring-2 ring-teal-400/30'
+                          : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700'
                       }`}
                     >
-                      <Building2 className="h-4 w-4 mb-1 text-teal-600" />
+                      <Building2 className="h-4 w-4 mb-1 text-teal-600 dark:text-teal-400" />
                       <div>Kallattiin (In-Person)</div>
-                      <span className="text-[10px] font-normal text-slate-500">Hospital OPD Campus</span>
+                      <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">Hospital OPD Campus</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setBookingType('Telemedicine Video Call')}
                       className={`p-3 rounded-xl border-2 text-xs font-black text-left transition cursor-pointer ${
                         bookingType === 'Telemedicine Video Call'
-                          ? 'border-teal-600 bg-teal-50 text-teal-900 ring-2 ring-teal-400/20'
-                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-white'
+                          ? 'border-sky-500 bg-sky-500/20 text-sky-950 dark:text-sky-200 ring-2 ring-sky-400/30'
+                          : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700'
                       }`}
                     >
-                      <Video className="h-4 w-4 mb-1 text-teal-600" />
+                      <Video className="h-4 w-4 mb-1 text-sky-600 dark:text-sky-400" />
                       <div>Yaala Fagoo (Video Call)</div>
-                      <span className="text-[10px] font-normal text-slate-500">Encrypted WebRTC Consult</span>
+                      <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">Encrypted WebRTC Consult</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-200/80 dark:border-slate-800/80">
                   <button
                     type="button"
                     onClick={() => setBookingModalOpen(false)}
-                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
+                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     {language === 'om' ? 'Dhiisi' : 'Cancel'}
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-black rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-md active:scale-95 transition cursor-pointer"
+                    className="px-5 py-2 text-xs font-black rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-md active:scale-95 transition cursor-pointer hover:scale-105"
                   >
                     {language === 'om' ? 'Mirkaneessi & Qabadhu' : 'Confirm Appointment'}
                   </button>
@@ -2273,22 +2391,24 @@ export default function PatientPortalPage(): React.ReactElement {
             6. PRESCRIPTION REFILL REQUEST MODAL
             ========================================================================= */}
         {refillModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-            <div className="w-full max-w-md rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-4 text-slate-900 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div className="flex items-center gap-2">
-                  <Pill className="h-6 w-6 text-teal-600" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+            <div className="relative overflow-hidden w-full max-w-md rounded-3xl border-2 border-violet-500/80 dark:border-violet-400/60 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-2xl p-6 shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 animate-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-violet-500/20 text-violet-600 dark:text-violet-300 border border-violet-500/40 flex items-center justify-center">
+                    <Pill className="h-5 w-5" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-900">
+                    <h3 className="text-lg font-black text-slate-950 dark:text-white">
                       {language === 'om' ? 'Qoricha Haaromsuu Gaafadhu' : language === 'am' ? 'መድኃኒት ማደስ ይጠይቁ' : 'Request Prescription Refill'}
                     </h3>
-                    <p className="text-xs text-slate-500">Mettu Karl Outpatient Pharmacy • FEFO Verified</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Mettu Karl Outpatient Pharmacy • FEFO Verified</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setRefillModalOpen(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="rounded-xl p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -2296,7 +2416,7 @@ export default function PatientPortalPage(): React.ReactElement {
 
               <form onSubmit={handleRequestRefill} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {language === 'om' ? 'Maqaa Qorichaa (Medication Name & Strength)' : 'Medication Name & Strength'}
                   </label>
                   <input
@@ -2305,7 +2425,7 @@ export default function PatientPortalPage(): React.ReactElement {
                     placeholder="fkn. Amoxicillin 500mg, Metformin 500mg..."
                     value={refillDrug}
                     onChange={(e) => setRefillDrug(e.target.value)}
-                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-violet-500 focus:outline-none"
                   />
                   {/* Quick Pill presets */}
                   <div className="flex flex-wrap gap-1.5 mt-2">
@@ -2314,7 +2434,7 @@ export default function PatientPortalPage(): React.ReactElement {
                         key={drug}
                         type="button"
                         onClick={() => setRefillDrug(drug)}
-                        className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 cursor-pointer"
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 dark:hover:bg-violet-900/50 text-violet-800 dark:text-violet-200 border border-violet-200 dark:border-violet-700/60 cursor-pointer transition-colors"
                       >
                         + {drug}
                       </button>
@@ -2323,7 +2443,7 @@ export default function PatientPortalPage(): React.ReactElement {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {language === 'om' ? 'Sababa / Yaada Doktooraaf (Reason / Instructions)' : 'Reason / Notes for Pharmacist'}
                   </label>
                   <textarea
@@ -2331,28 +2451,28 @@ export default function PatientPortalPage(): React.ReactElement {
                     placeholder="Qorichi duraan kenname dhumateera, itti fufiinsaan ajajame..."
                     value={refillNotes}
                     onChange={(e) => setRefillNotes(e.target.value)}
-                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-medium text-slate-950 dark:text-white focus:border-violet-500 focus:outline-none"
                   />
                 </div>
 
-                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-700/60 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <p className="text-[11px] leading-tight">
                     Gaaffiin keessan ogeessa faarmaasii fi doktooraan erga sakatta&apos;amee booda Telebirriin herregamee qophaa&apos;a.
                   </p>
                 </div>
 
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-200/80 dark:border-slate-800/80">
                   <button
                     type="button"
                     onClick={() => setRefillModalOpen(false)}
-                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
+                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     {language === 'om' ? 'Dhiisi' : 'Cancel'}
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-black rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-md active:scale-95 transition cursor-pointer"
+                    className="px-5 py-2 text-xs font-black rounded-xl bg-violet-600 hover:bg-violet-700 text-white shadow-md active:scale-95 transition cursor-pointer hover:scale-105"
                   >
                     {language === 'om' ? 'Gaaffii Ergi' : 'Submit Refill'}
                   </button>
@@ -2366,22 +2486,24 @@ export default function PatientPortalPage(): React.ReactElement {
             7. LIVE QUEUE TICKET MODAL
             ========================================================================= */}
         {tokenModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-            <div className="w-full max-w-md rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-4 text-slate-900 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div className="flex items-center gap-2">
-                  <Ticket className="h-6 w-6 text-teal-600" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+            <div className="relative overflow-hidden w-full max-w-md rounded-3xl border-2 border-amber-500/80 dark:border-amber-400/60 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-2xl p-6 shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 animate-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/40 flex items-center justify-center">
+                    <Ticket className="h-5 w-5" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-900">
+                    <h3 className="text-lg font-black text-slate-950 dark:text-white">
                       {language === 'om' ? 'Dabaree Haaraa Fudhadhu' : language === 'am' ? 'አዲስ የተራ ቁጥር ይውሰዱ' : 'Take Live Queue Ticket'}
                     </h3>
-                    <p className="text-xs text-slate-500">Mettu Karl Automated Triage & Queue System</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Mettu Karl Automated Triage & Queue System</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setTokenModalOpen(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="rounded-xl p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -2389,13 +2511,13 @@ export default function PatientPortalPage(): React.ReactElement {
 
               <form onSubmit={handleRequestToken} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {language === 'om' ? 'Kutaa Dabaree Barbaaddan (Clinic / Station)' : 'Select Clinic / Station'}
                   </label>
                   <select
                     value={tokenDept}
                     onChange={(e) => setTokenDept(e.target.value)}
-                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-amber-500 focus:outline-none"
                   >
                     <option value="OPD Internal Medicine (Room 04)">OPD Internal Medicine (Room 04)</option>
                     <option value="Pediatrics Clinic (Room 08)">Pediatrics Clinic (Room 08)</option>
@@ -2406,31 +2528,31 @@ export default function PatientPortalPage(): React.ReactElement {
                   </select>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-teal-50 border border-teal-200 space-y-2 text-xs">
-                  <div className="flex justify-between font-bold text-teal-900">
+                <div className="p-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-700/60 space-y-2 text-xs">
+                  <div className="flex justify-between font-bold text-amber-950 dark:text-amber-200">
                     <span>{language === 'om' ? 'Tilmaama Yeroo Eegumsaa:' : 'Estimated Wait:'}</span>
-                    <span className="font-mono text-teal-800 font-black">~10 - 15 Daqiiqaa</span>
+                    <span className="font-mono text-amber-700 dark:text-amber-300 font-black">~10 - 15 Daqiiqaa</span>
                   </div>
-                  <div className="flex justify-between text-teal-800">
+                  <div className="flex justify-between text-amber-800 dark:text-amber-300">
                     <span>{language === 'om' ? 'Namoota Fuuldura Keessan:' : 'Patients in Queue:'}</span>
                     <span className="font-mono font-bold">3 Patients</span>
                   </div>
-                  <p className="text-[10px] text-teal-700 pt-1 border-t border-teal-200">
+                  <p className="text-[10px] text-amber-700 dark:text-amber-400 pt-1 border-t border-amber-200 dark:border-amber-700/60">
                     Koodiin dabaree keessanii iskiriinii TV hospitaala irratti fi bilbila keessan irratti battalumatti ni calaqqisa.
                   </p>
                 </div>
 
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-200/80 dark:border-slate-800/80">
                   <button
                     type="button"
                     onClick={() => setTokenModalOpen(false)}
-                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
+                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     {language === 'om' ? 'Dhiisi' : 'Cancel'}
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-black rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-md active:scale-95 transition cursor-pointer"
+                    className="px-5 py-2 text-xs font-black rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-md active:scale-95 transition cursor-pointer hover:scale-105"
                   >
                     {language === 'om' ? 'Token Fudhadhu' : 'Generate Token'}
                   </button>
@@ -2444,29 +2566,31 @@ export default function PatientPortalPage(): React.ReactElement {
             8. OFFICIAL DIGITAL PATIENT HEALTH CARD & QR MODAL
             ========================================================================= */}
         {healthCardModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-xs p-4">
-            <div className="w-full max-w-lg rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-5 text-slate-900 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-6 w-6 text-teal-600" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+            <div className="relative overflow-hidden w-full max-w-lg rounded-3xl border-2 border-teal-500/80 dark:border-teal-400/60 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-2xl p-6 shadow-2xl space-y-5 text-slate-900 dark:text-slate-100 animate-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-teal-500/20 text-teal-600 dark:text-teal-300 border border-teal-500/40 flex items-center justify-center">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
                   <div>
-                    <h3 className="text-base font-black text-slate-900">
+                    <h3 className="text-base font-black text-slate-950 dark:text-white">
                       {language === 'om' ? 'Waraqaa Ragaa Fayyaa Dhukkubsataa' : language === 'am' ? 'የታካሚ የህክምና መታወቂያ ካርድ' : 'Official Patient Healthcare ID Card'}
                     </h3>
-                    <p className="text-[11px] text-teal-800 font-bold">FDRE Ministry of Health • Mettu Karl Comprehensive Specialized Hospital</p>
+                    <p className="text-[11px] text-teal-800 dark:text-teal-300 font-bold">FDRE Ministry of Health • Mettu Karl Comprehensive Specialized Hospital</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setHealthCardModalOpen(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="rounded-xl p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
 
               {/* Printable Card Container */}
-              <div id="patient-health-card-print" className="rounded-2xl border-2 border-teal-700 bg-gradient-to-br from-teal-900 via-teal-950 to-slate-950 text-white p-5 shadow-xl space-y-4 relative overflow-hidden">
+              <div id="patient-health-card-print" className="rounded-2xl border-2 border-teal-700 bg-gradient-to-br from-teal-900 via-teal-950 to-slate-950 text-white p-5 shadow-2xl space-y-4 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-36 h-36 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
                 
                 {/* Header */}
@@ -2539,7 +2663,7 @@ export default function PatientPortalPage(): React.ReactElement {
 
               {/* Action Buttons */}
               <div className="flex items-center justify-between pt-2">
-                <span className="text-[11px] text-slate-500 font-medium">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   {language === 'om' ? 'Kaardiin kun kutaa hundatti fudhatama qaba.' : 'Recognized across all hospital wards & labs.'}
                 </span>
                 <div className="flex gap-2">
@@ -2548,7 +2672,7 @@ export default function PatientPortalPage(): React.ReactElement {
                     onClick={() => {
                       if (typeof window !== 'undefined') window.print();
                     }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow-md transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white font-bold text-xs shadow-md transition cursor-pointer"
                   >
                     <Printer className="h-3.5 w-3.5" />
                     <span>{language === 'om' ? 'Maxxansi (Print)' : 'Print Card'}</span>
@@ -2556,7 +2680,7 @@ export default function PatientPortalPage(): React.ReactElement {
                   <button
                     type="button"
                     onClick={() => setHealthCardModalOpen(false)}
-                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
+                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     {language === 'om' ? 'Cufi' : 'Close'}
                   </button>
@@ -2570,22 +2694,24 @@ export default function PatientPortalPage(): React.ReactElement {
             9. PATIENT BIOGRAPHY & DEMOGRAPHICS EDITOR MODAL
             ========================================================================= */}
         {bioEditModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-            <div className="w-full max-w-lg rounded-3xl border-2 border-teal-500 bg-white p-6 shadow-2xl space-y-4 text-slate-900 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div className="flex items-center gap-2">
-                  <Edit2 className="h-6 w-6 text-teal-600" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+            <div className="relative overflow-hidden w-full max-w-lg rounded-3xl border-2 border-teal-500/80 dark:border-teal-400/60 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-2xl p-6 shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 animate-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-teal-500/20 text-teal-600 dark:text-teal-300 border border-teal-500/40 flex items-center justify-center">
+                    <Edit2 className="h-5 w-5" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-900">
+                    <h3 className="text-lg font-black text-slate-950 dark:text-white">
                       {language === 'om' ? 'Odeeffannoo Dhukkubsataa Haaromsi' : language === 'am' ? 'የታካሚ መረጃን ያድሱ' : 'Edit Patient Demographics'}
                     </h3>
-                    <p className="text-xs text-slate-500">Update contact, address, allergies & emergency contact</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Update contact, address, allergies & emergency contact</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setBioEditModalOpen(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="rounded-xl p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -2594,24 +2720,24 @@ export default function PatientPortalPage(): React.ReactElement {
               <form onSubmit={handleSaveBio} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       {language === 'om' ? 'Lakkoofsa Bilbilaa' : 'Phone Number'}
                     </label>
                     <input
                       type="text"
                       value={editPhone}
                       onChange={(e) => setEditPhone(e.target.value)}
-                      className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                      className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       {language === 'om' ? 'Gosa Dhiigaa (Blood Group)' : 'Blood Group'}
                     </label>
                     <select
                       value={editBloodGroup}
                       onChange={(e) => setEditBloodGroup(e.target.value)}
-                      className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                      className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                     >
                       <option value="O+">O+</option>
                       <option value="A+">A+</option>
@@ -2626,19 +2752,19 @@ export default function PatientPortalPage(): React.ReactElement {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {language === 'om' ? 'Iddoo Jireenyaa (Woreda / Kebele)' : 'Residence Address / Woreda'}
                   </label>
                   <input
                     type="text"
                     value={editWoreda}
                     onChange={(e) => setEditWoreda(e.target.value)}
-                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {language === 'om' ? 'Dhibee / Alarjii Qorichaa (Allergies)' : 'Known Drug Allergies (comma-separated)'}
                   </label>
                   <input
@@ -2646,46 +2772,46 @@ export default function PatientPortalPage(): React.ReactElement {
                     value={editAllergies}
                     onChange={(e) => setEditAllergies(e.target.value)}
                     placeholder="Penicillin, Sulfa, Aspirin..."
-                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       {language === 'om' ? 'Nama Balaa Yeroo Qunnamu (Contact Name)' : 'Emergency Contact Name'}
                     </label>
                     <input
                       type="text"
                       value={editEmergencyContact}
                       onChange={(e) => setEditEmergencyContact(e.target.value)}
-                      className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                      className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       {language === 'om' ? 'Bilbila Balaa (Emergency Phone)' : 'Emergency Phone'}
                     </label>
                     <input
                       type="text"
                       value={editEmergencyPhone}
                       onChange={(e) => setEditEmergencyPhone(e.target.value)}
-                      className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 focus:border-teal-600 focus:outline-none"
+                      className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-950 dark:text-white focus:border-teal-500 focus:outline-none"
                     />
                   </div>
                 </div>
 
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-200/80 dark:border-slate-800/80">
                   <button
                     type="button"
                     onClick={() => setBioEditModalOpen(false)}
-                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
+                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     {language === 'om' ? 'Dhiisi' : 'Cancel'}
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-black rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-md active:scale-95 transition cursor-pointer"
+                    className="px-5 py-2 text-xs font-black rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-md active:scale-95 transition cursor-pointer hover:scale-105"
                   >
                     {language === 'om' ? 'Olkaayi (Save Profile)' : 'Save Changes'}
                   </button>

@@ -103,18 +103,16 @@ export function PatientDashboardView(): React.ReactElement {
       </div>
 
       {/* ================================================================= */}
-      {/* 2. ONE UNIFIED RECTANGLE HOLDING 4 COMPACT ANIMATED 3D MINI CUBES */}
+      {/* 2. PERSONAL HEALTH STATS BAR (Frosted Glass, No Cubes)            */}
       {/* ================================================================= */}
       <div className="relative overflow-hidden rounded-3xl border-[2.5px] border-teal-400/90 dark:border-teal-400/60 bg-gradient-to-br from-teal-100/85 via-white/95 to-sky-100/85 dark:from-[#0d2226]/95 dark:via-[#112d33]/95 dark:to-[#0c1f24]/95 backdrop-blur-md p-3.5 sm:p-4 shadow-[0_14px_34px_-8px_rgba(20,184,166,0.3)] hover:shadow-[0_18px_42px_-8px_rgba(20,184,166,0.45)] hover:-translate-y-0.5 transition-all duration-300 animate-smooth-in">
         <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-white/45 dark:via-teal-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '0.6s' }} />
         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-3xl mx-auto">
-          {/* Mini Cube 1: Active Prescriptions */}
+          {/* Stat 1: Active Prescriptions */}
           <Link
             href="/patient-portal?tab=prescriptions"
-            style={{ animationDelay: '0s' }}
-            className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-amber-400/85 dark:border-amber-400/55 bg-gradient-to-br from-white via-amber-50 to-amber-100/95 dark:from-[#362714] dark:via-[#423118] dark:to-[#362615] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(245,158,11,0.28),3px_3px_0_0_rgba(251,191,36,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-amber-500 hover:shadow-[0_14px_24px_-4px_rgba(245,158,11,0.42),5px_5px_0_0_rgba(251,191,36,0.45)] transition-all duration-300 ease-out"
+            className="relative overflow-hidden w-full rounded-2xl border-2 border-amber-400/85 dark:border-amber-400/55 bg-gradient-to-br from-white via-amber-50 to-amber-100/95 dark:from-[#362714] dark:via-[#423118] dark:to-[#362615] p-2.5 sm:p-3 flex flex-col justify-between group cursor-pointer shadow-[0_6px_14px_-4px_rgba(245,158,11,0.28)] hover:-translate-y-1 hover:border-amber-500 hover:shadow-[0_14px_24px_-4px_rgba(245,158,11,0.42)] transition-all duration-300 ease-out"
           >
-            <div className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/45 dark:via-amber-200/20 to-transparent mkh-cube-sweep" />
             <div className="pointer-events-none absolute -right-5 -top-5 w-16 h-16 rounded-full bg-amber-400/25 blur-lg group-hover:scale-150 transition-transform duration-500" />
             <div className="flex items-start justify-between gap-1 relative z-10">
               <span className="text-[11px] sm:text-xs font-black text-slate-900 dark:text-white leading-tight">
@@ -124,7 +122,6 @@ export function PatientDashboardView(): React.ReactElement {
                 <Pill className="w-3 h-3" />
               </span>
             </div>
-
             <div className="relative z-10 space-y-1 my-auto">
               <span className="block text-lg sm:text-xl font-black tracking-tight text-amber-900 dark:text-amber-200">
                 {isGudeta ? 2 : 1}
@@ -133,19 +130,16 @@ export function PatientDashboardView(): React.ReactElement {
                 DISPENSED (FEFO)
               </span>
             </div>
-
             <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
               {isGudeta ? 'Coartem • Panadol' : 'Verified Dosage'}
             </p>
           </Link>
 
-          {/* Mini Cube 2: Lab Results Ready */}
+          {/* Stat 2: Lab Results Ready */}
           <Link
             href="/patient-portal?tab=lab"
-            style={{ animationDelay: '0.45s' }}
-            className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-cyan-400/85 dark:border-cyan-400/55 bg-gradient-to-br from-white via-cyan-50 to-cyan-100/95 dark:from-[#11313d] dark:via-[#153b4a] dark:to-[#122e38] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(6,182,212,0.28),3px_3px_0_0_rgba(34,211,238,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-cyan-500 hover:shadow-[0_14px_24px_-4px_rgba(6,182,212,0.42),5px_5px_0_0_rgba(34,211,238,0.45)] transition-all duration-300 ease-out"
+            className="relative overflow-hidden w-full rounded-2xl border-2 border-cyan-400/85 dark:border-cyan-400/55 bg-gradient-to-br from-white via-cyan-50 to-cyan-100/95 dark:from-[#11313d] dark:via-[#153b4a] dark:to-[#122e38] p-2.5 sm:p-3 flex flex-col justify-between group cursor-pointer shadow-[0_6px_14px_-4px_rgba(6,182,212,0.28)] hover:-translate-y-1 hover:border-cyan-500 hover:shadow-[0_14px_24px_-4px_rgba(6,182,212,0.42)] transition-all duration-300 ease-out"
           >
-            <div className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/45 dark:via-cyan-200/20 to-transparent mkh-cube-sweep" style={{ animationDelay: '1.1s' }} />
             <div className="pointer-events-none absolute -right-5 -top-5 w-16 h-16 rounded-full bg-cyan-400/25 blur-lg group-hover:scale-150 transition-transform duration-500" />
             <div className="flex items-start justify-between gap-1 relative z-10">
               <span className="text-[11px] sm:text-xs font-black text-slate-900 dark:text-white leading-tight">
@@ -155,7 +149,6 @@ export function PatientDashboardView(): React.ReactElement {
                 <FlaskConical className="w-3 h-3" />
               </div>
             </div>
-
             <div className="relative z-10 my-auto space-y-1">
               <span className="block text-lg sm:text-xl font-black tracking-tight text-cyan-900 dark:text-cyan-200">
                 {isGudeta ? 1 : 1}
@@ -164,19 +157,16 @@ export function PatientDashboardView(): React.ReactElement {
                 READY TO VIEW
               </span>
             </div>
-
             <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
               {isGudeta ? 'Serum Electrolytes' : 'Complete Blood Count'}
             </p>
           </Link>
 
-          {/* Mini Cube 3: Appointments */}
+          {/* Stat 3: Appointments */}
           <Link
             href="/patient-portal?tab=telemed"
-            style={{ animationDelay: '0.9s' }}
-            className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-teal-400/85 dark:border-teal-400/55 bg-gradient-to-br from-white via-teal-50 to-teal-100/95 dark:from-[#113137] dark:via-[#163a42] dark:to-[#122e35] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(20,184,166,0.28),3px_3px_0_0_rgba(45,212,191,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-teal-500 hover:shadow-[0_14px_24px_-4px_rgba(20,184,166,0.42),5px_5px_0_0_rgba(45,212,191,0.45)] transition-all duration-300 ease-out"
+            className="relative overflow-hidden w-full rounded-2xl border-2 border-teal-400/85 dark:border-teal-400/55 bg-gradient-to-br from-white via-teal-50 to-teal-100/95 dark:from-[#113137] dark:via-[#163a42] dark:to-[#122e35] p-2.5 sm:p-3 flex flex-col justify-between group cursor-pointer shadow-[0_6px_14px_-4px_rgba(20,184,166,0.28)] hover:-translate-y-1 hover:border-teal-500 hover:shadow-[0_14px_24px_-4px_rgba(20,184,166,0.42)] transition-all duration-300 ease-out"
           >
-            <div className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/45 dark:via-teal-200/20 to-transparent mkh-cube-sweep" style={{ animationDelay: '2.2s' }} />
             <div className="pointer-events-none absolute -right-5 -top-5 w-16 h-16 rounded-full bg-teal-400/25 blur-lg group-hover:scale-150 transition-transform duration-500" />
             <div className="flex items-start justify-between gap-1 relative z-10">
               <span className="text-[11px] sm:text-xs font-black text-slate-900 dark:text-white leading-tight">
@@ -186,7 +176,6 @@ export function PatientDashboardView(): React.ReactElement {
                 <Calendar className="w-3 h-3" />
               </div>
             </div>
-
             <div className="relative z-10 my-auto space-y-1">
               <span className="block text-sm sm:text-base font-black tracking-tight text-teal-900 dark:text-teal-200">
                 Upcoming
@@ -195,19 +184,16 @@ export function PatientDashboardView(): React.ReactElement {
                 TELEMED VIDEO
               </span>
             </div>
-
             <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
               Dr. Bekele Tadesse
             </p>
           </Link>
 
-          {/* Mini Cube 4: Pending Invoice */}
+          {/* Stat 4: Pending Invoice */}
           <Link
             href="/patient-portal?tab=billing"
-            style={{ animationDelay: '1.35s' }}
-            className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-emerald-400/85 dark:border-emerald-400/55 bg-gradient-to-br from-white via-emerald-50 to-emerald-100/95 dark:from-[#113125] dark:via-[#163a2d] dark:to-[#122e24] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(16,185,129,0.28),3px_3px_0_0_rgba(52,211,153,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-emerald-500 hover:shadow-[0_14px_24px_-4px_rgba(16,185,129,0.42),5px_5px_0_0_rgba(52,211,153,0.45)] transition-all duration-300 ease-out"
+            className="relative overflow-hidden w-full rounded-2xl border-2 border-emerald-400/85 dark:border-emerald-400/55 bg-gradient-to-br from-white via-emerald-50 to-emerald-100/95 dark:from-[#113125] dark:via-[#163a2d] dark:to-[#122e24] p-2.5 sm:p-3 flex flex-col justify-between group cursor-pointer shadow-[0_6px_14px_-4px_rgba(16,185,129,0.28)] hover:-translate-y-1 hover:border-emerald-500 hover:shadow-[0_14px_24px_-4px_rgba(16,185,129,0.42)] transition-all duration-300 ease-out"
           >
-            <div className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/45 dark:via-emerald-200/20 to-transparent mkh-cube-sweep" style={{ animationDelay: '3.1s' }} />
             <div className="pointer-events-none absolute -right-5 -top-5 w-16 h-16 rounded-full bg-emerald-400/25 blur-lg group-hover:scale-150 transition-transform duration-500" />
             <div className="flex items-start justify-between gap-1 relative z-10">
               <span className="text-[11px] sm:text-xs font-black text-slate-900 dark:text-white leading-tight">
@@ -217,7 +203,6 @@ export function PatientDashboardView(): React.ReactElement {
                 <CreditCard className="w-3 h-3" />
               </div>
             </div>
-
             <div className="relative z-10 my-auto space-y-1">
               <span className="block text-base sm:text-lg font-black tracking-tight text-emerald-900 dark:text-emerald-200 font-mono">
                 {isGudeta ? '84.00' : '0.00'} ETB
@@ -226,7 +211,6 @@ export function PatientDashboardView(): React.ReactElement {
                 {isGudeta ? 'CBHI 80% COVER' : 'ALL CLEARED'}
               </span>
             </div>
-
             <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
               {isGudeta ? 'Pay with Telebirr' : 'No Pending Dues'}
             </p>
