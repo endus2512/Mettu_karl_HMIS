@@ -41,23 +41,26 @@ export function LanguageSelect({ variant = 'dark', className = '' }: LanguageSel
 
   return (
     <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
-      {/* Trigger Button: Shows ONLY the current language */}
+      {/* Trigger Button: Shows ONLY the current language (Adaptive Code/Full Label) */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="true"
         title="Jijjiirraa Afaanii (Select Language)"
-        className={`flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-bold transition-all duration-150 cursor-pointer select-none active:scale-95 ${
+        className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-2 sm:px-2.5 py-1 sm:py-1.5 text-xs font-bold transition-all duration-150 cursor-pointer select-none active:scale-95 shrink-0 ${
           isLight
             ? 'border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-xs hover:border-teal-400 dark:hover:border-teal-500'
             : 'border border-slate-700/90 bg-slate-800/90 hover:bg-slate-700/90 text-white shadow-xs'
         }`}
       >
         <Globe className={`w-3.5 h-3.5 shrink-0 ${isLight ? 'text-teal-600 dark:text-teal-400' : 'text-teal-400'}`} />
-        <span className="tracking-tight">{currentLang.label}</span>
+        <span className="hidden md:inline tracking-tight">{currentLang.label}</span>
+        <span className="md:hidden font-mono text-[10px] sm:text-[11px] font-extrabold uppercase text-teal-300">
+          {currentLang.code}
+        </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 transition-transform duration-200 shrink-0 ${
+          className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 shrink-0 ${
             isOpen ? 'rotate-180 text-teal-400' : isLight ? 'text-slate-400' : 'text-slate-400'
           }`}
         />

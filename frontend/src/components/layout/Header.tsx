@@ -234,6 +234,13 @@ export function Header(): React.ReactElement {
       ? ethiopian.formatted_am
       : ethiopian.formatted_en;
   const dateDisplay = `${ethDateDisplay} E.C. • ${gregorian.formatted} G.C.`;
+  const ethShortMonth =
+    language === 'om'
+      ? (ethiopian.month_name_om || 'Sadaasa')
+      : language === 'am'
+      ? (ethiopian.month_name_am || 'ኅዳር')
+      : (ethiopian.month_name_en || 'Hidar');
+  const ethShortDate = `${ethShortMonth} ${ethiopian.day || 1} E.C.`;
   const shiftDisplay =
     language === 'om'
       ? shift.name_om
@@ -328,9 +335,15 @@ export function Header(): React.ReactElement {
   const roleLabel = `${effectiveRole.replace('_', ' ').toUpperCase()}${simulatedRole ? ' (SIM)' : ''}`;
 
   return (
-    <header className="flex h-16 items-center justify-between border-b-2 border-sky-400/75 dark:border-sky-400/40 bg-gradient-to-r from-sky-100/95 via-white/95 to-indigo-100/95 dark:from-[#0f1c36]/95 dark:via-[#152546]/95 dark:to-[#182245]/95 backdrop-blur-xl px-3 sm:px-6 sticky top-0 z-30 shadow-[0_8px_24px_-8px_rgba(14,165,233,0.22)] select-none text-slate-900 dark:text-white transition-all duration-300">
-      {/* LEFT: Mobile Drawer Trigger & Unified Online Time • Calendar • Shift Cube Rectangle */}
-      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+    <header className="relative flex h-16 items-center justify-between border-b border-sky-300/70 dark:border-sky-500/30 bg-white/95 dark:bg-[#0c1527]/95 backdrop-blur-2xl px-2 sm:px-4 sticky top-0 z-30 shadow-[0_4px_20px_-4px_rgba(14,165,233,0.18)] select-none text-slate-900 dark:text-white transition-all duration-300 gap-1.5 sm:gap-3 w-full">
+      {/* SOLID OPAQUE BACKDROP: Completely prevents scrolled content/borders from bleeding through underneath */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-sky-50/98 via-white/98 to-indigo-50/98 dark:from-[#0a1222]/98 dark:via-[#0e172a]/98 dark:to-[#0c1527]/98"
+      />
+
+      {/* LEFT: Mobile Drawer Trigger & Unified Online Time • Calendar • Shift Rectangle */}
+      <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 shrink-0">
         <button
           type="button"
           onClick={() => {
@@ -338,11 +351,11 @@ export function Header(): React.ReactElement {
               window.dispatchEvent(new CustomEvent('toggle-mkh-sidebar'));
             }
           }}
-          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-white/90 dark:bg-[#141b29] hover:bg-sky-50 dark:hover:bg-[#1c263a] text-amber-700 dark:text-amber-400 border-2 border-sky-300 dark:border-sky-500/40 transition-colors shrink-0 cursor-pointer shadow-xs"
+          className="lg:hidden flex items-center justify-center h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-xl bg-white/95 dark:bg-[#141b29] hover:bg-sky-50 dark:hover:bg-[#1c263a] text-amber-700 dark:text-amber-400 border border-sky-300/80 dark:border-sky-500/40 transition-colors shrink-0 cursor-pointer shadow-xs active:scale-95"
           title="Toggle Navigation Menu"
           aria-label="Toggle Navigation Menu"
         >
-          <Menu className="h-4.5 w-4.5" />
+          <Menu className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
         </button>
 
         {/* ONE COMPACT CUBE-COLORED ONLINE RECTANGLE: TIME (12H) + CALENDAR + SHIFT */}
@@ -350,10 +363,10 @@ export function Header(): React.ReactElement {
           type="button"
           onClick={() => setCalendarModalOpen(true)}
           title={`Online NTP Synced • EAT UTC+3 (${ethiopian.habasha_time_str}) — Click to configure calendar & shift`}
-          className="group flex items-center gap-2 sm:gap-2.5 rounded-2xl border-2 border-sky-400/85 dark:border-sky-400/50 bg-gradient-to-br from-white via-sky-50 to-indigo-100/90 dark:from-[#172744] dark:via-[#1b2e52] dark:to-[#1d2849] px-3 py-1.5 shadow-[0_6px_16px_-4px_rgba(14,165,233,0.26),3px_3px_0_0_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:border-sky-500 hover:shadow-[0_10px_22px_-4px_rgba(14,165,233,0.38),4px_4px_0_0_rgba(56,189,248,0.4)] transition-all duration-300 cursor-pointer min-w-0 max-w-full"
+          className="group flex items-center gap-1.5 sm:gap-2 rounded-2xl border border-sky-400/80 dark:border-sky-400/50 bg-gradient-to-br from-white via-sky-50 to-indigo-50/90 dark:from-[#172744] dark:via-[#1b2e52] dark:to-[#1d2849] px-2 sm:px-2.5 py-1 sm:py-1.5 shadow-[0_4px_14px_-4px_rgba(14,165,233,0.22)] hover:-translate-y-0.5 hover:border-sky-500 transition-all duration-200 cursor-pointer min-w-0 shrink-0"
         >
-          {/* Online Live Dot + 12-Hour Clock (up to 12:00) */}
-          <div className="flex items-center gap-1.5 text-xs sm:text-[13px] font-mono font-extrabold text-teal-900 dark:text-teal-200 shrink-0">
+          {/* Online Live Dot + 12-Hour Clock */}
+          <div className="flex items-center gap-1 sm:gap-1.5 text-xs font-mono font-extrabold text-teal-900 dark:text-teal-200 shrink-0">
             <span
               className={`h-2 w-2 rounded-full shrink-0 ${
                 ntpSynced
@@ -362,19 +375,20 @@ export function Header(): React.ReactElement {
               }`}
             />
             <Clock className="h-3.5 w-3.5 text-teal-700 dark:text-teal-300 shrink-0" />
-            <span>{serverTime}</span>
+            <span className="tabular-nums">{serverTime}</span>
           </div>
 
-          {/* Calendar Date */}
-          <div className="hidden xl:flex items-center gap-1.5 text-xs font-extrabold text-slate-800 dark:text-slate-100 pl-2 border-l border-sky-300/80 dark:border-sky-400/35 shrink-0">
+          {/* Calendar Date: Compact on md/xl, full on 2xl */}
+          <div className="hidden md:flex items-center gap-1.5 text-xs font-extrabold text-slate-800 dark:text-slate-100 pl-2 border-l border-sky-300/80 dark:border-sky-400/35 min-w-0 shrink-0">
             <Calendar className="h-3.5 w-3.5 text-amber-600 dark:text-amber-300 shrink-0" />
-            <span className="group-hover:text-indigo-700 dark:group-hover:text-amber-200 transition-colors">
-              {dateDisplay}
+            <span className="truncate group-hover:text-indigo-700 dark:group-hover:text-amber-200 transition-colors">
+              <span className="hidden 2xl:inline">{dateDisplay}</span>
+              <span className="2xl:hidden">{ethShortDate}</span>
             </span>
           </div>
 
-          {/* Active Shift */}
-          <div className="hidden md:flex items-center gap-1.5 text-xs font-extrabold text-indigo-900 dark:text-amber-200 pl-2 border-l border-sky-300/80 dark:border-sky-400/35 min-w-0">
+          {/* Active Shift — shown on 2xl */}
+          <div className="hidden 2xl:flex items-center gap-1.5 text-xs font-extrabold text-indigo-900 dark:text-amber-200 pl-2 border-l border-sky-300/80 dark:border-sky-400/35 min-w-0 shrink-0">
             {shift.type === 'morning' ? (
               <Sun className="h-3.5 w-3.5 text-amber-600 dark:text-amber-300 shrink-0" />
             ) : shift.type === 'afternoon' ? (
@@ -384,7 +398,7 @@ export function Header(): React.ReactElement {
             ) : (
               <Clock className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-300 shrink-0" />
             )}
-            <span className="truncate max-w-[170px]">{shiftDisplay}</span>
+            <span className="truncate max-w-[140px]">{shiftDisplay}</span>
             {!shift.is_auto && (
               <span className="px-1.5 py-0.5 text-[9px] bg-amber-200 dark:bg-amber-500/25 text-amber-950 dark:text-amber-200 rounded font-extrabold border border-amber-400/70 shrink-0">
                 MANUAL
@@ -394,28 +408,33 @@ export function Header(): React.ReactElement {
         </button>
       </div>
 
-      {/* CENTER: OMNISEARCH COMMAND PALETTE (Ctrl+K) */}
-      <div className="hidden lg:flex items-center mx-2 shrink-0">
-        <OmnisearchCommandCenter />
+      {/* CENTER: OMNISEARCH COMMAND PALETTE (Desktop View) */}
+      <div className="hidden lg:flex items-center mx-1.5 sm:mx-2 min-w-0 flex-1 justify-center max-w-xs xl:max-w-sm 2xl:max-w-md">
+        <OmnisearchCommandCenter variant="bar" />
       </div>
 
-      {/* RIGHT: SYNC CAPSULE, UTILITIES, PROFILE & LOGOUT */}
-      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-        {/* Edge Offline / Online Connectivity & Sync Capsule + Dark Icon Strip */}
-        <div className="flex items-center gap-1 sm:gap-1.5 rounded-2xl border-2 border-sky-400/60 dark:border-sky-400/40 bg-[#101c34]/95 dark:bg-[#0f1a30]/95 px-2.5 py-1 shadow-[0_4px_12px_-4px_rgba(14,165,233,0.3)] text-white">
-          <div className="flex items-center gap-1.5 pr-1.5 border-r border-slate-700 text-xs">
+      {/* RIGHT: MOBILE SEARCH ICON, SYNC CAPSULE, PROFILE & LOGOUT */}
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
+        {/* Mobile Quick Omnisearch Trigger (Visible on < lg) */}
+        <div className="lg:hidden">
+          <OmnisearchCommandCenter variant="icon" />
+        </div>
+
+        {/* Edge Offline / Online Connectivity & Sync Capsule */}
+        <div className="flex items-center gap-0.5 sm:gap-1 rounded-2xl border border-sky-400/60 dark:border-sky-400/40 bg-[#101c34]/95 dark:bg-[#0f1a30]/95 px-1 sm:px-2 py-1 shadow-[0_4px_12px_-4px_rgba(14,165,233,0.3)] text-white">
+          <div className="flex items-center gap-1 sm:gap-1.5 pr-1 sm:pr-1.5 border-r border-slate-700 text-xs shrink-0">
             {isOnline ? (
               <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]" title="Central DB Online">
-                <span className="relative flex h-2 w-2">
+                <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span className="hidden xl:inline font-mono">ONLINE</span>
+                <span className="hidden 2xl:inline font-mono">ONLINE</span>
               </span>
             ) : (
               <span className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]" title="Edge Offline Mode (IndexedDB Active)">
-                <WifiOff className="h-3 w-3 text-amber-400 animate-pulse" />
-                <span className="hidden xl:inline font-mono">OFFLINE</span>
+                <WifiOff className="h-3 w-3 text-amber-400 animate-pulse shrink-0" />
+                <span className="hidden 2xl:inline font-mono">OFFLINE</span>
               </span>
             )}
 
@@ -428,8 +447,8 @@ export function Header(): React.ReactElement {
                 title={isOnline ? `${pendingSyncCount} offline records ready to sync. Click to push now.` : `${pendingSyncCount} records buffered offline.`}
                 className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-mono text-[10px] font-bold transition-all cursor-pointer"
               >
-                <RefreshCw className={`h-2.5 w-2.5 ${isSyncing ? 'animate-spin text-amber-400' : ''}`} />
-                <span>{pendingSyncCount} PENDING</span>
+                <RefreshCw className={`h-2.5 w-2.5 shrink-0 ${isSyncing ? 'animate-spin text-amber-400' : ''}`} />
+                <span className="hidden sm:inline">{pendingSyncCount}</span>
               </button>
             ) : (
               <button
@@ -444,34 +463,37 @@ export function Header(): React.ReactElement {
             )}
 
             {syncStatusMsg && (
-              <span className="hidden 2xl:inline text-[10px] text-teal-300 font-medium truncate max-w-[110px]" title={syncStatusMsg}>
+              <span className="hidden 2xl:inline text-[10px] text-teal-300 font-medium truncate max-w-[100px]" title={syncStatusMsg}>
                 {syncStatusMsg}
               </span>
             )}
           </div>
 
           {/* Notification Bell */}
-          <div className="flex items-center px-0.5">
+          <div className="flex items-center px-0.5 shrink-0">
             <NotificationBell variant="dark" />
           </div>
 
           {/* Language Selector */}
-          <div className="flex items-center px-0.5 border-l border-slate-700">
+          <div className="flex items-center px-0.5 border-l border-slate-700 shrink-0">
             <LanguageSelect variant="dark" />
           </div>
 
           {/* Theme Toggle */}
-          <div className="flex items-center px-0.5 border-l border-slate-700">
+          <div className="flex items-center px-0.5 border-l border-slate-700 shrink-0">
             <ThemeToggle variant="cockpit" />
           </div>
         </div>
 
-        {/* Clinician Profile Avatar & Name (Universal Bright & Dark Contrast) */}
-        <div className="flex items-center gap-2 pl-1 pr-2 border-r-2 border-sky-300/60 dark:border-slate-700 shrink-0">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-extrabold text-xs flex items-center justify-center ring-2 ring-amber-400/50 shrink-0 shadow-xs">
+        {/* Clinician Profile Avatar & Name — adaptive badge on all screens, name on 2xl */}
+        <div className="flex items-center gap-1.5 sm:gap-2 pl-0.5 sm:pl-1 pr-1 sm:pr-2 border-r border-sky-300/60 dark:border-slate-700 shrink-0">
+          <div
+            title={`${profile.name} • ${roleLabel}`}
+            className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-extrabold text-[10px] sm:text-xs flex items-center justify-center ring-2 ring-amber-400/50 shrink-0 shadow-xs cursor-default"
+          >
             {profile.initials}
           </div>
-          <div className="hidden lg:block text-left min-w-0">
+          <div className="hidden 2xl:block text-left min-w-0 max-w-[140px]">
             <p className="text-xs font-extrabold text-slate-900 dark:text-white truncate leading-tight">
               {profile.name}
             </p>
@@ -481,16 +503,16 @@ export function Header(): React.ReactElement {
           </div>
         </div>
 
-        {/* PROMINENT RIGHT-HAND HEADER LOGOUT BUTTON (BOLD RED, VISIBLE EVERYWHERE) */}
+        {/* PROMINENT RIGHT-HAND HEADER LOGOUT BUTTON */}
         <button
           type="button"
           onClick={handleInstantLogout}
           title={language === 'om' ? "Sirna Keessaa Ba'i (Logout)" : language === 'am' ? 'ከስርዓቱ ውጣ (Logout)' : 'Sign out of HMIS'}
-          className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold px-3 sm:px-3.5 py-1.5 text-xs shadow-md shadow-rose-950/50 hover:shadow-rose-600/30 active:scale-95 transition-all duration-150 cursor-pointer select-none shrink-0 border border-rose-400/40"
+          className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold px-2 sm:px-3 py-1.5 text-xs shadow-md shadow-rose-950/40 hover:shadow-rose-600/30 active:scale-95 transition-all duration-150 cursor-pointer select-none shrink-0 border border-rose-400/40"
           aria-label="Logout"
         >
           <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white shrink-0" />
-          <span className="inline font-bold tracking-wide">
+          <span className="hidden md:inline font-bold tracking-wide">
             {language === 'om' ? "Ba'i" : language === 'am' ? 'ውጣ' : 'Logout'}
           </span>
         </button>

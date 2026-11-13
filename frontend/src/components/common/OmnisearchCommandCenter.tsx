@@ -58,7 +58,11 @@ interface SearchItem {
   badgeColor?: 'teal' | 'amber' | 'rose' | 'blue' | 'purple';
 }
 
-export function OmnisearchCommandCenter(): React.ReactElement {
+export interface OmnisearchCommandCenterProps {
+  variant?: 'bar' | 'icon' | 'auto';
+}
+
+export function OmnisearchCommandCenter({ variant = 'auto' }: OmnisearchCommandCenterProps = {}): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -367,22 +371,37 @@ export function OmnisearchCommandCenter(): React.ReactElement {
 
   return (
     <>
-      {/* Universal Search Bar Trigger in Header */}
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 rounded-xl border border-slate-800 bg-[#101726] hover:border-amber-500/60 hover:bg-[#141d30] px-3 py-1.5 text-xs text-slate-300 transition-all cursor-pointer shadow-xs select-none max-w-[200px] sm:max-w-xs md:w-64 group"
-        title="Omnisearch Command Palette (Ctrl+K)"
-        aria-label="Universal Search"
-      >
-        <Search className="h-3.5 w-3.5 text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
-        <span className="truncate text-left flex-1 text-slate-400 group-hover:text-slate-200">
-          {lang === 'om' ? 'Barbaadi (Ctrl+K)...' : 'Search patient, portal...'}
-        </span>
-        <kbd className="hidden sm:inline-flex items-center rounded-md border border-slate-700 bg-[#090d15] px-1.5 py-0.5 text-[10px] font-mono text-amber-400 font-bold">
-          ⌘K
-        </kbd>
-      </button>
+      {/* Search Trigger: Icon Variant (Mobile / Compact) */}
+      {(variant === 'icon' || variant === 'auto') && (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={`${variant === 'auto' ? 'lg:hidden' : ''} flex items-center justify-center h-8 w-8 sm:h-8.5 sm:w-8.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 text-amber-400 hover:text-white shadow-xs cursor-pointer active:scale-95 transition-all shrink-0`}
+          title="Omnisearch Command Palette (Ctrl+K)"
+          aria-label="Universal Search"
+        >
+          <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+        </button>
+      )}
+
+      {/* Search Trigger: Bar Variant (Desktop / Wide) */}
+      {(variant === 'bar' || variant === 'auto') && (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={`${variant === 'auto' ? 'hidden lg:flex' : 'flex'} items-center gap-2 rounded-xl border border-slate-700/80 bg-[#101726] hover:border-amber-500/60 hover:bg-[#141d30] px-2.5 sm:px-3 py-1.5 text-xs text-slate-300 transition-all cursor-pointer shadow-xs select-none w-full max-w-[260px] xl:max-w-xs group min-w-0`}
+          title="Omnisearch Command Palette (Ctrl+K)"
+          aria-label="Universal Search"
+        >
+          <Search className="h-3.5 w-3.5 text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
+          <span className="truncate text-left flex-1 text-slate-400 group-hover:text-slate-200">
+            {lang === 'om' ? 'Barbaadi (Ctrl+K)...' : 'Search patient, portal...'}
+          </span>
+          <kbd className="hidden xl:inline-flex items-center rounded-md border border-slate-700 bg-[#090d15] px-1.5 py-0.5 text-[10px] font-mono text-amber-400 font-bold shrink-0">
+            ⌘K
+          </kbd>
+        </button>
+      )}
 
       {/* Spotlight Command Modal */}
       {isOpen && (
