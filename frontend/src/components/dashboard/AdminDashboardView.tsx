@@ -322,15 +322,6 @@ export function AdminDashboardView(): React.ReactElement {
               {serverTime}
             </span>
           </div>
-
-          {/* THE PRIMARY EDIT & CONTROL BUTTON (MORPHING ARROW) */}
-          <MorphingArrowButton
-            variant="amber"
-            size="md"
-            icon={<Sliders className="w-4 h-4 text-slate-950" />}
-            label={language === 'om' ? "To'adhu & Gulaali (Controls)" : language === 'am' ? 'አስተዳድርና አርትዕ' : 'Admin Controls'}
-            onClick={() => setIsEditModalOpen(true)}
-          />
         </div>
       </div>
 
