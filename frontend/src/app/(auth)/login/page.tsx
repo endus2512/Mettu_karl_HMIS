@@ -1235,7 +1235,7 @@ export default function LoginPage() {
               alt="Mettu Karl Comprehensive Specialized Hospital Building"
               loading="eager"
               decoding="sync"
-              className="w-full h-full object-cover object-[44%_26%] sm:object-[center_28%] transform scale-100"
+              className="w-full h-full object-cover object-[44%_26%] sm:object-[center_28%] transform scale-100 animate-living-building"
               style={{
                 imageRendering: 'crisp-edges',
                 WebkitBackfaceVisibility: 'hidden',
@@ -1517,15 +1517,23 @@ export default function LoginPage() {
             if (e.target === e.currentTarget) setIsFormOpen(false);
           }}
         >
-          {/* Modal Backdrop: Dark Blurred Hospital Hallway Medical Workstation (Specification 1) */}
-          <div className="fixed inset-0 z-0 overflow-hidden bg-[#0B1522] pointer-events-none">
+          {/* Modal Backdrop: Dark Blurred Hospital Hallway Medical Workstation (Specification 1) with Living Ambient Motion & Colors */}
+          <div className="fixed inset-0 z-0 overflow-hidden bg-[#070e17] pointer-events-none">
+            {/* Living Hospital Hallway Image with Gentle Breathing Pan */}
             <img
               src="/hospital-hallway-bg.jpg"
               alt="Hospital Hallway Medical Workstation"
-              className="w-full h-full object-cover filter blur-[3px] scale-105"
+              className="w-full h-full object-cover filter blur-[3.5px] animate-living-bg transform"
             />
-            <div className="absolute inset-0 bg-[#0B1522]/85 mix-blend-multiply pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#0B1522]/95 via-[#0B1522]/80 to-[#0e273f]/85 pointer-events-none" />
+
+            {/* Living Floating Luminous Color Orbs (Injects vivid colors on mobile and PC) */}
+            <div className="absolute -top-16 left-1/4 w-72 h-72 sm:w-[460px] sm:h-[460px] rounded-full bg-blue-500/35 filter blur-[80px] animate-living-orb-1 pointer-events-none" />
+            <div className="absolute top-1/3 -right-12 sm:right-12 w-64 h-64 sm:w-[400px] sm:h-[400px] rounded-full bg-amber-400/30 filter blur-[75px] animate-living-orb-2 pointer-events-none" />
+            <div className="absolute -bottom-16 left-6 sm:left-1/3 w-80 h-80 sm:w-[450px] sm:h-[450px] rounded-full bg-cyan-400/25 filter blur-[85px] animate-living-orb-3 pointer-events-none" />
+
+            {/* Color-preserving atmospheric tint (NOT pitch black: rich deep teal/navy with color depth) */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#050d18]/75 via-[#08182b]/55 to-[#0c2236]/65 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#07111e]/40 to-[#040912]/80 pointer-events-none" />
           </div>
 
           {/* Centered Dark Glassmorphism Card Container (Specification 2) */}
@@ -1534,7 +1542,7 @@ export default function LoginPage() {
             <div className="absolute top-1 sm:top-1.5 left-1/2 -translate-x-1/2 z-30 flex justify-center pointer-events-none">
               <div className="relative">
                 {/* Subtle golden rim glow */}
-                <div className="absolute inset-0 -m-2 rounded-full bg-[#EAB308]/25 blur-lg" />
+                <div className="absolute inset-0 -m-2 rounded-full bg-[#EAB308]/30 blur-lg" />
                 <div
                   className="rounded-full p-[2px] bg-gradient-to-b from-[#EAB308] via-[#475569] to-[#EAB308]/70 shadow-[0_10px_25px_rgba(0,0,0,0.8),0_0_20px_rgba(234,179,8,0.35)] flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20"
                 >
@@ -1545,20 +1553,20 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Glowing Gradient Border: Thin 1.5px gradient border transitioning from Royal Blue (#3B82F6) on left/bottom-left to Warm Gold (#EAB308) on top/right (Specification 2) */}
+            {/* Glowing Gradient Border: Thin 1.5px gradient border with living dual-glow */}
             <div
-              className="p-[1.5px] rounded-[22px] sm:rounded-[24px] bg-gradient-to-tr from-[#3B82F6] via-[#3B82F6]/60 to-[#EAB308] relative"
+              className="p-[1.5px] rounded-[22px] sm:rounded-[24px] bg-gradient-to-tr from-[#3B82F6] via-[#60A5FA]/70 to-[#EAB308] relative animate-border-glow"
               style={{
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px rgba(59, 130, 246, 0.35), 0 0 40px rgba(234, 179, 8, 0.25)',
               }}
             >
-              {/* Centered dark translucent glass card (background: rgba(15, 25, 38, 0.65), backdrop-filter: blur(20px), border-radius: 24px) */}
+              {/* Centered dark translucent glass card (background with color depth, backdrop-filter: blur(22px)) */}
               <div
                 className="relative max-h-[82vh] sm:max-h-[86vh] overflow-y-auto px-4 py-5 sm:px-7 sm:py-7 md:px-8 md:py-8 text-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{
-                  background: 'rgba(15, 25, 38, 0.65)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
+                  background: 'linear-gradient(145deg, rgba(16, 29, 48, 0.72) 0%, rgba(10, 20, 36, 0.76) 50%, rgba(15, 28, 46, 0.72) 100%)',
+                  backdropFilter: 'blur(22px)',
+                  WebkitBackdropFilter: 'blur(22px)',
                   borderRadius: '21px',
                 }}
               >
@@ -1599,9 +1607,10 @@ export default function LoginPage() {
                     <div
                       className="rounded-2xl p-4 sm:p-5 space-y-3.5"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        backdropFilter: 'blur(10px)',
+                        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                        border: '1px solid rgba(255, 255, 255, 0.14)',
+                        backdropFilter: 'blur(12px)',
+                        boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.1), inset 0 -1px 2px rgba(0, 0, 0, 0.3)',
                       }}
                     >
                       {/* USERNAME FIELD (Specification 5) */}
@@ -1630,8 +1639,8 @@ export default function LoginPage() {
                             placeholder={t.usernamePlaceholder}
                             className="block w-full h-11 sm:h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-11"
                             style={{
-                              background: 'rgba(255, 255, 255, 0.08)',
-                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              background: 'rgba(255, 255, 255, 0.09)',
+                              border: '1px solid rgba(255, 255, 255, 0.22)',
                               borderRadius: '9999px',
                             }}
                           />
@@ -1687,8 +1696,8 @@ export default function LoginPage() {
                             placeholder={t.passwordPlaceholder}
                             className="block w-full h-11 sm:h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-11"
                             style={{
-                              background: 'rgba(255, 255, 255, 0.08)',
-                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              background: 'rgba(255, 255, 255, 0.09)',
+                              border: '1px solid rgba(255, 255, 255, 0.22)',
                               borderRadius: '9999px',
                             }}
                           />
@@ -1874,9 +1883,10 @@ export default function LoginPage() {
                     <div
                       className="rounded-2xl p-4 sm:p-5 space-y-3.5"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        backdropFilter: 'blur(10px)',
+                        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                        border: '1px solid rgba(255, 255, 255, 0.14)',
+                        backdropFilter: 'blur(12px)',
+                        boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.1), inset 0 -1px 2px rgba(0, 0, 0, 0.3)',
                       }}
                     >
                       <label
@@ -1899,8 +1909,8 @@ export default function LoginPage() {
                           placeholder={t.mfaPlaceholder}
                           className="block w-full h-11 sm:h-12 text-center tracking-widest text-lg font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                           style={{
-                            background: 'rgba(255, 255, 255, 0.08)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            background: 'rgba(255, 255, 255, 0.09)',
+                            border: '1px solid rgba(255, 255, 255, 0.22)',
                             borderRadius: '9999px',
                           }}
                         />
@@ -2062,9 +2072,10 @@ export default function LoginPage() {
                       <div
                         className="rounded-2xl p-4 sm:p-5 space-y-3.5"
                         style={{
-                          background: 'rgba(255, 255, 255, 0.04)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          backdropFilter: 'blur(10px)',
+                          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                          border: '1px solid rgba(255, 255, 255, 0.14)',
+                          backdropFilter: 'blur(12px)',
+                          boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.1), inset 0 -1px 2px rgba(0, 0, 0, 0.3)',
                         }}
                       >
                         {/* USERNAME */}
@@ -2082,10 +2093,10 @@ export default function LoginPage() {
                               value={patientUsername}
                               onChange={(e) => setPatientUsername(e.target.value)}
                               placeholder={language === 'om' ? 'Fkn. chaltuu2024' : 'e.g. chaltuu2024'}
-                              className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              className="block w-full h-11 sm:h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2107,10 +2118,10 @@ export default function LoginPage() {
                               value={patientFullName}
                               onChange={(e) => setPatientFullName(e.target.value)}
                               placeholder={language === 'om' ? 'Fkn. Chaltuu Guddataa / Guddataa Fayyisaa' : 'e.g. Chaltu Gudeta / Gudeta Fayisa'}
-                              className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              className="block w-full h-11 sm:h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2133,10 +2144,10 @@ export default function LoginPage() {
                                 value={patientPhone}
                                 onChange={(e) => setPatientPhone(e.target.value)}
                                 placeholder="+251 911 002 233"
-                                className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                                className="block w-full h-11 sm:h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                                 style={{
-                                  background: 'rgba(255, 255, 255, 0.08)',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  background: 'rgba(255, 255, 255, 0.09)',
+                                  border: '1px solid rgba(255, 255, 255, 0.22)',
                                   borderRadius: '9999px',
                                 }}
                               />
@@ -2156,10 +2167,10 @@ export default function LoginPage() {
                                 value={patientFaydaId}
                                 onChange={(e) => setPatientFaydaId(e.target.value)}
                                 placeholder="FAN-9901-2384-5120"
-                                className="block w-full h-12 text-sm font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                                className="block w-full h-11 sm:h-12 text-sm font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                                 style={{
-                                  background: 'rgba(255, 255, 255, 0.08)',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  background: 'rgba(255, 255, 255, 0.09)',
+                                  border: '1px solid rgba(255, 255, 255, 0.22)',
                                   borderRadius: '9999px',
                                 }}
                               />
@@ -2181,10 +2192,10 @@ export default function LoginPage() {
                               value={patientAddress}
                               onChange={(e) => setPatientAddress(e.target.value)}
                               placeholder={language === 'om' ? 'Fkn. Meettuu, Ganda 02' : 'e.g. Mettu, Kebele 02'}
-                              className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              className="block w-full h-11 sm:h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2201,10 +2212,10 @@ export default function LoginPage() {
                               type="date"
                               value={patientBirthDate}
                               onChange={(e) => setPatientBirthDate(e.target.value)}
-                              className="block w-full h-12 text-sm text-[#FFFFFF] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                              className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2217,10 +2228,10 @@ export default function LoginPage() {
                             <select
                               value={patientGender}
                               onChange={(e) => setPatientGender(e.target.value as 'male' | 'female')}
-                              className="block w-full h-12 text-sm text-[#FFFFFF] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5 cursor-pointer"
+                              className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5 cursor-pointer"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             >
@@ -2244,10 +2255,10 @@ export default function LoginPage() {
                               value={patientCbhi}
                               onChange={(e) => setPatientCbhi(e.target.value)}
                               placeholder="CBHI-ILL-10294"
-                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2278,10 +2289,10 @@ export default function LoginPage() {
                                 }}
                                 onBlur={() => setCapsLockActive(false)}
                                 placeholder="••••••••"
-                                className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
+                                className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
                                 style={{
-                                  background: 'rgba(255, 255, 255, 0.08)',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  background: 'rgba(255, 255, 255, 0.09)',
+                                  border: '1px solid rgba(255, 255, 255, 0.22)',
                                   borderRadius: '9999px',
                                 }}
                               />
@@ -2321,10 +2332,10 @@ export default function LoginPage() {
                                 value={patientConfirmPassword}
                                 onChange={(e) => setPatientConfirmPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
+                                className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
                                 style={{
-                                  background: 'rgba(255, 255, 255, 0.08)',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  background: 'rgba(255, 255, 255, 0.09)',
+                                  border: '1px solid rgba(255, 255, 255, 0.22)',
                                   borderRadius: '9999px',
                                 }}
                               />
@@ -2433,7 +2444,15 @@ export default function LoginPage() {
                       )}
 
                       {/* Inner Recessed Frosted Glass Input Panel */}
-                      <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
+                      <div
+                        className="rounded-2xl p-4 sm:p-5 space-y-3.5"
+                        style={{
+                          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                          border: '1px solid rgba(255, 255, 255, 0.14)',
+                          backdropFilter: 'blur(12px)',
+                          boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.1), inset 0 -1px 2px rgba(0, 0, 0, 0.3)',
+                        }}
+                      >
                         {/* USERNAME */}
                         <div>
                           <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
@@ -2449,10 +2468,10 @@ export default function LoginPage() {
                               value={signupUsername}
                               onChange={(e) => setSignupUsername(e.target.value)}
                               placeholder={language === 'om' ? 'Fkn. dr.tolasaa' : 'e.g. dr.abebe'}
-                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2470,10 +2489,10 @@ export default function LoginPage() {
                             value={signupFullName}
                             onChange={(e) => setSignupFullName(e.target.value)}
                             placeholder={language === 'om' ? 'Fkn. Dr. Tolasaa Raggaasaa' : 'e.g. Dr. Abebe Kebede'}
-                            className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                            className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
                             style={{
-                              background: 'rgba(255, 255, 255, 0.08)',
-                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              background: 'rgba(255, 255, 255, 0.09)',
+                              border: '1px solid rgba(255, 255, 255, 0.22)',
                               borderRadius: '9999px',
                             }}
                           />
@@ -2491,10 +2510,10 @@ export default function LoginPage() {
                               value={signupStaffId}
                               onChange={(e) => setSignupStaffId(e.target.value)}
                               placeholder="MKRH-STF-0142"
-                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                              className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2515,14 +2534,14 @@ export default function LoginPage() {
                                 setIsRoleDropdownOpen(!isRoleDropdownOpen);
                                 setIsDeptDropdownOpen(false);
                               }}
-                              className={`w-full h-12 px-5 text-sm text-[#FFFFFF] flex items-center justify-between font-medium cursor-pointer transition-all ${
+                              className={`w-full h-11 sm:h-12 px-5 text-sm text-[#FFFFFF] flex items-center justify-between font-medium cursor-pointer transition-all ${
                                 isRoleDropdownOpen
                                   ? 'ring-2 ring-[#EAB308]/40'
                                   : 'hover:border-[#EAB308]/50'
                               }`}
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: isRoleDropdownOpen ? '1px solid #EAB308' : '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: isRoleDropdownOpen ? '1px solid #EAB308' : '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             >
@@ -2575,14 +2594,14 @@ export default function LoginPage() {
                               setIsDeptDropdownOpen(!isDeptDropdownOpen);
                               setIsRoleDropdownOpen(false);
                             }}
-                            className={`w-full h-12 px-5 text-sm text-[#FFFFFF] flex items-center justify-between font-medium cursor-pointer transition-all ${
+                            className={`w-full h-11 sm:h-12 px-5 text-sm text-[#FFFFFF] flex items-center justify-between font-medium cursor-pointer transition-all ${
                               isDeptDropdownOpen
                                 ? 'ring-2 ring-[#EAB308]/40'
                                 : 'hover:border-[#EAB308]/50'
                             }`}
                             style={{
-                              background: 'rgba(255, 255, 255, 0.08)',
-                              border: isDeptDropdownOpen ? '1px solid #EAB308' : '1px solid rgba(255, 255, 255, 0.2)',
+                              background: 'rgba(255, 255, 255, 0.09)',
+                              border: isDeptDropdownOpen ? '1px solid #EAB308' : '1px solid rgba(255, 255, 255, 0.22)',
                               borderRadius: '9999px',
                             }}
                           >
@@ -2641,9 +2660,9 @@ export default function LoginPage() {
                                 value={signupLicenseNumber}
                                 onChange={(e) => setSignupLicenseNumber(e.target.value)}
                                 placeholder="Fkn. ETH-MED-2024-8491 ykn EFDA/2026/09"
-                                className="block w-full h-12 px-5 text-sm font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30"
+                                className="block w-full h-11 sm:h-12 px-5 text-sm font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30"
                                 style={{
-                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  background: 'rgba(255, 255, 255, 0.09)',
                                   border: '1px solid rgba(250, 204, 21, 0.4)',
                                   borderRadius: '9999px',
                                 }}
@@ -2703,10 +2722,10 @@ export default function LoginPage() {
                               value={signupPhone}
                               onChange={(e) => setSignupPhone(e.target.value)}
                               placeholder="+2519XXXXXXXX"
-                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                              className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2720,10 +2739,10 @@ export default function LoginPage() {
                               value={signupEmail}
                               onChange={(e) => setSignupEmail(e.target.value)}
                               placeholder="name@mettukarl.gov.et"
-                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                              className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
                               style={{
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(255, 255, 255, 0.09)',
+                                border: '1px solid rgba(255, 255, 255, 0.22)',
                                 borderRadius: '9999px',
                               }}
                             />
@@ -2748,8 +2767,8 @@ export default function LoginPage() {
                             }
                             className="block w-full rounded-2xl border border-white/20 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-4 py-2.5 resize-y"
                             style={{
-                              background: 'rgba(255, 255, 255, 0.08)',
-                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              background: 'rgba(255, 255, 255, 0.09)',
+                              border: '1px solid rgba(255, 255, 255, 0.22)',
                             }}
                           />
                         </div>
@@ -2778,10 +2797,10 @@ export default function LoginPage() {
                                 }}
                                 onBlur={() => setCapsLockActive(false)}
                                 placeholder="••••••••"
-                                className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
+                                className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
                                 style={{
-                                  background: 'rgba(255, 255, 255, 0.08)',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  background: 'rgba(255, 255, 255, 0.09)',
+                                  border: '1px solid rgba(255, 255, 255, 0.22)',
                                   borderRadius: '9999px',
                                 }}
                               />
@@ -2821,10 +2840,10 @@ export default function LoginPage() {
                                 value={signupConfirmPassword}
                                 onChange={(e) => setSignupConfirmPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
+                                className="block w-full h-11 sm:h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
                                 style={{
-                                  background: 'rgba(255, 255, 255, 0.08)',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  background: 'rgba(255, 255, 255, 0.09)',
+                                  border: '1px solid rgba(255, 255, 255, 0.22)',
                                   borderRadius: '9999px',
                                 }}
                               />

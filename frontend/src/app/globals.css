@@ -146,6 +146,131 @@ button:active:not(:disabled) {
   animation: tabDissolve 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* =========================================================================
+   Live Cinematic Ambient Background & Breathing Light Orbs
+   ========================================================================= */
+
+@keyframes livingBgDrift {
+  0% {
+    transform: scale(1.04) translate(0%, 0%);
+  }
+  25% {
+    transform: scale(1.08) translate(-1%, -0.6%);
+  }
+  50% {
+    transform: scale(1.12) translate(0.7%, -1.1%);
+  }
+  75% {
+    transform: scale(1.07) translate(-0.5%, 0.4%);
+  }
+  100% {
+    transform: scale(1.04) translate(0%, 0%);
+  }
+}
+
+.animate-living-bg {
+  animation: livingBgDrift 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes livingBuildingDrift {
+  0% {
+    transform: scale(1.00) translate(0%, 0%);
+  }
+  50% {
+    transform: scale(1.03) translate(-0.4%, -0.3%);
+  }
+  100% {
+    transform: scale(1.00) translate(0%, 0%);
+  }
+}
+
+.animate-living-building {
+  animation: livingBuildingDrift 30s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes livingOrb1 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.65;
+  }
+  33% {
+    transform: translate(25px, -35px) scale(1.18);
+    opacity: 0.85;
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.92);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.65;
+  }
+}
+
+@keyframes livingOrb2 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.55;
+  }
+  33% {
+    transform: translate(-30px, 25px) scale(0.9);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(25px, -20px) scale(1.15);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.55;
+  }
+}
+
+@keyframes livingOrb3 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(20px, 30px) scale(1.12);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.5;
+  }
+}
+
+.animate-living-orb-1 {
+  animation: livingOrb1 16s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-living-orb-2 {
+  animation: livingOrb2 20s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-living-orb-3 {
+  animation: livingOrb3 24s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes borderGlowPulse {
+  0%, 100% {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 25px rgba(59, 130, 246, 0.35), 0 0 35px rgba(234, 179, 8, 0.25);
+  }
+  50% {
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 45px rgba(59, 130, 246, 0.55), 0 0 55px rgba(234, 179, 8, 0.45);
+  }
+}
+
+.animate-border-glow {
+  animation: borderGlowPulse 5s ease-in-out infinite;
+}
+
 main {
   animation: smoothFadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
