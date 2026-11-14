@@ -90,6 +90,62 @@ button:active:not(:disabled) {
   animation: smoothFadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Glassmorphic Route & Dashboard Dissolve Transitions */
+@keyframes pageDissolveIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.animate-route-transition {
+  animation: pageDissolveIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform, filter;
+}
+
+/* Glassmorphic Modal & Card Open Transitions */
+@keyframes modalCardIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(14px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-modal-card {
+  animation: modalCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform, filter;
+}
+
+/* Fluid Tab & Form Switch Dissolve */
+@keyframes tabDissolve {
+  0% {
+    opacity: 0;
+    transform: translateX(8px) scale(0.99);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.animate-tab-dissolve {
+  animation: tabDissolve 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 main {
   animation: smoothFadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;

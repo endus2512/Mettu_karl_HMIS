@@ -21,7 +21,7 @@ export function PageTransition({ children, className = '' }: PageTransitionProps
   return (
     <div
       key={pathname}
-      className={`animate-smooth-in w-full will-change-transform ${className}`}
+      className={`animate-route-transition w-full will-change-transform ${className}`}
     >
       {children}
     </div>

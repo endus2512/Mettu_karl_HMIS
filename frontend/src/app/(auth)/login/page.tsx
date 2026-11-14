@@ -1512,13 +1512,13 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {isFormOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-hidden animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-y-auto overscroll-contain animate-in fade-in duration-200 select-none"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsFormOpen(false);
           }}
         >
           {/* Modal Backdrop: Dark Blurred Hospital Hallway Medical Workstation (Specification 1) */}
-          <div className="absolute inset-0 z-0 overflow-hidden bg-[#0B1522] pointer-events-none">
+          <div className="fixed inset-0 z-0 overflow-hidden bg-[#0B1522] pointer-events-none">
             <img
               src="/hospital-hallway-bg.jpg"
               alt="Hospital Hallway Medical Workstation"
@@ -1529,18 +1529,17 @@ export default function LoginPage() {
           </div>
 
           {/* Centered Dark Glassmorphism Card Container (Specification 2) */}
-          <div className="relative z-20 w-full max-w-[490px] sm:max-w-[520px] my-auto pt-10">
+          <div className="relative z-20 w-full max-w-[420px] sm:max-w-[480px] md:max-w-[520px] my-auto pt-9 sm:pt-11 animate-modal-card">
             {/* Top Emblem: Circular 3D metallic dark-slate and gold badge (80px x 80px) half-overlapping top center border (-mt-10) (Specification 3) */}
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30 flex justify-center pointer-events-none">
+            <div className="absolute top-1 sm:top-1.5 left-1/2 -translate-x-1/2 z-30 flex justify-center pointer-events-none">
               <div className="relative">
                 {/* Subtle golden rim glow */}
                 <div className="absolute inset-0 -m-2 rounded-full bg-[#EAB308]/25 blur-lg" />
                 <div
-                  className="rounded-full p-[2px] bg-gradient-to-b from-[#EAB308] via-[#475569] to-[#EAB308]/70 shadow-[0_10px_25px_rgba(0,0,0,0.8),0_0_20px_rgba(234,179,8,0.35)] flex items-center justify-center"
-                  style={{ width: '80px', height: '80px' }}
+                  className="rounded-full p-[2px] bg-gradient-to-b from-[#EAB308] via-[#475569] to-[#EAB308]/70 shadow-[0_10px_25px_rgba(0,0,0,0.8),0_0_20px_rgba(234,179,8,0.35)] flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20"
                 >
-                  <div className="w-full h-full rounded-full p-2 bg-gradient-to-b from-[#1E293B] via-[#0F172A] to-[#0A0F1D] flex items-center justify-center border border-[#334155]/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),inset_0_-2px_4px_rgba(0,0,0,0.8)]">
-                    <CaduceusIcon className="w-11 h-11 text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]" />
+                  <div className="w-full h-full rounded-full p-1.5 sm:p-2 bg-gradient-to-b from-[#1E293B] via-[#0F172A] to-[#0A0F1D] flex items-center justify-center border border-[#334155]/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),inset_0_-2px_4px_rgba(0,0,0,0.8)]">
+                    <CaduceusIcon className="w-8 h-8 sm:w-11 sm:h-11 text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]" />
                   </div>
                 </div>
               </div>
@@ -1548,41 +1547,40 @@ export default function LoginPage() {
 
             {/* Glowing Gradient Border: Thin 1.5px gradient border transitioning from Royal Blue (#3B82F6) on left/bottom-left to Warm Gold (#EAB308) on top/right (Specification 2) */}
             <div
-              className="p-[1.5px] rounded-[24px] bg-gradient-to-tr from-[#3B82F6] via-[#3B82F6]/60 to-[#EAB308] relative"
+              className="p-[1.5px] rounded-[22px] sm:rounded-[24px] bg-gradient-to-tr from-[#3B82F6] via-[#3B82F6]/60 to-[#EAB308] relative"
               style={{
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
-                borderRadius: '24px',
               }}
             >
               {/* Centered dark translucent glass card (background: rgba(15, 25, 38, 0.65), backdrop-filter: blur(20px), border-radius: 24px) */}
               <div
-                className="relative max-h-[88vh] overflow-y-auto px-6 py-7 sm:px-8 sm:py-8 text-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] animate-in zoom-in-95 duration-200"
+                className="relative max-h-[82vh] sm:max-h-[86vh] overflow-y-auto px-4 py-5 sm:px-7 sm:py-7 md:px-8 md:py-8 text-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{
                   background: 'rgba(15, 25, 38, 0.65)',
                   backdropFilter: 'blur(20px)',
                   WebkitBackdropFilter: 'blur(20px)',
-                  borderRadius: '22.5px',
+                  borderRadius: '21px',
                 }}
               >
                 {/* Close button X */}
                 <button
                   type="button"
                   onClick={() => setIsFormOpen(false)}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-[#94A3B8] hover:text-white transition cursor-pointer z-30 border border-white/20 shadow-xs"
+                  className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-[#94A3B8] hover:text-white transition cursor-pointer z-30 border border-white/20 shadow-xs"
                   title="Cufi / Close"
                   aria-label="Close"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
 
             {/* ================================================================= */}
             {/* VIEW A: LOGIN FORM                                               */}
             {/* ================================================================= */}
             {formType === 'login' ? (
-              <>
+              <div key="login-view" className="animate-tab-dissolve">
                 {/* Typography (Specification 4): Headings crisp bold white (#FFFFFF), Subtitles soft light gray (#CBD5E1) */}
-                <div className="text-center pt-2 mb-5">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-[#FFFFFF] tracking-tight drop-shadow-md">
+                <div className="text-center pt-2 sm:pt-3 mb-4 sm:mb-5">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#FFFFFF] tracking-tight drop-shadow-md">
                     {step === 'credentials' ? t.welcomeBack : t.mfaTitle}
                   </h2>
                   <p className="mt-1 text-xs sm:text-sm text-[#CBD5E1] font-normal leading-relaxed">
@@ -1630,7 +1628,7 @@ export default function LoginPage() {
                             autoFocus
                             {...loginForm.register('username')}
                             placeholder={t.usernamePlaceholder}
-                            className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-11"
+                            className="block w-full h-11 sm:h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-11"
                             style={{
                               background: 'rgba(255, 255, 255, 0.08)',
                               border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -1687,7 +1685,7 @@ export default function LoginPage() {
                             }}
                             onBlur={() => setCapsLockActive(false)}
                             placeholder={t.passwordPlaceholder}
-                            className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-11"
+                            className="block w-full h-11 sm:h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-11"
                             style={{
                               background: 'rgba(255, 255, 255, 0.08)',
                               border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -1847,7 +1845,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-12 sm:h-13 text-[#0F172A] font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-3 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 disabled:cursor-not-allowed border-0"
+                      className="w-full h-11 sm:h-12.5 text-[#0F172A] font-extrabold text-xs sm:text-sm md:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-3 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 disabled:cursor-not-allowed border-0"
                       style={{
                         background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
                         borderRadius: '9999px',
@@ -1899,7 +1897,7 @@ export default function LoginPage() {
                           autoFocus
                           {...mfaForm.register('totp_code')}
                           placeholder={t.mfaPlaceholder}
-                          className="block w-full h-12 text-center tracking-widest text-lg font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                          className="block w-full h-11 sm:h-12 text-center tracking-widest text-lg font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
                           style={{
                             background: 'rgba(255, 255, 255, 0.08)',
                             border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -1917,7 +1915,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-12 sm:h-13 text-[#0F172A] font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-3 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 disabled:cursor-not-allowed border-0"
+                      className="w-full h-11 sm:h-12.5 text-[#0F172A] font-extrabold text-xs sm:text-sm md:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-3 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 disabled:cursor-not-allowed border-0"
                       style={{
                         background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
                         borderRadius: '9999px',
@@ -1968,15 +1966,15 @@ export default function LoginPage() {
                     </button>
                   </p>
                 </div>
-              </>
+              </div>
             ) : (
               /* =============================================================== */
               /* VIEW B: SIGN UP / REGISTRATION FORM (PATIENT & STAFF)           */
               /* =============================================================== */
-              <div>
+              <div key="signup-view" className="animate-tab-dissolve">
                 {/* Account Type Selector: 3D Pill Tabs (Specification 5 & 6 theme) */}
                 <div
-                  className="flex p-1 rounded-full mb-4"
+                  className="flex p-1 rounded-full mb-3.5 sm:mb-4"
                   style={{
                     background: 'rgba(255, 255, 255, 0.06)',
                     border: '1px solid rgba(255, 255, 255, 0.15)',
@@ -1986,7 +1984,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('patient')}
-                    className={`flex-1 py-2 px-3 rounded-full text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`flex-1 py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-full text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'patient'
                         ? 'text-[#0F172A] font-extrabold shadow-md'
                         : 'text-[#CBD5E1] hover:text-white'
@@ -2012,7 +2010,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('staff')}
-                    className={`flex-1 py-2 px-3 rounded-full text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`flex-1 py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-full text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'staff'
                         ? 'text-[#0F172A] font-extrabold shadow-md'
                         : 'text-[#CBD5E1] hover:text-white'
@@ -2041,7 +2039,7 @@ export default function LoginPage() {
                   /* =========================================================== */
                   /* B1: FORMAL PATIENT REGISTRATION FORM                        */
                   /* =========================================================== */
-                  <div>
+                  <div key="patient-form" className="animate-tab-dissolve">
                     <div className="text-center mb-4 sm:mb-5">
                       <h2 className="text-2xl sm:text-3xl font-extrabold text-[#FFFFFF] tracking-tight leading-tight drop-shadow-md">
                         {language === 'om'
@@ -2372,7 +2370,7 @@ export default function LoginPage() {
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-12 sm:h-13 text-[#0F172A] font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-4 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 border-0"
+                        className="w-full h-11 sm:h-12.5 text-[#0F172A] font-extrabold text-xs sm:text-sm md:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-4 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 border-0"
                         style={{
                           background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
                           borderRadius: '9999px',
@@ -2402,7 +2400,7 @@ export default function LoginPage() {
                   /* =========================================================== */
                   /* B2: STAFF SIGN UP / REGISTRATION FORM                       */
                   /* =========================================================== */
-                  <div>
+                  <div key="staff-form" className="animate-tab-dissolve">
                     <div className="text-center mb-4 sm:mb-5">
                       <h2 className="text-2xl sm:text-3xl font-extrabold text-[#FFFFFF] tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                         {language === 'om'
@@ -2872,7 +2870,7 @@ export default function LoginPage() {
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-12 sm:h-13 text-[#0F172A] font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-4 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 border-0"
+                        className="w-full h-11 sm:h-12.5 text-[#0F172A] font-extrabold text-xs sm:text-sm md:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-4 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 border-0"
                         style={{
                           background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
                           borderRadius: '9999px',
@@ -2922,7 +2920,7 @@ export default function LoginPage() {
 
             {/* Security Banner (Specification 7) */}
             <div
-              className="w-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)] mt-4"
+              className="w-full py-2 sm:py-2.5 px-3 sm:px-4 flex items-center justify-center gap-2 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)] mt-3.5 sm:mt-4"
               style={{
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.15)',
@@ -2930,7 +2928,7 @@ export default function LoginPage() {
               }}
             >
               <ShieldCheck className="h-4 w-4 text-[#FACC15] shrink-0" />
-              <span className="leading-tight text-white font-medium text-[11.5px] sm:text-xs">
+              <span className="leading-tight text-white font-medium text-[10.5px] sm:text-xs">
                 {language === 'om'
                   ? 'Seensa Nageenyaa: Daataan keessan eegamaa fi iccitii dha'
                   : language === 'am'
@@ -2940,23 +2938,23 @@ export default function LoginPage() {
             </div>
 
             {/* Card Footer: IT Support & Version (Specification 8) */}
-            <div className="flex items-center justify-between pt-3.5 mt-3 border-t border-white/10 text-xs">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0 pt-3 sm:pt-3.5 mt-3 border-t border-white/10 text-xs">
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(true)}
-                className="flex items-center gap-2.5 hover:opacity-90 transition cursor-pointer text-left"
+                className="flex items-center gap-2 sm:gap-2.5 hover:opacity-90 transition cursor-pointer text-left"
               >
-                <Headphones className="h-5 w-5 text-white shrink-0" />
+                <Headphones className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-white shrink-0" />
                 <div className="flex flex-col leading-tight">
                   <span className="font-semibold text-white text-xs">
                     {language === 'om' ? 'Deggersa IT' : language === 'am' ? 'የ IT ድጋፍ' : 'IT Support'}
                   </span>
-                  <span className="text-[11px] text-[#CBD5E1]">
+                  <span className="text-[10px] sm:text-[11px] text-[#CBD5E1]">
                     {language === 'om' ? 'Kutaa IT Quunnamaa' : language === 'am' ? 'IT ያነጋግሩ' : 'Contact IT Support'}
                   </span>
                 </div>
               </button>
-              <span className="font-mono text-[#94A3B8] text-[11px] font-medium">HMIS Enterprise v2.4</span>
+              <span className="font-mono text-[#94A3B8] text-[10.5px] sm:text-[11px] font-medium">HMIS Enterprise v2.4</span>
             </div>
           </div>
         </div>
