@@ -386,8 +386,8 @@ export default function LoginPage() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [showITSupportModal, setShowITSupportModal] = useState(false);
 
-  // Interactive Form Popup State: initially hidden as requested
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  // Interactive 3D Form Card: Centered and visible immediately on login page
+  const [isFormOpen, setIsFormOpen] = useState(true);
   const [formType, setFormType] = useState<'login' | 'signup'>('login');
 
   // Sign up account type: Patient vs Staff
@@ -798,6 +798,27 @@ export default function LoginPage() {
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Check URL parameters to auto-select Login vs Sign Up tab or sub-tab
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get('mode') || params.get('type') || params.get('tab');
+      if (mode === 'signup' || params.get('signup') === 'true') {
+        setFormType('signup');
+        setIsFormOpen(true);
+      }
+      if (mode === 'staff') {
+        setFormType('signup');
+        setSignupAccountType('staff');
+        setIsFormOpen(true);
+      } else if (mode === 'patient') {
+        setFormType('signup');
+        setSignupAccountType('patient');
+        setIsFormOpen(true);
+      }
+    }
   }, []);
 
   // Close form / modals on Escape key
