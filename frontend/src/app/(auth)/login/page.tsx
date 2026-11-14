@@ -1467,31 +1467,36 @@ export default function LoginPage() {
             if (e.target === e.currentTarget) setIsFormOpen(false);
           }}
         >
-          {/* Card Container */}
+          {/* Card Container: Modern 3D Glassmorphism with glowing gold & royal blue beveled edges */}
           <div
-            className={`relative z-20 w-full max-w-[540px] xl:max-w-[580px] max-h-[92vh] overflow-y-auto rounded-2xl px-6 py-6 sm:px-8 sm:py-7 shadow-2xl transition-colors duration-200 my-auto border animate-in zoom-in-95 duration-200 ${
+            className={`relative z-20 w-full max-w-[540px] xl:max-w-[580px] max-h-[92vh] overflow-y-auto overflow-x-hidden rounded-3xl px-6 py-6 sm:px-8 sm:py-7 transition-all duration-300 my-auto border animate-in zoom-in-95 duration-200 backdrop-blur-2xl ${
               isDarkMode
-                ? 'bg-[#0e131f] border-[#222b3d] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'
-                : 'bg-white border-slate-200/90 shadow-2xl shadow-slate-900/20'
+                ? 'bg-[#0a1122]/90 border-amber-500/40 ring-1 ring-blue-500/40 shadow-[0_25px_70px_rgba(0,0,0,0.9),0_0_50px_rgba(245,158,11,0.22),inset_0_1px_2px_rgba(251,191,36,0.3)]'
+                : 'bg-white/95 border-amber-500/40 ring-1 ring-blue-500/30 shadow-[0_25px_65px_rgba(15,23,42,0.25),0_0_40px_rgba(245,158,11,0.18),inset_0_1px_2px_rgba(255,255,255,0.9)]'
             }`}
           >
+            {/* Soft Ambient 3D Lens Flares */}
+            <div className="pointer-events-none absolute -top-24 -left-24 w-52 h-52 bg-gradient-to-br from-amber-400/25 to-transparent rounded-full blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -right-24 w-52 h-52 bg-gradient-to-tl from-blue-600/25 to-transparent rounded-full blur-3xl" />
+
             {/* Close button X */}
             <button
               type="button"
               onClick={() => setIsFormOpen(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-[#131824] dark:hover:bg-[#1f283d] text-slate-500 hover:text-slate-900 dark:text-amber-400 dark:hover:text-amber-300 transition cursor-pointer shadow-xs z-30"
+              className="absolute top-4 right-4 w-8 h-8 rounded-xl flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-[#131d33] dark:hover:bg-[#1f2d4d] text-slate-500 hover:text-slate-900 dark:text-amber-400 dark:hover:text-amber-300 transition cursor-pointer shadow-xs z-30 border border-slate-200 dark:border-amber-500/30"
               title="Cufi / Close"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
             </button>
 
-            {/* Centered Official Hospital Logo */}
-            <div className="flex justify-center mb-3">
+            {/* Centered Official Hospital Logo with 3D glowing ring */}
+            <div className="flex justify-center mb-3 relative">
+              <div className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-amber-400/20 blur-md pointer-events-none" />
               <img
                 src="/hospital-logo.png"
                 alt="Mettu Karl Hospital Seal"
-                className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-full shadow-xs ring-2 ring-amber-500/30"
+                className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-full shadow-lg ring-2 ring-amber-500/50 relative z-10 border border-amber-300/40"
               />
             </div>
 
@@ -1848,14 +1853,14 @@ export default function LoginPage() {
               /* VIEW B: SIGN UP / REGISTRATION FORM (PATIENT & STAFF)           */
               /* =============================================================== */
               <div>
-                {/* Account Type Selector: Patient vs Hospital Staff */}
-                <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-[#070a10] mb-4 border border-slate-200/80 dark:border-[#222b3d]">
+                {/* Account Type Selector: 3D Pill Tabs */}
+                <div className="flex p-1.5 rounded-2xl bg-slate-100/90 dark:bg-[#060b16]/90 mb-4 border border-slate-200/90 dark:border-blue-900/40 shadow-inner">
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('patient')}
-                    className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'patient'
-                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-bold shadow-md shadow-amber-500/20 border border-amber-300'
+                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-bold shadow-[0_4px_14px_rgba(245,158,11,0.35),inset_0_1px_1px_rgba(255,255,255,0.7)] border-t border-amber-200 border-b border-amber-600 scale-[1.01]'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
@@ -1871,9 +1876,9 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('staff')}
-                    className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'staff'
-                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-bold shadow-md shadow-amber-500/20 border border-amber-300'
+                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-bold shadow-[0_4px_14px_rgba(245,158,11,0.35),inset_0_1px_1px_rgba(255,255,255,0.7)] border-t border-amber-200 border-b border-amber-600 scale-[1.01]'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
@@ -2161,11 +2166,11 @@ export default function LoginPage() {
                         </div>
                       )}
 
-                      {/* Patient Registration Submit Button */}
+                      {/* Patient Registration Submit Button: 3D Golden Raised Button */}
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-11 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 border border-amber-300"
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-extrabold text-sm shadow-[0_8px_20px_rgba(245,158,11,0.35),inset_0_1px_2px_rgba(255,255,255,0.7)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.5)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-75 border-t border-amber-200 border-b border-amber-600"
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
@@ -2599,11 +2604,11 @@ export default function LoginPage() {
                         </div>
                       )}
 
-                      {/* Submit Staff Sign Up Button */}
+                      {/* Submit Staff Sign Up Button: 3D Golden Raised Button */}
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-11 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 border border-amber-300"
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-extrabold text-sm shadow-[0_8px_20px_rgba(245,158,11,0.35),inset_0_1px_2px_rgba(255,255,255,0.7)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.5)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-75 border-t border-amber-200 border-b border-amber-600"
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
@@ -2647,8 +2652,8 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Subtle Secure Access Information Panel */}
-            <div className="w-full rounded-xl bg-amber-500/10 dark:bg-[#070a10] border border-amber-500/30 dark:border-[#222b3d] p-3 flex items-center gap-3 mt-4 shadow-xs">
+            {/* 3D Recessed Secure Access Information Panel */}
+            <div className="w-full rounded-2xl bg-gradient-to-r from-amber-500/10 via-blue-500/10 to-amber-500/10 dark:bg-[#060c18]/90 border border-amber-500/30 dark:border-blue-500/30 p-3.5 flex items-center gap-3 mt-4 shadow-inner ring-1 ring-amber-500/20">
               <ShieldCheck className="h-5 w-5 text-amber-500 dark:text-amber-400 shrink-0" />
               <div className="text-left">
                 <p className="text-xs font-semibold text-slate-900 dark:text-amber-300 leading-tight">
