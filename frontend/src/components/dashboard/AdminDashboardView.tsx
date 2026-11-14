@@ -24,10 +24,8 @@ import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
 import {
   ShieldCheck,
-  Building2,
   Users,
   BedDouble,
-  Clock,
   Sliders,
   Edit3,
   Check,
@@ -38,7 +36,6 @@ import {
   CreditCard,
   ChevronDown,
   ChevronUp,
-  Volume2,
   Eye,
   Ticket,
 } from 'lucide-react';
@@ -259,102 +256,7 @@ export function AdminDashboardView(): React.ReactElement {
   return (
     <div className="space-y-5">
       {/* ================================================================= */}
-      {/* 1. COMPACT EXECUTIVE COCKPIT HEADER WITH QUICK CONTROLS            */}
-      {/* ================================================================= */}
-      <div className="relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gradient-to-br from-white via-sky-100/80 to-indigo-100/75 dark:from-[#16233d] dark:via-[#1d2e4f] dark:to-[#182644] border-[2.5px] border-sky-400/90 dark:border-sky-400/55 rounded-3xl p-4 sm:p-5 shadow-[0_14px_34px_-8px_rgba(14,165,233,0.28)] hover:shadow-[0_18px_40px_-8px_rgba(14,165,233,0.42)] hover:-translate-y-1 transition-all duration-300 group">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/40 dark:via-sky-200/15 to-transparent mkh-panel-sweep" />
-        <div className="relative z-10 space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shadow-md shadow-amber-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0">
-              <Building2 className="w-5.5 h-5.5" />
-            </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-2.5 flex-wrap">
-                <span>{language === 'om' ? "Wiirtuu Bulchiinsa Hospitaala Mattuu Kaarl" : language === 'am' ? 'የመቱ ካርል ሪፈራል ሆስፒታል የበላይ አስተዳደር' : 'Mettu Karl Referral Hospital Executive Command'}</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-400/30 text-amber-950 dark:text-amber-100 border-2 border-amber-500/60 font-mono font-black">
-                  ADMIN COMMAND
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5">
-                {language === 'om'
-                  ? "To'annoo kutaalee yaalaa, karoora ogeeyyii, fi murtiiwwan hatattamaa hospitaalaa"
-                  : 'Hospital-wide departmental monitoring, staffing oversight, and live operational control'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Status Badges & Admin Action Controls */}
-        <div className="relative z-10 flex flex-wrap items-center gap-2.5 shrink-0">
-          {/* Emergency Status Pill */}
-          <div
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black border-2 transition-transform hover:scale-[1.04] ${
-              emergencyCode === 'code_blue'
-                ? 'bg-rose-100 dark:bg-rose-950/85 text-rose-900 dark:text-rose-100 border-rose-500 animate-pulse'
-                : emergencyCode === 'mci'
-                ? 'bg-amber-100 dark:bg-amber-950/85 text-amber-950 dark:text-amber-100 border-amber-500 animate-pulse'
-                : 'bg-emerald-100/95 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border-emerald-500/75'
-            }`}
-          >
-            <span className={`h-2.5 w-2.5 rounded-full ${emergencyCode === 'nominal' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-            <span>
-              {emergencyCode === 'code_blue'
-                ? 'CODE BLUE ACTIVE'
-                : emergencyCode === 'mci'
-                ? 'MCI START TRIAGE'
-                : (language === 'om' ? 'NAGAADHA (Nominal)' : 'System Nominal')}
-            </span>
-          </div>
-
-          {/* Active Shift Pill (Online Centralized) */}
-          <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/90 dark:bg-[#142038] border-2 border-sky-400/80 dark:border-sky-400/50 text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white hover:border-sky-500 transition-colors">
-            <Clock className="w-4 h-4 text-amber-500" />
-            <span>
-              {onlineShift
-                ? (lang === 'om' ? onlineShift.name_om : lang === 'am' ? onlineShift.name_am : onlineShift.name_en)
-                : activeShift === 'morning'
-                ? (lang === 'om' ? 'Shiftii Ganamaa (08:00-16:00)' : 'Morning Shift')
-                : activeShift === 'afternoon'
-                ? (lang === 'om' ? 'Shiftii Galgalaa (16:00-24:00)' : 'Afternoon Shift')
-                : (lang === 'om' ? 'Shiftii Halkan (00:00-08:00)' : 'Night Shift')}
-            </span>
-            <span className="text-xs text-teal-800 dark:text-teal-200 font-mono font-black pl-1.5 border-l-2 border-sky-300 dark:border-slate-600">
-              {serverTime}
-            </span>
-          </div>
-
-          {/* THE PRIMARY EDIT & CONTROL BUTTON (MORPHING ARROW) */}
-          <MorphingArrowButton
-            variant="amber"
-            size="md"
-            icon={<Sliders className="w-4 h-4 text-slate-950" />}
-            label={language === 'om' ? "To'adhu & Gulaali (Controls)" : language === 'am' ? 'አስተዳድርና አርትዕ' : 'Admin Controls'}
-            onClick={() => setIsEditModalOpen(true)}
-          />
-        </div>
-      </div>
-
-      {/* Broadcast Banner */}
-      {broadcastMessage && (
-        <div className="relative overflow-hidden flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-amber-100 via-orange-50 to-amber-100/95 dark:from-amber-500/25 dark:via-orange-500/20 dark:to-amber-600/25 border-[2.5px] border-amber-500/85 dark:border-amber-400/60 text-xs sm:text-sm shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/40 dark:via-amber-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '1.2s' }} />
-          <div className="relative z-10 flex items-center gap-2.5 min-w-0">
-            <Volume2 className="w-4.5 h-4.5 text-amber-800 dark:text-amber-200 shrink-0 animate-pulse" />
-            <span className="font-black text-amber-950 dark:text-amber-100">{language === 'om' ? "Beeksisa Hospitaalaa:" : "Broadcast:"}</span>
-            <span className="font-bold text-slate-950 dark:text-white truncate">{broadcastMessage}</span>
-          </div>
-          <MorphingArrowButton
-            variant="amber-soft"
-            size="xs"
-            label={language === 'om' ? 'Jijjiiri' : 'Edit'}
-            onClick={() => setIsEditModalOpen(true)}
-            className="relative z-10 shrink-0"
-          />
-        </div>
-      )}
-
-      {/* ================================================================= */}
-      {/* 2. ONE UNIFIED RECTANGLE HOLDING 4 COMPACT ANIMATED 3D MINI CUBES */}
+      {/* ONE UNIFIED RECTANGLE HOLDING 4 COMPACT ANIMATED 3D MINI CUBES    */}
       {/* ================================================================= */}
       <div className="relative overflow-hidden rounded-3xl border-[2.5px] border-sky-400/90 dark:border-sky-400/60 bg-gradient-to-br from-sky-100/85 via-white/95 to-indigo-100/85 dark:from-[#132140]/95 dark:via-[#18294e]/95 dark:to-[#1a2448]/95 backdrop-blur-md p-3.5 sm:p-4 shadow-[0_14px_34px_-8px_rgba(14,165,233,0.3)] hover:shadow-[0_18px_42px_-8px_rgba(14,165,233,0.45)] hover:-translate-y-0.5 transition-all duration-300 animate-smooth-in">
         <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-white/45 dark:via-sky-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '0.6s' }} />
