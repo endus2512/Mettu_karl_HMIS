@@ -416,8 +416,8 @@ export default function LoginPage() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [showITSupportModal, setShowITSupportModal] = useState(false);
 
-  // Interactive 3D Form Card: Centered and visible immediately on login page
-  const [isFormOpen, setIsFormOpen] = useState(true);
+  // Interactive 3D Form Card: Initially closed so building hero is visible on first arrival; opens when user clicks Login or Sign Up
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [formType, setFormType] = useState<'login' | 'signup'>('login');
 
   // Sign up account type: Patient vs Staff
@@ -1225,18 +1225,28 @@ export default function LoginPage() {
       <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none bg-[#0B1522]">
         
         {/* =================================================================== */}
-        {/* 1. FULL-SCREEN DARK BLURRED HOSPITAL HALLWAY & WORKSTATION CANVAS   */}
+        {/* 1. FULL-SCREEN 4K ULTRA-HD ARCHITECTURAL CANVAS (HOSPITAL BUILDING) */}
         {/* =================================================================== */}
-        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-[#0B1522] pointer-events-none">
-          <img
-            src="/hospital-hallway-bg.jpg"
-            alt="Hospital Hallway Medical Workstation"
-            loading="eager"
-            className="w-full h-full object-cover scale-105 filter blur-[2px]"
-          />
-          {/* Dark teal/navy atmospheric overlay (#0B1522) */}
-          <div className="absolute inset-0 bg-[#0B1522]/80 mix-blend-multiply pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#0B1522]/95 via-[#0B1522]/70 to-[#0e273f]/80 pointer-events-none" />
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
+          <picture className="w-full h-full block">
+            <source srcSet="/hospital-building.webp?v=9" type="image/webp" />
+            <img
+              src="/hospital-building.jpg?v=9"
+              alt="Mettu Karl Comprehensive Specialized Hospital Building"
+              loading="eager"
+              decoding="sync"
+              className="w-full h-full object-cover object-[44%_26%] sm:object-[center_28%] transform scale-100"
+              style={{
+                imageRendering: 'crisp-edges',
+                WebkitBackfaceVisibility: 'hidden',
+              }}
+            />
+          </picture>
+
+          {/* Clarity Atmospheric Scrims: Enhances text legibility while keeping the building 100% sharp & vibrant */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-transparent to-slate-950/75 pointer-events-none" />
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-slate-950/35 to-transparent pointer-events-none" />
+          <div className="hidden lg:block absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-slate-950/35 to-transparent pointer-events-none" />
         </div>
 
         {/* =================================================================== */}
@@ -1502,11 +1512,22 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {isFormOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#0B1522]/60 backdrop-blur-md overflow-hidden animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-hidden animate-in fade-in duration-200 select-none"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsFormOpen(false);
           }}
         >
+          {/* Modal Backdrop: Dark Blurred Hospital Hallway Medical Workstation (Specification 1) */}
+          <div className="absolute inset-0 z-0 overflow-hidden bg-[#0B1522] pointer-events-none">
+            <img
+              src="/hospital-hallway-bg.jpg"
+              alt="Hospital Hallway Medical Workstation"
+              className="w-full h-full object-cover filter blur-[3px] scale-105"
+            />
+            <div className="absolute inset-0 bg-[#0B1522]/85 mix-blend-multiply pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#0B1522]/95 via-[#0B1522]/80 to-[#0e273f]/85 pointer-events-none" />
+          </div>
+
           {/* Centered Dark Glassmorphism Card Container (Specification 2) */}
           <div className="relative z-20 w-full max-w-[490px] sm:max-w-[520px] my-auto pt-10">
             {/* Top Emblem: Circular 3D metallic dark-slate and gold badge (80px x 80px) half-overlapping top center border (-mt-10) (Specification 3) */}
