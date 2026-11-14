@@ -363,6 +363,36 @@ interface PendingStaffWaitState {
 
 const PENDING_WAIT_STORAGE_KEY = 'mkh_staff_pending_wait';
 
+/**
+ * 3D Metallic Caduceus Icon (Silver/White with crisp detailing)
+ */
+function CaduceusIcon({ className = 'w-10 h-10' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <defs>
+        <linearGradient id="silverCaduceusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="35%" stopColor="#E2E8F0" />
+          <stop offset="70%" stopColor="#94A3B8" />
+          <stop offset="100%" stopColor="#CBD5E1" />
+        </linearGradient>
+      </defs>
+      {/* Central Staff */}
+      <circle cx="50" cy="18" r="4.5" fill="url(#silverCaduceusGrad)" />
+      <path d="M48.5 22H51.5V86C51.5 87.5 50.8 88.5 50 88.5C49.2 88.5 48.5 87.5 48.5 86V22Z" fill="url(#silverCaduceusGrad)" />
+      {/* Wings */}
+      <path d="M50 24C44 19 32 17 22 23C27 28 35 30 46 27C44 32 38 34 30 35C37 38 43 36 49 31" fill="url(#silverCaduceusGrad)" opacity="0.95" />
+      <path d="M50 24C56 19 68 17 78 23C73 28 65 30 54 27C56 32 62 34 70 35C63 38 57 36 51 31" fill="url(#silverCaduceusGrad)" opacity="0.95" />
+      {/* Twin Serpents */}
+      <path d="M40 33C40 33 46 32 50 38C54 44 63 45 63 51C63 57 55 58 50 64C45 70 39 71 42 77C44 81 48 83 50 84" stroke="url(#silverCaduceusGrad)" strokeWidth="3.2" strokeLinecap="round" fill="none" />
+      <path d="M60 33C60 33 54 32 50 38C46 44 37 45 37 51C37 57 45 58 50 64C55 70 61 71 58 77C56 81 52 83 50 84" stroke="url(#silverCaduceusGrad)" strokeWidth="3.2" strokeLinecap="round" fill="none" />
+      {/* Serpent heads */}
+      <circle cx="39.5" cy="33.5" r="2.2" fill="url(#silverCaduceusGrad)" />
+      <circle cx="60.5" cy="33.5" r="2.2" fill="url(#silverCaduceusGrad)" />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, completeTokenSession, verifyMFA, patientRegister, user } = useAuth();
@@ -1192,32 +1222,21 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {/* HOSPITAL BUILDING HERO VIEW (EDGE-TO-EDGE FULL SCREEN BACKGROUND)       */}
       {/* ======================================================================= */}
-      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none bg-slate-950">
+      <div className="w-full h-full relative shrink-0 flex flex-col justify-between overflow-y-auto lg:overflow-hidden select-none bg-[#0B1522]">
         
         {/* =================================================================== */}
-        {/* FULL-SCREEN 4K ULTRA-HD ARCHITECTURAL CANVAS (Edge-to-Edge)         */}
+        {/* 1. FULL-SCREEN DARK BLURRED HOSPITAL HALLWAY & WORKSTATION CANVAS   */}
         {/* =================================================================== */}
-        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 pointer-events-none">
-          {/* Direct, reliable HTML image rendering with crisp-edges & zero blur */}
-          <picture className="w-full h-full block">
-            <source srcSet="/hospital-building.webp?v=9" type="image/webp" />
-            <img
-              src="/hospital-building.jpg?v=9"
-              alt="Mettu Karl Comprehensive Specialized Hospital Building"
-              loading="eager"
-              decoding="sync"
-              className="w-full h-full object-cover object-[44%_26%] sm:object-[center_28%] transform scale-100"
-              style={{
-                imageRendering: 'crisp-edges',
-                WebkitBackfaceVisibility: 'hidden',
-              }}
-            />
-          </picture>
-
-          {/* Clarity Atmospheric Scrims: Enhances text legibility while keeping the building 100% sharp & vibrant */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-transparent to-slate-950/75 pointer-events-none" />
-          <div className="hidden lg:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-slate-950/35 to-transparent pointer-events-none" />
-          <div className="hidden lg:block absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-slate-950/35 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-[#0B1522] pointer-events-none">
+          <img
+            src="/hospital-hallway-bg.jpg"
+            alt="Hospital Hallway Medical Workstation"
+            loading="eager"
+            className="w-full h-full object-cover scale-105 filter blur-[2px]"
+          />
+          {/* Dark teal/navy atmospheric overlay (#0B1522) */}
+          <div className="absolute inset-0 bg-[#0B1522]/80 mix-blend-multiply pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#0B1522]/95 via-[#0B1522]/70 to-[#0e273f]/80 pointer-events-none" />
         </div>
 
         {/* =================================================================== */}
@@ -1483,64 +1502,69 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {isFormOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#030814]/40 backdrop-blur-md overflow-hidden animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#0B1522]/60 backdrop-blur-md overflow-hidden animate-in fade-in duration-200 select-none"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsFormOpen(false);
           }}
         >
-          {/* 3D Glassmorphism Multi-Layer Outer Frame */}
-          <div className="relative z-20 w-full max-w-[500px] sm:max-w-[530px] my-auto pt-7">
-            {/* 3D Embossed Seal Medallion with Gold Rim & Glowing Halo */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30 flex justify-center pointer-events-none">
+          {/* Centered Dark Glassmorphism Card Container (Specification 2) */}
+          <div className="relative z-20 w-full max-w-[490px] sm:max-w-[520px] my-auto pt-10">
+            {/* Top Emblem: Circular 3D metallic dark-slate and gold badge (80px x 80px) half-overlapping top center border (-mt-10) (Specification 3) */}
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30 flex justify-center pointer-events-none">
               <div className="relative">
-                <div className="absolute inset-0 -m-3 rounded-full bg-gradient-to-tr from-amber-400/30 via-cyan-400/20 to-blue-500/40 blur-xl animate-pulse" />
-                <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full p-[2.5px] bg-gradient-to-b from-amber-200 via-slate-300 to-amber-600 shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_25px_rgba(59,130,246,0.5)] flex items-center justify-center">
-                  <div className="w-full h-full rounded-full p-1 bg-gradient-to-b from-[#182846] via-[#0b1528] to-[#040813] flex items-center justify-center border border-white/30 shadow-inner">
-                    <img
-                      src="/hospital-logo.png"
-                      alt="Mettu Karl Hospital Seal"
-                      className="w-12 h-12 sm:w-13 sm:h-13 object-contain rounded-full drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
-                    />
+                {/* Subtle golden rim glow */}
+                <div className="absolute inset-0 -m-2 rounded-full bg-[#EAB308]/25 blur-lg" />
+                <div
+                  className="rounded-full p-[2px] bg-gradient-to-b from-[#EAB308] via-[#475569] to-[#EAB308]/70 shadow-[0_10px_25px_rgba(0,0,0,0.8),0_0_20px_rgba(234,179,8,0.35)] flex items-center justify-center"
+                  style={{ width: '80px', height: '80px' }}
+                >
+                  <div className="w-full h-full rounded-full p-2 bg-gradient-to-b from-[#1E293B] via-[#0F172A] to-[#0A0F1D] flex items-center justify-center border border-[#334155]/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),inset_0_-2px_4px_rgba(0,0,0,0.8)]">
+                    <CaduceusIcon className="w-11 h-11 text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]" />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Outer Glowing Gold & Royal Blue Beveled Border with Corner Sparkles */}
-            <div className="p-[1.5px] rounded-[36px] bg-gradient-to-tr from-blue-500/70 via-cyan-400/30 to-amber-400/80 shadow-[0_0_50px_rgba(59,130,246,0.35),0_0_80px_rgba(245,158,11,0.25),0_30px_70px_rgba(0,0,0,0.7)] relative">
-              {/* Soft lens flare sparkles */}
-              <div className="pointer-events-none absolute -top-1 -right-1 w-5 h-5 bg-amber-200 rounded-full blur-[2px] opacity-90 animate-pulse z-40" />
-              <div className="pointer-events-none absolute top-1/2 -left-1.5 w-4 h-4 bg-cyan-300 rounded-full blur-[2px] opacity-80 z-40" />
-              <div className="pointer-events-none absolute -bottom-1 -left-1 w-4 h-4 bg-blue-400 rounded-full blur-[2px] opacity-70 z-40" />
-
-              {/* Inner delicate light bevel */}
-              <div className="p-[1px] rounded-[34.5px] bg-gradient-to-b from-white/30 via-transparent to-blue-500/30">
-                {/* Main 3D Frosted Crystal Glass Body (High Transparency, No Jet Black) */}
-                <div
-                  className="relative max-h-[88vh] overflow-y-auto rounded-[34px] px-6 py-7 sm:px-8 sm:py-8 backdrop-blur-2xl bg-gradient-to-b from-white/[0.14] via-[#0b172b]/60 to-[#071120]/75 text-white border border-white/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),inset_0_-1px_2px_rgba(255,255,255,0.1)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] animate-in zoom-in-95 duration-200"
+            {/* Glowing Gradient Border: Thin 1.5px gradient border transitioning from Royal Blue (#3B82F6) on left/bottom-left to Warm Gold (#EAB308) on top/right (Specification 2) */}
+            <div
+              className="p-[1.5px] rounded-[24px] bg-gradient-to-tr from-[#3B82F6] via-[#3B82F6]/60 to-[#EAB308] relative"
+              style={{
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+                borderRadius: '24px',
+              }}
+            >
+              {/* Centered dark translucent glass card (background: rgba(15, 25, 38, 0.65), backdrop-filter: blur(20px), border-radius: 24px) */}
+              <div
+                className="relative max-h-[88vh] overflow-y-auto px-6 py-7 sm:px-8 sm:py-8 text-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] animate-in zoom-in-95 duration-200"
+                style={{
+                  background: 'rgba(15, 25, 38, 0.65)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  borderRadius: '22.5px',
+                }}
+              >
+                {/* Close button X */}
+                <button
+                  type="button"
+                  onClick={() => setIsFormOpen(false)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-[#94A3B8] hover:text-white transition cursor-pointer z-30 border border-white/20 shadow-xs"
+                  title="Cufi / Close"
+                  aria-label="Close"
                 >
-                  {/* Close button X */}
-                  <button
-                    type="button"
-                    onClick={() => setIsFormOpen(false)}
-                    className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition cursor-pointer z-30 border border-white/20 shadow-xs"
-                    title="Cufi / Close"
-                    aria-label="Close"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <X className="w-4 h-4" />
+                </button>
 
             {/* ================================================================= */}
             {/* VIEW A: LOGIN FORM                                               */}
             {/* ================================================================= */}
             {formType === 'login' ? (
               <>
-                {/* Heading: Welcome Back */}
-                <div className="text-center pt-3 mb-5">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                {/* Typography (Specification 4): Headings crisp bold white (#FFFFFF), Subtitles soft light gray (#CBD5E1) */}
+                <div className="text-center pt-2 mb-5">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-[#FFFFFF] tracking-tight drop-shadow-md">
                     {step === 'credentials' ? t.welcomeBack : t.mfaTitle}
                   </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+                  <p className="mt-1 text-xs sm:text-sm text-[#CBD5E1] font-normal leading-relaxed">
                     {step === 'credentials' ? t.welcomeSubtitle : t.mfaDesc}
                   </p>
                 </div>
@@ -1552,20 +1576,27 @@ export default function LoginPage() {
                     noValidate
                     className="space-y-4"
                   >
-                    {/* Inner Recessed Frosted Glass Input Panel (matching uploaded 3D design) */}
-                    <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
-                      {/* USERNAME FIELD */}
+                    {/* Inner Recessed Frosted Glass Input Panel */}
+                    <div
+                      className="rounded-2xl p-4 sm:p-5 space-y-3.5"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                      }}
+                    >
+                      {/* USERNAME FIELD (Specification 5) */}
                       <div className="w-full">
                         <label
                           htmlFor={usernameId}
-                          className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 mb-1.5 cursor-pointer"
+                          className="flex items-center gap-1.5 text-xs font-semibold text-[#E2E8F0] mb-1.5 cursor-pointer"
                         >
-                          <User className="h-3.5 w-3.5 text-amber-400" />
+                          <User className="h-3.5 w-3.5 text-[#EAB308]" />
                           <span>{t.usernameLabel}</span>
                         </label>
 
                         <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                             <User className="h-4 w-4" />
                           </div>
                           <input
@@ -1578,13 +1609,18 @@ export default function LoginPage() {
                             autoFocus
                             {...loginForm.register('username')}
                             placeholder={t.usernamePlaceholder}
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-11 text-sm font-normal text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-11"
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.08)',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              borderRadius: '9999px',
+                            }}
                           />
                           {loginForm.watch('username') && (
                             <button
                               type="button"
                               onClick={() => loginForm.setValue('username', '', { shouldValidate: true })}
-                              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                              className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#94A3B8] hover:text-[#EAB308] cursor-pointer transition-colors"
                               title={t.clearField}
                               aria-label="Clear username field"
                             >
@@ -1599,18 +1635,18 @@ export default function LoginPage() {
                         )}
                       </div>
 
-                      {/* PASSWORD FIELD */}
+                      {/* PASSWORD FIELD (Specification 5) */}
                       <div className="w-full">
                         <label
                           htmlFor={passwordId}
-                          className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 mb-1.5 cursor-pointer"
+                          className="flex items-center gap-1.5 text-xs font-semibold text-[#E2E8F0] mb-1.5 cursor-pointer"
                         >
-                          <Lock className="h-3.5 w-3.5 text-amber-400" />
+                          <Lock className="h-3.5 w-3.5 text-[#EAB308]" />
                           <span>{t.passwordLabel}</span>
                         </label>
 
                         <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                             <Lock className="h-4 w-4" />
                           </div>
                           <input
@@ -1630,12 +1666,17 @@ export default function LoginPage() {
                             }}
                             onBlur={() => setCapsLockActive(false)}
                             placeholder={t.passwordPlaceholder}
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-11 text-sm font-normal text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-11"
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.08)',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              borderRadius: '9999px',
+                            }}
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                            className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#94A3B8] hover:text-[#EAB308] cursor-pointer transition-colors"
                             title={showPassword ? 'Hide password' : 'Show password'}
                             aria-label={showPassword ? 'Hide password' : 'Show password'}
                           >
@@ -1649,8 +1690,8 @@ export default function LoginPage() {
 
                         {/* Caps Lock Alert */}
                         {capsLockActive && (
-                          <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-400 animate-in fade-in duration-150">
-                            <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-[#EAB308] animate-in fade-in duration-150">
+                            <AlertCircle className="w-3.5 h-3.5 text-[#EAB308] shrink-0" />
                             <span>{t.capsLockOn}</span>
                           </div>
                         )}
@@ -1662,21 +1703,21 @@ export default function LoginPage() {
                         )}
                       </div>
 
-                      {/* Remember Me Checkbox & Forgot Password Link */}
+                      {/* Remember Me Checkbox on Left & Warm Gold Forgot Password Link on Right (Specification 7) */}
                       <div className="flex items-center justify-between text-xs pt-1">
-                        <label className="flex items-center gap-2 text-slate-300 cursor-pointer select-none font-normal">
+                        <label className="flex items-center gap-2 text-[#CBD5E1] cursor-pointer select-none font-normal">
                           <input
                             type="checkbox"
                             checked={rememberMe}
                             onChange={(e) => setRememberMe(e.target.checked)}
-                            className="h-4 w-4 rounded border-white/30 bg-slate-800/60 text-amber-500 focus:ring-amber-400 cursor-pointer"
+                            className="h-4 w-4 rounded border-white/30 bg-slate-900/60 text-[#EAB308] focus:ring-[#EAB308] cursor-pointer"
                           />
                           <span>{t.rememberMe}</span>
                         </label>
                         <button
                           type="button"
                           onClick={() => setShowForgotModal(true)}
-                          className="text-amber-400 hover:text-amber-300 font-semibold transition cursor-pointer"
+                          className="text-[#FACC15] hover:underline font-semibold transition cursor-pointer"
                         >
                           {t.forgotPassword}
                         </button>
@@ -1781,21 +1822,25 @@ export default function LoginPage() {
                       </div>
                     )}
 
-                    {/* Full-Width 3D Raised Golden Pill Login Button */}
+                    {/* Full-Width Glossy Pill Login Button (Specification 6) */}
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_8px_25px_rgba(245,158,11,0.5),inset_0_2px_3px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.7)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer mt-3 disabled:opacity-75 disabled:cursor-not-allowed border-t border-amber-100 border-b border-amber-700"
+                      className="w-full h-12 sm:h-13 text-[#0F172A] font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-3 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 disabled:cursor-not-allowed border-0"
+                      style={{
+                        background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
+                        borderRadius: '9999px',
+                      }}
                     >
                       {isLoading ? (
                         <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#0F172A] border-t-transparent" />
                           <span>{t.signingIn}</span>
                         </div>
                       ) : (
                         <>
-                          <LogIn className="h-4 w-4 text-slate-950" />
                           <span>{t.loginBtn}</span>
+                          <ArrowRight className="h-4 w-4 text-[#0F172A] stroke-[2.5]" />
                         </>
                       )}
                     </button>
@@ -1807,15 +1852,22 @@ export default function LoginPage() {
                     noValidate
                     className="space-y-4"
                   >
-                    <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
+                    <div
+                      className="rounded-2xl p-4 sm:p-5 space-y-3.5"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                      }}
+                    >
                       <label
                         htmlFor={mfaId}
-                        className="block text-xs font-semibold text-slate-200 mb-1.5"
+                        className="block text-xs font-semibold text-[#E2E8F0] mb-1.5"
                       >
                         Authenticator Code
                       </label>
                       <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                           <KeyRound className="h-4 w-4" />
                         </div>
                         <input
@@ -1826,7 +1878,12 @@ export default function LoginPage() {
                           autoFocus
                           {...mfaForm.register('totp_code')}
                           placeholder={t.mfaPlaceholder}
-                          className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-center tracking-widest text-lg font-mono text-white focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                          className="block w-full h-12 text-center tracking-widest text-lg font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: '9999px',
+                          }}
                         />
                       </div>
                       {mfaForm.formState.errors.totp_code && (
@@ -1839,19 +1896,29 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_10px_28px_rgba(245,158,11,0.55),inset_0_2px_3px_rgba(255,255,255,0.85),inset_0_-2px_4px_rgba(180,83,9,0.6)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.75)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 border-t border-amber-100 border-b border-amber-700"
+                      className="w-full h-12 sm:h-13 text-[#0F172A] font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-3 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 disabled:cursor-not-allowed border-0"
+                      style={{
+                        background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
+                        borderRadius: '9999px',
+                      }}
                     >
                       {isLoading ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#0F172A] border-t-transparent" />
+                          <span>{t.signingIn}</span>
+                        </div>
                       ) : (
-                        <span>{t.mfaVerifyBtn}</span>
+                        <>
+                          <span>{t.mfaVerifyBtn}</span>
+                          <ArrowRight className="h-4 w-4 text-[#0F172A] stroke-[2.5]" />
+                        </>
                       )}
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setStep('credentials')}
-                      className="w-full text-center text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-1 pt-1 cursor-pointer transition-colors"
+                      className="w-full text-center text-xs font-semibold text-[#CBD5E1] hover:text-white flex items-center justify-center gap-1 pt-1 cursor-pointer transition-colors"
                     >
                       <ArrowLeft className="h-3 w-3" />
                       <span>{t.mfaBackBtn}</span>
@@ -1859,9 +1926,9 @@ export default function LoginPage() {
                   </form>
                 )}
 
-                {/* Switch to Sign Up link */}
-                <div className="mt-4 text-center">
-                  <p className="text-xs sm:text-sm text-slate-300">
+                {/* Don't have an account? Sign Up (Specification 7) */}
+                <div className="mt-3.5 text-center">
+                  <p className="text-xs sm:text-sm text-[#CBD5E1]">
                     {language === 'om'
                       ? 'Akkaawuntii hin qabduu? '
                       : language === 'am'
@@ -1870,7 +1937,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setFormType('signup')}
-                      className="text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 transition cursor-pointer ml-1"
+                      className="text-[#FACC15] hover:underline font-bold transition cursor-pointer ml-1"
                     >
                       {language === 'om'
                         ? "Galmaa'i (Sign Up)"
@@ -1886,18 +1953,33 @@ export default function LoginPage() {
               /* VIEW B: SIGN UP / REGISTRATION FORM (PATIENT & STAFF)           */
               /* =============================================================== */
               <div>
-                {/* Account Type Selector: 3D Pill Tabs */}
-                <div className="flex p-1.5 rounded-full bg-white/[0.06] border border-white/15 backdrop-blur-md mb-5 shadow-inner">
+                {/* Account Type Selector: 3D Pill Tabs (Specification 5 & 6 theme) */}
+                <div
+                  className="flex p-1 rounded-full mb-4"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '9999px',
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('patient')}
                     className={`flex-1 py-2 px-3 rounded-full text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'patient'
-                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-black shadow-[0_4px_14px_rgba(245,158,11,0.4),inset_0_1px_1px_rgba(255,255,255,0.7)] border-t border-amber-200 border-b border-amber-600 scale-[1.01]'
-                        : 'text-slate-300 hover:text-white'
+                        ? 'text-[#0F172A] font-extrabold shadow-md'
+                        : 'text-[#CBD5E1] hover:text-white'
                     }`}
+                    style={
+                      signupAccountType === 'patient'
+                        ? {
+                            background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
+                            borderRadius: '9999px',
+                          }
+                        : {}
+                    }
                   >
-                    <HeartPulse className={`w-4 h-4 ${signupAccountType === 'patient' ? 'text-slate-950' : 'text-amber-400'}`} />
+                    <HeartPulse className="w-4 h-4 shrink-0" />
                     <span>
                       {language === 'om'
                         ? 'Dhukkubsataa (Patient)'
@@ -1911,11 +1993,19 @@ export default function LoginPage() {
                     onClick={() => setSignupAccountType('staff')}
                     className={`flex-1 py-2 px-3 rounded-full text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'staff'
-                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-black shadow-[0_4px_14px_rgba(245,158,11,0.4),inset_0_1px_1px_rgba(255,255,255,0.7)] border-t border-amber-200 border-b border-amber-600 scale-[1.01]'
-                        : 'text-slate-300 hover:text-white'
+                        ? 'text-[#0F172A] font-extrabold shadow-md'
+                        : 'text-[#CBD5E1] hover:text-white'
                     }`}
+                    style={
+                      signupAccountType === 'staff'
+                        ? {
+                            background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
+                            borderRadius: '9999px',
+                          }
+                        : {}
+                    }
                   >
-                    <Building2 className={`w-4 h-4 ${signupAccountType === 'staff' ? 'text-slate-950' : 'text-amber-400'}`} />
+                    <Building2 className="w-4 h-4 shrink-0" />
                     <span>
                       {language === 'om'
                         ? 'Hojjataa (Staff Station)'
@@ -1932,14 +2022,14 @@ export default function LoginPage() {
                   /* =========================================================== */
                   <div>
                     <div className="text-center mb-4 sm:mb-5">
-                      <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                      <h2 className="text-2xl sm:text-3xl font-extrabold text-[#FFFFFF] tracking-tight leading-tight drop-shadow-md">
                         {language === 'om'
                           ? 'Galmee Dhukkubsataa'
                           : language === 'am'
                           ? 'የታካሚ ምዝገባ'
                           : 'Patient Registration'}
                       </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+                      <p className="mt-1 text-xs sm:text-sm text-[#CBD5E1] font-normal leading-relaxed">
                         {language === 'om'
                           ? 'Odeeffannoo keessan sirriitti guutuun tajaajila poortaalii fayyaa argadhaa'
                           : language === 'am'
@@ -1950,14 +2040,21 @@ export default function LoginPage() {
 
                     <form onSubmit={handlePatientSignupSubmit} className="space-y-4">
                       {/* Inner Recessed Frosted Glass Input Panel */}
-                      <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
+                      <div
+                        className="rounded-2xl p-4 sm:p-5 space-y-3.5"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.04)',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          backdropFilter: 'blur(10px)',
+                        }}
+                      >
                         {/* USERNAME */}
                         <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                             {language === 'om' ? 'Maqaa Fayyadamaa' : language === 'am' ? 'የተጠቃሚ ስም' : 'Username'} *
                           </label>
                           <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                               <User className="h-4 w-4" />
                             </div>
                             <input
@@ -1966,18 +2063,23 @@ export default function LoginPage() {
                               value={patientUsername}
                               onChange={(e) => setPatientUsername(e.target.value)}
                               placeholder={language === 'om' ? 'Fkn. chaltuu2024' : 'e.g. chaltuu2024'}
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             />
                           </div>
                         </div>
 
                         {/* FULL NAME */}
                         <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                             {language === 'om' ? 'Maqaa Guutuu' : language === 'am' ? 'ሙሉ ስም' : 'Full Name'} *
                           </label>
                           <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                               <User className="h-4 w-4" />
                             </div>
                             <input
@@ -1986,7 +2088,12 @@ export default function LoginPage() {
                               value={patientFullName}
                               onChange={(e) => setPatientFullName(e.target.value)}
                               placeholder={language === 'om' ? 'Fkn. Chaltuu Guddataa / Guddataa Fayyisaa' : 'e.g. Chaltu Gudeta / Gudeta Fayisa'}
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             />
                           </div>
                         </div>
@@ -1994,11 +2101,11 @@ export default function LoginPage() {
                         {/* PHONE & FAYDA NATIONAL ID (TWO COLUMNS) */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Lakkoofsa Bilbilaa' : language === 'am' ? 'ስልክ ቁጥር' : 'Phone Number'} *
                             </label>
                             <div className="relative">
-                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                                 <Phone className="h-4 w-4" />
                               </div>
                               <input
@@ -2007,17 +2114,22 @@ export default function LoginPage() {
                                 value={patientPhone}
                                 onChange={(e) => setPatientPhone(e.target.value)}
                                 placeholder="+251 911 002 233"
-                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                                className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  borderRadius: '9999px',
+                                }}
                               />
                             </div>
                           </div>
 
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Waraqaa Fayda (FAN)' : language === 'am' ? 'የፋይዳ ቁጥር (FAN)' : 'Fayda ID (FAN)'}
                             </label>
                             <div className="relative">
-                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                                 <CreditCard className="h-4 w-4" />
                               </div>
                               <input
@@ -2025,7 +2137,12 @@ export default function LoginPage() {
                                 value={patientFaydaId}
                                 onChange={(e) => setPatientFaydaId(e.target.value)}
                                 placeholder="FAN-9901-2384-5120"
-                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm font-mono text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                                className="block w-full h-12 text-sm font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  borderRadius: '9999px',
+                                }}
                               />
                             </div>
                           </div>
@@ -2033,11 +2150,11 @@ export default function LoginPage() {
 
                         {/* RESIDENCE / ADDRESS (AANAA & GANDA) */}
                         <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                             {language === 'om' ? 'Bakka Jireenyaa (Aanaa / Ganda)' : language === 'am' ? 'የመኖሪያ አድራሻ (ወረዳ/ቀበሌ)' : 'Residence / Address (Woreda & Kebele)'}
                           </label>
                           <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                               <MapPin className="h-4 w-4" />
                             </div>
                             <input
@@ -2045,7 +2162,12 @@ export default function LoginPage() {
                               value={patientAddress}
                               onChange={(e) => setPatientAddress(e.target.value)}
                               placeholder={language === 'om' ? 'Fkn. Meettuu, Ganda 02' : 'e.g. Mettu, Kebele 02'}
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              className="block w-full h-12 text-sm font-normal text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             />
                           </div>
                         </div>
@@ -2053,41 +2175,49 @@ export default function LoginPage() {
                         {/* DATE OF BIRTH & GENDER (TWO COLUMNS) */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Guyyaa Dhalootaa' : language === 'am' ? 'የትውልድ ቀን' : 'Date of Birth'}
                             </label>
-                            <div className="relative">
-                              <input
-                                type="date"
-                                value={patientBirthDate}
-                                onChange={(e) => setPatientBirthDate(e.target.value)}
-                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                              />
-                            </div>
+                            <input
+                              type="date"
+                              value={patientBirthDate}
+                              onChange={(e) => setPatientBirthDate(e.target.value)}
+                              className="block w-full h-12 text-sm text-[#FFFFFF] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
+                            />
                           </div>
 
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Saala' : language === 'am' ? 'ጾታ' : 'Gender'}
                             </label>
                             <select
                               value={patientGender}
                               onChange={(e) => setPatientGender(e.target.value as 'male' | 'female')}
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all cursor-pointer"
+                              className="block w-full h-12 text-sm text-[#FFFFFF] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5 cursor-pointer"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             >
-                              <option value="male" className="bg-slate-900 text-white">{language === 'om' ? 'Dhiira' : language === 'am' ? 'ወንድ' : 'Male'}</option>
-                              <option value="female" className="bg-slate-900 text-white">{language === 'om' ? 'Dubara' : language === 'am' ? 'ሴት' : 'Female'}</option>
+                              <option value="male" className="bg-[#0F172A] text-white">{language === 'om' ? 'Dhiira' : language === 'am' ? 'ወንድ' : 'Male'}</option>
+                              <option value="female" className="bg-[#0F172A] text-white">{language === 'om' ? 'Dubara' : language === 'am' ? 'ሴት' : 'Female'}</option>
                             </select>
                           </div>
                         </div>
 
                         {/* CBHI INSURANCE POLICY NUMBER */}
                         <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                             {language === 'om' ? 'Inshuraansii Fayyaa (CBHI - Yoo jiraate)' : language === 'am' ? 'የጤና መድህን ቁጥር (CBHI)' : 'CBHI Health Insurance Policy (Optional)'}
                           </label>
                           <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                               <ShieldCheck className="h-4 w-4" />
                             </div>
                             <input
@@ -2095,7 +2225,12 @@ export default function LoginPage() {
                               value={patientCbhi}
                               onChange={(e) => setPatientCbhi(e.target.value)}
                               placeholder="CBHI-ILL-10294"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             />
                           </div>
                         </div>
@@ -2103,7 +2238,7 @@ export default function LoginPage() {
                         {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Jecha Icchitii' : language === 'am' ? 'የይለፍ ቃል' : 'Password'} *
                             </label>
                             <div className="relative">
@@ -2124,12 +2259,17 @@ export default function LoginPage() {
                                 }}
                                 onBlur={() => setCapsLockActive(false)}
                                 placeholder="••••••••"
-                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                                className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  borderRadius: '9999px',
+                                }}
                               />
                               <button
                                 type="button"
                                 onClick={() => setShowPatientPassword(!showPatientPassword)}
-                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#94A3B8] hover:text-[#EAB308] cursor-pointer transition-colors"
                                 title={showPatientPassword ? 'Hide password' : 'Show password'}
                                 aria-label="Toggle password visibility"
                               >
@@ -2152,7 +2292,7 @@ export default function LoginPage() {
                           </div>
 
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Mirkaneessi' : language === 'am' ? 'አረጋግጥ' : 'Confirm'} *
                             </label>
                             <div className="relative">
@@ -2162,12 +2302,17 @@ export default function LoginPage() {
                                 value={patientConfirmPassword}
                                 onChange={(e) => setPatientConfirmPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                                className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  borderRadius: '9999px',
+                                }}
                               />
                               <button
                                 type="button"
                                 onClick={() => setShowPatientConfirmPassword(!showPatientConfirmPassword)}
-                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#94A3B8] hover:text-[#EAB308] cursor-pointer transition-colors"
                                 title={showPatientConfirmPassword ? 'Hide password' : 'Show password'}
                                 aria-label="Toggle password visibility"
                               >
@@ -2195,27 +2340,30 @@ export default function LoginPage() {
 
                         {/* Caps Lock Alert */}
                         {capsLockActive && (
-                          <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-400 animate-in fade-in duration-150">
-                            <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-[#EAB308] animate-in fade-in duration-150">
+                            <AlertCircle className="w-3.5 h-3.5 text-[#EAB308] shrink-0" />
                             <span>{t.capsLockOn}</span>
                           </div>
                         )}
                       </div>
 
-                      {/* Patient Registration Submit Button: 3D Golden Raised Button */}
+                      {/* Patient Registration CTA Button (Specification 6) */}
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_10px_28px_rgba(245,158,11,0.55),inset_0_2px_3px_rgba(255,255,255,0.85),inset_0_-2px_4px_rgba(180,83,9,0.6)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.75)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-75 border-t border-amber-100 border-b border-amber-700"
+                        className="w-full h-12 sm:h-13 text-[#0F172A] font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-4 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 border-0"
+                        style={{
+                          background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
+                          borderRadius: '9999px',
+                        }}
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#0F172A] border-t-transparent" />
                             <span>Galmaa&apos;aa jira...</span>
                           </div>
                         ) : (
                           <>
-                            <HeartPulse className="h-4 w-4 text-slate-950" />
                             <span>
                               {language === 'om'
                                 ? "Galmee Xumuri & Poortaalii Seeni"
@@ -2223,6 +2371,7 @@ export default function LoginPage() {
                                 ? 'ምዝገባውን አጠናቅቅና ፖርታሉን ግባ'
                                 : 'Complete Registration & Access Portal'}
                             </span>
+                            <ArrowRight className="h-4 w-4 text-[#0F172A] stroke-[2.5]" />
                           </>
                         )}
                       </button>
@@ -2234,14 +2383,14 @@ export default function LoginPage() {
                   /* =========================================================== */
                   <div>
                     <div className="text-center mb-4 sm:mb-5">
-                      <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                      <h2 className="text-2xl sm:text-3xl font-extrabold text-[#FFFFFF] tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                         {language === 'om'
                           ? 'Galmee Hojjataa'
                           : language === 'am'
                           ? 'የሰራተኛ ምዝገባ'
                           : 'Staff Registration'}
                       </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+                      <p className="mt-1 text-xs sm:text-sm text-[#CBD5E1] font-normal leading-relaxed">
                         {language === 'om'
                           ? "HMIS Hospitaala Rifeeraalaa Meettuu Kaarliitti akkaawuntii haarawa gaafadhaa"
                           : language === 'am'
@@ -2268,11 +2417,11 @@ export default function LoginPage() {
                       <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
                         {/* USERNAME */}
                         <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                             {language === 'om' ? 'Maqaa Fayyadamaa' : language === 'am' ? 'የተጠቃሚ ስም' : 'Username'} *
                           </label>
                           <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#94A3B8]">
                               <User className="h-4 w-4" />
                             </div>
                             <input
@@ -2281,14 +2430,19 @@ export default function LoginPage() {
                               value={signupUsername}
                               onChange={(e) => setSignupUsername(e.target.value)}
                               placeholder={language === 'om' ? 'Fkn. dr.tolasaa' : 'e.g. dr.abebe'}
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-11 pr-4"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             />
                           </div>
                         </div>
 
                         {/* FULL NAME */}
                         <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                             {language === 'om' ? 'Maqaa Guutuu' : language === 'am' ? 'ሙሉ ስም' : 'Full Name'} *
                           </label>
                           <input
@@ -2297,14 +2451,19 @@ export default function LoginPage() {
                             value={signupFullName}
                             onChange={(e) => setSignupFullName(e.target.value)}
                             placeholder={language === 'om' ? 'Fkn. Dr. Tolasaa Raggaasaa' : 'e.g. Dr. Abebe Kebede'}
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.08)',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              borderRadius: '9999px',
+                            }}
                           />
                         </div>
 
                         {/* STAFF ID & SYSTEM ROLE IN TWO BALANCED COLUMNS */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               Staff ID / Employee No. *
                             </label>
                             <input
@@ -2313,13 +2472,18 @@ export default function LoginPage() {
                               value={signupStaffId}
                               onChange={(e) => setSignupStaffId(e.target.value)}
                               placeholder="MKRH-STF-0142"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             />
                           </div>
 
                           {/* SYSTEM ROLE (CUSTOM IN-DOM DROPDOWN) */}
                           <div className="relative" ref={roleDropdownRef}>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om'
                                 ? "Ga'ee Hojii (System Role)"
                                 : language === 'am'
@@ -2332,24 +2496,29 @@ export default function LoginPage() {
                                 setIsRoleDropdownOpen(!isRoleDropdownOpen);
                                 setIsDeptDropdownOpen(false);
                               }}
-                              className={`w-full h-12 rounded-full border bg-slate-900/40 hover:bg-slate-900/50 backdrop-blur-md px-5 text-sm text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
+                              className={`w-full h-12 px-5 text-sm text-[#FFFFFF] flex items-center justify-between font-medium cursor-pointer transition-all ${
                                 isRoleDropdownOpen
-                                  ? 'border-amber-400 ring-2 ring-amber-400/30'
-                                  : 'border-white/20 hover:border-amber-400/50'
+                                  ? 'ring-2 ring-[#EAB308]/40'
+                                  : 'hover:border-[#EAB308]/50'
                               }`}
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: isRoleDropdownOpen ? '1px solid #EAB308' : '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             >
                               <span className="truncate text-left">
                                 {STAFF_ROLES.find((r) => r.value === signupRole)?.text || 'Medical Doctor / Clinician'}
                               </span>
                               <ChevronDown
-                                className={`w-4 h-4 text-amber-400 shrink-0 ml-1.5 transition-transform duration-200 ${
-                                  isRoleDropdownOpen ? 'rotate-180 text-amber-500' : ''
+                                className={`w-4 h-4 text-[#FACC15] shrink-0 ml-1.5 transition-transform duration-200 ${
+                                  isRoleDropdownOpen ? 'rotate-180' : ''
                                 }`}
                               />
                             </button>
 
                             {isRoleDropdownOpen && (
-                              <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 py-1.5 scrollbar-thin">
+                              <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-[#0F172A]/95 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 py-1.5 scrollbar-thin">
                                 {STAFF_ROLES.map((role) => {
                                   const isSelected = signupRole === role.value;
                                   return (
@@ -2362,12 +2531,12 @@ export default function LoginPage() {
                                       }}
                                       className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-medium transition-colors flex items-center justify-between cursor-pointer ${
                                         isSelected
-                                          ? 'bg-amber-500/20 text-amber-300 font-bold'
-                                          : 'text-slate-300 hover:bg-white/10'
+                                          ? 'bg-amber-500/20 text-[#FACC15] font-bold'
+                                          : 'text-[#CBD5E1] hover:bg-white/10'
                                       }`}
                                     >
                                       <span className="truncate">{role.text}</span>
-                                      {isSelected && <Check className="w-3.5 h-3.5 text-amber-400 shrink-0 ml-1.5" />}
+                                      {isSelected && <Check className="w-3.5 h-3.5 text-[#FACC15] shrink-0 ml-1.5" />}
                                     </button>
                                   );
                                 })}
@@ -2378,7 +2547,7 @@ export default function LoginPage() {
 
                         {/* DEPARTMENT (CUSTOM IN-DOM DROPDOWN) */}
                         <div className="relative" ref={deptDropdownRef}>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                             {language === 'om' ? 'Kutaa Hojii (Department)' : language === 'am' ? 'የስራ ክፍል (Department)' : 'Department'} *
                           </label>
                           <button
@@ -2387,25 +2556,30 @@ export default function LoginPage() {
                               setIsDeptDropdownOpen(!isDeptDropdownOpen);
                               setIsRoleDropdownOpen(false);
                             }}
-                            className={`w-full h-12 rounded-full border bg-slate-900/40 hover:bg-slate-900/50 backdrop-blur-md px-5 text-sm text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
+                            className={`w-full h-12 px-5 text-sm text-[#FFFFFF] flex items-center justify-between font-medium cursor-pointer transition-all ${
                               isDeptDropdownOpen
-                                ? 'border-amber-400 ring-2 ring-amber-400/30'
-                                : 'border-white/20 hover:border-amber-400/50'
+                                ? 'ring-2 ring-[#EAB308]/40'
+                                : 'hover:border-[#EAB308]/50'
                             }`}
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.08)',
+                              border: isDeptDropdownOpen ? '1px solid #EAB308' : '1px solid rgba(255, 255, 255, 0.2)',
+                              borderRadius: '9999px',
+                            }}
                           >
                             <span className="truncate text-left">
                               {STAFF_DEPARTMENTS.find((d) => d.value === signupDept)?.text || 'Doctor Consultation & Outpatient Clinics'}
                             </span>
                             <ChevronDown
-                              className={`w-4 h-4 text-amber-400 shrink-0 ml-2 transition-transform duration-200 ${
-                                isDeptDropdownOpen ? 'rotate-180 text-amber-500' : ''
+                              className={`w-4 h-4 text-[#FACC15] shrink-0 ml-2 transition-transform duration-200 ${
+                                isDeptDropdownOpen ? 'rotate-180' : ''
                               }`}
                             />
                           </button>
 
                           {/* Custom in-DOM Dropdown Menu */}
                           {isDeptDropdownOpen && (
-                            <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 py-1.5 scrollbar-thin">
+                            <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-[#0F172A]/95 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 py-1.5 scrollbar-thin">
                               {STAFF_DEPARTMENTS.map((dept) => {
                                 const isSelected = signupDept === dept.value;
                                 return (
@@ -2418,12 +2592,12 @@ export default function LoginPage() {
                                     }}
                                     className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-medium transition-colors flex items-center justify-between cursor-pointer ${
                                       isSelected
-                                        ? 'bg-amber-500/20 text-amber-300 font-bold'
-                                        : 'text-slate-300 hover:bg-white/10'
+                                        ? 'bg-amber-500/20 text-[#FACC15] font-bold'
+                                        : 'text-[#CBD5E1] hover:bg-white/10'
                                     }`}
                                   >
                                     <span className="truncate">{dept.text}</span>
-                                    {isSelected && <Check className="w-4 h-4 text-amber-400 shrink-0 ml-2" />}
+                                    {isSelected && <Check className="w-4 h-4 text-[#FACC15] shrink-0 ml-2" />}
                                   </button>
                                 );
                               })}
@@ -2435,7 +2609,7 @@ export default function LoginPage() {
                         {isClinicalSignup && (
                           <div className="space-y-2.5 animate-in fade-in duration-200">
                             <div>
-                              <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                                 {language === 'om'
                                   ? 'Lakk. Hayyama Ogummaa Yaalaa (Medical License / EFDA Board No.)'
                                   : language === 'am'
@@ -2448,9 +2622,14 @@ export default function LoginPage() {
                                 value={signupLicenseNumber}
                                 onChange={(e) => setSignupLicenseNumber(e.target.value)}
                                 placeholder="Fkn. ETH-MED-2024-8491 ykn EFDA/2026/09"
-                                className="block w-full h-12 rounded-full border border-amber-400/40 bg-amber-500/10 backdrop-blur-md px-5 text-sm font-mono text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30"
+                                className="block w-full h-12 px-5 text-sm font-mono text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30"
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  border: '1px solid rgba(250, 204, 21, 0.4)',
+                                  borderRadius: '9999px',
+                                }}
                               />
-                              <p className="text-[10.5px] text-slate-300/80 mt-1 pl-2">
+                              <p className="text-[10.5px] text-[#CBD5E1] mt-1 pl-2">
                                 {language === 'om'
                                   ? 'Hayyama Biiroo Eegumsa Fayyaa ykn Boordii Yaalaa EFDA irraa kenname'
                                   : 'Official license issued by Ministry of Health, Regional Health Bureau, or EFDA'}
@@ -2497,7 +2676,7 @@ export default function LoginPage() {
                         {/* CONTACT & PERSONAL BIOGRAPHY */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Lakkoofsa Bilbilaa (Phone)' : 'Phone Number'}
                             </label>
                             <input
@@ -2505,11 +2684,16 @@ export default function LoginPage() {
                               value={signupPhone}
                               onChange={(e) => setSignupPhone(e.target.value)}
                               placeholder="+2519XXXXXXXX"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Imeelii (Email)' : 'Work Email (Optional)'}
                             </label>
                             <input
@@ -2517,13 +2701,18 @@ export default function LoginPage() {
                               value={signupEmail}
                               onChange={(e) => setSignupEmail(e.target.value)}
                               placeholder="name@mettukarl.gov.et"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-5"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '9999px',
+                              }}
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                             {language === 'om'
                               ? 'Seenaa fi Muuxannoo Hojii (Biography / Qualification)'
                               : 'Staff Biography, Qualification & Background'}
@@ -2538,14 +2727,18 @@ export default function LoginPage() {
                                 ? 'Fkn. Barnoota yaalaa, muuxannoo hojii fi kutaa keessa hojjettan...'
                                 : 'e.g. Degree, specialty, years of experience, clinic assignment...'
                             }
-                            className="block w-full rounded-2xl border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-4 py-2.5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all resize-y"
+                            className="block w-full rounded-2xl border border-white/20 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all px-4 py-2.5 resize-y"
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.08)',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                            }}
                           />
                         </div>
 
                         {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Jecha Icchitii' : language === 'am' ? 'የይለፍ ቃል' : 'Password'} *
                             </label>
                             <div className="relative">
@@ -2566,12 +2759,17 @@ export default function LoginPage() {
                                 }}
                                 onBlur={() => setCapsLockActive(false)}
                                 placeholder="••••••••"
-                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                                className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  borderRadius: '9999px',
+                                }}
                               />
                               <button
                                 type="button"
                                 onClick={() => setShowSignupPassword(!showSignupPassword)}
-                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#94A3B8] hover:text-[#FACC15] cursor-pointer transition-colors"
                                 title={showSignupPassword ? 'Hide password' : 'Show password'}
                                 aria-label="Toggle password visibility"
                               >
@@ -2594,7 +2792,7 @@ export default function LoginPage() {
                           </div>
 
                           <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1">
                               {language === 'om' ? 'Mirkaneessi' : language === 'am' ? 'አረጋግጥ' : 'Confirm'} *
                             </label>
                             <div className="relative">
@@ -2604,12 +2802,17 @@ export default function LoginPage() {
                                 value={signupConfirmPassword}
                                 onChange={(e) => setSignupConfirmPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                                className="block w-full h-12 text-sm text-[#FFFFFF] placeholder:text-[#94A3B8] focus:border-[#EAB308] focus:outline-none focus:ring-2 focus:ring-[#EAB308]/30 transition-all pl-5 pr-11"
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  borderRadius: '9999px',
+                                }}
                               />
                               <button
                                 type="button"
                                 onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
-                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#94A3B8] hover:text-[#FACC15] cursor-pointer transition-colors"
                                 title={showSignupConfirmPassword ? 'Hide password' : 'Show password'}
                                 aria-label="Toggle password visibility"
                               >
@@ -2644,20 +2847,23 @@ export default function LoginPage() {
                         )}
                       </div>
 
-                      {/* Submit Staff Sign Up Button: 3D Golden Raised Button */}
+                      {/* Staff Sign Up CTA Button (Specification 6) */}
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_10px_28px_rgba(245,158,11,0.55),inset_0_2px_3px_rgba(255,255,255,0.85),inset_0_-2px_4px_rgba(180,83,9,0.6)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.75)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-75 border-t border-amber-100 border-b border-amber-700"
+                        className="w-full h-12 sm:h-13 text-[#0F172A] font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer mt-4 shadow-[0_10px_25px_rgba(250,204,21,0.4),inset_0_2px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_14px_32px_rgba(250,204,21,0.6)] hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-75 border-0"
+                        style={{
+                          background: 'linear-gradient(90deg, #D97706 0%, #FACC15 50%, #CA8A04 100%)',
+                          borderRadius: '9999px',
+                        }}
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#0F172A] border-t-transparent" />
                             <span>Ergaa jira...</span>
                           </div>
                         ) : (
                           <>
-                            <UserPlus className="h-4 w-4 text-slate-950" />
                             <span>
                               {language === 'om'
                                 ? "Galmee Hojjataa Gaafadhu"
@@ -2665,6 +2871,7 @@ export default function LoginPage() {
                                 ? 'የሰራተኛ ምዝገባ ጠይቅ'
                                 : 'Submit Staff Registration'}
                             </span>
+                            <ArrowRight className="h-4 w-4 text-[#0F172A] stroke-[2.5]" />
                           </>
                         )}
                       </button>
@@ -2672,9 +2879,9 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                {/* Switch to Login link */}
+                {/* Switch to Login link (Specification 7) */}
                 <div className="mt-4 text-center">
-                  <p className="text-xs text-slate-300">
+                  <p className="text-xs text-[#CBD5E1]">
                     {language === 'om'
                       ? 'Duraan akkaawuntii qabduu? '
                       : language === 'am'
@@ -2683,7 +2890,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setFormType('login')}
-                      className="text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 transition cursor-pointer ml-1"
+                      className="text-[#FACC15] hover:underline font-bold transition cursor-pointer ml-1"
                     >
                       {language === 'om' ? 'Seenaa (Login)' : language === 'am' ? 'ይግቡ (Login)' : 'Log In'}
                     </button>
@@ -2692,35 +2899,49 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* 3D Recessed Secure Access Banner */}
-            <div className="w-full rounded-full bg-white/[0.04] border border-white/10 py-2.5 px-4 flex items-center justify-center gap-2 text-xs text-slate-300 shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)] mt-4">
-              <ShieldCheck className="h-4 w-4 text-amber-400 shrink-0" />
-              <span className="leading-tight">
-                <span className="font-semibold text-white">{t.secureAccessTitle}:</span>{' '}
-                <span className="text-slate-300">{t.secureAccessSubtitle}</span>
+            {/* Security Banner (Specification 7) */}
+            <div
+              className="w-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)] mt-4"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '9999px',
+              }}
+            >
+              <ShieldCheck className="h-4 w-4 text-[#FACC15] shrink-0" />
+              <span className="leading-tight text-white font-medium text-[11.5px] sm:text-xs">
+                {language === 'om'
+                  ? 'Seensa Nageenyaa: Daataan keessan eegamaa fi iccitii dha'
+                  : language === 'am'
+                  ? 'ደህንነቱ የተጠበቀ መዳረሻ፡ መረጃዎ የተጠበቀ እና ሚስጥራዊ ነው'
+                  : 'Secure Access: Your data is protected and confidential'}
               </span>
             </div>
 
-            {/* Card Footer: IT Support & Version */}
-            <div className="flex items-center justify-between pt-3.5 mt-3 border-t border-white/10 text-xs text-slate-400">
+            {/* Card Footer: IT Support & Version (Specification 8) */}
+            <div className="flex items-center justify-between pt-3.5 mt-3 border-t border-white/10 text-xs">
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(true)}
-                className="flex items-center gap-2 hover:text-amber-300 transition cursor-pointer text-left"
+                className="flex items-center gap-2.5 hover:opacity-90 transition cursor-pointer text-left"
               >
-                <Headphones className="h-4 w-4 text-amber-400 shrink-0" />
-                <span className="font-medium text-slate-200">{t.itSupportTitle}</span>
-                <span className="text-slate-500">/</span>
-                <span className="text-[11px] text-amber-400/90">{t.itSupportContact}</span>
-              </button>
-              <span className="font-mono text-slate-400 text-[11px]">HMIS Enterprise v2.4</span>
-            </div>
+                <Headphones className="h-5 w-5 text-white shrink-0" />
+                <div className="flex flex-col leading-tight">
+                  <span className="font-semibold text-white text-xs">
+                    {language === 'om' ? 'Deggersa IT' : language === 'am' ? 'የ IT ድጋፍ' : 'IT Support'}
+                  </span>
+                  <span className="text-[11px] text-[#CBD5E1]">
+                    {language === 'om' ? 'Kutaa IT Quunnamaa' : language === 'am' ? 'IT ያነጋግሩ' : 'Contact IT Support'}
+                  </span>
                 </div>
-              </div>
+              </button>
+              <span className="font-mono text-[#94A3B8] text-[11px] font-medium">HMIS Enterprise v2.4</span>
             </div>
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  )}
 
       {/* ======================================================================= */}
       {/* FORGOT PASSWORD MODAL                                                   */}
