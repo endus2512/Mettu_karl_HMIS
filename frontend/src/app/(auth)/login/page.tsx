@@ -1483,27 +1483,41 @@ export default function LoginPage() {
       {/* ======================================================================= */}
       {isFormOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-sm overflow-hidden animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#030814]/40 backdrop-blur-md overflow-hidden animate-in fade-in duration-200 select-none"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsFormOpen(false);
           }}
         >
           {/* 3D Glassmorphism Multi-Layer Outer Frame */}
-          <div className="relative z-20 w-full max-w-[540px] xl:max-w-[580px] my-auto">
-            {/* Outer Glowing Gold & Royal Blue Beveled Border with Corner Sparkles */}
-            <div className="p-[2.5px] rounded-[36px] bg-gradient-to-b from-amber-400 via-blue-500/80 to-amber-500 shadow-[0_0_60px_rgba(245,158,11,0.4),0_0_90px_rgba(59,130,246,0.35)] relative">
-              {/* Corner Lens Flare Glints */}
-              <div className="pointer-events-none absolute -top-1.5 -right-1.5 w-6 h-6 bg-amber-200 rounded-full blur-[1px] opacity-95 animate-pulse z-40" />
-              <div className="pointer-events-none absolute -top-1.5 -right-4 w-12 h-[2px] bg-white blur-[0.5px] z-40" />
-              <div className="pointer-events-none absolute -top-4 -right-1.5 h-12 w-[2px] bg-white blur-[0.5px] z-40" />
-              <div className="pointer-events-none absolute top-1/3 -left-1.5 w-5 h-5 bg-blue-300 rounded-full blur-[1px] opacity-80 z-40" />
-              <div className="pointer-events-none absolute -bottom-1 -left-1 w-4 h-4 bg-amber-300/80 rounded-full blur-[1px] z-40" />
+          <div className="relative z-20 w-full max-w-[500px] sm:max-w-[530px] my-auto pt-7">
+            {/* 3D Embossed Seal Medallion with Gold Rim & Glowing Halo */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30 flex justify-center pointer-events-none">
+              <div className="relative">
+                <div className="absolute inset-0 -m-3 rounded-full bg-gradient-to-tr from-amber-400/30 via-cyan-400/20 to-blue-500/40 blur-xl animate-pulse" />
+                <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full p-[2.5px] bg-gradient-to-b from-amber-200 via-slate-300 to-amber-600 shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_25px_rgba(59,130,246,0.5)] flex items-center justify-center">
+                  <div className="w-full h-full rounded-full p-1 bg-gradient-to-b from-[#182846] via-[#0b1528] to-[#040813] flex items-center justify-center border border-white/30 shadow-inner">
+                    <img
+                      src="/hospital-logo.png"
+                      alt="Mettu Karl Hospital Seal"
+                      className="w-12 h-12 sm:w-13 sm:h-13 object-contain rounded-full drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              {/* Inner Royal Blue Bevel Ring */}
-              <div className="p-[1.5px] rounded-[34px] bg-gradient-to-b from-blue-400/50 via-transparent to-blue-600/60">
-                {/* Main 3D Frosted Glass Body */}
+            {/* Outer Glowing Gold & Royal Blue Beveled Border with Corner Sparkles */}
+            <div className="p-[1.5px] rounded-[36px] bg-gradient-to-tr from-blue-500/70 via-cyan-400/30 to-amber-400/80 shadow-[0_0_50px_rgba(59,130,246,0.35),0_0_80px_rgba(245,158,11,0.25),0_30px_70px_rgba(0,0,0,0.7)] relative">
+              {/* Soft lens flare sparkles */}
+              <div className="pointer-events-none absolute -top-1 -right-1 w-5 h-5 bg-amber-200 rounded-full blur-[2px] opacity-90 animate-pulse z-40" />
+              <div className="pointer-events-none absolute top-1/2 -left-1.5 w-4 h-4 bg-cyan-300 rounded-full blur-[2px] opacity-80 z-40" />
+              <div className="pointer-events-none absolute -bottom-1 -left-1 w-4 h-4 bg-blue-400 rounded-full blur-[2px] opacity-70 z-40" />
+
+              {/* Inner delicate light bevel */}
+              <div className="p-[1px] rounded-[34.5px] bg-gradient-to-b from-white/30 via-transparent to-blue-500/30">
+                {/* Main 3D Frosted Crystal Glass Body (High Transparency, No Jet Black) */}
                 <div
-                  className="relative max-h-[88vh] overflow-y-auto rounded-[32px] px-6 py-7 sm:px-8 sm:py-8 backdrop-blur-3xl bg-slate-950/85 text-white border border-white/20 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),inset_0_-2px_6px_rgba(0,0,0,0.6)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] animate-in zoom-in-95 duration-200"
+                  className="relative max-h-[88vh] overflow-y-auto rounded-[34px] px-6 py-7 sm:px-8 sm:py-8 backdrop-blur-2xl bg-gradient-to-b from-white/[0.14] via-[#0b172b]/60 to-[#071120]/75 text-white border border-white/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),inset_0_-1px_2px_rgba(255,255,255,0.1)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] animate-in zoom-in-95 duration-200"
                 >
                   {/* Close button X */}
                   <button
@@ -1516,33 +1530,17 @@ export default function LoginPage() {
                     <X className="w-4 h-4" />
                   </button>
 
-                  {/* 3D Embossed Seal Medallion with Gold Rim & Glowing Aura */}
-                  <div className="flex justify-center -mt-1 mb-4 relative">
-                    <div className="relative">
-                      <div className="absolute inset-0 -m-2 rounded-full bg-gradient-to-tr from-amber-400/40 via-blue-500/30 to-amber-300/50 blur-lg pointer-events-none animate-pulse" />
-                      <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full p-[3px] bg-gradient-to-b from-amber-200 via-amber-500 to-amber-700 shadow-[0_8px_25px_rgba(0,0,0,0.8),0_0_20px_rgba(245,158,11,0.5)] relative z-10 flex items-center justify-center">
-                        <div className="w-full h-full rounded-full p-1 bg-gradient-to-b from-[#0e1833] to-[#050914] flex items-center justify-center border border-amber-300/60 shadow-inner">
-                          <img
-                            src="/hospital-logo.png"
-                            alt="Mettu Karl Hospital Seal"
-                            className="w-12 h-12 sm:w-14 sm:h-14 object-contain rounded-full drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
             {/* ================================================================= */}
             {/* VIEW A: LOGIN FORM                                               */}
             {/* ================================================================= */}
             {formType === 'login' ? (
               <>
                 {/* Heading: Welcome Back */}
-                <div className="text-center mb-5">
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                <div className="text-center pt-3 mb-5">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                     {step === 'credentials' ? t.welcomeBack : t.mfaTitle}
                   </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal leading-relaxed">
+                  <p className="mt-1 text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
                     {step === 'credentials' ? t.welcomeSubtitle : t.mfaDesc}
                   </p>
                 </div>
@@ -1552,134 +1550,137 @@ export default function LoginPage() {
                   <form
                     onSubmit={loginForm.handleSubmit(handleLogin)}
                     noValidate
-                    className="space-y-3.5"
+                    className="space-y-4"
                   >
-                    {/* USERNAME FIELD */}
-                    <div className="w-full">
-                      <label
-                        htmlFor={usernameId}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 mb-1.5 cursor-pointer"
-                      >
-                        <User className="h-3.5 w-3.5 text-amber-400" />
-                        <span>{t.usernameLabel}</span>
-                      </label>
+                    {/* Inner Recessed Frosted Glass Input Panel (matching uploaded 3D design) */}
+                    <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
+                      {/* USERNAME FIELD */}
+                      <div className="w-full">
+                        <label
+                          htmlFor={usernameId}
+                          className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 mb-1.5 cursor-pointer"
+                        >
+                          <User className="h-3.5 w-3.5 text-amber-400" />
+                          <span>{t.usernameLabel}</span>
+                        </label>
 
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                          <User className="h-4 w-4" />
+                        <div className="relative">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                            <User className="h-4 w-4" />
+                          </div>
+                          <input
+                            id={usernameId}
+                            type="text"
+                            autoComplete="username"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            spellCheck={false}
+                            autoFocus
+                            {...loginForm.register('username')}
+                            placeholder={t.usernamePlaceholder}
+                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-11 text-sm font-normal text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                          />
+                          {loginForm.watch('username') && (
+                            <button
+                              type="button"
+                              onClick={() => loginForm.setValue('username', '', { shouldValidate: true })}
+                              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                              title={t.clearField}
+                              aria-label="Clear username field"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
-                        <input
-                          id={usernameId}
-                          type="text"
-                          autoComplete="username"
-                          autoCapitalize="none"
-                          autoCorrect="off"
-                          spellCheck={false}
-                          autoFocus
-                          {...loginForm.register('username')}
-                          placeholder={t.usernamePlaceholder}
-                          className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-11 text-sm font-normal text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                        />
-                        {loginForm.watch('username') && (
-                          <button
-                            type="button"
-                            onClick={() => loginForm.setValue('username', '', { shouldValidate: true })}
-                            className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
-                            title={t.clearField}
-                            aria-label="Clear username field"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
+                        {loginForm.formState.errors.username && (
+                          <p className="mt-1 text-xs font-medium text-rose-400 flex items-center gap-1">
+                            <span>•</span> {loginForm.formState.errors.username.message}
+                          </p>
                         )}
                       </div>
-                      {loginForm.formState.errors.username && (
-                        <p className="mt-1 text-xs font-medium text-rose-400 flex items-center gap-1">
-                          <span>•</span> {loginForm.formState.errors.username.message}
-                        </p>
-                      )}
-                    </div>
 
-                    {/* PASSWORD FIELD */}
-                    <div className="w-full">
-                      <label
-                        htmlFor={passwordId}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 mb-1.5 cursor-pointer"
-                      >
-                        <Lock className="h-3.5 w-3.5 text-amber-400" />
-                        <span>{t.passwordLabel}</span>
-                      </label>
-
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                          <Lock className="h-4 w-4" />
-                        </div>
-                        <input
-                          id={passwordId}
-                          type={showPassword ? 'text' : 'password'}
-                          autoComplete="current-password"
-                          {...loginForm.register('password')}
-                          onKeyDown={(e) => {
-                            if (typeof e.getModifierState === 'function') {
-                              setCapsLockActive(e.getModifierState('CapsLock'));
-                            }
-                          }}
-                          onKeyUp={(e) => {
-                            if (typeof e.getModifierState === 'function') {
-                              setCapsLockActive(e.getModifierState('CapsLock'));
-                            }
-                          }}
-                          onBlur={() => setCapsLockActive(false)}
-                          placeholder={t.passwordPlaceholder}
-                          className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-11 text-sm font-normal text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
-                          title={showPassword ? 'Hide password' : 'Show password'}
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      {/* PASSWORD FIELD */}
+                      <div className="w-full">
+                        <label
+                          htmlFor={passwordId}
+                          className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 mb-1.5 cursor-pointer"
                         >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
+                          <Lock className="h-3.5 w-3.5 text-amber-400" />
+                          <span>{t.passwordLabel}</span>
+                        </label>
+
+                        <div className="relative">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                            <Lock className="h-4 w-4" />
+                          </div>
+                          <input
+                            id={passwordId}
+                            type={showPassword ? 'text' : 'password'}
+                            autoComplete="current-password"
+                            {...loginForm.register('password')}
+                            onKeyDown={(e) => {
+                              if (typeof e.getModifierState === 'function') {
+                                setCapsLockActive(e.getModifierState('CapsLock'));
+                              }
+                            }}
+                            onKeyUp={(e) => {
+                              if (typeof e.getModifierState === 'function') {
+                                setCapsLockActive(e.getModifierState('CapsLock'));
+                              }
+                            }}
+                            onBlur={() => setCapsLockActive(false)}
+                            placeholder={t.passwordPlaceholder}
+                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-11 text-sm font-normal text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                            title={showPassword ? 'Hide password' : 'Show password'}
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Caps Lock Alert */}
+                        {capsLockActive && (
+                          <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-400 animate-in fade-in duration-150">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>{t.capsLockOn}</span>
+                          </div>
+                        )}
+
+                        {loginForm.formState.errors.password && (
+                          <p className="mt-1 text-xs font-medium text-rose-400 flex items-center gap-1">
+                            <span>•</span> {loginForm.formState.errors.password.message}
+                          </p>
+                        )}
                       </div>
 
-                      {/* Caps Lock Alert */}
-                      {capsLockActive && (
-                        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-400 animate-in fade-in duration-150">
-                          <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <span>{t.capsLockOn}</span>
-                        </div>
-                      )}
-
-                      {loginForm.formState.errors.password && (
-                        <p className="mt-1 text-xs font-medium text-rose-400 flex items-center gap-1">
-                          <span>•</span> {loginForm.formState.errors.password.message}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Remember Me Checkbox & Forgot Password Link */}
-                    <div className="flex items-center justify-between text-xs pt-1">
-                      <label className="flex items-center gap-2 text-slate-300 cursor-pointer select-none font-normal">
-                        <input
-                          type="checkbox"
-                          checked={rememberMe}
-                          onChange={(e) => setRememberMe(e.target.checked)}
-                          className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-amber-500 focus:ring-amber-400 cursor-pointer"
-                        />
-                        <span>{t.rememberMe}</span>
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowForgotModal(true)}
-                        className="text-amber-400 hover:text-amber-300 font-medium transition cursor-pointer"
-                      >
-                        {t.forgotPassword}
-                      </button>
+                      {/* Remember Me Checkbox & Forgot Password Link */}
+                      <div className="flex items-center justify-between text-xs pt-1">
+                        <label className="flex items-center gap-2 text-slate-300 cursor-pointer select-none font-normal">
+                          <input
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="h-4 w-4 rounded border-white/30 bg-slate-800/60 text-amber-500 focus:ring-amber-400 cursor-pointer"
+                          />
+                          <span>{t.rememberMe}</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowForgotModal(true)}
+                          className="text-amber-400 hover:text-amber-300 font-semibold transition cursor-pointer"
+                        >
+                          {t.forgotPassword}
+                        </button>
+                      </div>
                     </div>
 
                     {/* Live Spontaneous Verification Waiting Card (After Staff Sign-Up or Pending Login) */}
@@ -1806,15 +1807,15 @@ export default function LoginPage() {
                     noValidate
                     className="space-y-4"
                   >
-                    <div>
+                    <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
                       <label
                         htmlFor={mfaId}
-                        className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                        className="block text-xs font-semibold text-slate-200 mb-1.5"
                       >
                         Authenticator Code
                       </label>
                       <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
                           <KeyRound className="h-4 w-4" />
                         </div>
                         <input
@@ -1825,11 +1826,11 @@ export default function LoginPage() {
                           autoFocus
                           {...mfaForm.register('totp_code')}
                           placeholder={t.mfaPlaceholder}
-                          className="block w-full h-11 rounded-xl border border-slate-300 dark:border-[#222b3d] bg-white dark:bg-[#070a10] pl-10 pr-3 text-center tracking-widest text-lg font-mono text-slate-900 dark:text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                          className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-center tracking-widest text-lg font-mono text-white focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
                         />
                       </div>
                       {mfaForm.formState.errors.totp_code && (
-                        <p className="mt-1 text-xs text-rose-600">
+                        <p className="mt-1 text-xs text-rose-400">
                           {mfaForm.formState.errors.totp_code.message}
                         </p>
                       )}
@@ -1838,7 +1839,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-11 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer border border-amber-300"
+                      className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_10px_28px_rgba(245,158,11,0.55),inset_0_2px_3px_rgba(255,255,255,0.85),inset_0_-2px_4px_rgba(180,83,9,0.6)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.75)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-3 border-t border-amber-100 border-b border-amber-700"
                     >
                       {isLoading ? (
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
@@ -1850,7 +1851,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setStep('credentials')}
-                      className="w-full text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-amber-400 flex items-center justify-center gap-1 pt-1 cursor-pointer transition-colors"
+                      className="w-full text-center text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-1 pt-1 cursor-pointer transition-colors"
                     >
                       <ArrowLeft className="h-3 w-3" />
                       <span>{t.mfaBackBtn}</span>
@@ -1860,7 +1861,7 @@ export default function LoginPage() {
 
                 {/* Switch to Sign Up link */}
                 <div className="mt-4 text-center">
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-xs sm:text-sm text-slate-300">
                     {language === 'om'
                       ? 'Akkaawuntii hin qabduu? '
                       : language === 'am'
@@ -1869,10 +1870,10 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setFormType('signup')}
-                      className="text-amber-600 hover:text-amber-700 dark:text-amber-400 font-bold transition cursor-pointer ml-1"
+                      className="text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 transition cursor-pointer ml-1"
                     >
                       {language === 'om'
-                        ? "Galmaa'aa (Sign Up)"
+                        ? "Galmaa'i (Sign Up)"
                         : language === 'am'
                         ? 'ይመዝገቡ (Sign Up)'
                         : 'Sign Up'}
@@ -1886,14 +1887,14 @@ export default function LoginPage() {
               /* =============================================================== */
               <div>
                 {/* Account Type Selector: 3D Pill Tabs */}
-                <div className="flex p-1.5 rounded-2xl bg-slate-100/90 dark:bg-[#060b16]/90 mb-4 border border-slate-200/90 dark:border-blue-900/40 shadow-inner">
+                <div className="flex p-1.5 rounded-full bg-white/[0.06] border border-white/15 backdrop-blur-md mb-5 shadow-inner">
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('patient')}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`flex-1 py-2 px-3 rounded-full text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'patient'
-                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-bold shadow-[0_4px_14px_rgba(245,158,11,0.35),inset_0_1px_1px_rgba(255,255,255,0.7)] border-t border-amber-200 border-b border-amber-600 scale-[1.01]'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-black shadow-[0_4px_14px_rgba(245,158,11,0.4),inset_0_1px_1px_rgba(255,255,255,0.7)] border-t border-amber-200 border-b border-amber-600 scale-[1.01]'
+                        : 'text-slate-300 hover:text-white'
                     }`}
                   >
                     <HeartPulse className={`w-4 h-4 ${signupAccountType === 'patient' ? 'text-slate-950' : 'text-amber-400'}`} />
@@ -1908,10 +1909,10 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setSignupAccountType('staff')}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`flex-1 py-2 px-3 rounded-full text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       signupAccountType === 'staff'
-                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-bold shadow-[0_4px_14px_rgba(245,158,11,0.35),inset_0_1px_1px_rgba(255,255,255,0.7)] border-t border-amber-200 border-b border-amber-600 scale-[1.01]'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 text-slate-950 font-black shadow-[0_4px_14px_rgba(245,158,11,0.4),inset_0_1px_1px_rgba(255,255,255,0.7)] border-t border-amber-200 border-b border-amber-600 scale-[1.01]'
+                        : 'text-slate-300 hover:text-white'
                     }`}
                   >
                     <Building2 className={`w-4 h-4 ${signupAccountType === 'staff' ? 'text-slate-950' : 'text-amber-400'}`} />
@@ -1947,262 +1948,265 @@ export default function LoginPage() {
                       </p>
                     </div>
 
-                    <form onSubmit={handlePatientSignupSubmit} className="space-y-3.5">
-                      {/* USERNAME */}
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1">
-                          {language === 'om' ? 'Maqaa Fayyadamaa' : language === 'am' ? 'የተጠቃሚ ስም' : 'Username'} *
-                        </label>
-                        <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <User className="h-4 w-4" />
-                          </div>
-                          <input
-                            type="text"
-                            required
-                            value={patientUsername}
-                            onChange={(e) => setPatientUsername(e.target.value)}
-                            placeholder={language === 'om' ? 'Fkn. chaltuu2024' : 'e.g. chaltuu2024'}
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      {/* FULL NAME */}
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1">
-                          {language === 'om' ? 'Maqaa Guutuu' : language === 'am' ? 'ሙሉ ስም' : 'Full Name'} *
-                        </label>
-                        <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <User className="h-4 w-4" />
-                          </div>
-                          <input
-                            type="text"
-                            required
-                            value={patientFullName}
-                            onChange={(e) => setPatientFullName(e.target.value)}
-                            placeholder={language === 'om' ? 'Fkn. Chaltuu Guddataa / Guddataa Fayyisaa' : 'e.g. Chaltu Gudeta / Gudeta Fayisa'}
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      {/* PHONE & FAYDA NATIONAL ID (TWO COLUMNS) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <form onSubmit={handlePatientSignupSubmit} className="space-y-4">
+                      {/* Inner Recessed Frosted Glass Input Panel */}
+                      <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
+                        {/* USERNAME */}
                         <div>
                           <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Lakkoofsa Bilbilaa' : language === 'am' ? 'ስልክ ቁጥር' : 'Phone Number'} *
+                            {language === 'om' ? 'Maqaa Fayyadamaa' : language === 'am' ? 'የተጠቃሚ ስም' : 'Username'} *
                           </label>
                           <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                              <Phone className="h-4 w-4" />
-                            </div>
-                            <input
-                              type="tel"
-                              required
-                              value={patientPhone}
-                              onChange={(e) => setPatientPhone(e.target.value)}
-                              placeholder="+251 911 002 233"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Waraqaa Fayda (FAN)' : language === 'am' ? 'የፋይዳ ቁጥር (FAN)' : 'Fayda ID (FAN)'}
-                          </label>
-                          <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                              <CreditCard className="h-4 w-4" />
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                              <User className="h-4 w-4" />
                             </div>
                             <input
                               type="text"
-                              value={patientFaydaId}
-                              onChange={(e) => setPatientFaydaId(e.target.value)}
-                              placeholder="FAN-9901-2384-5120"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* RESIDENCE / ADDRESS (AANAA & GANDA) */}
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1">
-                          {language === 'om' ? 'Bakka Jireenyaa (Aanaa / Ganda)' : language === 'am' ? 'የመኖሪያ አድራሻ (ወረዳ/ቀበሌ)' : 'Residence / Address (Woreda & Kebele)'}
-                        </label>
-                        <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <MapPin className="h-4 w-4" />
-                          </div>
-                          <input
-                            type="text"
-                            value={patientAddress}
-                            onChange={(e) => setPatientAddress(e.target.value)}
-                            placeholder={language === 'om' ? 'Fkn. Meettuu, Ganda 02' : 'e.g. Mettu, Kebele 02'}
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      {/* DATE OF BIRTH & GENDER (TWO COLUMNS) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Guyyaa Dhalootaa' : language === 'am' ? 'የትውልድ ቀን' : 'Date of Birth'}
-                          </label>
-                          <div className="relative">
-                            <input
-                              type="date"
-                              value={patientBirthDate}
-                              onChange={(e) => setPatientBirthDate(e.target.value)}
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] px-5 text-sm text-white focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Saala' : language === 'am' ? 'ጾታ' : 'Gender'}
-                          </label>
-                          <select
-                            value={patientGender}
-                            onChange={(e) => setPatientGender(e.target.value as 'male' | 'female')}
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] px-5 text-sm text-white focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all cursor-pointer"
-                          >
-                            <option value="male" className="bg-slate-900 text-white">{language === 'om' ? 'Dhiira' : language === 'am' ? 'ወንድ' : 'Male'}</option>
-                            <option value="female" className="bg-slate-900 text-white">{language === 'om' ? 'Dubara' : language === 'am' ? 'ሴት' : 'Female'}</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* CBHI INSURANCE POLICY NUMBER */}
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1">
-                          {language === 'om' ? 'Inshuraansii Fayyaa (CBHI - Yoo jiraate)' : language === 'am' ? 'የጤና መድህን ቁጥር (CBHI)' : 'CBHI Health Insurance Policy (Optional)'}
-                        </label>
-                        <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <ShieldCheck className="h-4 w-4" />
-                          </div>
-                          <input
-                            type="text"
-                            value={patientCbhi}
-                            onChange={(e) => setPatientCbhi(e.target.value)}
-                            placeholder="CBHI-ILL-10294"
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Jecha Icchitii' : language === 'am' ? 'የይለፍ ቃል' : 'Password'} *
-                          </label>
-                          <div className="relative">
-                            <input
-                              type={showPatientPassword ? 'text' : 'password'}
                               required
-                              value={patientPassword}
-                              onChange={(e) => setPatientPassword(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (typeof e.getModifierState === 'function') {
-                                  setCapsLockActive(e.getModifierState('CapsLock'));
-                                }
-                              }}
-                              onKeyUp={(e) => {
-                                if (typeof e.getModifierState === 'function') {
-                                  setCapsLockActive(e.getModifierState('CapsLock'));
-                                }
-                              }}
-                              onBlur={() => setCapsLockActive(false)}
-                              placeholder="••••••••"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              value={patientUsername}
+                              onChange={(e) => setPatientUsername(e.target.value)}
+                              placeholder={language === 'om' ? 'Fkn. chaltuu2024' : 'e.g. chaltuu2024'}
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
                             />
-                            <button
-                              type="button"
-                              onClick={() => setShowPatientPassword(!showPatientPassword)}
-                              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
-                              title={showPatientPassword ? 'Hide password' : 'Show password'}
-                              aria-label="Toggle password visibility"
-                            >
-                              {showPatientPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
                           </div>
-                          {/* Password Strength Indicator */}
-                          {patientPassword && (
-                            <div className="mt-1.5 space-y-1">
-                              <div className="flex gap-1 h-1.5 w-full">
-                                <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 1 ? 'bg-amber-500' : 'bg-slate-700'}`} />
-                                <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 2 ? 'bg-amber-500' : 'bg-slate-700'}`} />
-                                <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 3 ? 'bg-emerald-500' : 'bg-slate-700'}`} />
+                        </div>
+
+                        {/* FULL NAME */}
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            {language === 'om' ? 'Maqaa Guutuu' : language === 'am' ? 'ሙሉ ስም' : 'Full Name'} *
+                          </label>
+                          <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                              <User className="h-4 w-4" />
+                            </div>
+                            <input
+                              type="text"
+                              required
+                              value={patientFullName}
+                              onChange={(e) => setPatientFullName(e.target.value)}
+                              placeholder={language === 'om' ? 'Fkn. Chaltuu Guddataa / Guddataa Fayyisaa' : 'e.g. Chaltu Gudeta / Gudeta Fayisa'}
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        {/* PHONE & FAYDA NATIONAL ID (TWO COLUMNS) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Lakkoofsa Bilbilaa' : language === 'am' ? 'ስልክ ቁጥር' : 'Phone Number'} *
+                            </label>
+                            <div className="relative">
+                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                                <Phone className="h-4 w-4" />
                               </div>
-                              <span className={`text-[10px] font-semibold ${getPasswordStrength(patientPassword).color.split(' ')[1]}`}>
-                                {getPasswordStrength(patientPassword).label}
-                              </span>
+                              <input
+                                type="tel"
+                                required
+                                value={patientPhone}
+                                onChange={(e) => setPatientPhone(e.target.value)}
+                                placeholder="+251 911 002 233"
+                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              />
                             </div>
-                          )}
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Waraqaa Fayda (FAN)' : language === 'am' ? 'የፋይዳ ቁጥር (FAN)' : 'Fayda ID (FAN)'}
+                            </label>
+                            <div className="relative">
+                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                                <CreditCard className="h-4 w-4" />
+                              </div>
+                              <input
+                                type="text"
+                                value={patientFaydaId}
+                                onChange={(e) => setPatientFaydaId(e.target.value)}
+                                placeholder="FAN-9901-2384-5120"
+                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm font-mono text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              />
+                            </div>
+                          </div>
                         </div>
 
+                        {/* RESIDENCE / ADDRESS (AANAA & GANDA) */}
                         <div>
                           <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Mirkaneessi' : language === 'am' ? 'አረጋግጥ' : 'Confirm'} *
+                            {language === 'om' ? 'Bakka Jireenyaa (Aanaa / Ganda)' : language === 'am' ? 'የመኖሪያ አድራሻ (ወረዳ/ቀበሌ)' : 'Residence / Address (Woreda & Kebele)'}
                           </label>
                           <div className="relative">
-                            <input
-                              type={showPatientConfirmPassword ? 'text' : 'password'}
-                              required
-                              value={patientConfirmPassword}
-                              onChange={(e) => setPatientConfirmPassword(e.target.value)}
-                              placeholder="••••••••"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPatientConfirmPassword(!showPatientConfirmPassword)}
-                              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
-                              title={showPatientConfirmPassword ? 'Hide password' : 'Show password'}
-                              aria-label="Toggle password visibility"
-                            >
-                              {showPatientConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                          </div>
-                          {/* Match indicator */}
-                          {patientConfirmPassword && (
-                            <div className="flex items-center gap-1 mt-1 text-[10.5px]">
-                              {patientPassword === patientConfirmPassword ? (
-                                <span className="text-emerald-400 font-medium flex items-center gap-1">
-                                  <Check className="w-3 h-3 text-emerald-400" />
-                                  {t.passwordMatch}
-                                </span>
-                              ) : (
-                                <span className="text-rose-400 font-medium flex items-center gap-1">
-                                  <span>•</span>
-                                  {t.passwordMismatch}
-                                </span>
-                              )}
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                              <MapPin className="h-4 w-4" />
                             </div>
-                          )}
+                            <input
+                              type="text"
+                              value={patientAddress}
+                              onChange={(e) => setPatientAddress(e.target.value)}
+                              placeholder={language === 'om' ? 'Fkn. Meettuu, Ganda 02' : 'e.g. Mettu, Kebele 02'}
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Caps Lock Alert */}
-                      {capsLockActive && (
-                        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-400 animate-in fade-in duration-150">
-                          <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <span>{t.capsLockOn}</span>
+                        {/* DATE OF BIRTH & GENDER (TWO COLUMNS) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Guyyaa Dhalootaa' : language === 'am' ? 'የትውልድ ቀን' : 'Date of Birth'}
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="date"
+                                value={patientBirthDate}
+                                onChange={(e) => setPatientBirthDate(e.target.value)}
+                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Saala' : language === 'am' ? 'ጾታ' : 'Gender'}
+                            </label>
+                            <select
+                              value={patientGender}
+                              onChange={(e) => setPatientGender(e.target.value as 'male' | 'female')}
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all cursor-pointer"
+                            >
+                              <option value="male" className="bg-slate-900 text-white">{language === 'om' ? 'Dhiira' : language === 'am' ? 'ወንድ' : 'Male'}</option>
+                              <option value="female" className="bg-slate-900 text-white">{language === 'om' ? 'Dubara' : language === 'am' ? 'ሴት' : 'Female'}</option>
+                            </select>
+                          </div>
                         </div>
-                      )}
+
+                        {/* CBHI INSURANCE POLICY NUMBER */}
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            {language === 'om' ? 'Inshuraansii Fayyaa (CBHI - Yoo jiraate)' : language === 'am' ? 'የጤና መድህን ቁጥር (CBHI)' : 'CBHI Health Insurance Policy (Optional)'}
+                          </label>
+                          <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                              <ShieldCheck className="h-4 w-4" />
+                            </div>
+                            <input
+                              type="text"
+                              value={patientCbhi}
+                              onChange={(e) => setPatientCbhi(e.target.value)}
+                              placeholder="CBHI-ILL-10294"
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Jecha Icchitii' : language === 'am' ? 'የይለፍ ቃል' : 'Password'} *
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showPatientPassword ? 'text' : 'password'}
+                                required
+                                value={patientPassword}
+                                onChange={(e) => setPatientPassword(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (typeof e.getModifierState === 'function') {
+                                    setCapsLockActive(e.getModifierState('CapsLock'));
+                                  }
+                                }}
+                                onKeyUp={(e) => {
+                                  if (typeof e.getModifierState === 'function') {
+                                    setCapsLockActive(e.getModifierState('CapsLock'));
+                                  }
+                                }}
+                                onBlur={() => setCapsLockActive(false)}
+                                placeholder="••••••••"
+                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPatientPassword(!showPatientPassword)}
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                                title={showPatientPassword ? 'Hide password' : 'Show password'}
+                                aria-label="Toggle password visibility"
+                              >
+                                {showPatientPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {/* Password Strength Indicator */}
+                            {patientPassword && (
+                              <div className="mt-1.5 space-y-1">
+                                <div className="flex gap-1 h-1.5 w-full">
+                                  <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 1 ? 'bg-amber-500' : 'bg-slate-700'}`} />
+                                  <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 2 ? 'bg-amber-500' : 'bg-slate-700'}`} />
+                                  <div className={`flex-1 rounded-full ${getPasswordStrength(patientPassword).score >= 3 ? 'bg-emerald-500' : 'bg-slate-700'}`} />
+                                </div>
+                                <span className={`text-[10px] font-semibold ${getPasswordStrength(patientPassword).color.split(' ')[1]}`}>
+                                  {getPasswordStrength(patientPassword).label}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Mirkaneessi' : language === 'am' ? 'አረጋግጥ' : 'Confirm'} *
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showPatientConfirmPassword ? 'text' : 'password'}
+                                required
+                                value={patientConfirmPassword}
+                                onChange={(e) => setPatientConfirmPassword(e.target.value)}
+                                placeholder="••••••••"
+                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPatientConfirmPassword(!showPatientConfirmPassword)}
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                                title={showPatientConfirmPassword ? 'Hide password' : 'Show password'}
+                                aria-label="Toggle password visibility"
+                              >
+                                {showPatientConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {/* Match indicator */}
+                            {patientConfirmPassword && (
+                              <div className="flex items-center gap-1 mt-1 text-[10.5px]">
+                                {patientPassword === patientConfirmPassword ? (
+                                  <span className="text-emerald-400 font-medium flex items-center gap-1">
+                                    <Check className="w-3 h-3 text-emerald-400" />
+                                    {t.passwordMatch}
+                                  </span>
+                                ) : (
+                                  <span className="text-rose-400 font-medium flex items-center gap-1">
+                                    <span>•</span>
+                                    {t.passwordMismatch}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Caps Lock Alert */}
+                        {capsLockActive && (
+                          <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-400 animate-in fade-in duration-150">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>{t.capsLockOn}</span>
+                          </div>
+                        )}
+                      </div>
 
                       {/* Patient Registration Submit Button: 3D Golden Raised Button */}
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_8px_25px_rgba(245,158,11,0.5),inset_0_2px_3px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.7)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-75 border-t border-amber-100 border-b border-amber-700"
+                        className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_10px_28px_rgba(245,158,11,0.55),inset_0_2px_3px_rgba(255,255,255,0.85),inset_0_-2px_4px_rgba(180,83,9,0.6)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.75)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-75 border-t border-amber-100 border-b border-amber-700"
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
@@ -2246,7 +2250,7 @@ export default function LoginPage() {
                       </p>
                     </div>
 
-                    <form onSubmit={handleSignupSubmit} className="space-y-3.5">
+                    <form onSubmit={handleSignupSubmit} className="space-y-4">
                       {signupError && (
                         <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-3 flex items-start gap-2 text-xs text-rose-200">
                           <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
@@ -2259,99 +2263,158 @@ export default function LoginPage() {
                           <span>{signupNotice}</span>
                         </div>
                       )}
-                      {/* USERNAME */}
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1">
-                          {language === 'om' ? 'Maqaa Fayyadamaa' : language === 'am' ? 'የተጠቃሚ ስም' : 'Username'} *
-                        </label>
-                        <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <User className="h-4 w-4" />
-                          </div>
-                          <input
-                            type="text"
-                            required
-                            value={signupUsername}
-                            onChange={(e) => setSignupUsername(e.target.value)}
-                            placeholder={language === 'om' ? 'Fkn. dr.tolasaa' : 'e.g. dr.abebe'}
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                          />
-                        </div>
-                      </div>
 
-                      {/* FULL NAME */}
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1">
-                          {language === 'om' ? 'Maqaa Guutuu' : language === 'am' ? 'ሙሉ ስም' : 'Full Name'} *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={signupFullName}
-                          onChange={(e) => setSignupFullName(e.target.value)}
-                          placeholder={language === 'om' ? 'Fkn. Dr. Tolasaa Raggaasaa' : 'e.g. Dr. Abebe Kebede'}
-                          className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                        />
-                      </div>
-
-                      {/* STAFF ID & SYSTEM ROLE IN TWO BALANCED COLUMNS */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Inner Recessed Frosted Glass Input Panel */}
+                      <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] space-y-3.5">
+                        {/* USERNAME */}
                         <div>
                           <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            Staff ID / Employee No. *
+                            {language === 'om' ? 'Maqaa Fayyadamaa' : language === 'am' ? 'የተጠቃሚ ስም' : 'Username'} *
+                          </label>
+                          <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
+                              <User className="h-4 w-4" />
+                            </div>
+                            <input
+                              type="text"
+                              required
+                              value={signupUsername}
+                              onChange={(e) => setSignupUsername(e.target.value)}
+                              placeholder={language === 'om' ? 'Fkn. dr.tolasaa' : 'e.g. dr.abebe'}
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        {/* FULL NAME */}
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            {language === 'om' ? 'Maqaa Guutuu' : language === 'am' ? 'ሙሉ ስም' : 'Full Name'} *
                           </label>
                           <input
                             type="text"
                             required
-                            value={signupStaffId}
-                            onChange={(e) => setSignupStaffId(e.target.value)}
-                            placeholder="MKRH-STF-0142"
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            value={signupFullName}
+                            onChange={(e) => setSignupFullName(e.target.value)}
+                            placeholder={language === 'om' ? 'Fkn. Dr. Tolasaa Raggaasaa' : 'e.g. Dr. Abebe Kebede'}
+                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
                           />
                         </div>
 
-                        {/* SYSTEM ROLE (CUSTOM IN-DOM DROPDOWN) */}
-                        <div className="relative" ref={roleDropdownRef}>
+                        {/* STAFF ID & SYSTEM ROLE IN TWO BALANCED COLUMNS */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              Staff ID / Employee No. *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={signupStaffId}
+                              onChange={(e) => setSignupStaffId(e.target.value)}
+                              placeholder="MKRH-STF-0142"
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            />
+                          </div>
+
+                          {/* SYSTEM ROLE (CUSTOM IN-DOM DROPDOWN) */}
+                          <div className="relative" ref={roleDropdownRef}>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om'
+                                ? "Ga'ee Hojii (System Role)"
+                                : language === 'am'
+                                ? 'የስራ ድርሻ (System Role)'
+                                : 'System Role'} *
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsRoleDropdownOpen(!isRoleDropdownOpen);
+                                setIsDeptDropdownOpen(false);
+                              }}
+                              className={`w-full h-12 rounded-full border bg-slate-900/40 hover:bg-slate-900/50 backdrop-blur-md px-5 text-sm text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
+                                isRoleDropdownOpen
+                                  ? 'border-amber-400 ring-2 ring-amber-400/30'
+                                  : 'border-white/20 hover:border-amber-400/50'
+                              }`}
+                            >
+                              <span className="truncate text-left">
+                                {STAFF_ROLES.find((r) => r.value === signupRole)?.text || 'Medical Doctor / Clinician'}
+                              </span>
+                              <ChevronDown
+                                className={`w-4 h-4 text-amber-400 shrink-0 ml-1.5 transition-transform duration-200 ${
+                                  isRoleDropdownOpen ? 'rotate-180 text-amber-500' : ''
+                                }`}
+                              />
+                            </button>
+
+                            {isRoleDropdownOpen && (
+                              <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 py-1.5 scrollbar-thin">
+                                {STAFF_ROLES.map((role) => {
+                                  const isSelected = signupRole === role.value;
+                                  return (
+                                    <button
+                                      key={role.value}
+                                      type="button"
+                                      onClick={() => {
+                                        setSignupRole(role.value);
+                                        setIsRoleDropdownOpen(false);
+                                      }}
+                                      className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-medium transition-colors flex items-center justify-between cursor-pointer ${
+                                        isSelected
+                                          ? 'bg-amber-500/20 text-amber-300 font-bold'
+                                          : 'text-slate-300 hover:bg-white/10'
+                                      }`}
+                                    >
+                                      <span className="truncate">{role.text}</span>
+                                      {isSelected && <Check className="w-3.5 h-3.5 text-amber-400 shrink-0 ml-1.5" />}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* DEPARTMENT (CUSTOM IN-DOM DROPDOWN) */}
+                        <div className="relative" ref={deptDropdownRef}>
                           <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om'
-                              ? "Ga'ee Hojii (System Role)"
-                              : language === 'am'
-                              ? 'የስራ ድርሻ (System Role)'
-                              : 'System Role'} *
+                            {language === 'om' ? 'Kutaa Hojii (Department)' : language === 'am' ? 'የስራ ክፍል (Department)' : 'Department'} *
                           </label>
                           <button
                             type="button"
                             onClick={() => {
-                              setIsRoleDropdownOpen(!isRoleDropdownOpen);
-                              setIsDeptDropdownOpen(false);
+                              setIsDeptDropdownOpen(!isDeptDropdownOpen);
+                              setIsRoleDropdownOpen(false);
                             }}
-                            className={`w-full h-12 rounded-full border bg-slate-900/60 backdrop-blur-md px-5 text-sm text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
-                              isRoleDropdownOpen
+                            className={`w-full h-12 rounded-full border bg-slate-900/40 hover:bg-slate-900/50 backdrop-blur-md px-5 text-sm text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
+                              isDeptDropdownOpen
                                 ? 'border-amber-400 ring-2 ring-amber-400/30'
                                 : 'border-white/20 hover:border-amber-400/50'
                             }`}
                           >
                             <span className="truncate text-left">
-                              {STAFF_ROLES.find((r) => r.value === signupRole)?.text || 'Medical Doctor / Clinician'}
+                              {STAFF_DEPARTMENTS.find((d) => d.value === signupDept)?.text || 'Doctor Consultation & Outpatient Clinics'}
                             </span>
                             <ChevronDown
-                              className={`w-4 h-4 text-amber-400 shrink-0 ml-1.5 transition-transform duration-200 ${
-                                isRoleDropdownOpen ? 'rotate-180 text-amber-500' : ''
+                              className={`w-4 h-4 text-amber-400 shrink-0 ml-2 transition-transform duration-200 ${
+                                isDeptDropdownOpen ? 'rotate-180 text-amber-500' : ''
                               }`}
                             />
                           </button>
 
-                          {isRoleDropdownOpen && (
-                            <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-[#0e1830] border border-white/20 shadow-2xl z-50 py-1.5 scrollbar-thin">
-                              {STAFF_ROLES.map((role) => {
-                                const isSelected = signupRole === role.value;
+                          {/* Custom in-DOM Dropdown Menu */}
+                          {isDeptDropdownOpen && (
+                            <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 py-1.5 scrollbar-thin">
+                              {STAFF_DEPARTMENTS.map((dept) => {
+                                const isSelected = signupDept === dept.value;
                                 return (
                                   <button
-                                    key={role.value}
+                                    key={dept.value}
                                     type="button"
                                     onClick={() => {
-                                      setSignupRole(role.value);
-                                      setIsRoleDropdownOpen(false);
+                                      setSignupDept(dept.value);
+                                      setIsDeptDropdownOpen(false);
                                     }}
                                     className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-medium transition-colors flex items-center justify-between cursor-pointer ${
                                       isSelected
@@ -2359,288 +2422,233 @@ export default function LoginPage() {
                                         : 'text-slate-300 hover:bg-white/10'
                                     }`}
                                   >
-                                    <span className="truncate">{role.text}</span>
-                                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-400 shrink-0 ml-1.5" />}
+                                    <span className="truncate">{dept.text}</span>
+                                    {isSelected && <Check className="w-4 h-4 text-amber-400 shrink-0 ml-2" />}
                                   </button>
                                 );
                               })}
                             </div>
                           )}
                         </div>
-                      </div>
 
-                      {/* DEPARTMENT (CUSTOM IN-DOM DROPDOWN) */}
-                      <div className="relative" ref={deptDropdownRef}>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1">
-                          {language === 'om' ? 'Kutaa Hojii (Department)' : language === 'am' ? 'የስራ ክፍል (Department)' : 'Department'} *
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsDeptDropdownOpen(!isDeptDropdownOpen);
-                            setIsRoleDropdownOpen(false);
-                          }}
-                          className={`w-full h-12 rounded-full border bg-slate-900/60 backdrop-blur-md px-5 text-sm text-white flex items-center justify-between font-medium cursor-pointer transition-colors ${
-                            isDeptDropdownOpen
-                              ? 'border-amber-400 ring-2 ring-amber-400/30'
-                              : 'border-white/20 hover:border-amber-400/50'
-                          }`}
-                        >
-                          <span className="truncate text-left">
-                            {STAFF_DEPARTMENTS.find((d) => d.value === signupDept)?.text || 'Doctor Consultation & Outpatient Clinics'}
-                          </span>
-                          <ChevronDown
-                            className={`w-4 h-4 text-amber-400 shrink-0 ml-2 transition-transform duration-200 ${
-                              isDeptDropdownOpen ? 'rotate-180 text-amber-500' : ''
-                            }`}
+                        {/* IF CLINICAL ROLE: REQUIRE MEDICAL LICENSE & SHOW SENTINEL NOTICE */}
+                        {isClinicalSignup && (
+                          <div className="space-y-2.5 animate-in fade-in duration-200">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-200 mb-1">
+                                {language === 'om'
+                                  ? 'Lakk. Hayyama Ogummaa Yaalaa (Medical License / EFDA Board No.)'
+                                  : language === 'am'
+                                  ? 'የህክምና ሙያ ፈቃድ ቁጥር (Medical License / EFDA)'
+                                  : 'Medical License / EFDA Board Reg No.'} *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={signupLicenseNumber}
+                                onChange={(e) => setSignupLicenseNumber(e.target.value)}
+                                placeholder="Fkn. ETH-MED-2024-8491 ykn EFDA/2026/09"
+                                className="block w-full h-12 rounded-full border border-amber-400/40 bg-amber-500/10 backdrop-blur-md px-5 text-sm font-mono text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30"
+                              />
+                              <p className="text-[10.5px] text-slate-300/80 mt-1 pl-2">
+                                {language === 'om'
+                                  ? 'Hayyama Biiroo Eegumsa Fayyaa ykn Boordii Yaalaa EFDA irraa kenname'
+                                  : 'Official license issued by Ministry of Health, Regional Health Bureau, or EFDA'}
+                              </p>
+                            </div>
+
+                            {/* Zero-Trust Clinical Guard Sentinel Banner */}
+                            <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 backdrop-blur-md p-3.5 flex items-start gap-2.5 text-xs text-amber-200 shadow-inner ring-1 ring-amber-500/20">
+                              <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                              <div>
+                                <p className="font-bold text-[12px] text-amber-300">
+                                  {language === 'om'
+                                    ? 'Eegumsa Iccitii Yaalaa (Zero-Trust Clinical Guard)'
+                                    : 'Zero-Trust Clinical Guard & License Verification'}
+                                </p>
+                                <p className="mt-0.5 text-[11px] leading-relaxed text-amber-200/90">
+                                  {language === 'om'
+                                    ? "Osoo ragaan hayyama ogummaa yaalaa keessanii Daarektara Yaalaa (Medical Director) fi Kutaa ICT Hospitaalaatiin hin mirkanaa'in akkaawuntiin kun ragaa dhukkubsattootaa ilaaluu hin danda'u. Galmeen booda haala qorannoo (Pending Verification) keessa tura."
+                                    : "Clinical accounts remain locked in Pending Verification status until physical license verification by the Medical Director & ICT before patient charts can be opened."}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {isPrivilegedSignup && (
+                          <div className="rounded-2xl border border-rose-500/40 bg-rose-500/15 backdrop-blur-md p-3.5 flex items-start gap-2.5 text-xs text-rose-200 shadow-inner animate-in fade-in duration-200">
+                            <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-bold text-[12px] text-rose-300">
+                                {language === 'om'
+                                  ? 'Akeekkachiisa Nageenya Admin (Privileged Role Quarantine)'
+                                  : 'Security Notice: Privileged Admin Claims Quarantined'}
+                              </p>
+                              <p className="mt-0.5 text-[11px] leading-relaxed text-rose-200/90">
+                                {language === 'om'
+                                  ? "Gaaffiin ga'ee Bulchiinsaa (Admin / ICT / Audit) ofumaan hin banamu — galmeen kun qorannoo Root Admin fi Audit Log keessatti cufamee eegama."
+                                  : 'Self-registered Administrative claims start LOCKED with zero privileges, trigger an Executive Security Alert, and require explicit Root Super Admin approval.'}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* CONTACT & PERSONAL BIOGRAPHY */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Lakkoofsa Bilbilaa (Phone)' : 'Phone Number'}
+                            </label>
+                            <input
+                              type="tel"
+                              value={signupPhone}
+                              onChange={(e) => setSignupPhone(e.target.value)}
+                              placeholder="+2519XXXXXXXX"
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Imeelii (Email)' : 'Work Email (Optional)'}
+                            </label>
+                            <input
+                              type="email"
+                              value={signupEmail}
+                              onChange={(e) => setSignupEmail(e.target.value)}
+                              placeholder="name@mettukarl.gov.et"
+                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-200 mb-1">
+                            {language === 'om'
+                              ? 'Seenaa fi Muuxannoo Hojii (Biography / Qualification)'
+                              : 'Staff Biography, Qualification & Background'}
+                          </label>
+                          <textarea
+                            rows={2}
+                            maxLength={2000}
+                            value={signupBiography}
+                            onChange={(e) => setSignupBiography(e.target.value)}
+                            placeholder={
+                              language === 'om'
+                                ? 'Fkn. Barnoota yaalaa, muuxannoo hojii fi kutaa keessa hojjettan...'
+                                : 'e.g. Degree, specialty, years of experience, clinic assignment...'
+                            }
+                            className="block w-full rounded-2xl border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] px-4 py-2.5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all resize-y"
                           />
-                        </button>
+                        </div>
 
-                        {/* Custom in-DOM Dropdown Menu */}
-                        {isDeptDropdownOpen && (
-                          <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-[#0e1830] border border-white/20 shadow-2xl z-50 py-1.5 scrollbar-thin">
-                            {STAFF_DEPARTMENTS.map((dept) => {
-                              const isSelected = signupDept === dept.value;
-                              return (
-                                <button
-                                  key={dept.value}
-                                  type="button"
-                                  onClick={() => {
-                                    setSignupDept(dept.value);
-                                    setIsDeptDropdownOpen(false);
-                                  }}
-                                  className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-medium transition-colors flex items-center justify-between cursor-pointer ${
-                                    isSelected
-                                      ? 'bg-amber-500/20 text-amber-300 font-bold'
-                                      : 'text-slate-300 hover:bg-white/10'
-                                  }`}
-                                >
-                                  <span className="truncate">{dept.text}</span>
-                                  {isSelected && <Check className="w-4 h-4 text-amber-400 shrink-0 ml-2" />}
-                                </button>
-                              );
-                            })}
+                        {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Jecha Icchitii' : language === 'am' ? 'የይለፍ ቃል' : 'Password'} *
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showSignupPassword ? 'text' : 'password'}
+                                required
+                                value={signupPassword}
+                                onChange={(e) => setSignupPassword(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (typeof e.getModifierState === 'function') {
+                                    setCapsLockActive(e.getModifierState('CapsLock'));
+                                  }
+                                }}
+                                onKeyUp={(e) => {
+                                  if (typeof e.getModifierState === 'function') {
+                                    setCapsLockActive(e.getModifierState('CapsLock'));
+                                  }
+                                }}
+                                onBlur={() => setCapsLockActive(false)}
+                                placeholder="••••••••"
+                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowSignupPassword(!showSignupPassword)}
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                                title={showSignupPassword ? 'Hide password' : 'Show password'}
+                                aria-label="Toggle password visibility"
+                              >
+                                {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {/* Password Strength Indicator */}
+                            {signupPassword && (
+                              <div className="mt-1.5 space-y-1">
+                                <div className="flex gap-1 h-1.5 w-full">
+                                  <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 1 ? 'bg-amber-500' : 'bg-slate-700'}`} />
+                                  <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 2 ? 'bg-amber-500' : 'bg-slate-700'}`} />
+                                  <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 3 ? 'bg-emerald-500' : 'bg-slate-700'}`} />
+                                </div>
+                                <span className={`text-[10px] font-semibold ${getPasswordStrength(signupPassword).color.split(' ')[1]}`}>
+                                  {getPasswordStrength(signupPassword).label}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-200 mb-1">
+                              {language === 'om' ? 'Mirkaneessi' : language === 'am' ? 'አረጋግጥ' : 'Confirm'} *
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showSignupConfirmPassword ? 'text' : 'password'}
+                                required
+                                value={signupConfirmPassword}
+                                onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                                placeholder="••••••••"
+                                className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/40 hover:bg-slate-900/50 focus:bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
+                                title={showSignupConfirmPassword ? 'Hide password' : 'Show password'}
+                                aria-label="Toggle password visibility"
+                              >
+                                {showSignupConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {/* Match indicator */}
+                            {signupConfirmPassword && (
+                              <div className="flex items-center gap-1 mt-1 text-[10.5px]">
+                                {signupPassword === signupConfirmPassword ? (
+                                  <span className="text-emerald-400 font-medium flex items-center gap-1">
+                                    <Check className="w-3 h-3 text-emerald-400" />
+                                    {t.passwordMatch}
+                                  </span>
+                                ) : (
+                                  <span className="text-rose-400 font-medium flex items-center gap-1">
+                                    <span>•</span>
+                                    {t.passwordMismatch}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Caps Lock Alert */}
+                        {capsLockActive && (
+                          <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-400 animate-in fade-in duration-150">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>{t.capsLockOn}</span>
                           </div>
                         )}
                       </div>
-
-                      {/* IF CLINICAL ROLE: REQUIRE MEDICAL LICENSE & SHOW SENTINEL NOTICE */}
-                      {isClinicalSignup && (
-                        <div className="space-y-2.5 animate-in fade-in duration-200">
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-200 mb-1">
-                              {language === 'om'
-                                ? 'Lakk. Hayyama Ogummaa Yaalaa (Medical License / EFDA Board No.)'
-                                : language === 'am'
-                                ? 'የህክምና ሙያ ፈቃድ ቁጥር (Medical License / EFDA)'
-                                : 'Medical License / EFDA Board Reg No.'} *
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              value={signupLicenseNumber}
-                              onChange={(e) => setSignupLicenseNumber(e.target.value)}
-                              placeholder="Fkn. ETH-MED-2024-8491 ykn EFDA/2026/09"
-                              className="block w-full h-12 rounded-full border border-amber-400/40 bg-amber-500/10 backdrop-blur-md px-5 text-sm font-mono text-white placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30"
-                            />
-                            <p className="text-[10.5px] text-slate-300/80 mt-1 pl-2">
-                              {language === 'om'
-                                ? 'Hayyama Biiroo Eegumsa Fayyaa ykn Boordii Yaalaa EFDA irraa kenname'
-                                : 'Official license issued by Ministry of Health, Regional Health Bureau, or EFDA'}
-                            </p>
-                          </div>
-
-                          {/* Zero-Trust Clinical Guard Sentinel Banner */}
-                          <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 backdrop-blur-md p-3.5 flex items-start gap-2.5 text-xs text-amber-200 shadow-inner ring-1 ring-amber-500/20">
-                            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                            <div>
-                              <p className="font-bold text-[12px] text-amber-300">
-                                {language === 'om'
-                                  ? 'Eegumsa Iccitii Yaalaa (Zero-Trust Clinical Guard)'
-                                  : 'Zero-Trust Clinical Guard & License Verification'}
-                              </p>
-                              <p className="mt-0.5 text-[11px] leading-relaxed text-amber-200/90">
-                                {language === 'om'
-                                  ? "Osoo ragaan hayyama ogummaa yaalaa keessanii Daarektara Yaalaa (Medical Director) fi Kutaa ICT Hospitaalaatiin hin mirkanaa'in akkaawuntiin kun ragaa dhukkubsattootaa ilaaluu hin danda'u. Galmeen booda haala qorannoo (Pending Verification) keessa tura."
-                                  : "Clinical accounts remain locked in Pending Verification status until physical license verification by the Medical Director & ICT before patient charts can be opened."}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {isPrivilegedSignup && (
-                        <div className="rounded-2xl border border-rose-500/40 bg-rose-500/15 backdrop-blur-md p-3.5 flex items-start gap-2.5 text-xs text-rose-200 shadow-inner animate-in fade-in duration-200">
-                          <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-                          <div>
-                            <p className="font-bold text-[12px] text-rose-300">
-                              {language === 'om'
-                                ? 'Akeekkachiisa Nageenya Admin (Privileged Role Quarantine)'
-                                : 'Security Notice: Privileged Admin Claims Quarantined'}
-                            </p>
-                            <p className="mt-0.5 text-[11px] leading-relaxed text-rose-200/90">
-                              {language === 'om'
-                                ? "Gaaffiin ga'ee Bulchiinsaa (Admin / ICT / Audit) ofumaan hin banamu — galmeen kun qorannoo Root Admin fi Audit Log keessatti cufamee eegama."
-                                : 'Self-registered Administrative claims start LOCKED with zero privileges, trigger an Executive Security Alert, and require explicit Root Super Admin approval.'}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* CONTACT & PERSONAL BIOGRAPHY */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Lakkoofsa Bilbilaa (Phone)' : 'Phone Number'}
-                          </label>
-                          <input
-                            type="tel"
-                            value={signupPhone}
-                            onChange={(e) => setSignupPhone(e.target.value)}
-                            placeholder="+2519XXXXXXXX"
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Imeelii (Email)' : 'Work Email (Optional)'}
-                          </label>
-                          <input
-                            type="email"
-                            value={signupEmail}
-                            onChange={(e) => setSignupEmail(e.target.value)}
-                            placeholder="name@mettukarl.gov.et"
-                            className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] px-5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1">
-                          {language === 'om'
-                            ? 'Seenaa fi Muuxannoo Hojii (Biography / Qualification)'
-                            : 'Staff Biography, Qualification & Background'}
-                        </label>
-                        <textarea
-                          rows={2}
-                          maxLength={2000}
-                          value={signupBiography}
-                          onChange={(e) => setSignupBiography(e.target.value)}
-                          placeholder={
-                            language === 'om'
-                              ? 'Fkn. Barnoota yaalaa, muuxannoo hojii fi kutaa keessa hojjettan...'
-                              : 'e.g. Degree, specialty, years of experience, clinic assignment...'
-                          }
-                          className="block w-full rounded-2xl border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] px-4 py-2.5 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all resize-y"
-                        />
-                      </div>
-
-                      {/* PASSWORD & CONFIRM PASSWORD WITH SHOW/HIDE & STRENGTH */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Jecha Icchitii' : language === 'am' ? 'የይለፍ ቃል' : 'Password'} *
-                          </label>
-                          <div className="relative">
-                            <input
-                              type={showSignupPassword ? 'text' : 'password'}
-                              required
-                              value={signupPassword}
-                              onChange={(e) => setSignupPassword(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (typeof e.getModifierState === 'function') {
-                                  setCapsLockActive(e.getModifierState('CapsLock'));
-                                }
-                              }}
-                              onKeyUp={(e) => {
-                                if (typeof e.getModifierState === 'function') {
-                                  setCapsLockActive(e.getModifierState('CapsLock'));
-                                }
-                              }}
-                              onBlur={() => setCapsLockActive(false)}
-                              placeholder="••••••••"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowSignupPassword(!showSignupPassword)}
-                              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
-                              title={showSignupPassword ? 'Hide password' : 'Show password'}
-                              aria-label="Toggle password visibility"
-                            >
-                              {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                          </div>
-                          {/* Password Strength Indicator */}
-                          {signupPassword && (
-                            <div className="mt-1.5 space-y-1">
-                              <div className="flex gap-1 h-1.5 w-full">
-                                <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 1 ? 'bg-amber-500' : 'bg-slate-700'}`} />
-                                <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 2 ? 'bg-amber-500' : 'bg-slate-700'}`} />
-                                <div className={`flex-1 rounded-full ${getPasswordStrength(signupPassword).score >= 3 ? 'bg-emerald-500' : 'bg-slate-700'}`} />
-                              </div>
-                              <span className={`text-[10px] font-semibold ${getPasswordStrength(signupPassword).color.split(' ')[1]}`}>
-                                {getPasswordStrength(signupPassword).label}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-200 mb-1">
-                            {language === 'om' ? 'Mirkaneessi' : language === 'am' ? 'አረጋግጥ' : 'Confirm'} *
-                          </label>
-                          <div className="relative">
-                            <input
-                              type={showSignupConfirmPassword ? 'text' : 'password'}
-                              required
-                              value={signupConfirmPassword}
-                              onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                              placeholder="••••••••"
-                              className="block w-full h-12 rounded-full border border-white/20 bg-slate-900/60 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] pl-5 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-amber-400 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
-                              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-amber-300 cursor-pointer transition-colors"
-                              title={showSignupConfirmPassword ? 'Hide password' : 'Show password'}
-                              aria-label="Toggle password visibility"
-                            >
-                              {showSignupConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                          </div>
-                          {/* Match indicator */}
-                          {signupConfirmPassword && (
-                            <div className="flex items-center gap-1 mt-1 text-[10.5px]">
-                              {signupPassword === signupConfirmPassword ? (
-                                <span className="text-emerald-400 font-medium flex items-center gap-1">
-                                  <Check className="w-3 h-3 text-emerald-400" />
-                                  {t.passwordMatch}
-                                </span>
-                              ) : (
-                                <span className="text-rose-400 font-medium flex items-center gap-1">
-                                  <span>•</span>
-                                  {t.passwordMismatch}
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Caps Lock Alert */}
-                      {capsLockActive && (
-                        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-amber-400 animate-in fade-in duration-150">
-                          <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <span>{t.capsLockOn}</span>
-                        </div>
-                      )}
 
                       {/* Submit Staff Sign Up Button: 3D Golden Raised Button */}
                       <button
                         type="submit"
                         disabled={isSubmittingSignup}
-                        className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_8px_25px_rgba(245,158,11,0.5),inset_0_2px_3px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(180,83,9,0.5)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.7)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-75 border-t border-amber-100 border-b border-amber-700"
+                        className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm tracking-wide shadow-[0_10px_28px_rgba(245,158,11,0.55),inset_0_2px_3px_rgba(255,255,255,0.85),inset_0_-2px_4px_rgba(180,83,9,0.6)] hover:shadow-[0_12px_35px_rgba(245,158,11,0.75)] hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-75 border-t border-amber-100 border-b border-amber-700"
                       >
                         {isSubmittingSignup ? (
                           <div className="flex items-center gap-2">
@@ -2666,7 +2674,7 @@ export default function LoginPage() {
 
                 {/* Switch to Login link */}
                 <div className="mt-4 text-center">
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-300">
                     {language === 'om'
                       ? 'Duraan akkaawuntii qabduu? '
                       : language === 'am'
@@ -2675,7 +2683,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setFormType('login')}
-                      className="text-amber-600 hover:text-amber-700 dark:text-amber-400 font-bold transition cursor-pointer ml-1"
+                      className="text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 transition cursor-pointer ml-1"
                     >
                       {language === 'om' ? 'Seenaa (Login)' : language === 'am' ? 'ይግቡ (Login)' : 'Log In'}
                     </button>
@@ -2684,35 +2692,26 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* 3D Recessed Secure Access Information Panel */}
-            <div className="w-full rounded-2xl bg-gradient-to-r from-amber-500/10 via-blue-500/10 to-amber-500/10 dark:bg-[#060c18]/90 border border-amber-500/30 dark:border-blue-500/30 p-3.5 flex items-center gap-3 mt-4 shadow-inner ring-1 ring-amber-500/20">
-              <ShieldCheck className="h-5 w-5 text-amber-500 dark:text-amber-400 shrink-0" />
-              <div className="text-left">
-                <p className="text-xs font-semibold text-slate-900 dark:text-amber-300 leading-tight">
-                  {t.secureAccessTitle}
-                </p>
-                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-tight mt-0.5">
-                  {t.secureAccessSubtitle}
-                </p>
-              </div>
+            {/* 3D Recessed Secure Access Banner */}
+            <div className="w-full rounded-full bg-white/[0.04] border border-white/10 py-2.5 px-4 flex items-center justify-center gap-2 text-xs text-slate-300 shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)] mt-4">
+              <ShieldCheck className="h-4 w-4 text-amber-400 shrink-0" />
+              <span className="leading-tight">
+                <span className="font-semibold text-white">{t.secureAccessTitle}:</span>{' '}
+                <span className="text-slate-300">{t.secureAccessSubtitle}</span>
+              </span>
             </div>
 
             {/* Card Footer: IT Support & Version */}
-            <div className="flex items-center justify-between pt-3.5 mt-3 border-t border-slate-200/70 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-between pt-3.5 mt-3 border-t border-white/10 text-xs text-slate-400">
               <button
                 type="button"
                 onClick={() => setShowITSupportModal(true)}
-                className="flex items-center gap-2 hover:text-amber-600 dark:hover:text-amber-400 transition cursor-pointer text-left"
+                className="flex items-center gap-2 hover:text-amber-300 transition cursor-pointer text-left"
               >
-                <Headphones className="h-4 w-4 text-amber-500 dark:text-amber-400 shrink-0" />
-                <div>
-                  <p className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
-                    {t.itSupportTitle}
-                  </p>
-                  <p className="text-[10px] text-amber-600 dark:text-amber-400 leading-tight">
-                    {t.itSupportContact}
-                  </p>
-                </div>
+                <Headphones className="h-4 w-4 text-amber-400 shrink-0" />
+                <span className="font-medium text-slate-200">{t.itSupportTitle}</span>
+                <span className="text-slate-500">/</span>
+                <span className="text-[11px] text-amber-400/90">{t.itSupportContact}</span>
               </button>
               <span className="font-mono text-slate-400 text-[11px]">HMIS Enterprise v2.4</span>
             </div>
