@@ -347,7 +347,7 @@ const BUILDING_PARTS = [
 ];
 
 // ---------------------------------------------------------------------------
-// Main Component
+// Main Component (v1.0.4 - Registration with Username Support)
 // ---------------------------------------------------------------------------
 
 interface PendingStaffWaitState {
