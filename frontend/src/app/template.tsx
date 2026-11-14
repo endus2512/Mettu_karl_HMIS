@@ -19,7 +19,7 @@ export default function RootTemplate({
   return (
     <div
       key={pathname}
-      className="animate-route-transition w-full min-h-screen"
+      className="animate-route-transition w-full max-w-full overflow-x-hidden min-h-screen"
     >
       {children}
     </div>

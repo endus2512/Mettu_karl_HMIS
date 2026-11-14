@@ -1218,7 +1218,7 @@ export default function LoginPage() {
     language === 'om' ? 'Afaan Oromoo' : language === 'am' ? 'አማርኛ' : 'English';
 
   return (
-    <div className="w-screen h-screen min-h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden bg-[#0a3a78] dark:bg-[#061426] font-sans select-none m-0 p-0 relative">
+    <div className="w-full max-w-full h-screen min-h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden overflow-x-hidden bg-[#0a3a78] dark:bg-[#061426] font-sans select-none m-0 p-0 relative">
       {/* ======================================================================= */}
       {/* HOSPITAL BUILDING HERO VIEW (EDGE-TO-EDGE FULL SCREEN BACKGROUND)       */}
       {/* ======================================================================= */}
