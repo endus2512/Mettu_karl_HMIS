@@ -1518,22 +1518,22 @@ export default function LoginPage() {
           }}
         >
           {/* Modal Backdrop: Dark Blurred Hospital Hallway Medical Workstation (Specification 1) with Living Ambient Motion & Colors */}
-          <div className="fixed inset-0 z-0 overflow-hidden bg-[#070e17] pointer-events-none">
+          <div className="fixed inset-0 z-0 overflow-hidden bg-[#06101c] pointer-events-none">
             {/* Living Hospital Hallway Image with Gentle Breathing Pan */}
             <img
               src="/hospital-hallway-bg.jpg"
               alt="Hospital Hallway Medical Workstation"
-              className="w-full h-full object-cover filter blur-[3.5px] animate-living-bg transform"
+              className="w-full h-full object-cover filter blur-[2px] brightness-110 saturate-125 animate-living-bg transform"
             />
 
             {/* Living Floating Luminous Color Orbs (Injects vivid colors on mobile and PC) */}
-            <div className="absolute -top-16 left-1/4 w-72 h-72 sm:w-[460px] sm:h-[460px] rounded-full bg-blue-500/35 filter blur-[80px] animate-living-orb-1 pointer-events-none" />
-            <div className="absolute top-1/3 -right-12 sm:right-12 w-64 h-64 sm:w-[400px] sm:h-[400px] rounded-full bg-amber-400/30 filter blur-[75px] animate-living-orb-2 pointer-events-none" />
-            <div className="absolute -bottom-16 left-6 sm:left-1/3 w-80 h-80 sm:w-[450px] sm:h-[450px] rounded-full bg-cyan-400/25 filter blur-[85px] animate-living-orb-3 pointer-events-none" />
+            <div className="absolute top-1/4 -left-10 sm:left-10 w-80 h-80 sm:w-[500px] sm:h-[500px] rounded-full bg-blue-500/50 filter blur-[70px] animate-living-orb-1 pointer-events-none" />
+            <div className="absolute top-12 -right-10 sm:right-16 w-72 h-72 sm:w-[450px] sm:h-[450px] rounded-full bg-amber-400/45 filter blur-[65px] animate-living-orb-2 pointer-events-none" />
+            <div className="absolute -bottom-10 left-1/4 w-88 h-88 sm:w-[480px] sm:h-[480px] rounded-full bg-cyan-400/35 filter blur-[75px] animate-living-orb-3 pointer-events-none" />
 
             {/* Color-preserving atmospheric tint (NOT pitch black: rich deep teal/navy with color depth) */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#050d18]/75 via-[#08182b]/55 to-[#0c2236]/65 pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#07111e]/40 to-[#040912]/80 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#051120]/70 via-[#07192f]/45 to-[#0b243b]/55 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#05101d]/35 to-[#030913]/70 pointer-events-none" />
           </div>
 
           {/* Centered Dark Glassmorphism Card Container (Specification 2) */}
@@ -1542,7 +1542,7 @@ export default function LoginPage() {
             <div className="absolute top-1 sm:top-1.5 left-1/2 -translate-x-1/2 z-30 flex justify-center pointer-events-none">
               <div className="relative">
                 {/* Subtle golden rim glow */}
-                <div className="absolute inset-0 -m-2 rounded-full bg-[#EAB308]/30 blur-lg" />
+                <div className="absolute inset-0 -m-2 rounded-full bg-[#EAB308]/35 blur-lg" />
                 <div
                   className="rounded-full p-[2px] bg-gradient-to-b from-[#EAB308] via-[#475569] to-[#EAB308]/70 shadow-[0_10px_25px_rgba(0,0,0,0.8),0_0_20px_rgba(234,179,8,0.35)] flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20"
                 >
@@ -1555,16 +1555,20 @@ export default function LoginPage() {
 
             {/* Glowing Gradient Border: Thin 1.5px gradient border with living dual-glow */}
             <div
-              className="p-[1.5px] rounded-[22px] sm:rounded-[24px] bg-gradient-to-tr from-[#3B82F6] via-[#60A5FA]/70 to-[#EAB308] relative animate-border-glow"
+              className="p-[1.8px] rounded-[22px] sm:rounded-[24px] bg-gradient-to-tr from-[#2563EB] via-[#38BDF8] to-[#FACC15] relative animate-border-glow shadow-2xl"
               style={{
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px rgba(59, 130, 246, 0.35), 0 0 40px rgba(234, 179, 8, 0.25)',
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(56, 189, 248, 0.45), 0 0 45px rgba(250, 204, 21, 0.35)',
               }}
             >
+              {/* Corner Lens Flare Ambient Highlights */}
+              <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-[#FACC15]/25 filter blur-xl pointer-events-none" />
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-[#3B82F6]/30 filter blur-xl pointer-events-none" />
+
               {/* Centered dark translucent glass card (background with color depth, backdrop-filter: blur(22px)) */}
               <div
                 className="relative max-h-[82vh] sm:max-h-[86vh] overflow-y-auto px-4 py-5 sm:px-7 sm:py-7 md:px-8 md:py-8 text-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{
-                  background: 'linear-gradient(145deg, rgba(16, 29, 48, 0.72) 0%, rgba(10, 20, 36, 0.76) 50%, rgba(15, 28, 46, 0.72) 100%)',
+                  background: 'linear-gradient(145deg, rgba(18, 36, 60, 0.70) 0%, rgba(10, 22, 38, 0.75) 50%, rgba(16, 32, 54, 0.70) 100%)',
                   backdropFilter: 'blur(22px)',
                   WebkitBackdropFilter: 'blur(22px)',
                   borderRadius: '21px',
