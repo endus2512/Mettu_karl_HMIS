@@ -1518,22 +1518,25 @@ export default function LoginPage() {
           }}
         >
           {/* Modal Backdrop: Dark Blurred Hospital Hallway Medical Workstation (Specification 1) with Living Ambient Motion & Colors */}
-          <div className="fixed inset-0 z-0 overflow-hidden bg-[#06101c] pointer-events-none">
+          <div className="fixed inset-0 z-0 overflow-hidden bg-[#040e1c] pointer-events-none">
             {/* Living Hospital Hallway Image with Gentle Breathing Pan */}
             <img
               src="/hospital-hallway-bg.jpg"
               alt="Hospital Hallway Medical Workstation"
-              className="w-full h-full object-cover filter blur-[2px] brightness-110 saturate-125 animate-living-bg transform"
+              className="w-full h-full object-cover filter blur-[2px] brightness-115 saturate-130 animate-living-bg transform"
             />
 
             {/* Living Floating Luminous Color Orbs (Injects vivid colors on mobile and PC) */}
-            <div className="absolute top-1/4 -left-10 sm:left-10 w-80 h-80 sm:w-[500px] sm:h-[500px] rounded-full bg-blue-500/50 filter blur-[70px] animate-living-orb-1 pointer-events-none" />
-            <div className="absolute top-12 -right-10 sm:right-16 w-72 h-72 sm:w-[450px] sm:h-[450px] rounded-full bg-amber-400/45 filter blur-[65px] animate-living-orb-2 pointer-events-none" />
-            <div className="absolute -bottom-10 left-1/4 w-88 h-88 sm:w-[480px] sm:h-[480px] rounded-full bg-cyan-400/35 filter blur-[75px] animate-living-orb-3 pointer-events-none" />
+            <div className="absolute top-1/4 -left-10 sm:left-10 w-80 h-80 sm:w-[520px] sm:h-[520px] rounded-full bg-blue-500/55 filter blur-[70px] animate-living-orb-1 pointer-events-none" />
+            <div className="absolute top-12 -right-10 sm:right-16 w-72 h-72 sm:w-[460px] sm:h-[460px] rounded-full bg-amber-400/50 filter blur-[65px] animate-living-orb-2 pointer-events-none" />
+            <div className="absolute -bottom-10 left-1/4 w-88 h-88 sm:w-[500px] sm:h-[500px] rounded-full bg-cyan-400/40 filter blur-[75px] animate-living-orb-3 pointer-events-none" />
 
-            {/* Color-preserving atmospheric tint (NOT pitch black: rich deep teal/navy with color depth) */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#051120]/70 via-[#07192f]/45 to-[#0b243b]/55 pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#05101d]/35 to-[#030913]/70 pointer-events-none" />
+            {/* Mobile & Desktop Luminous Core Directly Behind Card - Guarantees mobile screen is vividly colored and radiant, NEVER black */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[580px] h-[520px] sm:h-[660px] rounded-[36px] bg-gradient-to-tr from-blue-600/45 via-cyan-400/35 to-amber-400/40 filter blur-[55px] animate-pulse pointer-events-none" />
+
+            {/* Color-preserving atmospheric tint (NOT pitch black: rich deep sapphire/teal/navy with living color depth) */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#05152a]/60 via-[#071c35]/35 to-[#0b2848]/45 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#051120]/25 to-[#030913]/60 pointer-events-none" />
           </div>
 
           {/* Centered Dark Glassmorphism Card Container (Specification 2) */}
@@ -1542,9 +1545,9 @@ export default function LoginPage() {
             <div className="absolute top-1 sm:top-1.5 left-1/2 -translate-x-1/2 z-30 flex justify-center pointer-events-none">
               <div className="relative">
                 {/* Subtle golden rim glow */}
-                <div className="absolute inset-0 -m-2 rounded-full bg-[#EAB308]/35 blur-lg" />
+                <div className="absolute inset-0 -m-2 rounded-full bg-[#EAB308]/40 blur-lg" />
                 <div
-                  className="rounded-full p-[2px] bg-gradient-to-b from-[#EAB308] via-[#475569] to-[#EAB308]/70 shadow-[0_10px_25px_rgba(0,0,0,0.8),0_0_20px_rgba(234,179,8,0.35)] flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20"
+                  className="rounded-full p-[2px] bg-gradient-to-b from-[#EAB308] via-[#475569] to-[#EAB308]/70 shadow-[0_10px_25px_rgba(0,0,0,0.8),0_0_25px_rgba(234,179,8,0.45)] flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20"
                 >
                   <div className="w-full h-full rounded-full p-1.5 sm:p-2 bg-gradient-to-b from-[#1E293B] via-[#0F172A] to-[#0A0F1D] flex items-center justify-center border border-[#334155]/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),inset_0_-2px_4px_rgba(0,0,0,0.8)]">
                     <CaduceusIcon className="w-8 h-8 sm:w-11 sm:h-11 text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]" />
@@ -1555,30 +1558,30 @@ export default function LoginPage() {
 
             {/* Glowing Gradient Border: Thin 1.5px gradient border with living dual-glow */}
             <div
-              className="p-[1.8px] rounded-[22px] sm:rounded-[24px] bg-gradient-to-tr from-[#2563EB] via-[#38BDF8] to-[#FACC15] relative animate-border-glow shadow-2xl"
+              className="p-[1.8px] sm:p-[2px] rounded-[22px] sm:rounded-[24px] bg-gradient-to-tr from-[#2563EB] via-[#38BDF8] to-[#FACC15] relative animate-border-glow shadow-2xl"
               style={{
-                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(56, 189, 248, 0.45), 0 0 45px rgba(250, 204, 21, 0.35)',
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(56, 189, 248, 0.55), 0 0 45px rgba(250, 204, 21, 0.45)',
               }}
             >
               {/* Corner Lens Flare Ambient Highlights */}
-              <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-[#FACC15]/25 filter blur-xl pointer-events-none" />
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-[#3B82F6]/30 filter blur-xl pointer-events-none" />
+              <div className="absolute -top-5 -right-5 w-28 h-28 rounded-full bg-[#FACC15]/30 filter blur-xl pointer-events-none" />
+              <div className="absolute -bottom-5 -left-5 w-32 h-32 rounded-full bg-[#38BDF8]/35 filter blur-xl pointer-events-none" />
 
-              {/* Centered dark translucent glass card (background with color depth, backdrop-filter: blur(22px)) */}
+              {/* Centered translucent glass card (rich sapphire/cyan/gold color reflections, backdrop-filter: blur(18px)) */}
               <div
                 className="relative max-h-[82vh] sm:max-h-[86vh] overflow-y-auto px-4 py-5 sm:px-7 sm:py-7 md:px-8 md:py-8 text-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{
-                  background: 'linear-gradient(145deg, rgba(18, 36, 60, 0.70) 0%, rgba(10, 22, 38, 0.75) 50%, rgba(16, 32, 54, 0.70) 100%)',
-                  backdropFilter: 'blur(22px)',
-                  WebkitBackdropFilter: 'blur(22px)',
+                  background: 'radial-gradient(circle at 12% 12%, rgba(56, 189, 248, 0.25) 0%, transparent 45%), radial-gradient(circle at 88% 12%, rgba(250, 204, 21, 0.20) 0%, transparent 45%), radial-gradient(circle at 50% 90%, rgba(37, 99, 235, 0.28) 0%, transparent 55%), linear-gradient(145deg, rgba(20, 44, 78, 0.72) 0%, rgba(12, 28, 54, 0.78) 50%, rgba(18, 40, 72, 0.72) 100%)',
+                  backdropFilter: 'blur(18px)',
+                  WebkitBackdropFilter: 'blur(18px)',
                   borderRadius: '21px',
                 }}
               >
-                {/* Close button X */}
+                {/* Close button X - positioned with clear isolation from header content */}
                 <button
                   type="button"
                   onClick={() => setIsFormOpen(false)}
-                  className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-[#94A3B8] hover:text-white transition cursor-pointer z-30 border border-white/20 shadow-xs"
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-slate-900/60 hover:bg-slate-800 text-[#CBD5E1] hover:text-white transition-all cursor-pointer z-40 border border-white/20 shadow-md backdrop-blur-md"
                   title="Cufi / Close"
                   aria-label="Close"
                 >
@@ -1986,12 +1989,30 @@ export default function LoginPage() {
               /* VIEW B: SIGN UP / REGISTRATION FORM (PATIENT & STAFF)           */
               /* =============================================================== */
               <div key="signup-view" className="animate-tab-dissolve">
-                {/* Account Type Selector: 3D Pill Tabs (Specification 5 & 6 theme) */}
+                {/* Sign Up Header: Cleanly centered with ample clearance from Close 'X' Button */}
+                <div className="text-center pt-2 sm:pt-3 mb-3 sm:mb-3.5">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#FFFFFF] tracking-tight drop-shadow-md">
+                    {language === 'om'
+                      ? 'Akkaawuntii Uumi'
+                      : language === 'am'
+                      ? 'አካውንት ይፍጠሩ'
+                      : 'Create Account'}
+                  </h2>
+                  <p className="mt-1 text-xs sm:text-sm text-[#CBD5E1] font-normal leading-relaxed">
+                    {language === 'om'
+                      ? 'Galmee dhukkubsataa poortaalii ykn hojjataa yaalaa filadhaa'
+                      : language === 'am'
+                      ? 'የታካሚ ወይም የሆስፒታል ሰራተኛ ምዝገባን ይምረጡ'
+                      : 'Select patient healthcare portal or clinical staff station'}
+                  </p>
+                </div>
+
+                {/* Account Type Selector: 3D Pill Tabs (Positioned safely below header, completely clear of close button) */}
                 <div
                   className="flex p-1 rounded-full mb-3.5 sm:mb-4"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.20)',
                     borderRadius: '9999px',
                   }}
                 >
@@ -2676,23 +2697,6 @@ export default function LoginPage() {
                                   ? 'Hayyama Biiroo Eegumsa Fayyaa ykn Boordii Yaalaa EFDA irraa kenname'
                                   : 'Official license issued by Ministry of Health, Regional Health Bureau, or EFDA'}
                               </p>
-                            </div>
-
-                            {/* Zero-Trust Clinical Guard Sentinel Banner */}
-                            <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 backdrop-blur-md p-3.5 flex items-start gap-2.5 text-xs text-amber-200 shadow-inner ring-1 ring-amber-500/20">
-                              <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                              <div>
-                                <p className="font-bold text-[12px] text-amber-300">
-                                  {language === 'om'
-                                    ? 'Eegumsa Iccitii Yaalaa (Zero-Trust Clinical Guard)'
-                                    : 'Zero-Trust Clinical Guard & License Verification'}
-                                </p>
-                                <p className="mt-0.5 text-[11px] leading-relaxed text-amber-200/90">
-                                  {language === 'om'
-                                    ? "Osoo ragaan hayyama ogummaa yaalaa keessanii Daarektara Yaalaa (Medical Director) fi Kutaa ICT Hospitaalaatiin hin mirkanaa'in akkaawuntiin kun ragaa dhukkubsattootaa ilaaluu hin danda'u. Galmeen booda haala qorannoo (Pending Verification) keessa tura."
-                                    : "Clinical accounts remain locked in Pending Verification status until physical license verification by the Medical Director & ICT before patient charts can be opened."}
-                                </p>
-                              </div>
                             </div>
                           </div>
                         )}
