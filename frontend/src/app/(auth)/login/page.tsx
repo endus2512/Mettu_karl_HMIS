@@ -1235,7 +1235,7 @@ export default function LoginPage() {
               alt="Mettu Karl Comprehensive Specialized Hospital Building"
               loading="eager"
               decoding="sync"
-              className="w-full h-full object-cover object-[44%_26%] sm:object-[center_28%] transform scale-100 animate-living-building"
+              className="w-full h-full object-cover object-[44%_26%] sm:object-[center_28%]"
               style={{
                 imageRendering: 'crisp-edges',
                 WebkitBackfaceVisibility: 'hidden',
