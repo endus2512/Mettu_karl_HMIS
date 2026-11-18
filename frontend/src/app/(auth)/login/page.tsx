@@ -416,12 +416,17 @@ export default function LoginPage() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [showITSupportModal, setShowITSupportModal] = useState(false);
 
-  // Self-service Password Recovery (OTP + Reset) state
+  // Self-service Password Recovery (5-Min OTP + Anti-Impersonation Reset) state
   const [recoveryStep, setRecoveryStep] = useState<'request' | 'confirm' | 'done'>('request');
   const [recoveryIdentifier, setRecoveryIdentifier] = useState('');
+  const [recoveryContact, setRecoveryContact] = useState('');
   const [recoveryChallengeToken, setRecoveryChallengeToken] = useState<string | null>(null);
   const [recoveryMaskedDest, setRecoveryMaskedDest] = useState<string | null>(null);
   const [recoveryDeliveryChannel, setRecoveryDeliveryChannel] = useState<string>('sms');
+  const [recoveryDeliveryStatus, setRecoveryDeliveryStatus] = useState<string>('ict_audit_queue');
+  const [recoveryRequiresMfaTotp, setRecoveryRequiresMfaTotp] = useState(false);
+  const [recoveryMfaTotp, setRecoveryMfaTotp] = useState('');
+  const [recoverySecondsLeft, setRecoverySecondsLeft] = useState(300);
   const [recoveryDevOtp, setRecoveryDevOtp] = useState<string | null>(null);
   const [recoveryOtp, setRecoveryOtp] = useState('');
   const [recoveryNewPassword, setRecoveryNewPassword] = useState('');
@@ -435,9 +440,14 @@ export default function LoginPage() {
   const resetRecoveryState = useCallback((prefillIdentifier?: string) => {
     setRecoveryStep('request');
     setRecoveryIdentifier(prefillIdentifier ?? '');
+    setRecoveryContact('');
     setRecoveryChallengeToken(null);
     setRecoveryMaskedDest(null);
     setRecoveryDeliveryChannel('sms');
+    setRecoveryDeliveryStatus('ict_audit_queue');
+    setRecoveryRequiresMfaTotp(false);
+    setRecoveryMfaTotp('');
+    setRecoverySecondsLeft(300);
     setRecoveryDevOtp(null);
     setRecoveryOtp('');
     setRecoveryNewPassword('');
@@ -449,16 +459,38 @@ export default function LoginPage() {
     setRecoveryUpdatedUsername(null);
   }, []);
 
+  // Live 5-minute (300s) countdown timer for active OTP verification window
+  useEffect(() => {
+    if (!showForgotModal || recoveryStep !== 'confirm' || recoverySecondsLeft <= 0) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setRecoverySecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [showForgotModal, recoveryStep, recoverySecondsLeft]);
+
   const handleRequestPasswordRecovery = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleaned = recoveryIdentifier.trim();
+    const cleanedContact = recoveryContact.trim();
     if (cleaned.length < 3) {
       setRecoveryError(
         language === 'om'
-          ? 'Maaloo Username, Staff ID, Fayda ID ykn lakkoofsa bilbilaa sirrii galchaa.'
+          ? 'Maaloo Username, Staff ID ykn Fayda ID sirrii galchaa.'
           : language === 'am'
-          ? 'እባክዎ ትክክለኛ የተጠቃሚ ስም፣ የሰራተኛ መለያ፣ ፋይዳ ወይም ስልክ ቁጥር ያስገቡ።'
-          : 'Please enter a valid Username, Staff ID, Email, Fayda ID, or Phone number.'
+          ? 'እባክዎ ትክክለኛ የተጠቃሚ ስም፣ የሰራተኛ መለያ ወይም ፋይዳ ID ያስገቡ።'
+          : 'Please enter a valid Username, Staff ID, or Fayda ID.'
+      );
+      return;
+    }
+    if (cleanedContact.length < 5) {
+      setRecoveryError(
+        language === 'om'
+          ? 'Nageenyaaf: Lakkoofsa bilbilaa ykn email akaawuntii keessan irratti galmaa\'e sirriitti galchaa.'
+          : language === 'am'
+          ? 'ለደህንነት ሲባል፡ በመለያዎ ላይ የተመዘገበውን ስልክ ቁጥር ወይም ኢሜል በትክክል ያስገቡ።'
+          : 'For anti-impersonation security, enter the exact Phone number or Email registered on your account.'
       );
       return;
     }
@@ -471,11 +503,14 @@ export default function LoginPage() {
         challenge_token?: string | null;
         masked_destination?: string | null;
         delivery_channel?: string;
+        delivery_status?: string;
+        requires_mfa_totp?: boolean;
         expires_in_seconds?: number;
         message: string;
         dev_otp_code?: string | null;
       }>('/auth/password-reset/request', {
         identifier: cleaned,
+        verification_contact: cleanedContact,
         language,
       });
 
@@ -483,16 +518,19 @@ export default function LoginPage() {
         setRecoveryChallengeToken(data.challenge_token);
         setRecoveryMaskedDest(data.masked_destination || null);
         setRecoveryDeliveryChannel(data.delivery_channel || 'sms');
+        setRecoveryDeliveryStatus(data.delivery_status || 'ict_audit_queue');
+        setRecoveryRequiresMfaTotp(Boolean(data.requires_mfa_totp));
+        setRecoverySecondsLeft(data.expires_in_seconds || 300);
         setRecoveryDevOtp(data.dev_otp_code || null);
         setRecoveryNotice(data.message);
         setRecoveryStep('confirm');
       } else {
         setRecoveryError(
           language === 'om'
-            ? `Akaawuntiin "${cleaned}" jedhamu hin argamne. Maaloo Username sirrii (fkn: nurse_chaltu, dr_bekele), Staff ID, Email, Fayda ID ykn lakkoofsa bilbilaa galchaa.`
+            ? `Eenyummaan "${cleaned}" fi bilbilli/email galchitan wal hin simne. Nageenyaaf koodiin OTP hin ergamne. Maaloo Username sirrii (fkn: nurse_chaltu) fi bilbila/email galmaa'e mirkaneessaa.`
             : language === 'am'
-            ? `"${cleaned}" የሚባል ንቁ መለያ አልተገኘም። እባክዎ ትክክለኛ የተጠቃሚ ስም (ለምሳሌ፡ nurse_chaltu, dr_bekele)፣ የሰራተኛ መለያ፣ ኢሜል፣ ፋይዳ ID ወይም ስልክ ቁጥር ያስገቡ።`
-            : `No active account matched "${cleaned}". Please enter your exact Username (e.g. nurse_chaltu, dr_bekele), Staff ID, Email, Fayda ID, or Phone number.`
+            ? `"${cleaned}" እና ያስገቡት ስልክ/ኢሜል አልተዛመዱም። ለደህንነት ሲባል OTP አልተላከም። እባክዎ ትክክለኛ የተጠቃሚ ስም (ለምሳሌ፡ nurse_chaltu) እና የተመዘገበ ስልክ/ኢሜል ያስገቡ።`
+            : `Account "${cleaned}" and the registered phone/email did not match. OTP dispatch was blocked for security. Verify your exact Username (e.g. nurse_chaltu) and registered phone/email.`
         );
       }
     } catch (err: any) {
@@ -512,6 +550,16 @@ export default function LoginPage() {
   const handleConfirmPasswordRecovery = async (e: React.FormEvent) => {
     e.preventDefault();
     setRecoveryError(null);
+    if (recoverySecondsLeft <= 0) {
+      setRecoveryError(
+        language === 'om'
+          ? 'Yeroon koodii OTP (daqiiqaa 5) darbeera. Maaloo gara boodaatti deebi\'aatii koodii haaraa gaafadhaa.'
+          : language === 'am'
+          ? 'የ5 ደቂቃው OTP ጊዜ አልፏል። እባክዎ ተመልሰው አዲስ ኮድ ይጠይቁ።'
+          : 'This 5-minute OTP code has expired. Please go back and request a fresh code.'
+      );
+      return;
+    }
     const cleanOtp = recoveryOtp.trim();
     if (!/^\d{6}$/.test(cleanOtp)) {
       setRecoveryError(
@@ -520,6 +568,17 @@ export default function LoginPage() {
           : language === 'am'
           ? 'የማረጋገጫ ኮዱ 6 አሃዝ መሆን አለበት።'
           : 'Verification code must be exactly 6 digits.'
+      );
+      return;
+    }
+    const cleanMfa = recoveryMfaTotp.trim();
+    if (recoveryRequiresMfaTotp && !/^\d{6}$/.test(cleanMfa)) {
+      setRecoveryError(
+        language === 'om'
+          ? 'Akaawuntiin kun 2FA Authenticator qaba — koodii TOTP dijiitii 6 galchaa.'
+          : language === 'am'
+          ? 'ይህ መለያ 2FA Authenticator አለው — ባለ 6-አሃዝ TOTP ኮድ ያስገቡ።'
+          : '2FA Authenticator is enabled on this account — enter your 6-digit TOTP code.'
       );
       return;
     }
@@ -553,6 +612,7 @@ export default function LoginPage() {
         challenge_token: recoveryChallengeToken,
         otp_code: cleanOtp,
         new_password: recoveryNewPassword.trim(),
+        ...(recoveryRequiresMfaTotp ? { mfa_totp_code: cleanMfa } : {}),
       });
       setRecoveryUpdatedUsername(data.username);
       setRecoveryNotice(data.message);
@@ -3199,18 +3259,22 @@ export default function LoginPage() {
             </div>
 
             {recoveryStep === 'request' && (
-              <form onSubmit={handleRequestPasswordRecovery} className="space-y-3.5 py-4 text-xs text-slate-300">
-                <p className="font-medium text-slate-200">
+              <form onSubmit={handleRequestPasswordRecovery} className="space-y-3 py-4 text-xs text-slate-300">
+                <p className="font-medium text-slate-200 leading-relaxed">
                   {language === 'om'
-                    ? 'Username, Staff ID, Email, Fayda ID ykn lakkoofsa bilbilaa keessan galchaa; koodiin mirkaneessaa dijiitii 6 isiniif ergama.'
+                    ? 'Eegumsa fakkeessuu (Anti-Impersonation): Username / Staff ID fi bilbila ykn email akaawuntii keessan irratti galmaa\'e lamaanuu galchaa. Koodiin OTP daqiiqaa 5 qofa hojjetu gara bilbila/email galmaa\'e qofatti ergama.'
                     : language === 'am'
-                    ? 'የተጠቃሚ ስምዎን፣ የሰራተኛ መለያዎን፣ ኢሜልዎን፣ ፋይዳ ID ወይም ስልክ ቁጥርዎን ያስገቡ፤ ባለ 6-አሃዝ የማረጋገጫ ኮድ ይላክልዎታል።'
-                    : 'Enter your Username, Staff ID, Email, Fayda ID, or Phone number to receive a 6-digit recovery code.'}
+                    ? 'የማንነት ማረጋገጫ፡ የተጠቃሚ ስም/መለያ እና በመለያዎ የተመዘገበውን ስልክ ወይም ኢሜል ሁለቱንም ያስገቡ። ለ5 ደቂቃ ብቻ የሚሰራ OTP ወደ ተመዘገበው ስልክ/ኢሜልዎ ብቻ ይላካል።'
+                    : 'Anti-Impersonation Verification: Enter BOTH your Account Identifier AND the exact Phone or Email registered on your account. A 5-minute OTP is sent only to your registered contact.'}
                 </p>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-amber-200/90 mb-1.5">
-                    {t.usernameLabel}
+                  <label className="block text-[11px] font-semibold text-amber-200/90 mb-1">
+                    {language === 'om'
+                      ? 'Username / Staff ID / Fayda ID'
+                      : language === 'am'
+                      ? 'የተጠቃሚ ስም / የሰራተኛ መለያ / ፋይዳ ID'
+                      : 'Username / Staff ID / Fayda ID'}
                   </label>
                   <div className="relative">
                     <User className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -3218,8 +3282,29 @@ export default function LoginPage() {
                       type="text"
                       value={recoveryIdentifier}
                       onChange={(e) => setRecoveryIdentifier(e.target.value)}
-                      placeholder={t.usernamePlaceholder}
+                      placeholder="e.g. nurse_chaltu, dr_bekele, MKH-DOC-01"
                       autoComplete="username"
+                      required
+                      className="w-full rounded-xl bg-[#070a10] border border-[#222b3d] focus:border-amber-400 focus:outline-none pl-9 pr-3 py-2.5 text-xs text-white placeholder:text-slate-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-amber-200/90 mb-1">
+                    {language === 'om'
+                      ? 'Bilbila ykn Email Akaawuntii Irratti Galmaa\'e'
+                      : language === 'am'
+                      ? 'በመለያው የተመዘገበ ስልክ ቁጥር ወይም ኢሜል'
+                      : 'Registered Mobile Phone or Email Address'}
+                  </label>
+                  <div className="relative">
+                    <ShieldCheck className="h-4 w-4 text-amber-400/80 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={recoveryContact}
+                      onChange={(e) => setRecoveryContact(e.target.value)}
+                      placeholder="e.g. +251911... or nurse.chaltu@mettukarl.gov.et"
                       required
                       className="w-full rounded-xl bg-[#070a10] border border-[#222b3d] focus:border-amber-400 focus:outline-none pl-9 pr-3 py-2.5 text-xs text-white placeholder:text-slate-500"
                     />
@@ -3269,7 +3354,7 @@ export default function LoginPage() {
                       ? 'Koodii OTP Ergi'
                       : language === 'am'
                       ? 'የማረጋገጫ ኮድ ላክ'
-                      : 'Send Recovery Code'}
+                      : 'Send 5-Min OTP'}
                   </button>
                 </div>
               </form>
@@ -3277,39 +3362,61 @@ export default function LoginPage() {
 
             {recoveryStep === 'confirm' && (
               <form onSubmit={handleConfirmPasswordRecovery} className="space-y-3 py-4 text-xs text-slate-300">
-                <div className="rounded-lg bg-[#070a10] border border-amber-500/30 p-2.5 text-[11px] text-amber-200 space-y-1">
-                  <div className="flex items-center gap-1.5 font-semibold text-amber-300">
-                    <ShieldCheck className="h-4 w-4 shrink-0" />
-                    <span>
-                      {language === 'om'
-                        ? `Koodiin mirkaneessaa gara ${recoveryMaskedDest || 'bilbila keessanii'} ergameera (daqiiqaa 10).`
-                        : language === 'am'
-                        ? `የማረጋገጫ ኮዱ ወደ ${recoveryMaskedDest || 'ስልክዎ'} ተልኳል (ለ10 ደቂቃ)።`
-                        : `Verification code dispatched to ${recoveryMaskedDest || 'your registered contact'} (valid 10 mins).`}
+                <div className="rounded-lg bg-[#070a10] border border-amber-500/30 p-2.5 text-[11px] text-amber-200 space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 font-semibold text-amber-300">
+                      <ShieldCheck className="h-4 w-4 shrink-0" />
+                      <span>
+                        {language === 'om'
+                          ? `Gara ${recoveryMaskedDest || 'bilbila/email'} ergameera`
+                          : language === 'am'
+                          ? `ወደ ${recoveryMaskedDest || 'ስልክ/ኢሜል'} ተልኳል`
+                          : `Sent to ${recoveryMaskedDest || 'registered contact'}`}
+                      </span>
+                    </div>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px] font-bold border ${
+                        recoverySecondsLeft > 60
+                          ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                          : 'bg-rose-500/15 text-rose-300 border-rose-500/40'
+                      }`}
+                    >
+                      <Clock className="h-3 w-3" />
+                      {`${String(Math.floor(recoverySecondsLeft / 60)).padStart(2, '0')}:${String(
+                        recoverySecondsLeft % 60
+                      ).padStart(2, '0')}`}
                     </span>
                   </div>
                   {recoveryDevOtp ? (
-                    <div className="font-mono text-[11px] text-emerald-300 pt-0.5">
+                    <div className="font-mono text-[11px] text-emerald-300">
                       DEV / LOCAL TEST OTP: <strong className="tracking-widest">{recoveryDevOtp}</strong>
                     </div>
-                  ) : recoveryDeliveryChannel === 'ict_sms_audit' ? (
-                    <p className="text-[10px] text-slate-400 pt-0.5 leading-relaxed">
+                  ) : recoveryDeliveryStatus === 'ict_audit_queue' ? (
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
                       {language === 'om'
-                        ? 'Hubachiisa: Lakkoofsi bilbilaa akaawuntii kanarratti waan hin galmoofneef koodiin SMS/ICT Gateway (/sms-ussd) keessatti galmaa\'eera; deeggarsa ICT (4401) irraa fudhachuu dandeessu.'
+                        ? 'Karaa ergaa: Live SMS/SMTP server irratti hin hidhamne — koodiin SMS/ICT Audit Gateway (/sms-ussd) keessatti galmaa\'eera (ICT Ext. 4401).'
                         : language === 'am'
-                        ? 'ማሳሰቢያ፡ በዚህ መለያ ላይ ስልክ ቁጥር ስላልተመዘገበ ኮዱ በሆስፒታሉ SMS/ICT Gateway (/sms-ussd) ተመዝግቧል፤ ከICT ድጋፍ (4401) ማግኘት ይችላሉ።'
-                        : 'Note: No mobile number is registered on this account—the OTP was logged in the Hospital SMS/ICT Gateway (/sms-ussd). Contact ICT Help Desk (Ext. 4401) to retrieve it.'}
+                        ? 'ማሳሰቢያ፡ የቀጥታ SMS/SMTP ገና ስላልተገናኘ ኮዱ በሆስፒታሉ SMS/ICT Audit Gateway (/sms-ussd) ተመዝግቧል (ICT 4401)።'
+                        : 'Delivery: Live SMS/SMTP gateway not yet configured — OTP logged securely in Hospital SMS/ICT Audit Gateway (/sms-ussd, ICT Ext. 4401).'}
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="text-[10px] text-emerald-300/90">
+                      {recoveryDeliveryStatus === 'live_sms_and_email'
+                        ? 'Delivered live via SMS & Email (valid 5 mins, max 3 attempts).'
+                        : recoveryDeliveryStatus === 'live_email'
+                        ? 'Delivered live via Hospital SMTP Email (valid 5 mins, max 3 attempts).'
+                        : 'Delivered live via Mobile SMS Gateway (valid 5 mins, max 3 attempts).'}
+                    </p>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-amber-200/90 mb-1">
                     {language === 'om'
-                      ? 'Koodii Mirkaneessaa (Dijiitii 6)'
+                      ? 'Koodii Mirkaneessaa (Dijiitii 6 — Daqiiqaa 5)'
                       : language === 'am'
-                      ? 'ባለ 6-አሃዝ ማረጋገጫ ኮድ'
-                      : '6-Digit Verification Code (OTP)'}
+                      ? 'ባለ 6-አሃዝ ማረጋገጫ ኮድ (5 ደቂቃ)'
+                      : '6-Digit Verification Code (OTP — 5 Mins)'}
                   </label>
                   <input
                     type="text"
@@ -3322,6 +3429,28 @@ export default function LoginPage() {
                     className="w-full rounded-xl bg-[#070a10] border border-[#222b3d] focus:border-amber-400 focus:outline-none px-3 py-2.5 text-center font-mono text-base tracking-[0.35em] text-amber-300 placeholder:text-slate-600"
                   />
                 </div>
+
+                {recoveryRequiresMfaTotp && (
+                  <div>
+                    <label className="block text-[11px] font-semibold text-amber-200/90 mb-1">
+                      {language === 'om'
+                        ? 'Koodii 2FA Authenticator (TOTP Dijiitii 6)'
+                        : language === 'am'
+                        ? '2FA Authenticator ኮድ (ባለ 6-አሃዝ TOTP)'
+                        : '2FA Authenticator Code (6-Digit TOTP)'}
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={recoveryMfaTotp}
+                      onChange={(e) => setRecoveryMfaTotp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="123456"
+                      required
+                      className="w-full rounded-xl bg-[#070a10] border border-[#222b3d] focus:border-amber-400 focus:outline-none px-3 py-2 text-center font-mono text-sm tracking-[0.3em] text-emerald-300 placeholder:text-slate-600"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-[11px] font-semibold text-amber-200/90 mb-1">

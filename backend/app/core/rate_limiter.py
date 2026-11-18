@@ -177,10 +177,10 @@ def clear_all_rate_limits() -> None:
     _rate_limit_cache.clear()
 
 
-PASSWORD_RESET_MAX_REQUESTS = 5
+PASSWORD_RESET_MAX_REQUESTS = 3
 PASSWORD_RESET_WINDOW_SECONDS = 900  # 15 minutes
-OTP_VERIFY_MAX_ATTEMPTS = 5
-OTP_VERIFY_WINDOW_SECONDS = 600  # 10 minutes
+OTP_VERIFY_MAX_ATTEMPTS = 3
+OTP_VERIFY_WINDOW_SECONDS = 300  # 5 minutes
 
 
 async def check_and_record_password_reset_request(client_ip: str, identifier: str) -> None:

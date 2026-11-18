@@ -56,6 +56,11 @@ TEMPLATES: Dict[str, Dict[str, str]] = {
         "am": "ሜቱ ካርል ሆስፒታል HMIS፡ የይለፍ ቃል መቀየሪያ ማረጋገጫ ኮድዎ {otp} ነው። ለ{minutes} ደቂቃ ብቻ ያገለግላል። ለማንም አያጋሩ።",
         "en": "Mettu Karl Hospital HMIS: Your password recovery verification code is {otp}. Valid for {minutes} minutes. Do not share this code.",
     },
+    "password_reset_alert": {
+        "om": "AKEEKACHIISA NAGEENYAA (Mettu Karl HMIS): Jechi icchitii akaawuntii keessanii amma IP {ip} irraa jijjiirameera. Yoo isin hin goone ta'e hatattamaan ICT (4401) bilbilaa.",
+        "am": "የደህንነት ማስጠንቀቂያ (ሜቱ ካርል HMIS)፡ የይለፍ ቃልዎ አሁን ከIP {ip} ተቀይሯል። እርስዎ ካላደረጉት ወዲያውኑ ICT (4401) ይደውሉ።",
+        "en": "SECURITY ALERT (Mettu Karl HMIS): Your password was just changed from IP {ip}. If this wasn't you, call Hospital ICT (4401) immediately.",
+    },
 }
 
 

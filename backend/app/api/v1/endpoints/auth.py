@@ -96,7 +96,8 @@ from app.services.security_alarm_service import (
     portal_path_for_role,
     record_staff_session_start,
 )
-from app.services.sms_service import sms_service
+from app.services.email_service import email_service
+from app.services.sms_service import format_ethiopian_phone, sms_service
 
 router = APIRouter()
 
@@ -2218,22 +2219,54 @@ async def get_security_posture(
     }
 
 
-def _mask_recovery_destination(phone: Optional[str], email: Optional[str]) -> tuple[str, str]:
+def _verify_registered_contact_match(user: User, verification_contact: str) -> tuple[bool, str]:
+    """
+    Anti-Impersonation Identity Proof:
+    Verify that the caller supplied the exact registered email OR registered phone number
+    stored on the user's database record (normalized for Ethiopian E.164 numbers).
+    Returns (matched, matched_channel).
+    """
+    supplied = verification_contact.strip()
+    if not supplied:
+        return False, "none"
+
+    # Check registered email (case-insensitive exact match)
+    if "@" in supplied and user.email:
+        if supplied.lower() == user.email.strip().lower():
+            return True, "email"
+
+    # Check registered mobile phone (normalized E.164 exact match)
+    if user.phone_number and user.phone_number.strip():
+        norm_supplied = format_ethiopian_phone(supplied)
+        norm_stored = format_ethiopian_phone(user.phone_number)
+        if norm_supplied and norm_stored and norm_supplied == norm_stored:
+            return True, "sms"
+
+    return False, "none"
+
+
+def _mask_recovery_destination(
+    phone: Optional[str], email: Optional[str], preferred_channel: str = "sms"
+) -> tuple[str, str]:
     """Return (channel, masked_destination) without leaking full PII."""
+    if preferred_channel == "email" and email and "@" in email:
+        local, domain = email.split("@", 1)
+        prefix = local[:2] if len(local) >= 2 else local[:1]
+        return "email", f"{prefix}***@{domain}"
     if phone and len(phone.strip()) >= 7:
         cleaned = phone.strip()
         return "sms", f"{cleaned[:4]}****{cleaned[-3:]}"
     if email and "@" in email:
         local, domain = email.split("@", 1)
         prefix = local[:2] if len(local) >= 2 else local[:1]
-        return "ict_sms_audit", f"{prefix}***@{domain}"
+        return "email", f"{prefix}***@{domain}"
     return "ict_sms_audit", "ICT-VERIFIED"
 
 
 @router.post(
     "/password-reset/request",
     response_model=PasswordResetRequestResponse,
-    summary="Request Self-Service Password Recovery OTP (Step 1)",
+    summary="Request Self-Service Password Recovery OTP (5-Min TTL + Anti-Impersonation)",
 )
 async def request_password_reset(
     payload: PasswordResetRequest,
@@ -2241,17 +2274,23 @@ async def request_password_reset(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> PasswordResetRequestResponse:
     """
-    Initiate self-service password recovery for an approved active account.
+    Initiate hardened self-service password recovery for an approved active account.
 
-    Security controls:
-    - Rate-limited per (IP + identifier) and per IP (HTTP 429).
-    - Generates a cryptographic 6-digit OTP valid for 10 minutes.
-    - Dispatches trilingual SMS OTP via SMSService (Ethio Telecom / Twilio / GSM / Audit Log).
-    - Issues a signed, single-use JWT challenge bound to the user's current password hash.
-    - Non-enumerating response for unknown/unapproved accounts.
+    Anti-Impersonation & Security Controls:
+    1. Strict rate limit: max 3 OTP requests per 15 min per (IP + identifier) -> HTTP 429.
+    2. 2-Factor Identity Proof: caller MUST provide BOTH account identifier AND exact
+       registered phone number OR registered email stored in the DB.
+       Mismatch blocks OTP dispatch and triggers a CRITICAL Admin Security Alarm.
+    3. SUPER_ADMIN protection: remote self-reset is blocked unless MFA/TOTP is enabled.
+    4. Short 5-minute TTL (300s) + cryptographic 6-digit OTP + IP-bound single-use JWT.
+    5. OTP is sent ONLY to the DB-stored registered phone (SMS) and/or registered email (SMTP).
     """
     client_ip = get_client_ip(request)
     identifier = payload.identifier.strip()
+    verification_contact = payload.verification_contact.strip()
+    otp_minutes = settings.PASSWORD_RESET_OTP_EXPIRE_MINUTES
+    otp_seconds = otp_minutes * 60
+
     await check_and_record_password_reset_request(client_ip, identifier)
 
     user = await get_user_by_username(db, identifier)
@@ -2275,9 +2314,94 @@ async def request_password_reset(
             challenge_token=None,
             masked_destination=None,
             delivery_channel="sms",
-            expires_in_seconds=600,
+            delivery_status="unmatched",
+            requires_mfa_totp=False,
+            expires_in_seconds=otp_seconds,
             message=(
-                "If an active Mettu Karl HMIS account matches that identifier, a 6-digit verification code has been dispatched."
+                "Account identifier and registered phone/email did not match an active account. "
+                "Please verify both fields or contact Hospital ICT (Ext. 4401)."
+            ),
+            dev_otp_code=None,
+        )
+
+    # Anti-Impersonation Check #1: Protect Root SUPER_ADMIN accounts from remote takeover when MFA is off
+    if user.role == UserRole.SUPER_ADMIN and not user.is_mfa_enabled:
+        await record_audit_event(
+            db,
+            user_id=user.id,
+            action="SUPER_ADMIN_REMOTE_RESET_BLOCKED",
+            resource="User",
+            resource_id=str(user.id),
+            ip_address=client_ip,
+            result="blocked",
+        )
+        await emit_admin_security_alarm(
+            db,
+            event_type="SUPER_ADMIN_PASSWORD_RESET_BLOCKED",
+            title=f"BLOCKED SUPER ADMIN RESET ATTEMPT ({user.username})",
+            message=(
+                f"Remote password reset attempted for Root Super Admin '{user.username}' "
+                f"from IP {client_ip or 'unknown'} without MFA enabled. Blocked automatically."
+            ),
+            severity="critical",
+            category="password_recovery_impersonation",
+            actor_user=user,
+            client_ip=client_ip,
+            commit=True,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "Nageenya hospitaalaaf: Akaawuntiin Super Admin (MFA hin qabne) karaa weebii ofumaan hin haaromfamu. "
+                "Kutaa ICT Hospitaalaa qaamaan qunnamaa. / "
+                "Super Admin self-reset requires active 2FA Authenticator or physical Hospital ICT verification."
+            ),
+        )
+
+    # Anti-Impersonation Check #2: Verify caller knows the exact DB-registered Phone OR Email
+    contact_matched, matched_channel = _verify_registered_contact_match(
+        user, verification_contact
+    )
+    if not contact_matched:
+        await record_audit_event(
+            db,
+            user_id=user.id,
+            action="PASSWORD_RESET_IMPERSONATION_BLOCKED",
+            resource="User",
+            resource_id=str(user.id),
+            ip_address=client_ip,
+            result="blocked",
+            detail={
+                "username": user.username,
+                "supplied_contact_masked": mask_pii(verification_contact),
+            },
+        )
+        await emit_admin_security_alarm(
+            db,
+            event_type="PASSWORD_RESET_IMPERSONATION_ATTEMPT",
+            title=f"IMPERSONATION BLOCKED: {user.full_name} ({user.staff_id or user.username})",
+            message=(
+                f"Someone from IP {client_ip or 'unknown'} attempted password recovery for "
+                f"{user.full_name} ({user.username}) with a mismatched phone/email "
+                f"({mask_pii(verification_contact)}). OTP dispatch was BLOCKED."
+            ),
+            severity="critical",
+            category="password_recovery_impersonation",
+            actor_user=user,
+            client_ip=client_ip,
+            commit=True,
+        )
+        return PasswordResetRequestResponse(
+            status="submitted",
+            challenge_token=None,
+            masked_destination=None,
+            delivery_channel="sms",
+            delivery_status="verification_failed",
+            requires_mfa_totp=False,
+            expires_in_seconds=otp_seconds,
+            message=(
+                "Account identifier and registered phone/email did not match an active account. "
+                "Please verify both fields or contact Hospital ICT (Ext. 4401)."
             ),
             dev_otp_code=None,
         )
@@ -2287,24 +2411,59 @@ async def request_password_reset(
         user_id=user.id,
         otp_code=otp_code,
         current_password_hash=user.hashed_password,
-        expires_minutes=10,
+        client_ip=client_ip,
+        expires_minutes=otp_minutes,
     )
-    await redis_set(f"pwdreset:active:{jti}", str(user.id), expire_seconds=600)
+    await redis_set(f"pwdreset:active:{jti}", str(user.id), expire_seconds=otp_seconds)
 
-    channel, masked_dest = _mask_recovery_destination(user.phone_number, user.email)
+    channel, masked_dest = _mask_recovery_destination(
+        user.phone_number, user.email, preferred_channel=matched_channel
+    )
+
+    sms_live = False
+    email_live = False
+
+    # Dispatch strictly to the DB-registered phone (SMS) and/or DB-registered email (SMTP)
     sms_target = (user.phone_number or "").strip() or "+251471110204"
     try:
-        await sms_service.send_sms(
+        sms_log = await sms_service.send_sms(
             db,
             recipient_phone=sms_target,
             template_key="password_reset_otp",
             lang=payload.language,
             otp=otp_code,
-            minutes=10,
+            minutes=otp_minutes,
+        )
+        sms_live = bool(
+            user.phone_number
+            and sms_log.error_message
+            and not sms_log.error_message.startswith("SIMULATED:")
+            and "Live" in sms_log.error_message
         )
     except Exception:
-        # Ensure SMS gateway downtime never blocks audit logging or recovery challenge issuance
         await db.rollback()
+
+    if user.email and "@" in user.email:
+        try:
+            email_live, _ = await email_service.send_password_reset_otp(
+                recipient_email=user.email,
+                full_name=user.full_name,
+                otp_code=otp_code,
+                minutes=otp_minutes,
+                lang=payload.language,
+                client_ip=client_ip or "unknown",
+            )
+        except Exception:
+            email_live = False
+
+    if sms_live and email_live:
+        delivery_status = "live_sms_and_email"
+    elif sms_live:
+        delivery_status = "live_sms"
+    elif email_live:
+        delivery_status = "live_email"
+    else:
+        delivery_status = "ict_audit_queue"
 
     await record_audit_event(
         db,
@@ -2317,16 +2476,18 @@ async def request_password_reset(
         detail={
             "username": user.username,
             "channel": channel,
+            "delivery_status": delivery_status,
             "destination_masked": masked_dest,
+            "expires_minutes": otp_minutes,
         },
     )
     await emit_admin_security_alarm(
         db,
         event_type="PASSWORD_RESET_OTP_REQUESTED",
-        title=f"PASSWORD RECOVERY REQUESTED: {user.full_name} ({user.staff_id or user.username})",
+        title=f"PASSWORD RECOVERY OTP SENT: {user.full_name} ({user.staff_id or user.username})",
         message=(
-            f"Self-service password recovery OTP requested for {user.full_name} "
-            f"({user.role.value}) from IP {client_ip or 'unknown'} via {channel} ({masked_dest})."
+            f"Verified identity match for {user.full_name} ({user.role.value}) from IP "
+            f"{client_ip or 'unknown'}. 5-min OTP dispatched via {delivery_status} ({masked_dest})."
         ),
         severity="info",
         category="password_recovery_audit",
@@ -2343,10 +2504,12 @@ async def request_password_reset(
         challenge_token=challenge_token,
         masked_destination=masked_dest,
         delivery_channel=channel,
-        expires_in_seconds=600,
+        delivery_status=delivery_status,
+        requires_mfa_totp=bool(user.is_mfa_enabled),
+        expires_in_seconds=otp_seconds,
         message=(
             f"A 6-digit verification code has been dispatched to {masked_dest}. "
-            "It expires in 10 minutes."
+            f"It expires in {otp_minutes} minutes."
         ),
         dev_otp_code=otp_code if expose_dev_otp else None,
     )
@@ -2355,7 +2518,7 @@ async def request_password_reset(
 @router.post(
     "/password-reset/confirm",
     response_model=PasswordResetConfirmResponse,
-    summary="Confirm OTP and Rotate Password (Step 2)",
+    summary="Confirm 5-Min OTP (+ MFA TOTP if enabled) and Rotate Password (Step 2)",
 )
 async def confirm_password_reset(
     payload: PasswordResetConfirmRequest,
@@ -2363,8 +2526,9 @@ async def confirm_password_reset(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> PasswordResetConfirmResponse:
     """
-    Verify the 6-digit OTP against the signed challenge token, rotate the user's password,
-    revoke existing refresh tokens, and clear login lockouts.
+    Verify the 6-digit OTP against the IP-bound, 5-minute single-use challenge token,
+    enforce TOTP MFA if active on the account, rotate the password, revoke all old
+    refresh tokens, and send a security alert to the real account owner.
     """
     client_ip = get_client_ip(request)
     try:
@@ -2374,7 +2538,7 @@ async def confirm_password_reset(
     except (JWTError, KeyError, ValueError):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Recovery session is invalid or expired. Please request a new verification code.",
+            detail="Recovery session is invalid or expired (5-minute limit). Please request a new verification code.",
         )
 
     await check_password_reset_otp_attempts(jti)
@@ -2399,13 +2563,27 @@ async def confirm_password_reset(
         )
 
     is_valid, reason = verify_password_reset_challenge(
-        claims, payload.otp_code, user.hashed_password
+        claims, payload.otp_code, user.hashed_password, client_ip=client_ip
     )
     if not is_valid:
         if reason == "already_used":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="This recovery session is no longer valid because the password was already updated.",
+            )
+        if reason == "ip_mismatch":
+            await record_audit_event(
+                db,
+                user_id=user.id,
+                action="PASSWORD_RESET_IP_HIJACK_BLOCKED",
+                resource="User",
+                resource_id=str(user.id),
+                ip_address=client_ip,
+                result="blocked",
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Security block: Recovery must be completed from the same device/network that requested the code.",
             )
         await record_password_reset_otp_failure(jti)
         await record_audit_event(
@@ -2419,8 +2597,28 @@ async def confirm_password_reset(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid 6-digit verification code. Please check the code and try again.",
+            detail="Invalid 6-digit verification code. Maximum 3 attempts allowed.",
         )
+
+    # Anti-SIM-Swap Guard: If user has TOTP MFA enabled, require a live 6-digit Authenticator code too!
+    if user.is_mfa_enabled:
+        if not payload.mfa_totp_code or not user.mfa_secret or not verify_totp_code(
+            user.mfa_secret, payload.mfa_totp_code
+        ):
+            await record_password_reset_otp_failure(jti)
+            await record_audit_event(
+                db,
+                user_id=user.id,
+                action="PASSWORD_RESET_MFA_FAILED",
+                resource="User",
+                resource_id=str(user.id),
+                ip_address=client_ip,
+                result="failure",
+            )
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="This account has 2FA Authenticator enabled. Please provide a valid 6-digit Authenticator TOTP code.",
+            )
 
     min_len = 6 if user.role == UserRole.PATIENT else 8
     new_pwd = payload.new_password.strip()
@@ -2466,10 +2664,32 @@ async def confirm_password_reset(
     )
     await db.commit()
 
+    # Notify the legitimate account owner via SMS and/or Email immediately
+    if user.phone_number:
+        try:
+            await sms_service.send_sms(
+                db,
+                recipient_phone=user.phone_number,
+                template_key="password_reset_alert",
+                lang="om",
+                ip=client_ip or "unknown",
+            )
+        except Exception:
+            await db.rollback()
+    if user.email and "@" in user.email:
+        try:
+            await email_service.send_password_changed_alert(
+                recipient_email=user.email,
+                full_name=user.full_name,
+                client_ip=client_ip or "unknown",
+            )
+        except Exception:
+            pass
+
     return PasswordResetConfirmResponse(
         status="password_updated",
         username=user.username,
         message=(
-            "Password updated successfully. All previous sessions have been revoked—please sign in with your new password."
+            "Password updated successfully. All previous sessions have been revoked and a security notice was sent to your registered contact."
         ),
     )

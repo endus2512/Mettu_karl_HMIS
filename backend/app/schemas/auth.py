@@ -365,18 +365,26 @@ class AdminPasswordResetResponse(BaseModel):
 
 
 class PasswordResetRequest(BaseModel):
-    """Self-service password recovery initiation payload (Step 1)."""
-    identifier: str = Field(..., min_length=3, max_length=128, description="Username, Staff ID, Email, Fayda ID, or Phone")
+    """Self-service password recovery initiation payload (Step 1 — requires 2-factor identity match)."""
+    identifier: str = Field(..., min_length=3, max_length=128, description="Username, Staff ID, or Fayda ID")
+    verification_contact: str = Field(
+        ...,
+        min_length=5,
+        max_length=128,
+        description="Registered Mobile Phone Number OR Registered Email Address for anti-impersonation verification",
+    )
     language: Literal["om", "am", "en"] = "en"
 
 
 class PasswordResetRequestResponse(BaseModel):
-    """Response after issuing a signed, time-limited password recovery OTP challenge."""
+    """Response after issuing a signed, 5-minute single-use password recovery OTP challenge."""
     status: Literal["otp_dispatched", "submitted"]
     challenge_token: Optional[str] = None
     masked_destination: Optional[str] = None
     delivery_channel: str = "sms"
-    expires_in_seconds: int = 600
+    delivery_status: str = "ict_audit_queue"
+    requires_mfa_totp: bool = False
+    expires_in_seconds: int = 300
     message: str
     dev_otp_code: Optional[str] = None
 
@@ -386,6 +394,13 @@ class PasswordResetConfirmRequest(BaseModel):
     challenge_token: str = Field(..., min_length=20, max_length=2048)
     otp_code: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")
     new_password: str = Field(..., min_length=6, max_length=128)
+    mfa_totp_code: Optional[str] = Field(
+        None,
+        min_length=6,
+        max_length=6,
+        pattern=r"^\d{6}$",
+        description="Required when the account has 2FA/TOTP Authenticator enabled",
+    )
 
 
 class PasswordResetConfirmResponse(BaseModel):

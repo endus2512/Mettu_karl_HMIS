@@ -198,15 +198,26 @@ def _password_hash_fingerprint(hashed_password: str) -> str:
     return hashlib.sha256(hashed_password.encode("utf-8")).hexdigest()[:16]
 
 
+def _ip_binding_fingerprint(client_ip: Optional[str]) -> str:
+    """Compute keyed fingerprint of requester IP to prevent cross-device challenge theft."""
+    norm_ip = (client_ip or "unknown").strip()
+    return hmac.new(
+        settings.SECRET_KEY.encode("utf-8"),
+        f"ip:{norm_ip}".encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()[:16]
+
+
 def create_password_reset_token(
     user_id: int,
     otp_code: str,
     current_password_hash: str,
-    expires_minutes: int = 10,
+    client_ip: Optional[str] = None,
+    expires_minutes: int = 5,
 ) -> tuple[str, str]:
     """
-    Create a signed, short-lived, single-use JWT challenge token for self-service password recovery.
-    Bound to the current password hash fingerprint so rotating the password immediately invalidates reuse.
+    Create a signed, short-lived (5-min), single-use JWT challenge token for self-service password recovery.
+    Bound to the current password hash fingerprint (single-use) AND requester IP fingerprint (anti-hijack).
     """
     now = datetime.now(timezone.utc)
     jti = secrets.token_hex(16)
@@ -216,6 +227,7 @@ def create_password_reset_token(
         "jti": jti,
         "otp_hash": _hash_reset_otp(jti, otp_code),
         "pwd_sig": _password_hash_fingerprint(current_password_hash),
+        "ip_sig": _ip_binding_fingerprint(client_ip),
         "iat": now,
         "exp": now + timedelta(minutes=expires_minutes),
     }
@@ -240,14 +252,19 @@ def verify_password_reset_challenge(
     payload: dict[str, Any],
     otp_code: str,
     current_password_hash: str,
+    client_ip: Optional[str] = None,
 ) -> tuple[bool, str]:
     """
-    Verify OTP code and single-use password hash binding in constant time.
+    Verify OTP code, single-use password hash binding, and IP binding in constant time.
     Returns (is_valid, reason_code).
     """
     expected_sig = _password_hash_fingerprint(current_password_hash)
     if not hmac.compare_digest(str(payload.get("pwd_sig", "")), expected_sig):
         return False, "already_used"
+    if payload.get("ip_sig"):
+        expected_ip_sig = _ip_binding_fingerprint(client_ip)
+        if not hmac.compare_digest(str(payload.get("ip_sig", "")), expected_ip_sig):
+            return False, "ip_mismatch"
     provided_hash = _hash_reset_otp(str(payload["jti"]), otp_code)
     if not hmac.compare_digest(str(payload.get("otp_hash", "")), provided_hash):
         return False, "invalid_otp"

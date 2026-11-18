@@ -60,6 +60,15 @@ class Settings(BaseSettings):
     STAFF_LOGIN_RATE_LIMIT_MAX_ATTEMPTS: int = 8
     STAFF_LOGIN_IP_BURST_MAX_ATTEMPTS: int = 40
     STAFF_LOGIN_LOCKOUT_SECONDS: int = 900
+    PASSWORD_RESET_OTP_EXPIRE_MINUTES: int = 5
+
+    # Optional SMTP Email Gateway (for live OTP & security alerts)
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM_EMAIL: str = "no-reply@mettukarl.gov.et"
+    SMTP_USE_TLS: bool = True
 
     # Database
     DATABASE_URL: str = Field(default_factory=_default_database_url)
