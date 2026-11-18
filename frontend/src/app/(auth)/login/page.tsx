@@ -421,6 +421,7 @@ export default function LoginPage() {
   const [recoveryIdentifier, setRecoveryIdentifier] = useState('');
   const [recoveryChallengeToken, setRecoveryChallengeToken] = useState<string | null>(null);
   const [recoveryMaskedDest, setRecoveryMaskedDest] = useState<string | null>(null);
+  const [recoveryDeliveryChannel, setRecoveryDeliveryChannel] = useState<string>('sms');
   const [recoveryDevOtp, setRecoveryDevOtp] = useState<string | null>(null);
   const [recoveryOtp, setRecoveryOtp] = useState('');
   const [recoveryNewPassword, setRecoveryNewPassword] = useState('');
@@ -436,6 +437,7 @@ export default function LoginPage() {
     setRecoveryIdentifier(prefillIdentifier ?? '');
     setRecoveryChallengeToken(null);
     setRecoveryMaskedDest(null);
+    setRecoveryDeliveryChannel('sms');
     setRecoveryDevOtp(null);
     setRecoveryOtp('');
     setRecoveryNewPassword('');
@@ -480,11 +482,18 @@ export default function LoginPage() {
       if (data.challenge_token) {
         setRecoveryChallengeToken(data.challenge_token);
         setRecoveryMaskedDest(data.masked_destination || null);
+        setRecoveryDeliveryChannel(data.delivery_channel || 'sms');
         setRecoveryDevOtp(data.dev_otp_code || null);
         setRecoveryNotice(data.message);
         setRecoveryStep('confirm');
       } else {
-        setRecoveryNotice(data.message);
+        setRecoveryError(
+          language === 'om'
+            ? `Akaawuntiin "${cleaned}" jedhamu hin argamne. Maaloo Username sirrii (fkn: nurse_chaltu, dr_bekele), Staff ID, Email, Fayda ID ykn lakkoofsa bilbilaa galchaa.`
+            : language === 'am'
+            ? `"${cleaned}" የሚባል ንቁ መለያ አልተገኘም። እባክዎ ትክክለኛ የተጠቃሚ ስም (ለምሳሌ፡ nurse_chaltu, dr_bekele)፣ የሰራተኛ መለያ፣ ኢሜል፣ ፋይዳ ID ወይም ስልክ ቁጥር ያስገቡ።`
+            : `No active account matched "${cleaned}". Please enter your exact Username (e.g. nurse_chaltu, dr_bekele), Staff ID, Email, Fayda ID, or Phone number.`
+        );
       }
     } catch (err: any) {
       const detail =
@@ -3279,11 +3288,19 @@ export default function LoginPage() {
                         : `Verification code dispatched to ${recoveryMaskedDest || 'your registered contact'} (valid 10 mins).`}
                     </span>
                   </div>
-                  {recoveryDevOtp && (
+                  {recoveryDevOtp ? (
                     <div className="font-mono text-[11px] text-emerald-300 pt-0.5">
                       DEV / LOCAL TEST OTP: <strong className="tracking-widest">{recoveryDevOtp}</strong>
                     </div>
-                  )}
+                  ) : recoveryDeliveryChannel === 'ict_sms_audit' ? (
+                    <p className="text-[10px] text-slate-400 pt-0.5 leading-relaxed">
+                      {language === 'om'
+                        ? 'Hubachiisa: Lakkoofsi bilbilaa akaawuntii kanarratti waan hin galmoofneef koodiin SMS/ICT Gateway (/sms-ussd) keessatti galmaa\'eera; deeggarsa ICT (4401) irraa fudhachuu dandeessu.'
+                        : language === 'am'
+                        ? 'ማሳሰቢያ፡ በዚህ መለያ ላይ ስልክ ቁጥር ስላልተመዘገበ ኮዱ በሆስፒታሉ SMS/ICT Gateway (/sms-ussd) ተመዝግቧል፤ ከICT ድጋፍ (4401) ማግኘት ይችላሉ።'
+                        : 'Note: No mobile number is registered on this account—the OTP was logged in the Hospital SMS/ICT Gateway (/sms-ussd). Contact ICT Help Desk (Ext. 4401) to retrieve it.'}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
