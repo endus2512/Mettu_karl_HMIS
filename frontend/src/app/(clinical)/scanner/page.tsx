@@ -200,12 +200,47 @@ export default function BarcodeScannerPage(): React.ReactElement {
     action_recommended: 'FEFO Dispense / Stock Verification',
   });
 
-  // Generator State
+  // Generator State (Live ISO/IEC 18004 QR & ZPL Label from Backend)
   const [genType, setGenType] = useState('patient');
   const [genId, setGenId] = useState('MKH-2026-0001');
   const [generatedPayload, setGeneratedPayload] = useState<string | null>(
-    'MKH-PAT:MKH-2026-0001:pat-mkrh-0001'
+    'MKH-PAT:MKH-2026-0001'
   );
+  const [generatedQr, setGeneratedQr] = useState<{
+    code_string: string;
+    caption: string;
+    qr_svg: string;
+    qr_data_uri: string;
+    zpl_label: string;
+    generated_at: string;
+  } | null>(null);
+  const [isGeneratingQr, setIsGeneratingQr] = useState<boolean>(false);
+
+  const requestQrFromBackend = async (entityType: string, entityId: string) => {
+    setIsGeneratingQr(true);
+    try {
+      const res = await apiClient.post('/barcode/generate', {
+        entity_type: entityType,
+        entity_id: entityId.trim() || 'MKH-2026-0001',
+      });
+      if (res.data) {
+        setGeneratedQr(res.data);
+        setGeneratedPayload(res.data.code_string);
+      }
+    } catch {
+      notifications.show({
+        title: 'QR Generation Error',
+        message: 'Unable to generate QR code from server. Please retry.',
+        color: 'red',
+      });
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
+  useEffect(() => {
+    void requestQrFromBackend('patient', 'MKH-2026-0001');
+  }, []);
 
   // Soft audio chime for successful scan
   const playScanChime = () => {
@@ -339,15 +374,62 @@ export default function BarcodeScannerPage(): React.ReactElement {
     }
   };
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (genType === 'patient') {
-      setGeneratedPayload(`MKH-PAT:${genId}`);
-    } else if (genType === 'medicine') {
-      setGeneratedPayload(`MED-${genId}`);
-    } else {
-      setGeneratedPayload(`MKH-INV:${genId}`);
+    await requestQrFromBackend(genType, genId);
+  };
+
+  const handlePrintLabel = () => {
+    if (!generatedQr) {
+      window.print();
+      return;
     }
+    const win = window.open('', '_blank', 'width=480,height=320');
+    if (!win) {
+      window.print();
+      return;
+    }
+    win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>${generatedQr.code_string} — Mettu Karl Hospital Label</title>
+  <style>
+    @page { size: 90mm 45mm; margin: 3mm; }
+    body { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #fff; color: #0f172a; }
+    .label { border: 1.5px dashed #0f766e; border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; width: 320px; }
+    .qr { width: 88px; height: 88px; flex-shrink: 0; }
+    .title { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #0f766e; }
+    .code { font-size: 13px; font-weight: 900; margin: 3px 0; word-break: break-all; }
+    .meta { font-size: 9px; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="label">
+    <img class="qr" src="${generatedQr.qr_data_uri}" alt="${generatedQr.code_string}" />
+    <div>
+      <div class="title">Mettu Karl Referral Hospital</div>
+      <div class="code">${generatedQr.code_string}</div>
+      <div class="meta">${generatedQr.caption}</div>
+      <div class="meta">${new Date(generatedQr.generated_at).toLocaleString()}</div>
+    </div>
+  </div>
+  <script>window.onload = function() { window.print(); };</script>
+</body>
+</html>`);
+    win.document.close();
+  };
+
+  const handleDownloadQrSvg = () => {
+    if (!generatedQr) return;
+    const blob = new Blob([generatedQr.qr_svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `qr-${generatedQr.code_string.replace(/[^a-zA-Z0-9_-]/g, '_')}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -730,41 +812,61 @@ export default function BarcodeScannerPage(): React.ReactElement {
                   </div>
                   <button
                     type="submit"
-                    className="rounded-2xl bg-teal-600 hover:bg-teal-500 p-2.5 text-xs font-black text-white shadow transition cursor-pointer"
+                    disabled={isGeneratingQr}
+                    className="rounded-2xl bg-teal-600 hover:bg-teal-500 p-2.5 text-xs font-black text-white shadow transition cursor-pointer disabled:opacity-60"
                   >
-                    {dict.genBtn}
+                    {isGeneratingQr ? '...' : dict.genBtn}
                   </button>
                 </form>
 
                 {generatedPayload && (
                   <div className="rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50/40 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      {/* Stylized QR Code Placeholder */}
-                      <div className="h-16 w-16 bg-white p-1 rounded-xl border border-slate-300 flex items-center justify-center font-mono text-[9px] text-center font-bold text-slate-900 shadow-2xs">
-                        [QR CODE]
+                      {/* Genuine ISO/IEC 18004 Scannable QR Code */}
+                      <div className="h-20 w-20 bg-white p-1.5 rounded-xl border border-slate-300 flex items-center justify-center shadow-2xs shrink-0 overflow-hidden">
+                        {generatedQr?.qr_data_uri ? (
+                          <img
+                            src={generatedQr.qr_data_uri}
+                            alt={`Scannable QR code for ${generatedQr.code_string}`}
+                            className="h-full w-full object-contain"
+                          />
+                        ) : (
+                          <span className="font-mono text-[9px] text-center font-bold text-slate-500">
+                            ...
+                          </span>
+                        )}
                       </div>
                       <div>
                         <span className="text-[10px] uppercase font-bold text-teal-800 tracking-wider block">
                           Mettu Karl Referral Hospital • Official Label
                         </span>
                         <span className="font-mono font-bold text-slate-900 text-sm block">
-                          {generatedPayload}
+                          {generatedQr?.code_string || generatedPayload}
                         </span>
                         <span className="text-[11px] text-slate-500 font-medium">
-                          Timestamp: {new Date().toLocaleDateString()} • Zebra Thermal Print
+                          {generatedQr?.caption || 'ISO/IEC 18004 QR'} • {new Date().toLocaleDateString()} • Zebra ZPL Ready
                         </span>
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        window.print();
-                      }}
-                      className="rounded-xl border-2 border-teal-600 bg-white px-4 py-2 text-xs font-black text-teal-800 hover:bg-teal-600 hover:text-white transition cursor-pointer"
-                    >
-                      {dict.printBtn}
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {generatedQr && (
+                        <button
+                          type="button"
+                          onClick={handleDownloadQrSvg}
+                          className="rounded-xl border-2 border-teal-600 bg-white px-3.5 py-2 text-xs font-black text-teal-800 hover:bg-teal-600 hover:text-white transition cursor-pointer"
+                        >
+                          SVG
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handlePrintLabel}
+                        className="rounded-xl border-2 border-teal-600 bg-white px-4 py-2 text-xs font-black text-teal-800 hover:bg-teal-600 hover:text-white transition cursor-pointer"
+                      >
+                        {dict.printBtn}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

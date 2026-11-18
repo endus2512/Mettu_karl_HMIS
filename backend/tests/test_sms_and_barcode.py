@@ -109,6 +109,28 @@ async def test_barcode_and_qr_resolver(
     assert len(presets["medicines"]) >= 4
     assert len(presets["patient_wristbands"]) >= 2
 
+    # 5. Test Real Scannable ISO/IEC 18004 QR Code & ZPL Label Generation
+    gen_res = await client.post(
+        "/api/v1/barcode/generate",
+        json={"entity_type": "patient", "entity_id": "MKH-2026-0001"},
+        headers=pharmacist_auth_headers,
+    )
+    assert gen_res.status_code == 200
+    gen_data = gen_res.json()
+    assert gen_data["code_string"] == "MKH-PAT:MKH-2026-0001"
+    assert "<svg" in gen_data["qr_svg"] and "<path" in gen_data["qr_svg"]
+    assert gen_data["qr_data_uri"].startswith("data:image/svg+xml;base64,")
+    assert "^XA" in gen_data["zpl_label"] and "^XZ" in gen_data["zpl_label"]
+
+    # 6. Test Direct Raw QR SVG Endpoint
+    svg_res = await client.get(
+        "/api/v1/barcode/qr.svg?code=MKH-PAT:MKH-2026-0001",
+        headers=pharmacist_auth_headers,
+    )
+    assert svg_res.status_code == 200
+    assert "image/svg+xml" in svg_res.headers["content-type"]
+    assert "<svg" in svg_res.text and "<path" in svg_res.text
+
 
 @pytest.mark.asyncio
 async def test_sms_gateway_configuration_and_test_ping(
