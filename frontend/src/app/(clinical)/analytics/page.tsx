@@ -209,20 +209,20 @@ export default function AnalyticsPage(): React.ReactElement {
         <Header />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           {/* Header Bar */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-900 px-5 sm:px-6 py-4 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
-            <div className="flex items-center gap-3.5">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between bg-white dark:bg-slate-900 px-5 sm:px-6 py-4 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+            <div className="flex items-center gap-3.5 min-w-0">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 shadow-xs shrink-0">
                 <TrendingUp className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
                   <span>{t('executive_bi')}</span>
                   <span className="text-slate-400 font-normal">•</span>
                   <span className="text-sm font-semibold text-teal-600 dark:text-teal-400">
                     {language === 'om' ? 'Daashboordii KPI Live' : 'Leadership & Live KPI Dashboard'}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                     LIVE DB • {lastUpdatedLabel}
                   </span>
                 </h1>
