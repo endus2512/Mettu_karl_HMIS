@@ -42,6 +42,7 @@ import {
   Send,
   Boxes,
   Stethoscope,
+  Printer,
 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -49,6 +50,7 @@ import { useTranslation } from '@/lib/i18n';
 import { AlertModal, InteractionWarning, AllergyWarning } from '@/components/cdss/AlertModal';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
+import { printHospitalPrescription } from '@/lib/clinicalPrint';
 
 // ==========================================
 // Data Contracts & Types
@@ -1211,26 +1213,37 @@ export default function PharmacyPage(): React.ReactElement {
                           </span>
                         </div>
 
-                        {isPending && (
+                        <div className="flex items-center gap-2 flex-wrap">
                           <button
                             type="button"
-                            onClick={() => handleDispensePrescription(rx.id, rx.prescription_code)}
-                            disabled={isDispensing}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-600 hover:to-emerald-600 text-slate-950 font-black px-5 py-2.5 text-xs shadow-md shadow-cyan-500/20 transition cursor-pointer"
+                            onClick={() => void printHospitalPrescription(rx)}
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 dark:border-[#2a364f] bg-slate-100 dark:bg-[#151e30] hover:bg-slate-200 dark:hover:bg-[#1e2a42] text-slate-800 dark:text-cyan-300 font-bold px-3.5 py-2.5 text-xs transition cursor-pointer"
                           >
-                            {isDispensing ? (
-                              <>
-                                <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
-                                <span>Allocating FEFO Batches...</span>
-                              </>
-                            ) : (
-                              <>
-                                <CheckSquare className="w-4 h-4 text-slate-950" />
-                                <span>{language === 'om' ? 'FEFO Dawaa Baasi' : 'Execute FEFO Dispense'}</span>
-                              </>
-                            )}
+                            <Printer className="w-3.5 h-3.5" />
+                            <span>{language === 'om' ? 'Rx Maxxansi' : 'Print Rx'}</span>
                           </button>
-                        )}
+
+                          {isPending && (
+                            <button
+                              type="button"
+                              onClick={() => handleDispensePrescription(rx.id, rx.prescription_code)}
+                              disabled={isDispensing}
+                              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-600 hover:to-emerald-600 text-slate-950 font-black px-5 py-2.5 text-xs shadow-md shadow-cyan-500/20 transition cursor-pointer"
+                            >
+                              {isDispensing ? (
+                                <>
+                                  <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                                  <span>Allocating FEFO Batches...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <CheckSquare className="w-4 h-4 text-slate-950" />
+                                  <span>{language === 'om' ? 'FEFO Dawaa Baasi' : 'Execute FEFO Dispense'}</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );

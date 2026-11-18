@@ -49,6 +49,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { useTranslation } from '@/lib/i18n';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
+import { printHospitalReceipt } from '@/lib/clinicalPrint';
 
 // ==========================================
 // Data Types & Contracts
@@ -1376,8 +1377,16 @@ export default function BillingPage(): React.ReactElement {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => window.print()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs"
+                      onClick={() => void printHospitalReceipt(receiptInvoice, 'thermal80')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 font-bold text-xs cursor-pointer transition"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>80mm POS</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void printHospitalReceipt(receiptInvoice, 'a4')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs cursor-pointer transition"
                     >
                       <Printer className="w-3.5 h-3.5" />
                       <span>Print Voucher</span>

@@ -47,6 +47,7 @@ import {
   Cpu,
   Radio,
 } from 'lucide-react';
+import { printHospitalLabReport } from '@/lib/clinicalPrint';
 
 interface ParameterDef {
   name: string;
@@ -485,9 +486,13 @@ export default function LaboratoryPage(): React.ReactElement {
     }
   };
 
-  // Trigger print
+  // Trigger clean isolated ISO 15189 Lab Report print (with verification QR & stamp boxes)
   const handleTriggerPrint = () => {
-    window.print();
+    if (activeOrder) {
+      void printHospitalLabReport(activeOrder);
+    } else {
+      window.print();
+    }
   };
 
   return (
