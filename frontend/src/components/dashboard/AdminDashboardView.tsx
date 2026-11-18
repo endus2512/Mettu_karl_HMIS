@@ -12,6 +12,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslation, Language } from '@/lib/i18n';
 import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
 import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
@@ -118,7 +119,38 @@ const INITIAL_WARDS: WardStatus[] = [
   },
 ];
 
+interface LiveExecutiveKpis {
+  total_patients_registered: number;
+  outpatients_today: number;
+  active_inpatient_admissions: number;
+  total_beds: number;
+  occupied_beds: number;
+  bed_occupancy_rate_percent: number;
+  daily_gross_revenue_etb: number;
+  telebirr_collection_etb: number;
+  cash_collection_etb: number;
+  cbhi_claims_etb: number;
+  revenue_breakdown: Array<{ category: string; total_birr: number; percentage: number }>;
+  pharmacy_low_stock_count: number;
+  ot_surgeries_total: number;
+  lab_orders_total: number;
+  moh_safety_index_score: number;
+}
+
+interface LivePowerSummary {
+  active_source?: string;
+  eeu_grid_online?: boolean;
+  overall_status?: string;
+}
+
+function formatCompactETB(amount: number): string {
+  if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M`;
+  if (amount >= 1_000) return `${(amount / 1_000).toFixed(1)}K`;
+  return amount.toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
 export function AdminDashboardView(): React.ReactElement {
+  const router = useRouter();
   const { language } = useTranslation();
   const lang: Language = (language === 'om' || language === 'am' || language === 'en') ? language : 'en';
 
@@ -131,6 +163,9 @@ export function AdminDashboardView(): React.ReactElement {
 
   // State Management for Full Admin Control & Live Editing
   const [wards, setWards] = useState<WardStatus[]>(INITIAL_WARDS);
+  const [liveKpis, setLiveKpis] = useState<LiveExecutiveKpis | null>(null);
+  const [powerSummary, setPowerSummary] = useState<LivePowerSummary | null>(null);
+  const [apiHealthy, setApiHealthy] = useState<boolean>(true);
   const [activeShift, setActiveShift] = useState<'morning' | 'afternoon' | 'night'>('morning');
   const [emergencyCode, setEmergencyCode] = useState<'nominal' | 'code_blue' | 'mci'>('nominal');
   const [broadcastMessage, setBroadcastMessage] = useState<string>(
@@ -149,35 +184,57 @@ export function AdminDashboardView(): React.ReactElement {
     }
   }, [onlineShift?.type]);
 
-  // Sync Live Ward Bed Census from PostgreSQL Database
+  // Sync Live Ward Bed Census + Live Executive KPIs + Power Telemetry from Database
   useEffect(() => {
     let isMounted = true;
-    const fetchLiveWardCensus = async () => {
-      try {
-        const res = await apiClient.get('/inpatient/wards');
-        if (isMounted && res.data && Array.isArray(res.data) && res.data.length > 0) {
-          const liveWards: WardStatus[] = res.data.map((w: any) => ({
-            id: String(w.id || w.ward_code || '').toLowerCase(),
-            name: {
-              en: w.name_en || w.ward_code || 'Ward',
-              om: w.name_om || w.name_en || 'Ward',
-              am: w.name_en || 'ክፍል',
-            },
-            totalBeds: w.total_beds || 0,
-            occupiedBeds: w.occupied_beds || 0,
-            onDutyStaff: w.head_nurse || 'Ward Duty Staff',
-            avgWait: (w.occupancy_rate || 0) > 85 ? 'Immediate triage' : '15 min',
-            status: (w.occupancy_rate || 0) > 85 ? 'critical' : (w.occupancy_rate || 0) > 65 ? 'busy' : 'optimal',
-          }));
-          setWards(liveWards);
-        }
-      } catch (err) {
-        console.warn('Live ward census fetch fallback', err);
+    const fetchLiveAdminMetrics = async () => {
+      const [wardsRes, kpiRes, powerRes] = await Promise.allSettled([
+        apiClient.get('/inpatient/wards'),
+        apiClient.get<LiveExecutiveKpis>('/analytics/executive-summary', {
+          params: { time_range: 'today' },
+        }),
+        apiClient.get<LivePowerSummary>('/power-grid/summary'),
+      ]);
+
+      if (!isMounted) return;
+
+      if (wardsRes.status === 'fulfilled' && Array.isArray(wardsRes.value.data) && wardsRes.value.data.length > 0) {
+        const liveWards: WardStatus[] = wardsRes.value.data.map((w: any) => ({
+          id: String(w.id || w.ward_code || '').toLowerCase(),
+          name: {
+            en: w.name_en || w.ward_code || 'Ward',
+            om: w.name_om || w.name_en || 'Ward',
+            am: w.name_en || 'ክፍል',
+          },
+          totalBeds: w.total_beds || 0,
+          occupiedBeds: w.occupied_beds || 0,
+          onDutyStaff: w.head_nurse || 'Ward Duty Staff',
+          avgWait: (w.occupancy_rate || 0) > 85 ? 'Immediate triage' : '15 min',
+          status: (w.occupancy_rate || 0) > 85 ? 'critical' : (w.occupancy_rate || 0) > 65 ? 'busy' : 'optimal',
+        }));
+        setWards(liveWards);
+      }
+
+      if (kpiRes.status === 'fulfilled' && kpiRes.value.data) {
+        setLiveKpis(kpiRes.value.data);
+        setApiHealthy(true);
+      } else {
+        setApiHealthy(false);
+      }
+
+      if (powerRes.status === 'fulfilled' && powerRes.value.data) {
+        setPowerSummary(powerRes.value.data);
       }
     };
-    void fetchLiveWardCensus();
+
+    void fetchLiveAdminMetrics();
+    const intervalId = window.setInterval(() => {
+      void fetchLiveAdminMetrics();
+    }, 60_000);
+
     return () => {
       isMounted = false;
+      window.clearInterval(intervalId);
     };
   }, []);
 
@@ -206,6 +263,27 @@ export function AdminDashboardView(): React.ReactElement {
     () => (totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0),
     [totalBeds, occupiedBeds]
   );
+
+  // Derived live KPI values for Mini Cubes 2, 3, 4 (strictly preserving exact cube design/colors)
+  const activeConsultationsCount = liveKpis
+    ? liveKpis.outpatients_today + liveKpis.active_inpatient_admissions
+    : 0;
+  const revenueCompactDisplay = liveKpis
+    ? formatCompactETB(liveKpis.daily_gross_revenue_etb)
+    : '0';
+  const telebirrPct =
+    liveKpis?.revenue_breakdown?.find((r) => r.category.toLowerCase().includes('telebirr'))?.percentage ?? 0;
+  const cbhiPct =
+    liveKpis?.revenue_breakdown?.find((r) => r.category.toLowerCase().includes('cbhi'))?.percentage ?? 0;
+  const safetyTelemetryScore = liveKpis
+    ? `${liveKpis.moh_safety_index_score.toFixed(1)}%`
+    : '100.0%';
+  const powerGridLabel = (() => {
+    const src = String(powerSummary?.active_source || '').toLowerCase();
+    if (src.includes('gen')) return 'Backup Gen';
+    if (src.includes('solar')) return 'Solar UPS';
+    return language === 'om' ? 'EEU Normal' : 'EEU Grid';
+  })();
 
   // Save changes from Admin Control Modal
   const handleSaveAdminSettings = async () => {
@@ -317,6 +395,7 @@ export function AdminDashboardView(): React.ReactElement {
 
           {/* Mini Cube 2: Active Consultations */}
           <div
+            onClick={() => router.push('/queue')}
             style={{ animationDelay: '0.45s' }}
             className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-teal-400/85 dark:border-teal-400/55 bg-gradient-to-br from-white via-teal-50 to-cyan-100/85 dark:from-[#123442] dark:via-[#163e50] dark:to-[#18354e] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(20,184,166,0.28),3px_3px_0_0_rgba(45,212,191,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-teal-500 hover:shadow-[0_14px_24px_-4px_rgba(20,184,166,0.42),5px_5px_0_0_rgba(45,212,191,0.45)] transition-all duration-300 ease-out"
           >
@@ -333,7 +412,7 @@ export function AdminDashboardView(): React.ReactElement {
 
             <div className="relative z-10 my-auto space-y-1">
               <span className="block text-lg sm:text-xl font-black tracking-tight text-teal-900 dark:text-teal-200">
-                142
+                {activeConsultationsCount}
               </span>
               <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-teal-100 dark:bg-teal-500/25 text-teal-950 dark:text-teal-100 border border-teal-400/60">
                 <span className="h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-300 animate-ping" />
@@ -342,12 +421,15 @@ export function AdminDashboardView(): React.ReactElement {
             </div>
 
             <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
-              {language === 'om' ? 'Dr 12 • Spec 6' : '12 Doctors • 6 Spec'}
+              {liveKpis
+                ? `${liveKpis.outpatients_today} OPD • ${liveKpis.active_inpatient_admissions} IPD`
+                : '0 OPD • 0 IPD'}
             </p>
           </div>
 
           {/* Mini Cube 3: Revenue & Telebirr */}
           <div
+            onClick={() => router.push('/analytics')}
             style={{ animationDelay: '0.9s' }}
             className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-emerald-400/85 dark:border-emerald-400/55 bg-gradient-to-br from-white via-emerald-50 to-teal-100/85 dark:from-[#10362d] dark:via-[#154137] dark:to-[#163444] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(16,185,129,0.28),3px_3px_0_0_rgba(52,211,153,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-emerald-500 hover:shadow-[0_14px_24px_-4px_rgba(16,185,129,0.42),5px_5px_0_0_rgba(52,211,153,0.45)] transition-all duration-300 ease-out"
           >
@@ -364,7 +446,7 @@ export function AdminDashboardView(): React.ReactElement {
 
             <div className="relative z-10 my-auto space-y-1">
               <span className="block text-lg sm:text-xl font-black tracking-tight text-emerald-900 dark:text-emerald-200">
-                284.5K
+                {revenueCompactDisplay}
               </span>
               <span className="inline-block text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border border-emerald-400/60">
                 ETB Today
@@ -372,12 +454,13 @@ export function AdminDashboardView(): React.ReactElement {
             </div>
 
             <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
-              {language === 'om' ? 'Telebirr 68% • CBHI' : 'Telebirr 68% • CBHI'}
+              {`Telebirr ${telebirrPct}% • CBHI ${cbhiPct}%`}
             </p>
           </div>
 
           {/* Mini Cube 4: System Telemetry */}
           <div
+            onClick={() => router.push('/power')}
             style={{ animationDelay: '1.35s' }}
             className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-indigo-400/85 dark:border-indigo-400/55 bg-gradient-to-br from-white via-indigo-50 to-violet-100/85 dark:from-[#1f2850] dark:via-[#25305e] dark:to-[#292452] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(99,102,241,0.28),3px_3px_0_0_rgba(129,140,248,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-indigo-500 hover:shadow-[0_14px_24px_-4px_rgba(99,102,241,0.42),5px_5px_0_0_rgba(129,140,248,0.45)] transition-all duration-300 ease-out"
           >
@@ -394,16 +477,16 @@ export function AdminDashboardView(): React.ReactElement {
 
             <div className="relative z-10 my-auto space-y-1">
               <span className="block text-lg sm:text-xl font-black tracking-tight text-indigo-900 dark:text-indigo-200">
-                99.98%
+                {safetyTelemetryScore}
               </span>
               <span className="inline-flex items-center gap-1 text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-100 border border-emerald-400/60">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-300 animate-pulse" />
-                100% HA
+                {apiHealthy ? 'LIVE HA' : 'SYNCING'}
               </span>
             </div>
 
             <p className="relative z-10 text-[10px] font-bold text-slate-800 dark:text-slate-100 truncate">
-              {language === 'om' ? '4.2°C • EEU Normal' : '4.2°C • EEU Grid'}
+              {`${liveKpis ? liveKpis.lab_orders_total : 0} Lab • ${powerGridLabel}`}
             </p>
           </div>
         </div>
