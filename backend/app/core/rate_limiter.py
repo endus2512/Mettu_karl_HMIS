@@ -9,6 +9,7 @@ Protects Patient Portal authentication and sensitive endpoints from:
 import time
 from typing import Dict, Tuple
 from fastapi import HTTPException, status
+from app.core.config import settings
 from app.core.redis_client import redis_get, redis_set, redis_delete
 
 # In-memory sliding window fallback
@@ -90,3 +91,87 @@ async def clear_patient_login_rate_limit(client_ip: str, identifier: str) -> Non
     for key in keys:
         await redis_delete(key)
         _rate_limit_cache.pop(key, None)
+
+
+async def _get_counter(key: str, now: float) -> int:
+    val = await redis_get(key)
+    attempts = int(val) if val and val.isdigit() else 0
+    if key in _rate_limit_cache:
+        mem_attempts, expires_at = _rate_limit_cache[key]
+        if now < expires_at:
+            attempts = max(attempts, mem_attempts)
+        else:
+            _rate_limit_cache.pop(key, None)
+    return attempts
+
+
+async def _increment_counter(key: str, ttl_seconds: int, now: float) -> int:
+    expires_at = now + ttl_seconds
+    current_val = await redis_get(key)
+    count = (int(current_val) + 1) if current_val and current_val.isdigit() else 1
+    if key in _rate_limit_cache:
+        mem_count, mem_exp = _rate_limit_cache[key]
+        if now < mem_exp:
+            count = max(count, mem_count + 1)
+    await redis_set(key, str(count), expire_seconds=ttl_seconds)
+    _rate_limit_cache[key] = (count, expires_at)
+    return count
+
+
+async def check_staff_login_rate_limit(client_ip: str, username: str) -> None:
+    """
+    Anti-brute-force protection for Staff Login (/api/v1/auth/login).
+    Uses a composite (IP + username) bucket so shared hospital LAN workstations
+    are not disrupted by a single user's typo, plus a high per-IP flood ceiling.
+    """
+    now = time.time()
+    norm_user = (username or "").strip().lower()
+    norm_ip = (client_ip or "unknown").strip()
+    pair_key = f"ratelimit:staff:pair:{norm_ip}:{norm_user}"
+    ip_key = f"ratelimit:staff:ip:{norm_ip}"
+
+    pair_attempts = await _get_counter(pair_key, now)
+    ip_attempts = await _get_counter(ip_key, now)
+
+    if (
+        pair_attempts >= settings.STAFF_LOGIN_RATE_LIMIT_MAX_ATTEMPTS
+        or ip_attempts >= settings.STAFF_LOGIN_IP_BURST_MAX_ATTEMPTS
+    ):
+        masked = mask_pii(norm_user or norm_ip)
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                f"Yaaliin seensaa dogoggoraa heddumminaan galmaa'eera ({masked}). "
+                f"Nageenya hospitaalaaf daqiiqaa 15'f dhorkameera. / "
+                f"Too many failed staff login attempts for {masked}. Temporarily rate-limited for 15 minutes."
+            ),
+            headers={"Retry-After": str(settings.STAFF_LOGIN_LOCKOUT_SECONDS)},
+        )
+
+
+async def record_staff_login_failure(client_ip: str, username: str) -> int:
+    """Increment staff login failure counters for (IP + username) and IP flood cap."""
+    now = time.time()
+    ttl = settings.STAFF_LOGIN_LOCKOUT_SECONDS
+    norm_user = (username or "").strip().lower()
+    norm_ip = (client_ip or "unknown").strip()
+    pair_key = f"ratelimit:staff:pair:{norm_ip}:{norm_user}"
+    ip_key = f"ratelimit:staff:ip:{norm_ip}"
+
+    pair_count = await _increment_counter(pair_key, ttl, now)
+    await _increment_counter(ip_key, ttl, now)
+    return pair_count
+
+
+async def clear_staff_login_rate_limit(client_ip: str, username: str) -> None:
+    """Reset staff login failure counter for a specific (IP + username) pair."""
+    norm_user = (username or "").strip().lower()
+    norm_ip = (client_ip or "unknown").strip()
+    pair_key = f"ratelimit:staff:pair:{norm_ip}:{norm_user}"
+    await redis_delete(pair_key)
+    _rate_limit_cache.pop(pair_key, None)
+
+
+def clear_all_rate_limits() -> None:
+    """Clear in-memory rate-limit cache (used for deterministic test isolation)."""
+    _rate_limit_cache.clear()

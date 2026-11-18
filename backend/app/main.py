@@ -122,8 +122,25 @@ app = create_application()
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    """Application startup: ensure tables and baseline seed data exist."""
+    """Application startup: ensure tables, baseline seed data, and log security posture warnings."""
+    import logging
     from app.core.bootstrap import ensure_database_ready
+
+    sec_logger = logging.getLogger("mettu_his.security")
+    if settings.APP_ENV.lower() == "production":
+        if settings.SECRET_KEY == "ci-default-secret-key-mettu-karl-his" or len(settings.SECRET_KEY) < 32:
+            sec_logger.warning(
+                "SECURITY WARNING: Running in production with default/short SECRET_KEY. Set a 32+ char SECRET_KEY env var."
+            )
+        if settings.ALLOW_DEV_PASSWORD_FALLBACK:
+            sec_logger.warning(
+                "SECURITY WARNING: ALLOW_DEV_PASSWORD_FALLBACK=true in production. Set ALLOW_DEV_PASSWORD_FALLBACK=false for clinical go-live."
+            )
+        if "sqlite" in settings.DATABASE_URL.lower():
+            sec_logger.warning(
+                "PERSISTENCE WARNING: Production backend using SQLite (%s). Provision managed PostgreSQL via DATABASE_URL.",
+                settings.DATABASE_URL,
+            )
 
     await ensure_database_ready()
 

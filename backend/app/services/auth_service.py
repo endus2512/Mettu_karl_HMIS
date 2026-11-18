@@ -136,8 +136,14 @@ async def authenticate_user(
     # Validate password strictly for all non-seeded / self-enrolled accounts
     approval_state = getattr(user, "approval_status", "approved")
     is_valid = verify_password(password, user.hashed_password)
-    if not is_valid and user.staff_id is None and approval_state == "approved" and user.is_active:
-        # Fallback to standard enterprise development passwords (pre-seeded dev accounts only)
+    if (
+        not is_valid
+        and settings.ALLOW_DEV_PASSWORD_FALLBACK
+        and user.staff_id is None
+        and approval_state == "approved"
+        and user.is_active
+    ):
+        # Controlled enterprise demo/development password fallback (pre-seeded dev accounts only; disable via ALLOW_DEV_PASSWORD_FALLBACK=false)
         dev_passwords = {
             "AdminSecurePassword2026!",
             "DoctorPassword2026!",
@@ -148,7 +154,6 @@ async def authenticate_user(
             "BillingPassword2026!",
             "DoctorSecurePass123!",
             "password",
-            "123456",
         }
         if password in dev_passwords:
             is_valid = True

@@ -19,9 +19,12 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.rate_limiter import (
     check_patient_login_rate_limit,
+    check_staff_login_rate_limit,
     clear_patient_login_rate_limit,
+    clear_staff_login_rate_limit,
     mask_pii,
     record_patient_login_failure,
+    record_staff_login_failure,
 )
 from app.core.redis_client import redis_delete, redis_get, redis_set
 from app.core.security import (
@@ -98,6 +101,8 @@ async def login(
     If MFA is enabled, returns a temporary session token for step-2 verification.
     """
     client_ip = get_client_ip(request)
+    await check_staff_login_rate_limit(client_ip, login_data.username)
+
     user, error_msg = await authenticate_user(
         db,
         username=login_data.username,
@@ -113,6 +118,8 @@ async def login(
             or "rejected" in lower_err
             or "disabled" in lower_err
         )
+        if not is_approval_or_lock_block:
+            await record_staff_login_failure(client_ip, login_data.username)
         pending_headers: dict[str, str] | None = None
         if "pending" in lower_err:
             pending_user = await get_user_by_username(db, login_data.username)
@@ -146,6 +153,9 @@ async def login(
             detail=error_msg or "Invalid username or password",
             headers=pending_headers,
         )
+
+    # Clear brute-force rate limit counter on verified credentials
+    await clear_staff_login_rate_limit(client_ip, login_data.username)
 
     # If MFA is required
     if user.is_mfa_enabled:
@@ -2060,13 +2070,21 @@ async def reset_user_password_by_admin(
 
     now = datetime.now(timezone.utc)
     target.hashed_password = hash_password(temp_password)
-    target.credential_vault_enc = encrypt_credential_vault(temp_password)
+    target.credential_vault_enc = (
+        encrypt_credential_vault(temp_password)
+        if settings.STORE_CREDENTIAL_VAULT
+        else None
+    )
+    # Revoke any previously issued refresh token for this account immediately
+    await redis_delete(f"refresh_token:{target.id}")
 
     if payload.clear_lockout:
         target.failed_attempts = 0
         target.locked_until = None
         for ident in filter(None, {target.username, target.fayda_id, target.phone_number, target.staff_id, target.email}):
             await clear_patient_login_rate_limit(target.last_ip or "127.0.0.1", ident)
+            await clear_staff_login_rate_limit(target.last_ip or "127.0.0.1", ident)
+            await clear_staff_login_rate_limit(get_client_ip(request), ident)
 
     if payload.activate_account and target.role != UserRole.SUPER_ADMIN:
         target.is_active = True
@@ -2107,3 +2125,83 @@ async def reset_user_password_by_admin(
         lockout_cleared=payload.clear_lockout,
         message=f"Password updated and recovery credentials issued for {target.full_name} ({target.username}).",
     )
+
+
+@router.get(
+    "/security-posture",
+    summary="Live Enterprise Security & Hardening Posture (Admin Only)",
+)
+async def get_security_posture(
+    current_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    """Inspect live INSA / HIPAA security controls, secret hygiene, MFA coverage, and DB persistence."""
+    now = datetime.now(timezone.utc)
+    secret_hardened = (
+        settings.SECRET_KEY != "ci-default-secret-key-mettu-karl-his"
+        and len(settings.SECRET_KEY) >= 32
+    )
+    db_engine = "postgresql" if "postgres" in settings.DATABASE_URL.lower() else "sqlite"
+
+    total_active_staff = int(
+        (
+            await db.execute(
+                select(func.count(User.id)).where(
+                    User.is_active == True,  # noqa: E712
+                    User.role != UserRole.PATIENT,
+                )
+            )
+        ).scalar_one()
+        or 0
+    )
+    mfa_enabled_staff = int(
+        (
+            await db.execute(
+                select(func.count(User.id)).where(
+                    User.is_active == True,  # noqa: E712
+                    User.role != UserRole.PATIENT,
+                    User.is_mfa_enabled == True,  # noqa: E712
+                )
+            )
+        ).scalar_one()
+        or 0
+    )
+    locked_accounts = int(
+        (
+            await db.execute(
+                select(func.count(User.id)).where(
+                    User.locked_until != None,  # noqa: E711
+                    User.locked_until > now,
+                )
+            )
+        ).scalar_one()
+        or 0
+    )
+
+    recommendations: list[str] = []
+    if not secret_hardened:
+        recommendations.append("Set a 32+ character random SECRET_KEY environment variable.")
+    if settings.ALLOW_DEV_PASSWORD_FALLBACK:
+        recommendations.append("Set ALLOW_DEV_PASSWORD_FALLBACK=false before live patient go-live.")
+    if settings.STORE_CREDENTIAL_VAULT:
+        recommendations.append("Set STORE_CREDENTIAL_VAULT=false to disable reversible password storage.")
+    if db_engine != "postgresql":
+        recommendations.append("Connect managed PostgreSQL via DATABASE_URL with automated daily backups.")
+    if total_active_staff > 0 and mfa_enabled_staff < total_active_staff:
+        recommendations.append("Enable TOTP MFA for all active clinical and administrative staff.")
+
+    return {
+        "app_env": settings.APP_ENV,
+        "checked_at": now.isoformat(),
+        "secret_key_hardened": secret_hardened,
+        "dev_password_fallback_enabled": settings.ALLOW_DEV_PASSWORD_FALLBACK,
+        "credential_vault_enabled": settings.STORE_CREDENTIAL_VAULT,
+        "staff_login_rate_limit_enabled": True,
+        "staff_login_max_attempts": settings.STAFF_LOGIN_RATE_LIMIT_MAX_ATTEMPTS,
+        "patient_login_rate_limit_enabled": True,
+        "database_engine": db_engine,
+        "total_active_staff": total_active_staff,
+        "mfa_enabled_staff": mfa_enabled_staff,
+        "locked_accounts": locked_accounts,
+        "recommendations": recommendations,
+    }

@@ -101,3 +101,47 @@ async def test_naive_locked_until_does_not_crash(client: AsyncClient, db_session
     )
     assert res.status_code == 401
     assert "locked" in res.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_staff_login_brute_force_rate_limit(client: AsyncClient):
+    """Repeated failed staff logins for an identifier must trigger HTTP 429 with Retry-After."""
+    from app.core.config import settings
+    from app.core.rate_limiter import clear_all_rate_limits
+
+    clear_all_rate_limits()
+    probe_user = "nonexistent_bruteforce_probe_99"
+    for _ in range(settings.STAFF_LOGIN_RATE_LIMIT_MAX_ATTEMPTS):
+        resp = await client.post(
+            "/api/v1/auth/login",
+            json={"username": probe_user, "password": "WrongPassword999!"},
+        )
+        assert resp.status_code == 401
+
+    blocked = await client.post(
+        "/api/v1/auth/login",
+        json={"username": probe_user, "password": "WrongPassword999!"},
+    )
+    assert blocked.status_code == 429
+    assert "retry-after" in {k.lower() for k in blocked.headers.keys()}
+    clear_all_rate_limits()
+
+
+@pytest.mark.asyncio
+async def test_security_posture_endpoint_admin_only(
+    client: AsyncClient,
+    admin_auth_headers: dict[str, str],
+    doctor_auth_headers: dict[str, str],
+):
+    """Security posture audit endpoint must be Admin-only and return live hardening status."""
+    denied = await client.get("/api/v1/auth/security-posture", headers=doctor_auth_headers)
+    assert denied.status_code == 403
+
+    res = await client.get("/api/v1/auth/security-posture", headers=admin_auth_headers)
+    assert res.status_code == 200
+    body = res.json()
+    assert body["staff_login_rate_limit_enabled"] is True
+    assert body["patient_login_rate_limit_enabled"] is True
+    assert "secret_key_hardened" in body
+    assert "database_engine" in body
+    assert isinstance(body["recommendations"], list)

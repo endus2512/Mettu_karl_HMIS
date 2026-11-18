@@ -54,6 +54,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Enterprise Security Hardening Controls
+    ALLOW_DEV_PASSWORD_FALLBACK: bool = True
+    STORE_CREDENTIAL_VAULT: bool = True
+    STAFF_LOGIN_RATE_LIMIT_MAX_ATTEMPTS: int = 8
+    STAFF_LOGIN_IP_BURST_MAX_ATTEMPTS: int = 40
+    STAFF_LOGIN_LOCKOUT_SECONDS: int = 900
+
     # Database
     DATABASE_URL: str = Field(default_factory=_default_database_url)
 
