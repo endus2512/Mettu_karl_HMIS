@@ -401,6 +401,13 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
 
   useEffect(() => {
     fetchGatewayConfig();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('setup') === 'gmail') {
+        setActiveCarrierTab('gmail_email');
+        setIsConfigModalOpen(true);
+      }
+    }
   }, []);
 
   const handleSaveConfig = async (e: React.FormEvent) => {
@@ -427,11 +434,35 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
               };
         const res = await apiClient.post('/sms/email-config', emailPayload);
         setEmailConfig(res.data);
-        notifications.show({
-          title: 'Gmail / Email OTP Gateway Olkaa\'ameera!',
-          message: res.data.status_summary,
-          color: 'teal',
-        });
+        const targetTest = (testEmailAddress || cfgGmailUser || '').trim();
+        if (targetTest.includes('@')) {
+          setTestEmailAddress(targetTest);
+          setIsTestingEmail(true);
+          try {
+            const testRes = await apiClient.post('/sms/test-email', {
+              recipient_email: targetTest,
+            });
+            setTestEmailResult({
+              success: testRes.data.success,
+              message: testRes.data.message,
+            });
+            notifications.show({
+              title: testRes.data.success
+                ? 'Gmail OTP Milkaa\'inaan Hojjeteera!'
+                : 'Qindaa\'inni Olkaa\'ameera — Mirkaneessa Ilaalaa',
+              message: testRes.data.message,
+              color: testRes.data.success ? 'teal' : 'amber',
+            });
+          } finally {
+            setIsTestingEmail(false);
+          }
+        } else {
+          notifications.show({
+            title: 'Gmail / Email OTP Gateway Olkaa\'ameera!',
+            message: res.data.status_summary,
+            color: 'teal',
+          });
+        }
         return;
       }
 
@@ -785,13 +816,29 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveCarrierTab('gmail_email');
+                      setIsConfigModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-300 transition shadow-sm cursor-pointer"
+                  >
+                    <Mail className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
+                    <span>Gmail OTP Setup</span>
+                    {emailConfig?.is_configured ? (
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    ) : (
+                      <span className="h-2 w-2 rounded-full bg-amber-400" />
+                    )}
+                  </button>
                   <button
                     type="button"
                     onClick={() => setIsConfigModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold text-amber-300 transition shadow-sm cursor-pointer"
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold text-amber-700 dark:text-amber-300 transition shadow-sm cursor-pointer"
                   >
-                    <Settings className="h-4 w-4 text-amber-400" />
+                    <Settings className="h-4 w-4 text-amber-500 dark:text-amber-400" />
                     <span>Qindaa'ina Sararaa (Carrier Setup)</span>
                     {carrierConfig?.is_configured ? (
                       <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -1523,9 +1570,19 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                  Gmail 16-Char App Password * (myaccount.google.com/apppasswords)
-                                </label>
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                    Gmail 16-Char App Password *
+                                  </label>
+                                  <a
+                                    href="https://myaccount.google.com/apppasswords"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[11px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                                  >
+                                    App Password Baasi ↗
+                                  </a>
+                                </div>
                                 <input
                                   type="password"
                                   required
@@ -1557,10 +1614,14 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                       <div className="flex items-center justify-end gap-3 pt-2">
                         <button
                           type="submit"
-                          disabled={isSavingConfig}
+                          disabled={isSavingConfig || isTestingEmail}
                           className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 active:scale-95 transition"
                         >
-                          {isSavingConfig ? 'Olkaa\'aa jira...' : 'Qindaa\'ina Olkaa\'i (Save Settings)'}
+                          {isSavingConfig || isTestingEmail
+                            ? 'Olkaa\'aa fi Ergaa jira...'
+                            : activeCarrierTab === 'gmail_email'
+                            ? 'Olkaa\'i & Test OTP Ergi (1-Click)'
+                            : 'Qindaa\'ina Olkaa\'i (Save Settings)'}
                         </button>
                       </div>
                     </form>
