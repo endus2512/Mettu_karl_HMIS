@@ -1239,6 +1239,8 @@ export default function LoginPage() {
               style={{
                 imageRendering: 'crisp-edges',
                 WebkitBackfaceVisibility: 'hidden',
+                animation: 'none',
+                transform: 'none',
               }}
             />
           </picture>

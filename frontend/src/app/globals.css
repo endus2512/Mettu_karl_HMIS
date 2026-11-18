@@ -179,21 +179,9 @@ button:active:not(:disabled) {
   will-change: transform;
 }
 
-@keyframes livingBuildingDrift {
-  0% {
-    transform: scale(1.00) translate(0%, 0%);
-  }
-  50% {
-    transform: scale(1.03) translate(-0.4%, -0.3%);
-  }
-  100% {
-    transform: scale(1.00) translate(0%, 0%);
-  }
-}
-
 .animate-living-building {
-  animation: livingBuildingDrift 30s ease-in-out infinite alternate;
-  will-change: transform;
+  animation: none !important;
+  transform: none !important;
 }
 
 @keyframes livingOrb1 {
