@@ -198,35 +198,17 @@ class EmailService:
         client_ip: str = "unknown",
         db: Optional[AsyncSession] = None,
     ) -> Tuple[bool, str]:
-        if lang == "om":
-            subject = "Hospitaala Mettu Karl HMIS — Koodii Mirkaneessaa (Daqiiqaa 5)"
-            body = (
-                f"Kabajamoo {full_name},\n\n"
-                f"Koodiin mirkaneessaa jecha icchitii haaromsuu keessanii: {otp_code}\n"
-                f"Yeroo hojjetu: Daqiiqaa {minutes} qofa.\n"
-                f"IP Gaaffii: {client_ip}\n\n"
-                "Yoo gaaffii kana isin hin goone ta'e koodii kana nama kamiyyuutti hin himinaa; "
-                "battalumatti Kutaa ICT Hospitaalaa (4401 / +251 47 111 0204) qunnamaa.\n"
-            )
-        elif lang == "am":
-            subject = "ሜቱ ካርል ሆስፒታል HMIS — የይለፍ ቃል ማረጋገጫ ኮድ (5 ደቂቃ)"
-            body = (
-                f"ክቡር/ክብርት {full_name}፣\n\n"
-                f"የይለፍ ቃል መቀየሪያ ማረጋገጫ ኮድዎ፡ {otp_code}\n"
-                f"የሚያገለግለው ለ{minutes} ደቂቃ ብቻ ነው።\n"
-                f"የጥያቄ IP፡ {client_ip}\n\n"
-                "ይህን ጥያቄ እርስዎ ካልጠየቁ ኮዱን ለማንም አያጋሩ፤ ወዲያውኑ የሆስፒታሉን ICT ክፍል (4401) ያሳውቁ።\n"
-            )
-        else:
-            subject = "Mettu Karl Hospital HMIS — Password Recovery Code (5 Minutes)"
-            body = (
-                f"Dear {full_name},\n\n"
-                f"Your one-time password recovery verification code is: {otp_code}\n"
-                f"Valid for: {minutes} minutes only.\n"
-                f"Request IP: {client_ip}\n\n"
-                "If you did NOT request this password reset, do NOT share this code with anyone "
-                "and alert Hospital ICT Security immediately (Ext. 4401 / +251 47 111 0204).\n"
-            )
+        subject = "Mettu Karl Referral Hospital HMIS — Password Recovery Code (5 Minutes)"
+        body = (
+            f"Dear {full_name},\n\n"
+            f"Your one-time password recovery verification code is: {otp_code}\n\n"
+            f"Validity: {minutes} minutes only (single-use, max 3 attempts).\n"
+            f"Request IP: {client_ip}\n\n"
+            "If you did NOT request this password reset, do NOT share this code with anyone "
+            "and contact Hospital ICT Security immediately (Ext. 4401 / +251 47 111 0204 / "
+            "ict-support@mettukarl.gov.et).\n\n"
+            "— Mettu Karl Referral Hospital HMIS Security"
+        )
         return await self.send_email(recipient_email, subject, body, db=db)
 
     async def send_password_changed_alert(

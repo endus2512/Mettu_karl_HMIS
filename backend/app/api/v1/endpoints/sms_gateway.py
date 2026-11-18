@@ -468,7 +468,7 @@ async def test_email_gateway(
         full_name=current_user.full_name,
         otp_code="582914",
         minutes=5,
-        lang="om",
+        lang="en",
         client_ip="admin-test",
         db=db,
     )
