@@ -18,24 +18,30 @@ from app.core.audit import record_audit_event
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.rate_limiter import (
+    check_and_record_password_reset_request,
+    check_password_reset_otp_attempts,
     check_patient_login_rate_limit,
     check_staff_login_rate_limit,
     clear_patient_login_rate_limit,
     clear_staff_login_rate_limit,
     mask_pii,
+    record_password_reset_otp_failure,
     record_patient_login_failure,
     record_staff_login_failure,
 )
 from app.core.redis_client import redis_delete, redis_get, redis_set
 from app.core.security import (
     create_access_token,
+    create_password_reset_token,
     create_refresh_token,
     create_staff_wait_token,
+    decode_password_reset_token,
     decode_staff_wait_token,
     decode_token,
     decrypt_credential_vault,
     encrypt_credential_vault,
     hash_password,
+    verify_password_reset_challenge,
 )
 from app.models.notification import ClinicalNotification
 from app.models.patient import Gender, Patient
@@ -51,6 +57,10 @@ from app.schemas.auth import (
     MFALoginRequest,
     MFASetupResponse,
     MFAVerifyRequest,
+    PasswordResetConfirmRequest,
+    PasswordResetConfirmResponse,
+    PasswordResetRequest,
+    PasswordResetRequestResponse,
     PatientLoginRequest,
     PatientRegisterRequest,
     PendingStaffUserResponse,
@@ -86,6 +96,7 @@ from app.services.security_alarm_service import (
     portal_path_for_role,
     record_staff_session_start,
 )
+from app.services.sms_service import sms_service
 
 router = APIRouter()
 
@@ -2205,3 +2216,260 @@ async def get_security_posture(
         "locked_accounts": locked_accounts,
         "recommendations": recommendations,
     }
+
+
+def _mask_recovery_destination(phone: Optional[str], email: Optional[str]) -> tuple[str, str]:
+    """Return (channel, masked_destination) without leaking full PII."""
+    if phone and len(phone.strip()) >= 7:
+        cleaned = phone.strip()
+        return "sms", f"{cleaned[:4]}****{cleaned[-3:]}"
+    if email and "@" in email:
+        local, domain = email.split("@", 1)
+        prefix = local[:2] if len(local) >= 2 else local[:1]
+        return "ict_sms_audit", f"{prefix}***@{domain}"
+    return "ict_sms_audit", "ICT-VERIFIED"
+
+
+@router.post(
+    "/password-reset/request",
+    response_model=PasswordResetRequestResponse,
+    summary="Request Self-Service Password Recovery OTP (Step 1)",
+)
+async def request_password_reset(
+    payload: PasswordResetRequest,
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> PasswordResetRequestResponse:
+    """
+    Initiate self-service password recovery for an approved active account.
+
+    Security controls:
+    - Rate-limited per (IP + identifier) and per IP (HTTP 429).
+    - Generates a cryptographic 6-digit OTP valid for 10 minutes.
+    - Dispatches trilingual SMS OTP via SMSService (Ethio Telecom / Twilio / GSM / Audit Log).
+    - Issues a signed, single-use JWT challenge bound to the user's current password hash.
+    - Non-enumerating response for unknown/unapproved accounts.
+    """
+    client_ip = get_client_ip(request)
+    identifier = payload.identifier.strip()
+    await check_and_record_password_reset_request(client_ip, identifier)
+
+    user = await get_user_by_username(db, identifier)
+    approval_state = (
+        getattr(user, "approval_status", ApprovalStatus.APPROVED.value) if user else None
+    )
+
+    if not user or not user.is_active or approval_state != ApprovalStatus.APPROVED.value:
+        await record_audit_event(
+            db,
+            user_id=user.id if user else None,
+            action="PASSWORD_RESET_REQUEST_IGNORED",
+            resource="User",
+            resource_id=str(user.id) if user else mask_pii(identifier),
+            ip_address=client_ip,
+            result="ignored",
+            detail={"identifier_masked": mask_pii(identifier)},
+        )
+        return PasswordResetRequestResponse(
+            status="submitted",
+            challenge_token=None,
+            masked_destination=None,
+            delivery_channel="sms",
+            expires_in_seconds=600,
+            message=(
+                "If an active Mettu Karl HMIS account matches that identifier, a 6-digit verification code has been dispatched."
+            ),
+            dev_otp_code=None,
+        )
+
+    otp_code = f"{secrets.randbelow(900000) + 100000:06d}"
+    challenge_token, jti = create_password_reset_token(
+        user_id=user.id,
+        otp_code=otp_code,
+        current_password_hash=user.hashed_password,
+        expires_minutes=10,
+    )
+    await redis_set(f"pwdreset:active:{jti}", str(user.id), expire_seconds=600)
+
+    channel, masked_dest = _mask_recovery_destination(user.phone_number, user.email)
+    sms_target = (user.phone_number or "").strip() or "+251471110204"
+    try:
+        await sms_service.send_sms(
+            db,
+            recipient_phone=sms_target,
+            template_key="password_reset_otp",
+            lang=payload.language,
+            otp=otp_code,
+            minutes=10,
+        )
+    except Exception:
+        # Ensure SMS gateway downtime never blocks audit logging or recovery challenge issuance
+        await db.rollback()
+
+    await record_audit_event(
+        db,
+        user_id=user.id,
+        action="PASSWORD_RESET_OTP_REQUESTED",
+        resource="User",
+        resource_id=str(user.id),
+        ip_address=client_ip,
+        result="success",
+        detail={
+            "username": user.username,
+            "channel": channel,
+            "destination_masked": masked_dest,
+        },
+    )
+    await emit_admin_security_alarm(
+        db,
+        event_type="PASSWORD_RESET_OTP_REQUESTED",
+        title=f"PASSWORD RECOVERY REQUESTED: {user.full_name} ({user.staff_id or user.username})",
+        message=(
+            f"Self-service password recovery OTP requested for {user.full_name} "
+            f"({user.role.value}) from IP {client_ip or 'unknown'} via {channel} ({masked_dest})."
+        ),
+        severity="info",
+        category="password_recovery_audit",
+        actor_user=user,
+        client_ip=client_ip,
+        commit=True,
+    )
+
+    expose_dev_otp = (
+        settings.APP_ENV != "production" and settings.ALLOW_DEV_PASSWORD_FALLBACK
+    )
+    return PasswordResetRequestResponse(
+        status="otp_dispatched",
+        challenge_token=challenge_token,
+        masked_destination=masked_dest,
+        delivery_channel=channel,
+        expires_in_seconds=600,
+        message=(
+            f"A 6-digit verification code has been dispatched to {masked_dest}. "
+            "It expires in 10 minutes."
+        ),
+        dev_otp_code=otp_code if expose_dev_otp else None,
+    )
+
+
+@router.post(
+    "/password-reset/confirm",
+    response_model=PasswordResetConfirmResponse,
+    summary="Confirm OTP and Rotate Password (Step 2)",
+)
+async def confirm_password_reset(
+    payload: PasswordResetConfirmRequest,
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> PasswordResetConfirmResponse:
+    """
+    Verify the 6-digit OTP against the signed challenge token, rotate the user's password,
+    revoke existing refresh tokens, and clear login lockouts.
+    """
+    client_ip = get_client_ip(request)
+    try:
+        claims = decode_password_reset_token(payload.challenge_token)
+        user_id = int(claims["sub"])
+        jti = str(claims["jti"])
+    except (JWTError, KeyError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recovery session is invalid or expired. Please request a new verification code.",
+        )
+
+    await check_password_reset_otp_attempts(jti)
+
+    consumed = await redis_get(f"pwdreset:consumed:{jti}")
+    if consumed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This recovery code has already been used. Please request a new code if needed.",
+        )
+
+    user = await get_user_by_id(db, user_id)
+    if (
+        not user
+        or not user.is_active
+        or getattr(user, "approval_status", ApprovalStatus.APPROVED.value)
+        != ApprovalStatus.APPROVED.value
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is inactive or not eligible for self-service password recovery.",
+        )
+
+    is_valid, reason = verify_password_reset_challenge(
+        claims, payload.otp_code, user.hashed_password
+    )
+    if not is_valid:
+        if reason == "already_used":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This recovery session is no longer valid because the password was already updated.",
+            )
+        await record_password_reset_otp_failure(jti)
+        await record_audit_event(
+            db,
+            user_id=user.id,
+            action="PASSWORD_RESET_OTP_FAILED",
+            resource="User",
+            resource_id=str(user.id),
+            ip_address=client_ip,
+            result="failure",
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid 6-digit verification code. Please check the code and try again.",
+        )
+
+    min_len = 6 if user.role == UserRole.PATIENT else 8
+    new_pwd = payload.new_password.strip()
+    if len(new_pwd) < min_len:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"New password must be at least {min_len} characters long.",
+        )
+
+    user.hashed_password = hash_password(new_pwd)
+    user.credential_vault_enc = (
+        encrypt_credential_vault(new_pwd)
+        if settings.STORE_CREDENTIAL_VAULT
+        else None
+    )
+    user.failed_attempts = 0
+    user.locked_until = None
+
+    # Mark challenge consumed & revoke all existing refresh sessions immediately
+    await redis_set(f"pwdreset:consumed:{jti}", "1", expire_seconds=900)
+    await redis_delete(f"pwdreset:active:{jti}")
+    await redis_delete(f"refresh_token:{user.id}")
+
+    for ident in filter(
+        None,
+        {user.username, user.staff_id, user.email, user.fayda_id, user.phone_number},
+    ):
+        await clear_staff_login_rate_limit(client_ip, ident)
+        await clear_patient_login_rate_limit(client_ip, ident)
+        if user.last_ip:
+            await clear_staff_login_rate_limit(user.last_ip, ident)
+            await clear_patient_login_rate_limit(user.last_ip, ident)
+
+    await record_audit_event(
+        db,
+        user_id=user.id,
+        action="PASSWORD_RESET_COMPLETED",
+        resource="User",
+        resource_id=str(user.id),
+        ip_address=client_ip,
+        result="success",
+        detail={"username": user.username, "role": user.role.value},
+    )
+    await db.commit()
+
+    return PasswordResetConfirmResponse(
+        status="password_updated",
+        username=user.username,
+        message=(
+            "Password updated successfully. All previous sessions have been revoked—please sign in with your new password."
+        ),
+    )

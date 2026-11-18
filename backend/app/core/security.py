@@ -8,6 +8,7 @@ Provides:
 """
 import base64
 import hashlib
+import hmac
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
@@ -23,6 +24,7 @@ from app.core.config import settings
 ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
 STAFF_WAIT_TOKEN_TYPE = "staff_approval_wait"
+PASSWORD_RESET_TOKEN_TYPE = "password_reset_otp"
 
 
 def hash_password(plain_password: str) -> str:
@@ -180,3 +182,73 @@ def decrypt_credential_vault(cipher_text: Optional[str]) -> Optional[str]:
         return _credential_vault_fernet().decrypt(cipher_text.encode("utf-8")).decode("utf-8")
     except (InvalidToken, ValueError, TypeError):
         return None
+
+
+def _hash_reset_otp(jti: str, otp_code: str) -> str:
+    """Compute keyed HMAC-SHA256 digest of a password-reset OTP bound to its token jti."""
+    return hmac.new(
+        settings.SECRET_KEY.encode("utf-8"),
+        f"{jti}:{otp_code.strip()}".encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def _password_hash_fingerprint(hashed_password: str) -> str:
+    """Short fingerprint of the user's current password hash to guarantee single-use reset tokens."""
+    return hashlib.sha256(hashed_password.encode("utf-8")).hexdigest()[:16]
+
+
+def create_password_reset_token(
+    user_id: int,
+    otp_code: str,
+    current_password_hash: str,
+    expires_minutes: int = 10,
+) -> tuple[str, str]:
+    """
+    Create a signed, short-lived, single-use JWT challenge token for self-service password recovery.
+    Bound to the current password hash fingerprint so rotating the password immediately invalidates reuse.
+    """
+    now = datetime.now(timezone.utc)
+    jti = secrets.token_hex(16)
+    payload: dict[str, Any] = {
+        "sub": str(user_id),
+        "type": PASSWORD_RESET_TOKEN_TYPE,
+        "jti": jti,
+        "otp_hash": _hash_reset_otp(jti, otp_code),
+        "pwd_sig": _password_hash_fingerprint(current_password_hash),
+        "iat": now,
+        "exp": now + timedelta(minutes=expires_minutes),
+    }
+    token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return token, jti
+
+
+def decode_password_reset_token(token: str) -> dict[str, Any]:
+    """Decode and validate a password recovery challenge token."""
+    payload = decode_token(token)
+    if (
+        payload.get("type") != PASSWORD_RESET_TOKEN_TYPE
+        or not payload.get("jti")
+        or not payload.get("otp_hash")
+        or not payload.get("pwd_sig")
+    ):
+        raise JWTError("Invalid password reset challenge token")
+    return payload
+
+
+def verify_password_reset_challenge(
+    payload: dict[str, Any],
+    otp_code: str,
+    current_password_hash: str,
+) -> tuple[bool, str]:
+    """
+    Verify OTP code and single-use password hash binding in constant time.
+    Returns (is_valid, reason_code).
+    """
+    expected_sig = _password_hash_fingerprint(current_password_hash)
+    if not hmac.compare_digest(str(payload.get("pwd_sig", "")), expected_sig):
+        return False, "already_used"
+    provided_hash = _hash_reset_otp(str(payload["jti"]), otp_code)
+    if not hmac.compare_digest(str(payload.get("otp_hash", "")), provided_hash):
+        return False, "invalid_otp"
+    return True, "ok"

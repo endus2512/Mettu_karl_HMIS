@@ -175,3 +175,57 @@ async def clear_staff_login_rate_limit(client_ip: str, username: str) -> None:
 def clear_all_rate_limits() -> None:
     """Clear in-memory rate-limit cache (used for deterministic test isolation)."""
     _rate_limit_cache.clear()
+
+
+PASSWORD_RESET_MAX_REQUESTS = 5
+PASSWORD_RESET_WINDOW_SECONDS = 900  # 15 minutes
+OTP_VERIFY_MAX_ATTEMPTS = 5
+OTP_VERIFY_WINDOW_SECONDS = 600  # 10 minutes
+
+
+async def check_and_record_password_reset_request(client_ip: str, identifier: str) -> None:
+    """Rate-limit password recovery OTP requests per (IP + identifier) and per IP."""
+    now = time.time()
+    norm_id = (identifier or "").strip().lower()
+    norm_ip = (client_ip or "unknown").strip()
+    pair_key = f"ratelimit:pwdreset:req:{norm_ip}:{norm_id}"
+    ip_key = f"ratelimit:pwdreset:ip:{norm_ip}"
+
+    pair_attempts = await _get_counter(pair_key, now)
+    ip_attempts = await _get_counter(ip_key, now)
+
+    if pair_attempts >= PASSWORD_RESET_MAX_REQUESTS or ip_attempts >= PASSWORD_RESET_MAX_REQUESTS * 3:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                "Gaaffiin jecha icchitii haaromsuu heddumminaan ergameera. Daqiiqaa 15 booda irra deebi'aa yaalaa. / "
+                "Too many password recovery requests. Please wait 15 minutes before requesting another code."
+            ),
+            headers={"Retry-After": str(PASSWORD_RESET_WINDOW_SECONDS)},
+        )
+
+    await _increment_counter(pair_key, PASSWORD_RESET_WINDOW_SECONDS, now)
+    await _increment_counter(ip_key, PASSWORD_RESET_WINDOW_SECONDS, now)
+
+
+async def check_password_reset_otp_attempts(challenge_jti: str) -> None:
+    """Ensure a single password-reset challenge cannot be brute-forced."""
+    now = time.time()
+    key = f"ratelimit:pwdreset:otp:{challenge_jti}"
+    attempts = await _get_counter(key, now)
+    if attempts >= OTP_VERIFY_MAX_ATTEMPTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                "Koodiin mirkaneessaa yeroo hedduu dogoggoraan galmaa'eera. Maaloo koodii haaraa gaafadhaa. / "
+                "Too many invalid verification code attempts. Please request a new recovery code."
+            ),
+            headers={"Retry-After": str(OTP_VERIFY_WINDOW_SECONDS)},
+        )
+
+
+async def record_password_reset_otp_failure(challenge_jti: str) -> int:
+    """Increment invalid OTP attempt counter for a specific challenge token."""
+    now = time.time()
+    key = f"ratelimit:pwdreset:otp:{challenge_jti}"
+    return await _increment_counter(key, OTP_VERIFY_WINDOW_SECONDS, now)

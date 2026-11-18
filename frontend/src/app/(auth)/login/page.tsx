@@ -416,6 +416,162 @@ export default function LoginPage() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [showITSupportModal, setShowITSupportModal] = useState(false);
 
+  // Self-service Password Recovery (OTP + Reset) state
+  const [recoveryStep, setRecoveryStep] = useState<'request' | 'confirm' | 'done'>('request');
+  const [recoveryIdentifier, setRecoveryIdentifier] = useState('');
+  const [recoveryChallengeToken, setRecoveryChallengeToken] = useState<string | null>(null);
+  const [recoveryMaskedDest, setRecoveryMaskedDest] = useState<string | null>(null);
+  const [recoveryDevOtp, setRecoveryDevOtp] = useState<string | null>(null);
+  const [recoveryOtp, setRecoveryOtp] = useState('');
+  const [recoveryNewPassword, setRecoveryNewPassword] = useState('');
+  const [recoveryConfirmPassword, setRecoveryConfirmPassword] = useState('');
+  const [showRecoveryPassword, setShowRecoveryPassword] = useState(false);
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
+  const [recoveryNotice, setRecoveryNotice] = useState<string | null>(null);
+  const [recoveryUpdatedUsername, setRecoveryUpdatedUsername] = useState<string | null>(null);
+
+  const resetRecoveryState = useCallback((prefillIdentifier?: string) => {
+    setRecoveryStep('request');
+    setRecoveryIdentifier(prefillIdentifier ?? '');
+    setRecoveryChallengeToken(null);
+    setRecoveryMaskedDest(null);
+    setRecoveryDevOtp(null);
+    setRecoveryOtp('');
+    setRecoveryNewPassword('');
+    setRecoveryConfirmPassword('');
+    setShowRecoveryPassword(false);
+    setRecoveryLoading(false);
+    setRecoveryError(null);
+    setRecoveryNotice(null);
+    setRecoveryUpdatedUsername(null);
+  }, []);
+
+  const handleRequestPasswordRecovery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleaned = recoveryIdentifier.trim();
+    if (cleaned.length < 3) {
+      setRecoveryError(
+        language === 'om'
+          ? 'Maaloo Username, Staff ID, Fayda ID ykn lakkoofsa bilbilaa sirrii galchaa.'
+          : language === 'am'
+          ? 'እባክዎ ትክክለኛ የተጠቃሚ ስም፣ የሰራተኛ መለያ፣ ፋይዳ ወይም ስልክ ቁጥር ያስገቡ።'
+          : 'Please enter a valid Username, Staff ID, Email, Fayda ID, or Phone number.'
+      );
+      return;
+    }
+    setRecoveryLoading(true);
+    setRecoveryError(null);
+    setRecoveryNotice(null);
+    try {
+      const { data } = await apiClient.post<{
+        status: 'otp_dispatched' | 'submitted';
+        challenge_token?: string | null;
+        masked_destination?: string | null;
+        delivery_channel?: string;
+        expires_in_seconds?: number;
+        message: string;
+        dev_otp_code?: string | null;
+      }>('/auth/password-reset/request', {
+        identifier: cleaned,
+        language,
+      });
+
+      if (data.challenge_token) {
+        setRecoveryChallengeToken(data.challenge_token);
+        setRecoveryMaskedDest(data.masked_destination || null);
+        setRecoveryDevOtp(data.dev_otp_code || null);
+        setRecoveryNotice(data.message);
+        setRecoveryStep('confirm');
+      } else {
+        setRecoveryNotice(data.message);
+      }
+    } catch (err: any) {
+      const detail =
+        err?.response?.data?.detail ||
+        (language === 'om'
+          ? 'Koodii mirkaneessaa erguun hin danda\'amne. Irra deebi\'aa yaalaa.'
+          : language === 'am'
+          ? 'የማረጋገጫ ኮድ መላክ አልተቻለም። እባክዎ እንደገና ይሞክሩ።'
+          : 'Unable to dispatch recovery code. Please try again.');
+      setRecoveryError(typeof detail === 'string' ? detail : JSON.stringify(detail));
+    } finally {
+      setRecoveryLoading(false);
+    }
+  };
+
+  const handleConfirmPasswordRecovery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRecoveryError(null);
+    const cleanOtp = recoveryOtp.trim();
+    if (!/^\d{6}$/.test(cleanOtp)) {
+      setRecoveryError(
+        language === 'om'
+          ? 'Koodiin mirkaneessaa lakkoofsa dijiitii 6 qofa ta\'uu qaba.'
+          : language === 'am'
+          ? 'የማረጋገጫ ኮዱ 6 አሃዝ መሆን አለበት።'
+          : 'Verification code must be exactly 6 digits.'
+      );
+      return;
+    }
+    if (recoveryNewPassword.trim().length < 6) {
+      setRecoveryError(
+        language === 'om'
+          ? 'Jechi icchitii haaraan yoo xiqqaate arfii 6 (ogeessotaaf 8) ta\'uu qaba.'
+          : language === 'am'
+          ? 'አዲሱ የይለፍ ቃል ቢያንስ 6 ቁምፊ (ለሰራተኞች 8) መሆን አለበት።'
+          : 'New password must be at least 6 characters (8+ for staff accounts).'
+      );
+      return;
+    }
+    if (recoveryNewPassword !== recoveryConfirmPassword) {
+      setRecoveryError(t.passwordMismatch);
+      return;
+    }
+    if (!recoveryChallengeToken) {
+      setRecoveryError('Recovery session expired. Please request a new code.');
+      setRecoveryStep('request');
+      return;
+    }
+
+    setRecoveryLoading(true);
+    try {
+      const { data } = await apiClient.post<{
+        status: 'password_updated';
+        username: string;
+        message: string;
+      }>('/auth/password-reset/confirm', {
+        challenge_token: recoveryChallengeToken,
+        otp_code: cleanOtp,
+        new_password: recoveryNewPassword.trim(),
+      });
+      setRecoveryUpdatedUsername(data.username);
+      setRecoveryNotice(data.message);
+      setRecoveryStep('done');
+      notifications.show({
+        title:
+          language === 'om'
+            ? 'Jechi Icchitii Haaromfameera'
+            : language === 'am'
+            ? 'የይለፍ ቃል ተቀይሯል'
+            : 'Password Reset Complete',
+        message: data.message,
+        color: 'teal',
+      });
+    } catch (err: any) {
+      const detail =
+        err?.response?.data?.detail ||
+        (language === 'om'
+          ? 'Koodiin mirkaneessaa ykn jechi icchitii dogoggora.'
+          : language === 'am'
+          ? 'የማረጋገጫ ኮዱ ወይም የይለፍ ቃሉ ትክክል አይደለም።'
+          : 'Invalid verification code or password requirement not met.');
+      setRecoveryError(typeof detail === 'string' ? detail : JSON.stringify(detail));
+    } finally {
+      setRecoveryLoading(false);
+    }
+  };
+
   // Interactive 3D Form Card: Initially closed so building hero is visible on first arrival; opens when user clicks Login or Sign Up
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formType, setFormType] = useState<'login' | 'signup'>('login');
@@ -1753,7 +1909,10 @@ export default function LoginPage() {
                         </label>
                         <button
                           type="button"
-                          onClick={() => setShowForgotModal(true)}
+                          onClick={() => {
+                            resetRecoveryState(loginForm.getValues('username') || '');
+                            setShowForgotModal(true);
+                          }}
                           className="text-[#FACC15] hover:underline font-semibold transition cursor-pointer"
                         >
                           {t.forgotPassword}
@@ -2992,12 +3151,15 @@ export default function LoginPage() {
   )}
 
       {/* ======================================================================= */}
-      {/* FORGOT PASSWORD MODAL                                                   */}
+      {/* FORGOT PASSWORD MODAL (LIVE OTP + SELF-SERVICE RECOVERY)                */}
       {/* ======================================================================= */}
       {showForgotModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150"
-          onClick={() => setShowForgotModal(false)}
+          onClick={() => {
+            setShowForgotModal(false);
+            resetRecoveryState();
+          }}
         >
           <div
             className="w-full max-w-md rounded-2xl bg-[#0e131f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border border-[#222b3d]"
@@ -3006,7 +3168,7 @@ export default function LoginPage() {
             <div className="flex items-start justify-between pb-3 border-b border-[#1a2233]">
               <div className="flex items-center gap-2.5">
                 <div className="rounded-lg bg-amber-500/15 p-2 text-amber-400 border border-amber-500/30">
-                  <ShieldCheck className="h-5 w-5" />
+                  <KeyRound className="h-5 w-5" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white">
@@ -3017,36 +3179,275 @@ export default function LoginPage() {
               </div>
               <button
                 type="button"
-                onClick={() => setShowForgotModal(false)}
+                onClick={() => {
+                  setShowForgotModal(false);
+                  resetRecoveryState();
+                }}
                 className="rounded-lg p-1.5 text-slate-400 hover:text-white hover:bg-[#1a2233] transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-3 py-4 text-xs text-slate-300">
-              <p className="font-medium text-slate-200">
-                {t.forgotModalSubtitle}
-              </p>
-              <ul className="space-y-2 border-l-2 border-amber-500 pl-3 text-slate-300">
-                <li>{t.forgotModalStep1}</li>
-                <li>{t.forgotModalStep2}</li>
-              </ul>
-              <div className="rounded-lg bg-[#070a10] p-2.5 flex items-center gap-2 text-amber-300 font-mono text-[11px] border border-[#222b3d]">
-                <Info className="h-4 w-4 text-amber-400 shrink-0" />
-                <span>{t.forgotModalContact}</span>
-              </div>
-            </div>
+            {recoveryStep === 'request' && (
+              <form onSubmit={handleRequestPasswordRecovery} className="space-y-3.5 py-4 text-xs text-slate-300">
+                <p className="font-medium text-slate-200">
+                  {language === 'om'
+                    ? 'Username, Staff ID, Email, Fayda ID ykn lakkoofsa bilbilaa keessan galchaa; koodiin mirkaneessaa dijiitii 6 isiniif ergama.'
+                    : language === 'am'
+                    ? 'የተጠቃሚ ስምዎን፣ የሰራተኛ መለያዎን፣ ኢሜልዎን፣ ፋይዳ ID ወይም ስልክ ቁጥርዎን ያስገቡ፤ ባለ 6-አሃዝ የማረጋገጫ ኮድ ይላክልዎታል።'
+                    : 'Enter your Username, Staff ID, Email, Fayda ID, or Phone number to receive a 6-digit recovery code.'}
+                </p>
 
-            <div className="pt-2 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShowForgotModal(false)}
-                className="rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 border border-amber-300 transition cursor-pointer"
-              >
-                {t.forgotModalClose}
-              </button>
-            </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-amber-200/90 mb-1.5">
+                    {t.usernameLabel}
+                  </label>
+                  <div className="relative">
+                    <User className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={recoveryIdentifier}
+                      onChange={(e) => setRecoveryIdentifier(e.target.value)}
+                      placeholder={t.usernamePlaceholder}
+                      autoComplete="username"
+                      required
+                      className="w-full rounded-xl bg-[#070a10] border border-[#222b3d] focus:border-amber-400 focus:outline-none pl-9 pr-3 py-2.5 text-xs text-white placeholder:text-slate-500"
+                    />
+                  </div>
+                </div>
+
+                {recoveryError && (
+                  <div className="rounded-lg bg-rose-500/10 border border-rose-500/30 p-2.5 text-[11px] text-rose-300 flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-400" />
+                    <span>{recoveryError}</span>
+                  </div>
+                )}
+
+                {recoveryNotice && (
+                  <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-2.5 text-[11px] text-amber-200 flex items-start gap-2">
+                    <Info className="h-4 w-4 shrink-0 mt-0.5 text-amber-400" />
+                    <span>{recoveryNotice}</span>
+                  </div>
+                )}
+
+                <div className="rounded-lg bg-[#070a10] p-2.5 space-y-1 text-[11px] border border-[#222b3d] text-slate-400">
+                  <div className="flex items-center gap-2 text-amber-300 font-mono">
+                    <Info className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                    <span>{t.forgotModalContact}</span>
+                  </div>
+                  <p>{t.forgotModalStep2}</p>
+                </div>
+
+                <div className="pt-1 flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotModal(false);
+                      resetRecoveryState();
+                    }}
+                    className="rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-[#1a2233] border border-[#222b3d] transition cursor-pointer"
+                  >
+                    {t.forgotModalClose}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={recoveryLoading}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 disabled:opacity-60 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 border border-amber-300 transition cursor-pointer"
+                  >
+                    {recoveryLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                    {language === 'om'
+                      ? 'Koodii OTP Ergi'
+                      : language === 'am'
+                      ? 'የማረጋገጫ ኮድ ላክ'
+                      : 'Send Recovery Code'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {recoveryStep === 'confirm' && (
+              <form onSubmit={handleConfirmPasswordRecovery} className="space-y-3 py-4 text-xs text-slate-300">
+                <div className="rounded-lg bg-[#070a10] border border-amber-500/30 p-2.5 text-[11px] text-amber-200 space-y-1">
+                  <div className="flex items-center gap-1.5 font-semibold text-amber-300">
+                    <ShieldCheck className="h-4 w-4 shrink-0" />
+                    <span>
+                      {language === 'om'
+                        ? `Koodiin mirkaneessaa gara ${recoveryMaskedDest || 'bilbila keessanii'} ergameera (daqiiqaa 10).`
+                        : language === 'am'
+                        ? `የማረጋገጫ ኮዱ ወደ ${recoveryMaskedDest || 'ስልክዎ'} ተልኳል (ለ10 ደቂቃ)።`
+                        : `Verification code dispatched to ${recoveryMaskedDest || 'your registered contact'} (valid 10 mins).`}
+                    </span>
+                  </div>
+                  {recoveryDevOtp && (
+                    <div className="font-mono text-[11px] text-emerald-300 pt-0.5">
+                      DEV / LOCAL TEST OTP: <strong className="tracking-widest">{recoveryDevOtp}</strong>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-amber-200/90 mb-1">
+                    {language === 'om'
+                      ? 'Koodii Mirkaneessaa (Dijiitii 6)'
+                      : language === 'am'
+                      ? 'ባለ 6-አሃዝ ማረጋገጫ ኮድ'
+                      : '6-Digit Verification Code (OTP)'}
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={recoveryOtp}
+                    onChange={(e) => setRecoveryOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="000000"
+                    required
+                    className="w-full rounded-xl bg-[#070a10] border border-[#222b3d] focus:border-amber-400 focus:outline-none px-3 py-2.5 text-center font-mono text-base tracking-[0.35em] text-amber-300 placeholder:text-slate-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-amber-200/90 mb-1">
+                    {language === 'om'
+                      ? 'Jecha Icchitii Haaraa'
+                      : language === 'am'
+                      ? 'አዲስ የይለፍ ቃል'
+                      : 'New Password'}
+                  </label>
+                  <div className="relative">
+                    <Lock className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type={showRecoveryPassword ? 'text' : 'password'}
+                      value={recoveryNewPassword}
+                      onChange={(e) => setRecoveryNewPassword(e.target.value)}
+                      placeholder={t.passwordPlaceholder}
+                      minLength={6}
+                      required
+                      className="w-full rounded-xl bg-[#070a10] border border-[#222b3d] focus:border-amber-400 focus:outline-none pl-9 pr-9 py-2.5 text-xs text-white placeholder:text-slate-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRecoveryPassword((prev) => !prev)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-300 cursor-pointer"
+                    >
+                      {showRecoveryPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {recoveryNewPassword && (
+                    <p className={`mt-1 text-[10px] font-semibold ${getPasswordStrength(recoveryNewPassword).color}`}>
+                      {getPasswordStrength(recoveryNewPassword).label}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-amber-200/90 mb-1">
+                    {language === 'om'
+                      ? 'Jecha Icchitii Haaraa Mirkaneessi'
+                      : language === 'am'
+                      ? 'አዲሱን የይለፍ ቃል ያረጋግጡ'
+                      : 'Confirm New Password'}
+                  </label>
+                  <div className="relative">
+                    <Lock className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type={showRecoveryPassword ? 'text' : 'password'}
+                      value={recoveryConfirmPassword}
+                      onChange={(e) => setRecoveryConfirmPassword(e.target.value)}
+                      placeholder={t.passwordPlaceholder}
+                      minLength={6}
+                      required
+                      className="w-full rounded-xl bg-[#070a10] border border-[#222b3d] focus:border-amber-400 focus:outline-none pl-9 pr-3 py-2.5 text-xs text-white placeholder:text-slate-500"
+                    />
+                  </div>
+                  {recoveryConfirmPassword && (
+                    <p
+                      className={`mt-1 text-[10px] font-semibold ${
+                        recoveryNewPassword === recoveryConfirmPassword ? 'text-emerald-400' : 'text-rose-400'
+                      }`}
+                    >
+                      {recoveryNewPassword === recoveryConfirmPassword ? t.passwordMatch : t.passwordMismatch}
+                    </p>
+                  )}
+                </div>
+
+                {recoveryError && (
+                  <div className="rounded-lg bg-rose-500/10 border border-rose-500/30 p-2.5 text-[11px] text-rose-300 flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-400" />
+                    <span>{recoveryError}</span>
+                  </div>
+                )}
+
+                <div className="pt-1 flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRecoveryStep('request');
+                      setRecoveryError(null);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-[#1a2233] border border-[#222b3d] transition cursor-pointer"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    {language === 'om' ? 'Deebi\'i' : language === 'am' ? 'ተመለስ' : 'Back'}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={recoveryLoading}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 disabled:opacity-60 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 border border-amber-300 transition cursor-pointer"
+                  >
+                    {recoveryLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                    {language === 'om'
+                      ? 'Jecha Icchitii Haaromsi'
+                      : language === 'am'
+                      ? 'የይለፍ ቃል ቀይር'
+                      : 'Reset Password'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {recoveryStep === 'done' && (
+              <div className="space-y-4 py-5 text-center text-xs text-slate-300">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400">
+                  <CheckCircle2 className="h-6 w-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-white">
+                    {language === 'om'
+                      ? 'Jechi Icchitii Milkaa\'inaan Haaromfameera!'
+                      : language === 'am'
+                      ? 'የይለፍ ቃልዎ በተሳካ ሁኔታ ተቀይሯል!'
+                      : 'Password Updated Successfully!'}
+                  </h4>
+                  <p className="text-slate-300 leading-relaxed">
+                    {recoveryNotice ||
+                      'Your credentials have been rotated and all older sessions were revoked.'}
+                  </p>
+                </div>
+                <div className="pt-1 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (recoveryUpdatedUsername) {
+                        loginForm.setValue('username', recoveryUpdatedUsername);
+                      }
+                      setShowForgotModal(false);
+                      setIsFormOpen(true);
+                      setFormType('login');
+                      resetRecoveryState();
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-500 hover:to-amber-400 px-5 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 border border-amber-300 transition cursor-pointer"
+                  >
+                    <LogIn className="h-3.5 w-3.5" />
+                    {language === 'om'
+                      ? 'Jecha Icchitii Haaraan Seeni'
+                      : language === 'am'
+                      ? 'በአዲሱ የይለፍ ቃል ይግቡ'
+                      : 'Proceed to Sign In'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

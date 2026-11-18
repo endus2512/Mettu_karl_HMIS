@@ -362,3 +362,34 @@ class AdminPasswordResetResponse(BaseModel):
     approval_status: str
     lockout_cleared: bool = True
     message: str
+
+
+class PasswordResetRequest(BaseModel):
+    """Self-service password recovery initiation payload (Step 1)."""
+    identifier: str = Field(..., min_length=3, max_length=128, description="Username, Staff ID, Email, Fayda ID, or Phone")
+    language: Literal["om", "am", "en"] = "en"
+
+
+class PasswordResetRequestResponse(BaseModel):
+    """Response after issuing a signed, time-limited password recovery OTP challenge."""
+    status: Literal["otp_dispatched", "submitted"]
+    challenge_token: Optional[str] = None
+    masked_destination: Optional[str] = None
+    delivery_channel: str = "sms"
+    expires_in_seconds: int = 600
+    message: str
+    dev_otp_code: Optional[str] = None
+
+
+class PasswordResetConfirmRequest(BaseModel):
+    """Self-service password recovery confirmation payload (Step 2)."""
+    challenge_token: str = Field(..., min_length=20, max_length=2048)
+    otp_code: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")
+    new_password: str = Field(..., min_length=6, max_length=128)
+
+
+class PasswordResetConfirmResponse(BaseModel):
+    """Confirmation returned once the password has been rotated and old sessions revoked."""
+    status: Literal["password_updated"]
+    username: str
+    message: str
