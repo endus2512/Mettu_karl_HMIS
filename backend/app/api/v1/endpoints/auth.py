@@ -2452,6 +2452,7 @@ async def request_password_reset(
                 minutes=otp_minutes,
                 lang=payload.language,
                 client_ip=client_ip or "unknown",
+                db=db,
             )
         except Exception:
             email_live = False
@@ -2682,6 +2683,7 @@ async def confirm_password_reset(
                 recipient_email=user.email,
                 full_name=user.full_name,
                 client_ip=client_ip or "unknown",
+                db=db,
             )
         except Exception:
             pass

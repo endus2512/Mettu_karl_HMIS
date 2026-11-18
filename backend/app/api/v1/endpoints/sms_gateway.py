@@ -11,9 +11,17 @@ from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_admin, require_roles, require_staff
+from app.core.config import settings
 from app.core.database import get_db
-from app.models.notification import SMSNotificationLog, NotificationStatus, SMSGatewayConfig
+from app.core.security import encrypt_credential_vault
+from app.models.notification import (
+    EmailGatewayConfig,
+    NotificationStatus,
+    SMSGatewayConfig,
+    SMSNotificationLog,
+)
 from app.models.user import User, UserRole
+from app.services.email_service import email_service
 from app.services.sms_service import sms_service, TEMPLATES, format_ethiopian_phone
 
 router = APIRouter()
@@ -328,3 +336,144 @@ async def get_sms_templates(
         "supported_languages": ["om", "am", "en"],
         "ussd_shortcodes": ["*907#", "*804#"],
     }
+
+
+class EmailGatewayConfigPayload(BaseModel):
+    provider: str = Field("gmail", description="Provider: gmail, resend, or custom_smtp")
+    is_active: bool = True
+    smtp_host: Optional[str] = None
+    smtp_port: int = 587
+    smtp_user: Optional[str] = None
+    smtp_password: Optional[str] = None
+    smtp_from_email: Optional[str] = None
+    smtp_use_tls: bool = True
+    resend_api_key: Optional[str] = None
+
+
+class EmailGatewayConfigResponse(BaseModel):
+    provider: str
+    is_configured: bool
+    status_summary: str
+    smtp_host: Optional[str] = None
+    smtp_port: int = 587
+    smtp_user: Optional[str] = None
+    smtp_from_email: Optional[str] = None
+    resend_api_key_masked: Optional[str] = None
+
+
+class TestEmailRequest(BaseModel):
+    recipient_email: str = Field(..., min_length=5, max_length=255)
+
+
+class TestEmailResponse(BaseModel):
+    success: bool
+    recipient_email: str
+    message: str
+
+
+async def _build_email_config_response(db: AsyncSession) -> EmailGatewayConfigResponse:
+    res = await db.execute(
+        select(EmailGatewayConfig)
+        .where(EmailGatewayConfig.is_active == True)  # noqa: E712
+        .order_by(desc(EmailGatewayConfig.id))
+    )
+    cfg = res.scalar_one_or_none()
+
+    provider = cfg.provider if cfg else ("resend" if settings.RESEND_API_KEY else "gmail")
+    smtp_host = (cfg.smtp_host if cfg else None) or settings.SMTP_HOST or "smtp.gmail.com"
+    smtp_port = (cfg.smtp_port if cfg and cfg.smtp_port else settings.SMTP_PORT) or 587
+    smtp_user = (cfg.smtp_user if cfg else None) or settings.SMTP_USER
+    smtp_from = (cfg.smtp_from_email if cfg else None) or smtp_user or settings.SMTP_FROM_EMAIL
+    has_smtp_pwd = bool((cfg and cfg.smtp_password_enc) or settings.SMTP_PASSWORD)
+    has_resend = bool((cfg and cfg.resend_api_key_enc) or settings.RESEND_API_KEY)
+
+    is_configured = bool((provider == "resend" and has_resend) or (smtp_host and smtp_user and has_smtp_pwd))
+
+    if provider == "resend" and has_resend:
+        summary = "Resend HTTPS Email API Configured & Ready for Live 5-Min OTP"
+    elif smtp_host and smtp_user and has_smtp_pwd:
+        summary = f"Live SMTP Email Ready ({smtp_host} as {smtp_user})"
+    else:
+        summary = "Not Configured Yet — Add Gmail App Password or Resend API Key below"
+
+    return EmailGatewayConfigResponse(
+        provider=provider,
+        is_configured=is_configured,
+        status_summary=summary,
+        smtp_host=smtp_host,
+        smtp_port=smtp_port,
+        smtp_user=smtp_user,
+        smtp_from_email=smtp_from,
+        resend_api_key_masked="re_****" if has_resend else None,
+    )
+
+
+@router.get("/email-config", response_model=EmailGatewayConfigResponse, summary="Get Active Email / Gmail OTP Gateway Config (Admin Only)")
+async def get_email_gateway_config(
+    current_user: Annotated[User, Depends(require_admin)],
+    db: AsyncSession = Depends(get_db),
+) -> EmailGatewayConfigResponse:
+    return await _build_email_config_response(db)
+
+
+@router.post("/email-config", response_model=EmailGatewayConfigResponse, summary="Save Gmail / Resend / SMTP OTP Gateway Config (Admin Only)")
+async def update_email_gateway_config(
+    payload: EmailGatewayConfigPayload,
+    current_user: Annotated[User, Depends(require_admin)],
+    db: AsyncSession = Depends(get_db),
+) -> EmailGatewayConfigResponse:
+    old_res = await db.execute(select(EmailGatewayConfig))
+    for old in old_res.scalars().all():
+        old.is_active = False
+
+    provider = payload.provider.strip().lower()
+    host = "smtp.gmail.com" if provider == "gmail" else (payload.smtp_host or "").strip()
+    port = 587 if provider == "gmail" else (payload.smtp_port or 587)
+    user = (payload.smtp_user or "").strip() or None
+    from_email = (payload.smtp_from_email or user or "").strip() or None
+
+    new_cfg = EmailGatewayConfig(
+        provider=provider,
+        is_active=payload.is_active,
+        smtp_host=host or None,
+        smtp_port=port,
+        smtp_user=user,
+        smtp_password_enc=(
+            encrypt_credential_vault(payload.smtp_password.strip().replace(" ", ""))
+            if payload.smtp_password and payload.smtp_password.strip()
+            else None
+        ),
+        smtp_from_email=from_email,
+        smtp_use_tls=payload.smtp_use_tls,
+        resend_api_key_enc=(
+            encrypt_credential_vault(payload.resend_api_key.strip())
+            if payload.resend_api_key and payload.resend_api_key.strip()
+            else None
+        ),
+        updated_at=datetime.now(timezone.utc),
+    )
+    db.add(new_cfg)
+    await db.commit()
+    return await _build_email_config_response(db)
+
+
+@router.post("/test-email", response_model=TestEmailResponse, summary="Send Live 5-Min Test OTP Email (Admin Only)")
+async def test_email_gateway(
+    payload: TestEmailRequest,
+    current_user: Annotated[User, Depends(require_admin)],
+    db: AsyncSession = Depends(get_db),
+) -> TestEmailResponse:
+    delivered, note = await email_service.send_password_reset_otp(
+        recipient_email=payload.recipient_email.strip(),
+        full_name=current_user.full_name,
+        otp_code="582914",
+        minutes=5,
+        lang="om",
+        client_ip="admin-test",
+        db=db,
+    )
+    return TestEmailResponse(
+        success=delivered,
+        recipient_email=payload.recipient_email.strip(),
+        message=note,
+    )

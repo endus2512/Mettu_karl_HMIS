@@ -62,7 +62,8 @@ class Settings(BaseSettings):
     STAFF_LOGIN_LOCKOUT_SECONDS: int = 900
     PASSWORD_RESET_OTP_EXPIRE_MINUTES: int = 5
 
-    # Optional SMTP Email Gateway (for live OTP & security alerts)
+    # Optional Email Gateways (for live 5-min OTP & security alerts)
+    RESEND_API_KEY: str = ""
     SMTP_HOST: str = ""
     SMTP_PORT: int = 587
     SMTP_USER: str = ""

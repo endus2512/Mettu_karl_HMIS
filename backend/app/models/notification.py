@@ -65,6 +65,30 @@ class SMSGatewayConfig(Base):
     )
 
 
+class EmailGatewayConfig(Base):
+    """Dynamic Admin-managed Gmail SMTP / Resend / Custom SMTP configuration for live OTP emails."""
+    __tablename__ = "email_gateway_configs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    provider: Mapped[str] = mapped_column(String(50), default="gmail", nullable=False)  # gmail, resend, custom_smtp
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    smtp_host: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    smtp_port: Mapped[int] = mapped_column(Integer, default=587, nullable=False)
+    smtp_user: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    smtp_password_enc: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    smtp_from_email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    smtp_use_tls: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    resend_api_key_enc: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+
 class SMSNotificationLog(Base):
     """SMS reminder dispatch audit trail."""
     __tablename__ = "sms_notifications"

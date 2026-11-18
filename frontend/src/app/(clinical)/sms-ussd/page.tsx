@@ -338,7 +338,8 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
   // Carrier Setup State
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [carrierConfig, setCarrierConfig] = useState<any>(null);
-  const [activeCarrierTab, setActiveCarrierTab] = useState<'twilio' | 'ethio_telecom' | 'android_gateway'>('twilio');
+  const [emailConfig, setEmailConfig] = useState<any>(null);
+  const [activeCarrierTab, setActiveCarrierTab] = useState<'twilio' | 'ethio_telecom' | 'android_gateway' | 'gmail_email'>('twilio');
 
   // Form fields
   const [cfgTwilioSid, setCfgTwilioSid] = useState('');
@@ -352,6 +353,15 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
 
   const [cfgAndroidUrl, setCfgAndroidUrl] = useState('');
   const [cfgAndroidToken, setCfgAndroidToken] = useState('');
+
+  // Gmail / Resend Email OTP Gateway fields
+  const [cfgEmailMode, setCfgEmailMode] = useState<'gmail' | 'resend'>('gmail');
+  const [cfgGmailUser, setCfgGmailUser] = useState('');
+  const [cfgGmailAppPwd, setCfgGmailAppPwd] = useState('');
+  const [cfgResendKey, setCfgResendKey] = useState('');
+  const [testEmailAddress, setTestEmailAddress] = useState('');
+  const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [isTestingEmail, setIsTestingEmail] = useState(false);
 
   // Live test ping state
   const [testPingPhone, setTestPingPhone] = useState('');
@@ -374,6 +384,19 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
     } catch (e) {
       console.error('Failed to load carrier config:', e);
     }
+    try {
+      const emailRes = await apiClient.get('/sms/email-config');
+      if (emailRes.data) {
+        setEmailConfig(emailRes.data);
+        if (emailRes.data.provider === 'resend') setCfgEmailMode('resend');
+        if (emailRes.data.smtp_user) {
+          setCfgGmailUser(emailRes.data.smtp_user);
+          setTestEmailAddress(emailRes.data.smtp_user);
+        }
+      }
+    } catch {
+      // Admin-only endpoint
+    }
   };
 
   useEffect(() => {
@@ -384,6 +407,34 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
     e.preventDefault();
     setIsSavingConfig(true);
     try {
+      if (activeCarrierTab === 'gmail_email') {
+        const emailPayload: any =
+          cfgEmailMode === 'resend'
+            ? {
+                provider: 'resend',
+                is_active: true,
+                resend_api_key: cfgResendKey,
+              }
+            : {
+                provider: 'gmail',
+                is_active: true,
+                smtp_host: 'smtp.gmail.com',
+                smtp_port: 587,
+                smtp_user: cfgGmailUser,
+                smtp_password: cfgGmailAppPwd,
+                smtp_from_email: cfgGmailUser,
+                smtp_use_tls: true,
+              };
+        const res = await apiClient.post('/sms/email-config', emailPayload);
+        setEmailConfig(res.data);
+        notifications.show({
+          title: 'Gmail / Email OTP Gateway Olkaa\'ameera!',
+          message: res.data.status_summary,
+          color: 'teal',
+        });
+        return;
+      }
+
       const payload: any = {
         provider: activeCarrierTab,
         is_active: true,
@@ -412,11 +463,40 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
     } catch (err: any) {
       notifications.show({
         title: "Dogoggora Qindaa'inaa",
-        message: err.message || "Qindaa'ina olkaa'uun hin dandaamne.",
+        message: err?.response?.data?.detail || err.message || "Qindaa'ina olkaa'uun hin dandaamne.",
         color: 'red',
       });
     } finally {
       setIsSavingConfig(false);
+    }
+  };
+
+  const handleTestEmail = async () => {
+    if (!testEmailAddress.trim() || !testEmailAddress.includes('@')) {
+      notifications.show({
+        title: 'Teessoo Email Galchaa',
+        message: 'Maaloo teessoo Gmail/Email keessan sirriitti galchaa.',
+        color: 'amber',
+      });
+      return;
+    }
+    setIsTestingEmail(true);
+    setTestEmailResult(null);
+    try {
+      const res = await apiClient.post('/sms/test-email', {
+        recipient_email: testEmailAddress.trim(),
+      });
+      setTestEmailResult({
+        success: res.data.success,
+        message: res.data.message,
+      });
+    } catch (err: any) {
+      setTestEmailResult({
+        success: false,
+        message: err?.response?.data?.detail || err.message || 'Email erguun hin danda\'amne.',
+      });
+    } finally {
+      setIsTestingEmail(false);
     }
   };
 
@@ -1192,7 +1272,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                     </div>
 
                     {/* Carrier Provider Tabs */}
-                    <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100 dark:bg-[#070a0f] rounded-xl border border-slate-200 dark:border-[#1e293b]">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1 bg-slate-100 dark:bg-[#070a0f] rounded-xl border border-slate-200 dark:border-[#1e293b]">
                       <button
                         type="button"
                         onClick={() => setActiveCarrierTab('twilio')}
@@ -1203,7 +1283,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                         }`}
                       >
                         <Zap className="h-3.5 w-3.5" />
-                        Twilio (Global)
+                        Twilio
                       </button>
                       <button
                         type="button"
@@ -1227,7 +1307,19 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                         }`}
                       >
                         <Wifi className="h-3.5 w-3.5" />
-                        Android GSM SIM
+                        Android SIM
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveCarrierTab('gmail_email')}
+                        className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                          activeCarrierTab === 'gmail_email'
+                            ? 'bg-white dark:bg-amber-500 text-slate-900 dark:text-slate-950 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <Mail className="h-3.5 w-3.5" />
+                        Gmail / OTP
                       </button>
                     </div>
 
@@ -1372,6 +1464,96 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                         </div>
                       )}
 
+                      {activeCarrierTab === 'gmail_email' && (
+                        <div className="space-y-3.5 p-4 rounded-2xl border border-slate-200 dark:border-[#1e293b] bg-slate-50/50 dark:bg-[#101726]/50">
+                          <div className="flex items-center justify-between gap-2 text-xs">
+                            <span className="text-slate-600 dark:text-slate-400">
+                              <strong>Live 5-Min OTP Email:</strong>{' '}
+                              {emailConfig?.status_summary || 'Gmail App Password ykn Resend API galchaa (Vercel redeploy hin barbaachisu).'}
+                            </span>
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase flex-shrink-0 ${
+                                emailConfig?.is_configured
+                                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                  : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                              }`}
+                            >
+                              {emailConfig?.is_configured ? 'Live Email Ready' : 'Setup Needed'}
+                            </span>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setCfgEmailMode('gmail')}
+                              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold border transition ${
+                                cfgEmailMode === 'gmail'
+                                  ? 'bg-amber-500 text-slate-950 border-amber-400'
+                                  : 'bg-white dark:bg-[#070a0f] text-slate-600 dark:text-slate-400 border-slate-300 dark:border-[#1e293b]'
+                              }`}
+                            >
+                              Gmail App Password (Bilisaa)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCfgEmailMode('resend')}
+                              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold border transition ${
+                                cfgEmailMode === 'resend'
+                                  ? 'bg-amber-500 text-slate-950 border-amber-400'
+                                  : 'bg-white dark:bg-[#070a0f] text-slate-600 dark:text-slate-400 border-slate-300 dark:border-[#1e293b]'
+                              }`}
+                            >
+                              Resend API (HTTPS Key)
+                            </button>
+                          </div>
+
+                          {cfgEmailMode === 'gmail' ? (
+                            <>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                  Gmail Address *
+                                </label>
+                                <input
+                                  type="email"
+                                  required
+                                  placeholder="yourname@gmail.com"
+                                  value={cfgGmailUser}
+                                  onChange={(e) => setCfgGmailUser(e.target.value)}
+                                  className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                  Gmail 16-Char App Password * (myaccount.google.com/apppasswords)
+                                </label>
+                                <input
+                                  type="password"
+                                  required
+                                  placeholder="xxxx xxxx xxxx xxxx"
+                                  value={cfgGmailAppPwd}
+                                  onChange={(e) => setCfgGmailAppPwd(e.target.value)}
+                                  className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Resend API Key * (resend.com/api-keys)
+                              </label>
+                              <input
+                                type="password"
+                                required
+                                placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxxx"
+                                value={cfgResendKey}
+                                onChange={(e) => setCfgResendKey(e.target.value)}
+                                className="w-full px-3.5 py-2 bg-white dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-end gap-3 pt-2">
                         <button
                           type="submit"
@@ -1384,6 +1566,50 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                     </form>
 
                     {/* LIVE CONNECTION TEST SECTION */}
+                    {activeCarrierTab === 'gmail_email' ? (
+                      <div className="pt-4 border-t border-slate-200 dark:border-[#1e293b] space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-emerald-500" />
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                            Qorannoo OTP Email Dhugaa (Live Gmail OTP Test)
+                          </h4>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          Teessoo Gmail keessan galchaatii 'Test OTP Email Ergi' cuqaasaa — koodiin 5-min OTP inbox keessan qaqqabuu mirkaneeffadhaa:
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="email"
+                            placeholder="yourname@gmail.com"
+                            value={testEmailAddress}
+                            onChange={(e) => setTestEmailAddress(e.target.value)}
+                            className="flex-1 px-3.5 py-2.5 bg-slate-50 dark:bg-[#070a0f] border border-slate-300 dark:border-[#1e293b] rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleTestEmail}
+                            disabled={isTestingEmail}
+                            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95 flex-shrink-0"
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                            {isTestingEmail ? 'Ergaa jira...' : 'Test OTP Email Ergi'}
+                          </button>
+                        </div>
+                        {testEmailResult && (
+                          <div className={`p-3 rounded-xl border text-xs ${
+                            testEmailResult.success
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                              : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300'
+                          }`}>
+                            <p className="font-bold flex items-center gap-1.5">
+                              {testEmailResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <AlertTriangle className="h-4 w-4 text-amber-500" />}
+                              {testEmailResult.success ? 'OTP Email Milkaa\'inaan Ergameera!' : 'Email Gateway Response:'}
+                            </p>
+                            <p className="mt-1 text-[11px] font-mono leading-relaxed">{testEmailResult.message}</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
                     <div className="pt-4 border-t border-slate-200 dark:border-[#1e293b] space-y-3">
                       <div className="flex items-center gap-2">
                         <PhoneCall className="h-4 w-4 text-emerald-500" />
@@ -1428,6 +1654,7 @@ export default function SMSUSSDGatewayPage(): React.ReactElement {
                         </div>
                       )}
                     </div>
+                    )}
                   </div>
                 </div>
               </div>
