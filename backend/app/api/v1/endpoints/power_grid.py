@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_roles
 from app.core.database import get_db
-from app.models.power_grid import HospitalPowerTelemetry, PowerSourceType
+from app.models.power_grid import ATSState, HospitalPowerTelemetry, PowerSourceType
 from app.models.user import User, UserRole
 from app.schemas.power_grid import (
     PowerGridSummary,
@@ -54,6 +54,7 @@ async def get_power_summary(
         # Default nominal state if no telemetry posted yet
         latest = HospitalPowerTelemetry(
             active_source=PowerSourceType.EEU_GRID,
+            ats_state=ATSState.MAIN_GRID_ENGAGED,
             eeu_grid_online=True,
             eeu_grid_voltage=380.0,
             gen1_running=False,
