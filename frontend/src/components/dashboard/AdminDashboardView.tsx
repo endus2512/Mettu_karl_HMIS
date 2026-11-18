@@ -20,6 +20,7 @@ import { AdminLedControlPanel } from '@/components/admin/AdminLedControlPanel';
 import { AdminStaffApprovalPanel } from '@/components/admin/AdminStaffApprovalPanel';
 import { AdminWorkforceMonitor } from '@/components/admin/AdminWorkforceMonitor';
 import { AdminUserDirectoryPanel } from '@/components/admin/AdminUserDirectoryPanel';
+import { AdminDisasterRecoveryPanel } from '@/components/admin/AdminDisasterRecoveryPanel';
 import { MorphingArrowButton } from '@/components/admin/MorphingArrowButton';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/api';
@@ -504,6 +505,9 @@ export function AdminDashboardView(): React.ReactElement {
 
         {/* 3B2. Staff & Patient Directory, Biography & Password Recovery (Minimized by Default) */}
         <AdminUserDirectoryPanel />
+
+        {/* 3B3. PostgreSQL Automated Backup & Disaster Recovery Suite (Minimized by Default) */}
+        <AdminDisasterRecoveryPanel />
 
         {/* 3C. Digital LED Marquee Board (Minimized; All Edits Inside Settings) */}
         <AdminLedControlPanel />

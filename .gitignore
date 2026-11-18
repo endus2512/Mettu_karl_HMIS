@@ -62,6 +62,13 @@ secrets.yaml
 *.db
 *.sqlite
 *.sqlite3
+backups/*.gz
+backups/*.sha256
+backups/*.json
+backend/backups/*.gz
+backend/backups/*.sha256
+backend/backups/*.json
+!backend/backups/.gitkeep
 
 # ─── OS ───────────────────────────────────────────────────────
 .DS_Store
