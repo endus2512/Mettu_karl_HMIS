@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.repository == 'endus2512/Mettu_karl_HMIS'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

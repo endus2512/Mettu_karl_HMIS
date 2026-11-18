@@ -1,21 +1,26 @@
 /** @type {import('next').NextConfig} */
 const isGithubActions = !!process.env.GITHUB_ACTIONS;
-const isVercel = !!process.env.VERCEL;
+const isDockerBuild = process.env.DOCKER_BUILD === 'true';
+const isStaticExport = isGithubActions && !isDockerBuild;
 
 const nextConfig = {
-  ...(isGithubActions
+  ...(isDockerBuild
     ? {
-        output: 'export',
-        basePath: '/Mettu_karl_HMIS',
+        output: 'standalone',
       }
-    : {}),
+    : isStaticExport
+      ? {
+          output: 'export',
+          basePath: '/Mettu_karl_HMIS',
+        }
+      : {}),
   reactStrictMode: false,
   swcMinify: true,
   images: {
-    unoptimized: isGithubActions,
+    unoptimized: isStaticExport,
     domains: ['localhost'],
   },
-  ...(isGithubActions
+  ...(isStaticExport
     ? {}
     : {
         async rewrites() {

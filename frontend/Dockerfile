@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install exact production & dev dependencies required for build
-RUN npm ci
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # ==============================================================================
 # STAGE 2: APPLICATION BUILDER
@@ -22,9 +22,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set build-time optimization flags
+# Set build-time optimization flags (DOCKER_BUILD=true enables Next.js standalone output)
 ENV NEXT_TELEMETRY_DISABLED=1 \
-    NODE_ENV=production
+    NODE_ENV=production \
+    DOCKER_BUILD=true
 
 # Compile static pages and standalone server bundle
 RUN npm run build
@@ -59,7 +60,7 @@ EXPOSE 3000
 
 # Native Node.js HTTP probe for healthcheck (no curl or shell required)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD ["node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) process.exit(1)}).on('error', () => process.exit(1))"]
+    CMD ["node", "-e", "require('http').get('http://localhost:3000/', (r) => {if (r.statusCode >= 400) process.exit(1)}).on('error', () => process.exit(1))"]
 
 # Directly execute the standalone Next.js server
 ENTRYPOINT ["node", "server.js"]

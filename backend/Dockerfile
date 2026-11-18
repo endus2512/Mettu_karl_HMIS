@@ -6,13 +6,11 @@ FROM cgr.dev/chainguard/python:latest-dev AS builder
 
 USER root
 
-# Install essential compilation headers for native C/C++ extensions
+# Install essential compilation headers for native C/C++ extensions (Chainguard Wolfi)
 RUN apk update && apk add --no-cache \
     build-base \
-    libpq-dev \
     libffi-dev \
-    openssl-dev \
-    git
+    openssl-dev
 
 WORKDIR /build
 
@@ -21,13 +19,14 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Upgrade pip, setuptools, wheel within the venv
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel hatchling
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Copy project definition first to maximize Docker layer caching
 COPY pyproject.toml ./
 
-# Install project dependencies directly into /opt/venv
-RUN pip install --no-cache-dir .
+# Extract runtime dependencies from pyproject.toml and install directly into /opt/venv
+RUN python -c "import tomllib; deps = tomllib.load(open('pyproject.toml', 'rb'))['project']['dependencies']; open('requirements.txt', 'w').write('\n'.join(deps) + '\n')" \
+    && pip install --no-cache-dir -r requirements.txt
 
 # ==============================================================================
 # STAGE 2: PRODUCTION RUNTIME (DISTROLESS)
