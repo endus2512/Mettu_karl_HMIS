@@ -499,7 +499,7 @@ export function AdminDashboardView(): React.ReactElement {
         {/* 3A. Staff Sign-Up Guard & Security Alarms (Minimized by Default) */}
         <AdminStaffApprovalPanel />
 
-        {/* 3B. Unified Workforce & Staff Command Hub (Deduplicated 4-in-1: Role Portals, Live Activity, Directory & Passwords, Direct Contact) */}
+        {/* 3B. Staff Center (Workstation Portals, Live Activity, Directory & Passwords, Direct Contact) */}
         <AdminUnifiedWorkforceHub />
 
         {/* 3C. PostgreSQL Automated Backup & Disaster Recovery Suite (Minimized by Default) */}

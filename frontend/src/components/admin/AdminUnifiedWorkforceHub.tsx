@@ -136,14 +136,14 @@ export function AdminUnifiedWorkforceHub(): React.ReactElement {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
                   {lang === 'om'
-                    ? "Wiirtuu Hojjettootaa fi Kutaalee Hojii (Unified Workforce Command)"
+                    ? "Wiirtuu Ogeeyyii (Staff Center)"
                     : lang === 'am'
-                    ? "የሰራተኞችና የስራ ክፍሎች ማዕከል"
-                    : "Unified Workforce & Staff Command Center"}
+                    ? "የሰራተኞች ማዕከል (Staff Center)"
+                    : "Staff Center"}
                 </h2>
                 <span className="text-xs font-mono font-black px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/25 text-indigo-950 dark:text-indigo-200 border-2 border-indigo-500/60 dark:border-indigo-400/50 flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                  4-in-1 Unified Hub
+                  Staff Operations Hub
                 </span>
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-500/20 text-teal-900 dark:text-teal-200 border border-teal-400/40">
                   7 Workstations
@@ -151,10 +151,10 @@ export function AdminUnifiedWorkforceHub(): React.ReactElement {
               </div>
               <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">
                 {lang === 'om'
-                  ? "Kutaalee Hojii (Portals) • Hojii Live • Galmee & Jecha Darbii • Quunnamtii Battalaa"
+                  ? "Kutaalee Hojii • Hojii Live • Galmee & Passwords • Quunnamtii"
                   : lang === 'am'
-                  ? "የስራ በሮች • የነባር ሰራተኞች ሁኔታ • መዝገብና የይለፍ ቃል • ቀጥታ ግንኙነት"
-                  : "Role Portals • Live Telemetry & Access • Directory & Passwords • Direct Paging"}
+                  ? "የስራ በሮች • የቀጥታ ስራ • መዝገብና የይለፍ ቃል • ቀጥታ ግንኙነት"
+                  : "Workstations • Live Telemetry • Directory & Passwords • Direct Paging"}
               </p>
             </div>
           </div>
