@@ -140,11 +140,11 @@ const staffWorkstationPortals: NavItem[] = [
     allowedRoles: ['admin', 'super_admin'],
   },
   {
-    key: 'portal_admin',
-    href: '/portal/admin',
-    icon: ShieldCheck,
-    badge: 'CEO',
-    badgeColor: 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/50',
+    key: 'patient_portal',
+    href: '/patient-portal',
+    icon: HeartPulse,
+    badge: 'Portal',
+    badgeColor: 'bg-rose-500/20 text-rose-950 dark:text-rose-200 border border-rose-500/45',
     allowedRoles: ['admin', 'super_admin'],
   },
 ];
@@ -408,18 +408,19 @@ export function Sidebar(): React.ReactElement {
   const { t, language } = useTranslation();
   const { user, logout, activeRole, simulatedRole, setSimulatedRole } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Default to minimized/collapsed mode on opening
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const realRole: UserRole = user?.role || 'patient';
   const isSupervisorRole = isAdminRole(realRole);
   const effectiveRole: UserRole = isSupervisorRole ? activeRole : realRole;
   const isPatientRole = effectiveRole === 'patient';
 
-  // Collapsible Accordion State for the Domains
+  // Collapsible Accordion State for the Domains (closed by default for clean, compact overview)
   const [openDomains, setOpenDomains] = useState<{ [key: string]: boolean }>({
-    portals: true,
-    clinical: true,
-    diagnostics: true,
+    portals: false,
+    clinical: false,
+    diagnostics: false,
     operations: false,
     finance: false,
   });
@@ -440,15 +441,18 @@ export function Sidebar(): React.ReactElement {
     }
   };
 
-  // Restore collapsed state
+  // Restore collapsed state (defaults to true / minimized when opening)
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('mkh_sidebar_collapsed');
+      const saved = sessionStorage.getItem('mkh_sidebar_collapsed');
       if (saved !== null) {
         setIsCollapsed(saved === 'true');
+      } else {
+        // By default when opening, start minimized
+        setIsCollapsed(true);
       }
     } catch {
-      // ignore
+      setIsCollapsed(true);
     }
   }, []);
 
@@ -456,6 +460,7 @@ export function Sidebar(): React.ReactElement {
     setIsCollapsed((prev) => {
       const next = !prev;
       try {
+        sessionStorage.setItem('mkh_sidebar_collapsed', String(next));
         localStorage.setItem('mkh_sidebar_collapsed', String(next));
       } catch {
         // ignore
@@ -628,6 +633,12 @@ export function Sidebar(): React.ReactElement {
             LIVE
           </span>
         )}
+        {collapsed && (
+          <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-extrabold text-slate-950 dark:text-white shadow-xl border border-sky-400 dark:border-slate-700">
+            <span>{dashboardLabel}</span>
+            <span className="font-mono text-[10px] text-emerald-700 dark:text-emerald-300">(LIVE)</span>
+          </div>
+        )}
       </Link>
     );
   };
@@ -768,27 +779,42 @@ export function Sidebar(): React.ReactElement {
         } flex-shrink-0 border-r-2 border-sky-300/75 dark:border-sky-400/35 bg-white/45 dark:bg-slate-950/45 backdrop-blur-2xl text-slate-950 dark:text-white flex-col h-screen sticky top-0 shadow-[10px_0_32px_-10px_rgba(14,165,233,0.22)] dark:shadow-2xl select-none z-20 transition-all duration-300`}
       >
         {/* Brand Header */}
-        <Link
-          href={getRolePortalPath(effectiveRole)}
+        <div
           className={`flex h-16 items-center ${
-            isCollapsed ? 'justify-center px-2' : 'gap-3 px-4'
-          } border-b border-sky-300/60 dark:border-slate-700/60 flex-shrink-0 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md hover:bg-white/55 dark:hover:bg-slate-800/55 transition-all duration-300 group cursor-pointer`}
-          title={t('hospital_name')}
+            isCollapsed ? 'justify-center px-2' : 'justify-between px-3.5'
+          } border-b border-sky-300/60 dark:border-slate-700/60 flex-shrink-0 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md`}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/35 to-orange-500/25 border-2 border-amber-500/60 text-amber-800 dark:text-amber-300 shrink-0 group-hover:scale-110 group-hover:rotate-3 shadow-[0_0_16px_rgba(245,158,11,0.25)] transition-all duration-300">
-            <Building2 className="h-5 w-5" />
-          </div>
-          {!isCollapsed && (
-            <div className="min-w-0 flex-1">
-              <span className="text-sm font-black text-slate-950 dark:text-white tracking-tight leading-tight block group-hover:text-indigo-800 dark:group-hover:text-amber-300 transition-colors truncate">
-                {t('hospital_name')}
-              </span>
-              <span className="text-[11px] font-extrabold text-amber-800 dark:text-amber-300 block truncate">
-                Enterprise Clinical OS
-              </span>
+          <Link
+            href={getRolePortalPath(effectiveRole)}
+            className="flex items-center gap-2.5 min-w-0 flex-1 group cursor-pointer"
+            title={t('hospital_name')}
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/35 to-orange-500/25 border-2 border-amber-500/60 text-amber-800 dark:text-amber-300 shrink-0 group-hover:scale-110 group-hover:rotate-3 shadow-[0_0_16px_rgba(245,158,11,0.25)] transition-all duration-300">
+              <Building2 className="h-5 w-5" />
             </div>
+            {!isCollapsed && (
+              <div className="min-w-0 flex-1">
+                <span className="text-sm font-black text-slate-950 dark:text-white tracking-tight leading-tight block group-hover:text-indigo-800 dark:group-hover:text-amber-300 transition-colors truncate">
+                  {t('hospital_name')}
+                </span>
+                <span className="text-[11px] font-extrabold text-amber-800 dark:text-amber-300 block truncate">
+                  Enterprise Clinical OS
+                </span>
+              </div>
+            )}
+          </Link>
+          {!isCollapsed && (
+            <button
+              type="button"
+              onClick={toggleCollapse}
+              title="Minimize sidebar"
+              className="p-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/70 transition-colors cursor-pointer shrink-0 ml-1"
+              aria-label="Minimize sidebar"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
           )}
-        </Link>
+        </div>
 
         {/* Navigation Groups (Dashboard First -> Staff Portal -> Remaining Domains) */}
         <nav className={`flex-1 overflow-y-auto space-y-3.5 ${isCollapsed ? 'p-1.5' : 'p-3'} custom-scrollbar`}>
