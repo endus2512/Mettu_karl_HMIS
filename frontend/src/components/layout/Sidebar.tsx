@@ -553,6 +553,74 @@ export function Sidebar(): React.ReactElement {
     return list;
   }, [isSupervisorRole, filteredPortals, filteredClinical, filteredDiagnostics, filteredOperations, filteredFinance]);
 
+  // Active Page Resolution: Identifies what is currently open/displayed on dashboard and under which domain
+  const activePageInfo = useMemo(() => {
+    const currentPath = pathname;
+    const dashboardHref = getRolePortalPath(effectiveRole);
+    if (currentPath === dashboardHref || currentPath === '/dashboard') {
+      return {
+        domainId: 'dashboard',
+        domainTitle: language === 'om' ? 'Dashboard' : language === 'am' ? 'ዳሽቦርድ' : 'Dashboard',
+        itemKey: 'dashboard',
+        itemTitle: language === 'om' ? 'Dashboard (Wiirtuu Guddicha)' : 'Executive Dashboard',
+        href: dashboardHref,
+        isDashboard: true,
+      };
+    }
+
+    for (const domain of domains) {
+      const foundItem = domain.items.find((item) => {
+        const itemHref = item.key === 'dashboard' ? getRolePortalPath(effectiveRole) : item.href;
+        return currentPath === itemHref || currentPath.startsWith(itemHref + '/');
+      });
+      if (foundItem) {
+        const domainTitle =
+          domain.id === 'portals'
+            ? language === 'om'
+              ? 'Wiirtuu Ogeeyyii'
+              : language === 'am'
+              ? 'የባለሙያዎች ክፍል'
+              : 'Staff Portal'
+            : t(domain.titleKey) || domain.fallbackTitle;
+        return {
+          domainId: domain.id,
+          domainTitle,
+          itemKey: foundItem.key,
+          itemTitle: t(foundItem.key),
+          href: foundItem.href,
+          icon: foundItem.icon,
+          badge: foundItem.badge,
+          isDashboard: false,
+        };
+      }
+    }
+
+    return null;
+  }, [pathname, effectiveRole, domains, language, t]);
+
+  // Synchronize accordion state on route change:
+  // Auto-open ONLY the domain containing the active page, keeping all other domains minimized!
+  useEffect(() => {
+    if (activePageInfo && !activePageInfo.isDashboard) {
+      setOpenDomains({
+        portals: activePageInfo.domainId === 'portals',
+        clinical: activePageInfo.domainId === 'clinical',
+        diagnostics: activePageInfo.domainId === 'diagnostics',
+        operations: activePageInfo.domainId === 'operations',
+        finance: activePageInfo.domainId === 'finance',
+      });
+    } else if (activePageInfo?.isDashboard) {
+      // On primary dashboard, keep all sub-domains closed so minimized sidebar stays strictly compact
+      setOpenDomains({
+        portals: false,
+        clinical: false,
+        diagnostics: false,
+        operations: false,
+        finance: false,
+      });
+    }
+  }, [activePageInfo?.domainId, activePageInfo?.isDashboard]);
+
   // Stagger-warm ONLY primary portals once per session on idle so clicked links respond instantaneously
   useEffect(() => {
     if (corePortalsPrefetched) return;
@@ -595,13 +663,13 @@ export function Sidebar(): React.ReactElement {
           if (closeMobile) setIsMobileOpen(false);
         }}
         onMouseEnter={() => router.prefetch(dashboardHref)}
-        title={collapsed ? dashboardLabel : undefined}
+        title={collapsed ? `${dashboardLabel} ${isDashboardActive ? '(Hojirra jira / Active)' : ''}` : undefined}
         className={`mkh-sidebar-rect group relative flex items-center overflow-hidden ${
-          collapsed ? 'justify-center px-2 py-3' : 'justify-between px-3.5 py-3'
-        } rounded-2xl border-2 backdrop-blur-md cursor-pointer ${
+          collapsed ? 'justify-center p-2.5 w-11 h-11 mx-auto' : 'justify-between px-3.5 py-3'
+        } rounded-2xl border-2 backdrop-blur-md cursor-pointer transition-all duration-300 ${
           isDashboardActive
-            ? 'mkh-sidebar-active-glow bg-gradient-to-r from-sky-500/25 via-indigo-500/20 to-amber-500/25 dark:from-sky-500/30 dark:via-indigo-500/25 dark:to-amber-500/25 border-sky-500/85 dark:border-amber-400/75 text-slate-950 dark:text-white'
-            : 'bg-white/40 dark:bg-slate-900/40 border-sky-300/80 dark:border-sky-400/40 text-slate-950 dark:text-white hover:bg-white/65 dark:hover:bg-sky-500/20 hover:border-sky-500 hover:translate-x-1 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-6px_rgba(14,165,233,0.38)]'
+            ? 'mkh-sidebar-active-glow bg-gradient-to-r from-sky-500/25 via-indigo-500/20 to-amber-500/25 dark:from-sky-500/30 dark:via-indigo-500/25 dark:to-amber-500/25 border-sky-500/85 dark:border-amber-400/75 text-slate-950 dark:text-white shadow-[0_0_16px_rgba(14,165,233,0.35)] scale-105'
+            : 'bg-white/40 dark:bg-slate-900/40 border-sky-300/80 dark:border-sky-400/40 text-slate-950 dark:text-white hover:bg-white/65 dark:hover:bg-sky-500/20 hover:border-sky-500 hover:scale-105'
         }`}
       >
         <span
@@ -612,6 +680,15 @@ export function Sidebar(): React.ReactElement {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent"
         />
+
+        {/* Pulsing Beacon if dashboard is currently active in collapsed mode */}
+        {isDashboardActive && collapsed && (
+          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white dark:border-slate-900" />
+          </span>
+        )}
+
         <div className={`relative z-10 flex items-center gap-2.5 ${collapsed ? 'justify-center' : 'min-w-0'}`}>
           <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-sky-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0">
             <LayoutDashboard className="h-4.5 w-4.5" />
@@ -634,9 +711,11 @@ export function Sidebar(): React.ReactElement {
           </span>
         )}
         {collapsed && (
-          <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-extrabold text-slate-950 dark:text-white shadow-xl border border-sky-400 dark:border-slate-700">
+          <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-black text-slate-950 dark:text-white shadow-xl border border-sky-400 dark:border-slate-700">
             <span>{dashboardLabel}</span>
-            <span className="font-mono text-[10px] text-emerald-700 dark:text-emerald-300">(LIVE)</span>
+            <span className="font-mono text-[10px] text-emerald-700 dark:text-emerald-300 font-extrabold">
+              {isDashboardActive ? '(HOJIRRA JIRA)' : '(LIVE)'}
+            </span>
           </div>
         )}
       </Link>
@@ -650,20 +729,28 @@ export function Sidebar(): React.ReactElement {
     const { id, titleKey, fallbackTitle, icon: DomainIcon, items } = domain;
     if (!items || items.length === 0) return null;
 
-    const isOpen = openDomains[id] ?? true;
+    const isOpen = openDomains[id] ?? false;
+    const isDomainActive = activePageInfo?.domainId === id;
     const domainTitle =
       id === 'portals'
-        ? 'Staff Portal'
+        ? language === 'om'
+          ? 'Wiirtuu Ogeeyyii'
+          : language === 'am'
+          ? 'የባለሙያዎች ክፍል'
+          : 'Staff Portal'
         : t(titleKey) || fallbackTitle;
 
-    return (
-      <div key={id} className="space-y-1.5">
-        {!collapsed ? (
+    // 1. EXPANDED SIDEBAR ACCORDION VIEW
+    if (!collapsed) {
+      return (
+        <div key={id} className="space-y-1.5">
           <button
             type="button"
             onClick={() => toggleDomain(id)}
-            className={`mkh-sidebar-rect relative overflow-hidden w-full flex items-center justify-between px-3 py-2.5 rounded-xl backdrop-blur-md border-2 cursor-pointer group ${
-              id === 'portals'
+            className={`mkh-sidebar-rect relative overflow-hidden w-full flex items-center justify-between px-3 py-2.5 rounded-xl backdrop-blur-md border-2 cursor-pointer group transition-all duration-300 ${
+              isDomainActive
+                ? 'bg-amber-400/20 dark:bg-amber-500/20 border-amber-500/85 dark:border-amber-400/70 text-slate-950 dark:text-white shadow-[0_0_16px_rgba(245,158,11,0.25)] translate-x-1'
+                : id === 'portals'
                 ? 'bg-amber-400/15 dark:bg-amber-500/15 border-amber-400/75 dark:border-amber-400/45 text-slate-950 dark:text-white hover:bg-amber-400/25 dark:hover:bg-amber-500/25 hover:border-amber-500 hover:translate-x-1'
                 : 'bg-white/35 dark:bg-slate-900/35 border-sky-300/60 dark:border-sky-400/30 text-slate-950 dark:text-white hover:bg-white/55 dark:hover:bg-sky-500/20 hover:border-sky-500/75 hover:translate-x-1'
             }`}
@@ -673,12 +760,27 @@ export function Sidebar(): React.ReactElement {
               className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/35 dark:via-white/10 to-transparent"
             />
             <div className="relative z-10 flex items-center gap-2.5 min-w-0">
-              <DomainIcon className="w-4 h-4 text-amber-700 dark:text-amber-300 group-hover:scale-115 group-hover:rotate-12 transition-transform duration-300 shrink-0" />
+              <div className="relative">
+                <DomainIcon className={`w-4 h-4 transition-transform duration-300 shrink-0 ${
+                  isDomainActive ? 'text-amber-700 dark:text-amber-300 scale-110' : 'text-amber-700 dark:text-amber-300 group-hover:scale-115 group-hover:rotate-12'
+                }`} />
+                {isDomainActive && (
+                  <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                )}
+              </div>
               <span className="text-xs font-black uppercase tracking-wider text-slate-950 dark:text-white truncate">
                 {domainTitle}
               </span>
             </div>
             <div className="relative z-10 flex items-center gap-1.5 shrink-0">
+              {isDomainActive && (
+                <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/50">
+                  {language === 'om' ? 'HOJIRRA' : 'ACTIVE'}
+                </span>
+              )}
               <span className="text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-sky-500/20 dark:bg-sky-500/25 text-sky-950 dark:text-sky-100 border border-sky-500/50">
                 {items.length}
               </span>
@@ -689,16 +791,136 @@ export function Sidebar(): React.ReactElement {
               />
             </div>
           </button>
-        ) : (
-          <div className="my-2 border-t-2 border-sky-300/60 dark:border-slate-700/70 mx-2" title={domainTitle} />
-        )}
 
-        <div
-          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
-            isOpen || collapsed ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+          <div
+            className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+              isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+            }`}
+          >
+            <div className="overflow-hidden space-y-1.5 pt-0.5">
+              {items.map((item) => {
+                const itemHref = item.key === 'dashboard' ? getRolePortalPath(effectiveRole) : item.href;
+                const isActive =
+                  pathname === itemHref ||
+                  (item.key === 'dashboard' && pathname === getRolePortalPath(effectiveRole));
+                const IconComponent = item.icon;
+                const itemLabel = t(item.key);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={itemHref}
+                    prefetch={true}
+                    onClick={() => setIsMobileOpen(false)}
+                    onMouseEnter={() => router.prefetch(itemHref)}
+                    onTouchStart={() => router.prefetch(itemHref)}
+                    onFocus={() => router.prefetch(itemHref)}
+                    className={`mkh-sidebar-rect group relative flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] sm:text-sm tracking-tight backdrop-blur-md cursor-pointer transition-all duration-300 ${
+                      isActive
+                        ? 'mkh-sidebar-active-glow bg-gradient-to-r from-amber-400/35 via-sky-400/25 to-indigo-400/25 dark:from-amber-500/30 dark:via-sky-500/20 dark:to-indigo-500/20 text-slate-950 dark:text-white font-black border-2 border-amber-500/80 dark:border-amber-400/70 translate-x-1 shadow-[0_0_14px_rgba(245,158,11,0.25)]'
+                        : 'bg-white/30 dark:bg-slate-900/30 text-slate-950 dark:text-white font-extrabold border border-sky-200/70 dark:border-slate-700/50 hover:bg-white/60 dark:hover:bg-sky-500/20 hover:border-sky-400/85 dark:hover:border-sky-400/60 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_-6px_rgba(14,165,233,0.35)]'
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent"
+                    />
+
+                    <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+                      <div className="relative">
+                        <IconComponent
+                          className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${
+                            isActive
+                              ? 'text-amber-800 dark:text-amber-300 scale-110'
+                              : 'text-indigo-700 dark:text-sky-300 group-hover:text-amber-700 dark:group-hover:text-amber-300 group-hover:scale-115 group-hover:-rotate-6'
+                          }`}
+                        />
+                        {isActive && (
+                          <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                          </span>
+                        )}
+                      </div>
+                      <span className="truncate drop-shadow-xs">{itemLabel}</span>
+                    </div>
+                    {item.badge && (
+                      <span
+                        className={`relative z-10 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full shrink-0 transition-transform duration-300 group-hover:scale-105 ${
+                          isActive
+                            ? 'bg-amber-500/30 text-slate-950 dark:text-amber-100 border border-amber-500/60'
+                            : item.badgeColor || 'bg-slate-200/80 dark:bg-slate-800/80 text-slate-950 dark:text-white border border-slate-400/60 dark:border-slate-600/60'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 2. MINIMIZED / COLLAPSED SIDEBAR VIEW
+    return (
+      <div key={id} className="flex flex-col items-center space-y-1.5 w-full">
+        {/* Domain Category Icon Button */}
+        <button
+          type="button"
+          onClick={() => toggleDomain(id)}
+          title={`${domainTitle} ${isDomainActive ? '(Banameera / Active Domain)' : ''}`}
+          aria-expanded={isOpen}
+          className={`group/cat relative flex items-center justify-center w-11 h-11 rounded-xl transition-all duration-300 cursor-pointer ${
+            isDomainActive
+              ? 'mkh-sidebar-active-glow bg-gradient-to-br from-amber-400/40 via-sky-400/30 to-indigo-500/30 dark:from-amber-500/40 dark:via-sky-500/30 dark:to-indigo-500/30 border-2 border-amber-500 dark:border-amber-400 shadow-[0_0_16px_rgba(245,158,11,0.4)] scale-105'
+              : isOpen
+              ? 'bg-sky-500/20 dark:bg-sky-500/25 border-2 border-sky-400/70 dark:border-sky-400/50 text-slate-950 dark:text-white shadow-sm'
+              : 'bg-white/35 dark:bg-slate-900/35 border border-sky-300/60 dark:border-slate-700/50 text-slate-950 dark:text-white hover:bg-white/65 dark:hover:bg-slate-800/65 hover:border-sky-400 hover:scale-105'
           }`}
         >
-          <div className="overflow-hidden space-y-1.5 pt-0.5">
+          <DomainIcon
+            className={`w-5 h-5 transition-transform duration-300 ${
+              isDomainActive
+                ? 'text-amber-800 dark:text-amber-300 scale-110'
+                : 'text-indigo-800 dark:text-sky-200 group-hover/cat:scale-115'
+            }`}
+          />
+
+          {/* Pulsing Beacon if this domain contains the active route */}
+          {isDomainActive && (
+            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white dark:border-slate-900" />
+            </span>
+          )}
+
+          {/* Indicator chip at the bottom: arrow if open, or item count if closed */}
+          <span className="absolute -bottom-1 text-[8px] font-mono font-black px-1 rounded-full bg-slate-900/85 text-white dark:bg-white/90 dark:text-slate-950 border border-slate-700 dark:border-slate-300 leading-none py-0.5">
+            {isOpen ? '▲' : items.length}
+          </span>
+
+          {/* Floating Tooltip */}
+          <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover/cat:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-black text-slate-950 dark:text-white shadow-xl border border-sky-400 dark:border-slate-700">
+            <span>{domainTitle}</span>
+            {isDomainActive && (
+              <span className="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold">
+                ({language === 'om' ? 'BANAMEERA' : 'ACTIVE'})
+              </span>
+            )}
+            <span className="font-mono text-[10px] text-slate-600 dark:text-slate-300">({items.length})</span>
+          </div>
+        </button>
+
+        {/* Sub-items accordion: rendered ONLY when isOpen === true */}
+        <div
+          className={`grid w-full transition-[grid-template-rows,opacity] duration-300 ease-out ${
+            isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+          }`}
+        >
+          <div className="overflow-hidden space-y-1.5 pt-1.5 flex flex-col items-center w-full">
             {items.map((item) => {
               const itemHref = item.key === 'dashboard' ? getRolePortalPath(effectiveRole) : item.href;
               const isActive =
@@ -716,51 +938,47 @@ export function Sidebar(): React.ReactElement {
                   onMouseEnter={() => router.prefetch(itemHref)}
                   onTouchStart={() => router.prefetch(itemHref)}
                   onFocus={() => router.prefetch(itemHref)}
-                  title={collapsed ? itemLabel : undefined}
-                  className={`mkh-sidebar-rect group relative flex items-center overflow-hidden ${
-                    collapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3.5 py-2.5'
-                  } rounded-xl text-[13px] sm:text-sm tracking-tight backdrop-blur-md cursor-pointer ${
+                  title={`${itemLabel} ${isActive ? '(Active)' : ''}`}
+                  className={`mkh-sidebar-rect group relative flex items-center justify-center w-10 h-10 rounded-xl backdrop-blur-md cursor-pointer transition-all duration-300 ${
                     isActive
-                      ? 'mkh-sidebar-active-glow bg-gradient-to-r from-amber-400/35 via-sky-400/25 to-indigo-400/25 dark:from-amber-500/30 dark:via-sky-500/20 dark:to-indigo-500/20 text-slate-950 dark:text-white font-black border-2 border-amber-500/80 dark:border-amber-400/70 translate-x-1'
-                      : 'bg-white/30 dark:bg-slate-900/30 text-slate-950 dark:text-white font-extrabold border border-sky-200/70 dark:border-slate-700/50 hover:bg-white/60 dark:hover:bg-sky-500/20 hover:border-sky-400/85 dark:hover:border-sky-400/60 hover:translate-x-1.5 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_-6px_rgba(14,165,233,0.35)]'
+                      ? 'mkh-sidebar-active-glow bg-gradient-to-br from-amber-400/40 via-sky-400/30 to-indigo-500/30 dark:from-amber-500/35 dark:via-sky-500/25 dark:to-indigo-500/25 text-slate-950 dark:text-white font-black border-2 border-amber-500 dark:border-amber-400 shadow-[0_0_14px_rgba(245,158,11,0.4)] scale-105'
+                      : 'bg-white/30 dark:bg-slate-900/30 text-slate-950 dark:text-white font-extrabold border border-sky-200/70 dark:border-slate-700/50 hover:bg-white/60 dark:hover:bg-sky-500/20 hover:border-sky-400/85 hover:scale-105'
                   }`}
                 >
-                  {/* Hover sheen shimmer */}
                   <span
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent"
                   />
 
-                  <div className={`relative z-10 flex items-center gap-2.5 ${collapsed ? 'justify-center' : 'min-w-0'}`}>
-                    <IconComponent
-                      className={`h-4.5 w-4.5 shrink-0 transition-all duration-300 ${
-                        isActive
-                          ? 'text-amber-800 dark:text-amber-300 scale-110'
-                          : 'text-indigo-700 dark:text-sky-300 group-hover:text-amber-700 dark:group-hover:text-amber-300 group-hover:scale-115 group-hover:-rotate-6'
-                      }`}
-                    />
-                    {!collapsed && <span className="truncate drop-shadow-xs">{itemLabel}</span>}
-                  </div>
-                  {!collapsed && item.badge && (
-                    <span
-                      className={`relative z-10 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full shrink-0 transition-transform duration-300 group-hover:scale-105 ${
-                        isActive
-                          ? 'bg-amber-500/30 text-slate-950 dark:text-amber-100 border border-amber-500/60'
-                          : item.badgeColor || 'bg-slate-200/80 dark:bg-slate-800/80 text-slate-950 dark:text-white border border-slate-400/60 dark:border-slate-600/60'
-                      }`}
-                    >
-                      {item.badge}
+                  {/* Pulsing Beacon if this item is currently active */}
+                  {isActive && (
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border border-white dark:border-slate-900" />
                     </span>
                   )}
-                  {/* Floating tooltip for collapsed mode on hover */}
-                  {collapsed && (
-                    <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-extrabold text-slate-950 dark:text-white shadow-xl border border-sky-400 dark:border-slate-700">
-                      <span>{itemLabel}</span>
-                      {item.badge && (
-                        <span className="font-mono text-[10px] text-teal-800 dark:text-teal-200">({item.badge})</span>
-                      )}
-                    </div>
-                  )}
+
+                  <IconComponent
+                    className={`h-4.5 w-4.5 shrink-0 transition-transform duration-300 ${
+                      isActive
+                        ? 'text-amber-800 dark:text-amber-300 scale-110'
+                        : 'text-indigo-700 dark:text-sky-300 group-hover:scale-115'
+                    }`}
+                  />
+
+                  {/* Floating Tooltip in collapsed mode */}
+                  <div className="pointer-events-none absolute left-full ml-2 z-50 hidden group-hover:flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 text-xs font-black text-slate-950 dark:text-white shadow-xl border border-sky-400 dark:border-slate-700">
+                    <span>{itemLabel}</span>
+                    {isActive && (
+                      <span className="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold">
+                        ({language === 'om' ? 'HOJIRRA JIRA' : 'ACTIVE'})
+                      </span>
+                    )}
+                    {item.badge && (
+                      <span className="font-mono text-[10px] text-teal-800 dark:text-teal-200">({item.badge})</span>
+                    )}
+                    <span className="text-[10px] text-amber-700 dark:text-amber-300">[{domainTitle}]</span>
+                  </div>
                 </Link>
               );
             })}
@@ -866,6 +1084,9 @@ export function Sidebar(): React.ReactElement {
           ) : (
             <>
               {renderPrimaryDashboardCard(isCollapsed, false)}
+              {isCollapsed && (
+                <div className="w-8 h-px bg-sky-300/60 dark:bg-slate-700/60 my-2 mx-auto" />
+              )}
               {domains.map((domain) => renderNavGroup(domain, isCollapsed))}
             </>
           )}
