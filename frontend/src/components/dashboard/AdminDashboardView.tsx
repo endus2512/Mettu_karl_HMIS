@@ -31,13 +31,10 @@ import {
   Check,
   X,
   Stethoscope,
-  Pill,
-  FlaskConical,
   CreditCard,
   ChevronDown,
   ChevronUp,
   Eye,
-  Ticket,
 } from 'lucide-react';
 
 interface WardStatus {
@@ -172,7 +169,6 @@ export function AdminDashboardView(): React.ReactElement {
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedWardForEdit, setSelectedWardForEdit] = useState<WardStatus | null>(null);
-  const [showPortals, setShowPortals] = useState(false);
   const [showWardTable, setShowWardTable] = useState(false);
 
   // Sync activeShift from backend
@@ -503,7 +499,7 @@ export function AdminDashboardView(): React.ReactElement {
         {/* 3A. Staff Sign-Up Guard & Security Alarms (Minimized by Default) */}
         <AdminStaffApprovalPanel />
 
-        {/* 3B. Unified Workforce & Staff Command Hub (Deduplicated 3-in-1: Live Activity, Directory & Passwords, Direct Contact) */}
+        {/* 3B. Unified Workforce & Staff Command Hub (Deduplicated 4-in-1: Role Portals, Live Activity, Directory & Passwords, Direct Contact) */}
         <AdminUnifiedWorkforceHub />
 
         {/* 3C. PostgreSQL Automated Backup & Disaster Recovery Suite (Minimized by Default) */}
@@ -512,70 +508,7 @@ export function AdminDashboardView(): React.ReactElement {
         {/* 3D. Digital LED Marquee Board (Minimized; All Edits Inside Settings) */}
         <AdminLedControlPanel />
 
-        {/* 3E. Staff Workstation Portals (Minimized by Default) */}
-        <div className={`relative overflow-hidden bg-gradient-to-br from-white via-teal-100/65 to-sky-100/75 dark:from-[#16233d] dark:via-[#1a2c4a] dark:to-[#162138] backdrop-blur-md border-[2.5px] border-teal-400/90 dark:border-teal-400/55 rounded-2xl shadow-[0_12px_28px_-8px_rgba(20,184,166,0.26)] hover:shadow-[0_16px_34px_-8px_rgba(20,184,166,0.4)] hover:-translate-y-1 transition-all duration-300 group ${showPortals ? 'p-4 sm:p-5 space-y-3.5' : 'p-4 sm:p-5'}`}>
-          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-teal-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '1.8s' }} />
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3.5">
-              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md shadow-teal-500/25 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
-                <Eye className="w-5.5 h-5.5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
-                    {language === 'om' ? "Kutaalee Hojii Ogeessotaa (Role Portals)" : "Staff Workstation Portals (Supervisor Jump)"}
-                  </h2>
-                  <span className="text-xs font-mono font-black px-2.5 py-0.5 rounded-full bg-teal-100 dark:bg-teal-500/25 text-teal-950 dark:text-teal-100 border-2 border-teal-500/60 dark:border-teal-400/50">
-                    7 Portals Active
-                  </span>
-                </div>
-                {!showPortals && (
-                  <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5">
-                    Doctor • Nurse • Pharmacy • Laboratory • Billing • Reception • Patient
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <MorphingArrowButton
-              variant="teal"
-              size="sm"
-              isExpanded={showPortals}
-              label={showPortals ? (language === 'om' ? 'Xiqeessi (Minimize)' : 'Minimize') : (language === 'om' ? 'Bani (Expand)' : 'Expand')}
-              onClick={() => setShowPortals((prev) => !prev)}
-              className="shrink-0 self-start sm:self-auto"
-            />
-          </div>
-
-          {showPortals && (
-            <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-3 border-t-2 border-teal-300/70 dark:border-slate-700">
-              {[
-                { href: '/portal/doctor', icon: Stethoscope, title: 'Doctor', sub: 'EMR & OPD', color: 'border-teal-400/80 dark:border-teal-500/50 hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-500/20', iconColor: 'text-teal-700 dark:text-teal-300' },
-                { href: '/portal/nurse', icon: BedDouble, title: 'Nurse', sub: 'Wards & MAR', color: 'border-emerald-400/80 dark:border-emerald-500/50 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/20', iconColor: 'text-emerald-700 dark:text-emerald-300' },
-                { href: '/portal/pharmacy', icon: Pill, title: 'Pharmacy', sub: 'FEFO Dispensary', color: 'border-amber-400/80 dark:border-amber-500/50 hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/20', iconColor: 'text-amber-700 dark:text-amber-300' },
-                { href: '/portal/lab', icon: FlaskConical, title: 'Laboratory', sub: 'LIS & Blood', color: 'border-cyan-400/80 dark:border-cyan-500/50 hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-500/20', iconColor: 'text-cyan-700 dark:text-cyan-300' },
-                { href: '/portal/billing', icon: CreditCard, title: 'Billing', sub: 'Telebirr & POS', color: 'border-blue-400/80 dark:border-blue-500/50 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/20', iconColor: 'text-blue-700 dark:text-blue-300' },
-                { href: '/portal/reception', icon: Ticket, title: 'Reception', sub: 'Triage & Fayda', color: 'border-purple-400/80 dark:border-purple-500/50 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/20', iconColor: 'text-purple-700 dark:text-purple-300' },
-                { href: '/patient-portal', icon: Users, title: 'Patient', sub: 'Health Portal', color: 'border-rose-400/80 dark:border-rose-500/50 hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/20', iconColor: 'text-rose-700 dark:text-rose-300' },
-              ].map((portal) => {
-                const Icon = portal.icon;
-                return (
-                  <Link
-                    key={portal.href}
-                    href={portal.href}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl bg-white/95 dark:bg-[#131d31] border-2 ${portal.color} transition-all duration-300 text-center group hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-lg`}
-                  >
-                    <Icon className={`w-5 h-5 ${portal.iconColor} group-hover:scale-115 group-hover:rotate-6 transition-transform duration-300 mb-1.5`} />
-                    <span className="text-xs sm:text-sm font-black text-slate-950 dark:text-white">{portal.title}</span>
-                    <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{portal.sub}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* 3F. Live Ward Bed Capacity (Minimized by Default) */}
+        {/* 3E. Live Ward Bed Capacity (Minimized by Default) */}
         <div id="ward-bed-section" className={`relative overflow-hidden rounded-2xl border-[2.5px] border-indigo-400/90 dark:border-indigo-400/55 bg-gradient-to-br from-white via-indigo-100/55 to-sky-100/65 dark:from-[#16233d] dark:via-[#1b2a4a] dark:to-[#162038] shadow-[0_12px_28px_-8px_rgba(99,102,241,0.26)] hover:shadow-[0_16px_34px_-8px_rgba(99,102,241,0.4)] hover:-translate-y-1 transition-all duration-300 group ${showWardTable ? 'p-4 sm:p-5 space-y-4' : 'p-4 sm:p-5'}`}>
           <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-indigo-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '2.4s' }} />
           <div className={`relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${showWardTable ? 'pb-3 border-b-2 border-indigo-200 dark:border-slate-700' : ''}`}>

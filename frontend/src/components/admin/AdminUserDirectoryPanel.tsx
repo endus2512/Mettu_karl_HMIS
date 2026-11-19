@@ -98,8 +98,12 @@ function formatDateTime(iso?: string | null): string {
   return d.toLocaleString();
 }
 
-export function AdminUserDirectoryPanel() {
-  const [isMinimized, setIsMinimized] = useState(true);
+export interface AdminUserDirectoryPanelProps {
+  embedded?: boolean;
+}
+
+export function AdminUserDirectoryPanel({ embedded = false }: AdminUserDirectoryPanelProps = {}) {
+  const [isMinimized, setIsMinimized] = useState(!embedded);
   const [accountTab, setAccountTab] = useState<'all' | 'staff' | 'patient'>('all');
   const [searchText, setSearchText] = useState('');
   const [data, setData] = useState<AdminDirectoryResponse | null>(null);
@@ -307,12 +311,47 @@ export function AdminUserDirectoryPanel() {
   const lockedCount = data?.items.filter((i) => i.is_locked).length ?? 0;
 
   return (
-    <section
+    <div
       id="user-directory-recovery"
-      className="relative bg-gradient-to-br from-white via-amber-100/60 to-sky-100/65 dark:from-[#16233d] dark:via-[#222944] dark:to-[#162138] border-[2.5px] border-amber-400/90 dark:border-amber-400/55 rounded-2xl shadow-[0_12px_28px_-8px_rgba(245,158,11,0.25)] hover:shadow-[0_16px_36px_-8px_rgba(245,158,11,0.4)] hover:-translate-y-1 transition-all duration-300 overflow-hidden group"
+      className={
+        embedded
+          ? "space-y-4 pt-1"
+          : "relative bg-gradient-to-br from-white via-amber-100/60 to-sky-100/65 dark:from-[#16233d] dark:via-[#222944] dark:to-[#162138] border-[2.5px] border-amber-400/90 dark:border-amber-400/55 rounded-2xl shadow-[0_12px_28px_-8px_rgba(245,158,11,0.25)] hover:shadow-[0_16px_36px_-8px_rgba(245,158,11,0.4)] hover:-translate-y-1 transition-all duration-300 overflow-hidden group"
+      }
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-amber-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '1.4s' }} />
-      {/* Compact Header (Minimized by Default) */}
+      {!embedded && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-amber-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '1.4s' }} />
+      )}
+      {/* Compact Header (Minimized by Default or Embedded Summary) */}
+      {embedded ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-50/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-800 dark:text-indigo-200 border border-indigo-400/40">
+              {data?.staff_count ?? 0} Staff
+            </span>
+            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-400/40">
+              {data?.patient_count ?? 0} Patients
+            </span>
+            {(lockedCount > 0) && (
+              <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-800 dark:text-rose-200 border border-rose-400/45">
+                {lockedCount} Locked
+              </span>
+            )}
+            <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
+              ({data?.total_users ?? 0} Total Records)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <MorphingArrowButton
+              variant="neutral"
+              size="sm"
+              icon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
+              label="Refresh"
+              onClick={() => void fetchDirectory()}
+            />
+          </div>
+        </div>
+      ) : (
       <div className="relative z-10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3.5">
           <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
@@ -355,10 +394,11 @@ export function AdminUserDirectoryPanel() {
           className="self-start sm:self-auto"
         />
       </div>
+      )}
 
       {/* Expanded Directory & Recovery Console */}
       {!isMinimized && (
-        <div className="border-t border-amber-200/70 dark:border-slate-700 p-4 sm:p-5 space-y-4 bg-slate-50/90 dark:bg-[#11192b]">
+        <div className={embedded ? "space-y-4" : "border-t border-amber-200/70 dark:border-slate-700 p-4 sm:p-5 space-y-4 bg-slate-50/90 dark:bg-[#11192b]"}>
           {/* Active Password Recovery Slip Banner */}
           {recoverySlip && (
             <div className="rounded-xl border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 p-4 space-y-2.5 shadow-sm">
@@ -936,6 +976,6 @@ export function AdminUserDirectoryPanel() {
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }

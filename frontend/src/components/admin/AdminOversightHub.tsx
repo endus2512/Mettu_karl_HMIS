@@ -742,13 +742,17 @@ const OVERSIGHT_I18N: Record<Language, {
   },
 };
 
-export function AdminOversightHub(): React.ReactElement {
+export interface AdminOversightHubProps {
+  embedded?: boolean;
+}
+
+export function AdminOversightHub({ embedded = false }: AdminOversightHubProps = {}): React.ReactElement {
   const { language } = useTranslation();
   const lang: Language = language === 'om' || language === 'am' || language === 'en' ? language : 'en';
   const txt = OVERSIGHT_I18N[lang] || OVERSIGHT_I18N['en'];
 
   // Default minimized/collapsed so Admin Dashboard stays clean and uncluttered
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(!embedded);
   const [roleFilter, setRoleFilter] = useState<'all' | 'doctor' | 'nurse' | 'pharmacist' | 'technician' | 'patient'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -1100,9 +1104,39 @@ export function AdminOversightHub(): React.ReactElement {
   };
 
   return (
-    <section className={`relative overflow-hidden rounded-2xl border-[2.5px] border-violet-400/90 dark:border-violet-400/55 bg-gradient-to-br from-white via-violet-100/60 to-sky-100/65 dark:from-[#16233d] dark:via-[#212548] dark:to-[#162138] shadow-[0_12px_28px_-8px_rgba(139,92,246,0.25)] hover:shadow-[0_16px_36px_-8px_rgba(139,92,246,0.42)] hover:-translate-y-1 transition-all duration-300 group ${isCollapsed ? 'p-4 sm:p-5' : 'p-4 sm:p-5 space-y-5'}`}>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-violet-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '2.6s' }} />
+    <div
+      className={
+        embedded
+          ? "space-y-4 pt-1"
+          : `relative overflow-hidden rounded-2xl border-[2.5px] border-violet-400/90 dark:border-violet-400/55 bg-gradient-to-br from-white via-violet-100/60 to-sky-100/65 dark:from-[#16233d] dark:via-[#212548] dark:to-[#162138] shadow-[0_12px_28px_-8px_rgba(139,92,246,0.25)] hover:shadow-[0_16px_36px_-8px_rgba(139,92,246,0.42)] hover:-translate-y-1 transition-all duration-300 group ${isCollapsed ? 'p-4 sm:p-5' : 'p-4 sm:p-5 space-y-5'}`
+      }
+    >
+      {!embedded && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-violet-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '2.6s' }} />
+      )}
       {/* 1. Header Banner */}
+      {embedded ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-50/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center rounded-full border border-amber-400/60 bg-amber-100 dark:bg-amber-500/20 px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+              {txt.badge}
+            </span>
+            <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
+              ({HOSPITAL_ROSTER.length} {lang === 'om' ? 'Ogeeyyii & Dhukkubsattoota' : 'Roster Records'})
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <MorphingArrowButton
+              variant="amber"
+              size="sm"
+              icon={<Megaphone className="h-4 w-4" />}
+              label={txt.broadcastBtn}
+              onClick={() => setBroadcastModalOpen(true)}
+            />
+          </div>
+        </div>
+      ) : (
       <div className={`relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3 ${isCollapsed ? '' : 'border-b-2 border-violet-200 dark:border-slate-700 pb-4'}`}>
         <div className="flex items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-md shadow-violet-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
@@ -1148,6 +1182,7 @@ export function AdminOversightHub(): React.ReactElement {
           />
         </div>
       </div>
+      )}
 
       {!isCollapsed && (
         <>
@@ -1781,6 +1816,6 @@ export function AdminOversightHub(): React.ReactElement {
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }
