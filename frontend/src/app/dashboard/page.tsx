@@ -39,7 +39,11 @@ export default function DashboardSmartRouterPage(): React.ReactElement {
       }
 
       const targetPortal = getRolePortalPath(effectiveRole);
-      router.replace(targetPortal);
+      if (typeof window !== 'undefined') {
+        window.location.assign(targetPortal);
+      } else {
+        router.replace(targetPortal);
+      }
     }
   }, [isLoading, isAuthenticated, user, effectiveRole, router]);
 

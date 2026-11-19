@@ -1,16 +1,44 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+function cleanToken(raw?: string | null): string | null {
+  if (!raw) return null;
+  let token = raw.trim();
+  if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
+    token = token.slice(1, -1);
+  }
+  if (token.includes('%')) {
+    try {
+      token = decodeURIComponent(token);
+    } catch {
+      // ignore
+    }
+  }
+  return token || null;
+}
+
 // Lightweight payload decoder for JWT (runs in Next.js Edge Runtime without Node crypto)
 function decodeJwtPayload(token: string): Record<string, any> | null {
   try {
-    const parts = token.split('.');
+    const cleaned = cleanToken(token);
+    if (!cleaned) return null;
+    const parts = cleaned.split('.');
     if (parts.length < 2) return null;
     const base64Url = parts[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const padLen = (4 - (base64.length % 4)) % 4;
     const padded = padLen < 4 ? base64 + '='.repeat(padLen) : base64;
-    const jsonStr = atob(padded);
+    const binary = atob(padded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const jsonStr =
+      typeof TextDecoder !== 'undefined'
+        ? new TextDecoder().decode(bytes)
+        : decodeURIComponent(
+            Array.from(bytes, (b) => `%${b.toString(16).padStart(2, '0')}`).join(''),
+          );
     return JSON.parse(jsonStr);
   } catch {
     return null;
@@ -59,23 +87,45 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Extract auth token from HttpOnly cookie or Authorization header
-  const cookieToken = request.cookies.get('access_token')?.value;
-  const headerAuth = request.headers.get('authorization');
-  const headerToken = headerAuth?.startsWith('Bearer ') ? headerAuth.slice(7) : null;
-  const token = cookieToken || headerToken;
+  const rawCookie = request.cookies.get('access_token')?.value;
+  const rawHeader = request.headers.get('authorization');
+  const headerToken = rawHeader?.startsWith('Bearer ') ? rawHeader.slice(7) : null;
+  const token = cleanToken(rawCookie) || cleanToken(headerToken);
 
   const isPatientRoute = PATIENT_PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   const isStaffRoute = STAFF_PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
-  // If visiting login pages while already authenticated, redirect to appropriate destination
+  // If visiting login pages while already authenticated, redirect directly to role workstation
   if (token && (pathname === '/login' || pathname === '/patient-login')) {
     const payload = decodeJwtPayload(token);
     if (payload && (!payload.exp || payload.exp * 1000 > Date.now())) {
-      const userRole = (payload.role || '').toLowerCase();
+      const userRole = (payload.role || '').toLowerCase().trim();
       if (userRole === 'patient') {
         return NextResponse.redirect(new URL('/patient-portal', request.url));
+      } else if (
+        userRole === 'admin' ||
+        userRole === 'super_admin' ||
+        userRole === 'superadmin' ||
+        userRole === 'administrator' ||
+        userRole === 'director' ||
+        userRole === 'auditor' ||
+        userRole === 'ict_admin'
+      ) {
+        return NextResponse.redirect(new URL('/portal/admin', request.url));
+      } else if (userRole === 'doctor' || userRole === 'physician') {
+        return NextResponse.redirect(new URL('/portal/doctor', request.url));
+      } else if (userRole === 'nurse') {
+        return NextResponse.redirect(new URL('/portal/nurse', request.url));
+      } else if (userRole === 'pharmacist' || userRole === 'pharmacy') {
+        return NextResponse.redirect(new URL('/portal/pharmacy', request.url));
+      } else if (userRole === 'technician' || userRole === 'lab_tech' || userRole === 'lab_technician') {
+        return NextResponse.redirect(new URL('/portal/lab', request.url));
+      } else if (userRole === 'billing' || userRole === 'insurance_officer' || userRole === 'cashier') {
+        return NextResponse.redirect(new URL('/portal/billing', request.url));
+      } else if (userRole === 'receptionist' || userRole === 'reception' || userRole === 'triage') {
+        return NextResponse.redirect(new URL('/portal/reception', request.url));
       } else {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        return NextResponse.redirect(new URL('/portal/admin', request.url));
       }
     }
   }
@@ -115,7 +165,15 @@ export function middleware(request: NextRequest) {
       return res;
     }
 
-    const userRole = (payload.role || '').toLowerCase();
+    const userRole = (payload.role || '').toLowerCase().trim();
+    const isAdmin =
+      userRole === 'admin' ||
+      userRole === 'super_admin' ||
+      userRole === 'superadmin' ||
+      userRole === 'administrator' ||
+      userRole === 'director' ||
+      userRole === 'ict_admin' ||
+      userRole === 'auditor';
 
     // Patients cannot access staff portals or clinical records (prevent IDOR & horizontal privilege escalation)
     if (userRole === 'patient') {
@@ -124,7 +182,7 @@ export function middleware(request: NextRequest) {
 
     // Admin-only routes
     if (pathname.startsWith('/portal/admin') || pathname.startsWith('/audit')) {
-      if (userRole !== 'super_admin' && userRole !== 'admin') {
+      if (!isAdmin) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
     }

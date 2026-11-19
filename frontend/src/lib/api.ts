@@ -54,7 +54,7 @@ export function saveTokens(accessToken: string, refreshToken: string): void {
     localStorage.setItem('access_token', accessToken);
     localStorage.setItem('refresh_token', refreshToken);
     const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-    document.cookie = `access_token=${encodeURIComponent(accessToken)}; Path=/; SameSite=Strict${secure}; max-age=${60 * 60 * 24 * 7}`;
+    document.cookie = `access_token=${accessToken}; Path=/; SameSite=Lax${secure}; max-age=${60 * 60 * 24 * 7}`;
   }
 }
 
@@ -63,7 +63,7 @@ export function clearTokens(): void {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict';
+    document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
   }
 }
 

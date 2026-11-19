@@ -395,8 +395,20 @@ function CaduceusIcon({ className = 'w-10 h-10' }: { className?: string }) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, completeTokenSession, verifyMFA, patientRegister, user } = useAuth();
+  const { login, completeTokenSession, verifyMFA, patientRegister, user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { language, setLanguage } = useTranslation();
+
+  // If user is already authenticated with a valid session, navigate straight to their workstation
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && user) {
+      const dest = getRolePortalPath(user.role);
+      if (typeof window !== 'undefined') {
+        window.location.assign(dest);
+      } else {
+        router.replace(dest);
+      }
+    }
+  }, [authLoading, isAuthenticated, user, router]);
 
   const [step, setStep] = useState<'credentials' | 'mfa'>('credentials');
   const [mfaToken, setMfaToken] = useState('');
@@ -997,37 +1009,22 @@ export default function LoginPage() {
     }
     const destination = pendingWait.portalPath;
     const timer = window.setTimeout(() => {
-      router.replace(destination);
+      if (typeof window !== 'undefined') {
+        window.location.assign(destination);
+      } else {
+        router.replace(destination);
+      }
     }, 350);
     return () => window.clearTimeout(timer);
   }, [pendingWait?.status, pendingWait?.portalPath, router]);
 
-  // Pre-warm serverless backend + DB connection AND prefetch primary role portals immediately on /login mount
+  // Pre-warm serverless backend + DB connection on /login mount
   useEffect(() => {
     const origin = getApiOrigin();
     if (origin) {
       void fetch(`${origin}/health`, { cache: 'no-store' }).catch(() => {});
     }
-    const timer = window.setTimeout(() => {
-      [
-        '/portal/admin',
-        '/portal/doctor',
-        '/portal/nurse',
-        '/portal/pharmacy',
-        '/portal/lab',
-        '/portal/billing',
-        '/portal/reception',
-        '/patient-portal',
-      ].forEach((portalPath) => {
-        try {
-          router.prefetch(portalPath);
-        } catch {
-          // ignore
-        }
-      });
-    }, 400);
-    return () => window.clearTimeout(timer);
-  }, [router]);
+  }, []);
 
   // Load remember-me username if previously saved
   useEffect(() => {
@@ -1179,8 +1176,13 @@ export default function LoginPage() {
       });
 
       setIsFormOpen(false);
-      const destination = getRolePortalPath(response?.role);
-      router.replace(destination);
+      const targetRole = response?.role || 'admin';
+      const destination = getRolePortalPath(targetRole) || '/portal/admin';
+      if (typeof window !== 'undefined') {
+        window.location.assign(destination);
+      } else {
+        router.replace(destination);
+      }
     } catch (err: unknown) {
       const rawMsg =
         err instanceof Error
@@ -1217,12 +1219,22 @@ export default function LoginPage() {
         color: 'teal',
       });
       setIsFormOpen(false);
-      const mfaDestination = getRolePortalPath(user?.role);
-      router.replace(mfaDestination);
+      const mfaRole = user?.role || 'admin';
+      const mfaDestination = getRolePortalPath(mfaRole) || '/portal/admin';
+      if (typeof window !== 'undefined') {
+        window.location.assign(mfaDestination);
+      } else {
+        router.replace(mfaDestination);
+      }
     } catch {
       setIsFormOpen(false);
-      const mfaDestination = getRolePortalPath(user?.role);
-      router.replace(mfaDestination);
+      const mfaRole = user?.role || 'admin';
+      const mfaDestination = getRolePortalPath(mfaRole) || '/portal/admin';
+      if (typeof window !== 'undefined') {
+        window.location.assign(mfaDestination);
+      } else {
+        router.replace(mfaDestination);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -1277,7 +1289,11 @@ export default function LoginPage() {
       });
 
       setIsFormOpen(false);
-      router.replace('/patient-portal');
+      if (typeof window !== 'undefined') {
+        window.location.assign('/patient-portal');
+      } else {
+        router.replace('/patient-portal');
+      }
     } catch {
       notifications.show({
         title: language === 'om' ? 'Dogoggora Galmee' : 'Registration Error',

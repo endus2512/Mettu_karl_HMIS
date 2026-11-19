@@ -217,29 +217,44 @@ export function resolveClinicalRouteAccess(pathname: string): RouteAccessRule {
 }
 
 export function getRolePortalPath(role?: UserRole | string | null): string {
-  switch (role) {
+  if (!role) return '/portal/admin';
+  const cleanRole = String(role).toLowerCase().trim();
+
+  switch (cleanRole) {
     case 'doctor':
+    case 'physician':
       return '/portal/doctor';
     case 'nurse':
       return '/portal/nurse';
     case 'pharmacist':
+    case 'pharmacy':
       return '/portal/pharmacy';
     case 'technician':
     case 'lab_tech':
     case 'lab_technician':
+    case 'laboratory':
       return '/portal/lab';
     case 'billing':
     case 'insurance_officer':
+    case 'cashier':
       return '/portal/billing';
     case 'receptionist':
+    case 'reception':
+    case 'triage':
       return '/portal/reception';
     case 'patient':
       return '/patient-portal';
     case 'admin':
     case 'super_admin':
+    case 'superadmin':
+    case 'administrator':
+    case 'ict_admin':
+    case 'director':
+    case 'auditor':
+    case 'audit':
       return '/portal/admin';
     default:
-      return '/login';
+      return '/portal/admin';
   }
 }
 

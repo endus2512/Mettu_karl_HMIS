@@ -170,7 +170,8 @@ export function AuthProvider({
     if (!payload || Date.now() / 1000 > payload.exp) {
       return null;
     }
-    const role = (payload.role as UserRole) || 'patient';
+    const rawRole = payload.role || 'patient';
+    const role = (String(rawRole).toLowerCase().trim() as UserRole);
     const isSupervisorToken = role === 'admin' || role === 'super_admin';
     if (typeof window !== 'undefined') {
       if (!isSupervisorToken) {
@@ -358,7 +359,10 @@ export function AuthProvider({
 
         const tokens = response.data as TokenPair;
         saveTokens(tokens.access_token, tokens.refresh_token);
-        const resolvedRole = applyTokenSync(tokens.access_token) || 'doctor';
+        const backendRole = (response.data as { role?: UserRole })?.role;
+        const fallbackRole: UserRole =
+          lower.includes('admin') || lower === 'admin' ? 'admin' : 'doctor';
+        const resolvedRole = applyTokenSync(tokens.access_token) || backendRole || fallbackRole;
 
         return { mfaRequired: false, role: resolvedRole };
       } catch (err: unknown) {

@@ -119,7 +119,11 @@ export default function PatientLoginPage(): React.ReactElement {
         message: language === 'am' ? 'ወደ ታካሚ ፖርታል እየገቡ ነው...' : language === 'en' ? 'Redirecting to Patient Portal...' : "Seensi milkaa'eera. Gara Patient Portal tti qajeelaa jirtu...",
         color: 'teal',
       });
-      router.push('/patient-portal');
+      if (typeof window !== 'undefined') {
+        window.location.assign('/patient-portal');
+      } else {
+        router.push('/patient-portal');
+      }
     } catch {
       notifications.show({
         title: language === 'am' ? 'የመግቢያ ስህተት' : language === 'en' ? 'Login Error' : 'Dogoggora Seensaa',
@@ -140,7 +144,11 @@ export default function PatientLoginPage(): React.ReactElement {
         message: language === 'am' ? 'የታካሚ መለያ ተፈጥሯል። ወደ ፖርታል እየገቡ ነው...' : language === 'en' ? 'Account created. Entering Patient Portal...' : "Akaawuntiin uumameera. Gara poortaaliitti qajeelaa jirtu...",
         color: 'teal',
       });
-      router.push('/patient-portal');
+      if (typeof window !== 'undefined') {
+        window.location.assign('/patient-portal');
+      } else {
+        router.push('/patient-portal');
+      }
     } catch {
       notifications.show({
         title: language === 'am' ? 'የምዝገባ ስህተት' : language === 'en' ? 'Registration Error' : 'Dogoggora Galmee',
