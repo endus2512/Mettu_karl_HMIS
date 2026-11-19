@@ -15,11 +15,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslation, Language } from '@/lib/i18n';
 import { useHospitalTimeSync, type ShiftType } from '@/lib/timeSync';
-import { AdminOversightHub } from '@/components/admin/AdminOversightHub';
 import { AdminLedControlPanel } from '@/components/admin/AdminLedControlPanel';
 import { AdminStaffApprovalPanel } from '@/components/admin/AdminStaffApprovalPanel';
-import { AdminWorkforceMonitor } from '@/components/admin/AdminWorkforceMonitor';
-import { AdminUserDirectoryPanel } from '@/components/admin/AdminUserDirectoryPanel';
+import { AdminUnifiedWorkforceHub } from '@/components/admin/AdminUnifiedWorkforceHub';
 import { AdminDisasterRecoveryPanel } from '@/components/admin/AdminDisasterRecoveryPanel';
 import { MorphingArrowButton } from '@/components/admin/MorphingArrowButton';
 import { notifications } from '@mantine/notifications';
@@ -342,7 +340,12 @@ export function AdminDashboardView(): React.ReactElement {
         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-3xl mx-auto">
           {/* Mini Cube 1: Bed Occupancy */}
           <div
-            onClick={() => setIsEditModalOpen(true)}
+            onClick={() => {
+              setShowWardTable(true);
+              const el = document.getElementById('ward-bed-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              else setIsEditModalOpen(true);
+            }}
             style={{ animationDelay: '0s' }}
             className="mkh-cube-tile w-full max-w-[138px] sm:max-w-[148px] h-[116px] sm:h-[124px] mx-auto rounded-2xl border-2 border-sky-400/85 dark:border-sky-400/55 bg-gradient-to-br from-white via-sky-50 to-sky-100/95 dark:from-[#182949] dark:via-[#1d3258] dark:to-[#1f2b50] p-2.5 sm:p-3 flex flex-col justify-between relative overflow-hidden group cursor-pointer shadow-[0_6px_14px_-4px_rgba(14,165,233,0.28),3px_3px_0_0_rgba(56,189,248,0.32)] hover:-translate-y-2 hover:scale-[1.06] hover:border-sky-500 hover:shadow-[0_14px_24px_-4px_rgba(14,165,233,0.42),5px_5px_0_0_rgba(56,189,248,0.45)] transition-all duration-300 ease-out"
           >
@@ -500,20 +503,14 @@ export function AdminDashboardView(): React.ReactElement {
         {/* 3A. Staff Sign-Up Guard & Security Alarms (Minimized by Default) */}
         <AdminStaffApprovalPanel />
 
-        {/* 3B. Live Workforce Activity & Access Control (Minimized by Default) */}
-        <AdminWorkforceMonitor />
+        {/* 3B. Unified Workforce & Staff Command Hub (Deduplicated 3-in-1: Live Activity, Directory & Passwords, Direct Contact) */}
+        <AdminUnifiedWorkforceHub />
 
-        {/* 3B2. Staff & Patient Directory, Biography & Password Recovery (Minimized by Default) */}
-        <AdminUserDirectoryPanel />
-
-        {/* 3B3. PostgreSQL Automated Backup & Disaster Recovery Suite (Minimized by Default) */}
+        {/* 3C. PostgreSQL Automated Backup & Disaster Recovery Suite (Minimized by Default) */}
         <AdminDisasterRecoveryPanel />
 
-        {/* 3C. Digital LED Marquee Board (Minimized; All Edits Inside Settings) */}
+        {/* 3D. Digital LED Marquee Board (Minimized; All Edits Inside Settings) */}
         <AdminLedControlPanel />
-
-        {/* 3D. Staff, Pharmacy & Patient Command (Minimized by Default) */}
-        <AdminOversightHub />
 
         {/* 3E. Staff Workstation Portals (Minimized by Default) */}
         <div className={`relative overflow-hidden bg-gradient-to-br from-white via-teal-100/65 to-sky-100/75 dark:from-[#16233d] dark:via-[#1a2c4a] dark:to-[#162138] backdrop-blur-md border-[2.5px] border-teal-400/90 dark:border-teal-400/55 rounded-2xl shadow-[0_12px_28px_-8px_rgba(20,184,166,0.26)] hover:shadow-[0_16px_34px_-8px_rgba(20,184,166,0.4)] hover:-translate-y-1 transition-all duration-300 group ${showPortals ? 'p-4 sm:p-5 space-y-3.5' : 'p-4 sm:p-5'}`}>
@@ -579,7 +576,7 @@ export function AdminDashboardView(): React.ReactElement {
         </div>
 
         {/* 3F. Live Ward Bed Capacity (Minimized by Default) */}
-        <div className={`relative overflow-hidden rounded-2xl border-[2.5px] border-indigo-400/90 dark:border-indigo-400/55 bg-gradient-to-br from-white via-indigo-100/55 to-sky-100/65 dark:from-[#16233d] dark:via-[#1b2a4a] dark:to-[#162038] shadow-[0_12px_28px_-8px_rgba(99,102,241,0.26)] hover:shadow-[0_16px_34px_-8px_rgba(99,102,241,0.4)] hover:-translate-y-1 transition-all duration-300 group ${showWardTable ? 'p-4 sm:p-5 space-y-4' : 'p-4 sm:p-5'}`}>
+        <div id="ward-bed-section" className={`relative overflow-hidden rounded-2xl border-[2.5px] border-indigo-400/90 dark:border-indigo-400/55 bg-gradient-to-br from-white via-indigo-100/55 to-sky-100/65 dark:from-[#16233d] dark:via-[#1b2a4a] dark:to-[#162038] shadow-[0_12px_28px_-8px_rgba(99,102,241,0.26)] hover:shadow-[0_16px_34px_-8px_rgba(99,102,241,0.4)] hover:-translate-y-1 transition-all duration-300 group ${showWardTable ? 'p-4 sm:p-5 space-y-4' : 'p-4 sm:p-5'}`}>
           <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 dark:via-indigo-200/15 to-transparent mkh-panel-sweep" style={{ animationDelay: '2.4s' }} />
           <div className={`relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${showWardTable ? 'pb-3 border-b-2 border-indigo-200 dark:border-slate-700' : ''}`}>
             <div className="flex items-center gap-3.5">
@@ -837,9 +834,25 @@ export function AdminDashboardView(): React.ReactElement {
                   {language === 'om' ? '4. Baay\'ina Siree Kutaalee Gulaali (Override Ward Beds):' : '4. Ward Bed Capacity Overrides:'}
                 </label>
                 <div className="space-y-2">
-                  {wards.map((ward) => (
-                    <div key={ward.id} className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-100/90 dark:bg-[#0c121e] border border-slate-300 dark:border-slate-700">
-                      <span className="font-extrabold text-slate-900 dark:text-white">{ward.name[lang] || ward.name.en}</span>
+                  {wards.map((ward) => {
+                    const isSelected = selectedWardForEdit?.id === ward.id;
+                    return (
+                      <div
+                        key={ward.id}
+                        className={`flex items-center justify-between gap-3 p-2.5 rounded-xl border transition-all ${
+                          isSelected
+                            ? 'bg-amber-100/90 dark:bg-amber-950/60 border-amber-500 ring-2 ring-amber-400/50 shadow-sm'
+                            : 'bg-slate-100/90 dark:bg-[#0c121e] border-slate-300 dark:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-slate-900 dark:text-white">{ward.name[lang] || ward.name.en}</span>
+                          {isSelected && (
+                            <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-amber-200 dark:bg-amber-500/30 text-amber-950 dark:text-amber-200">
+                              {language === 'om' ? 'Filatame' : 'Selected'}
+                            </span>
+                          )}
+                        </div>
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1">
                           <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200">Total:</span>
@@ -879,7 +892,8 @@ export function AdminDashboardView(): React.ReactElement {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );
+                })}
                 </div>
               </div>
             </div>
