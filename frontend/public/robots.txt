@@ -1,0 +1,11 @@
+# Mettu Karl Referral Hospital - Robots Privacy Policy
+User-agent: *
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /patient-login
+Disallow: /patient-portal
+Disallow: /portal/
+Disallow: /patients
+Disallow: /records
+Disallow: /api/

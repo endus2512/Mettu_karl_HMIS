@@ -56,10 +56,13 @@ if [ -n "${PG_DUMP_FILE}" ]; then
   PGPORT="${PGPORT:-5432}"
   PGUSER="${PGUSER:-mettu_his_admin}"
   PGDATABASE="${PGDATABASE:-mettu_karl_his}"
-  PGPASSWORD="${PGPASSWORD:-HospitalSecurePass2026!}"
+  if [ -z "${PGPASSWORD:-}" ]; then
+    echo "ERROR: PGPASSWORD environment variable must be set before running restore." >&2
+    exit 1
+  fi
 
   # Terminate existing connections and restore
-  gunzip -c "${PG_DUMP_FILE}" | PGPASSWORD="${PGPASSWORD}" pg_restore -h "${PGHOST}" -p "${PGPORT}" -U "${PGUSER}" -d "${PGDATABASE}" --clean --if-exists --no-owner || true
+  gunzip -c "${PG_DUMP_FILE}" | pg_restore -h "${PGHOST}" -p "${PGPORT}" -U "${PGUSER}" -d "${PGDATABASE}" --clean --if-exists --no-owner || true
   echo "      PostgreSQL restore complete."
 else
   echo "WARNING: No PostgreSQL dump found inside archive."

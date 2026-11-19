@@ -9,6 +9,8 @@ Provides:
 import base64
 import hashlib
 import hmac
+import html
+import re
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
@@ -27,10 +29,35 @@ STAFF_WAIT_TOKEN_TYPE = "staff_approval_wait"
 PASSWORD_RESET_TOKEN_TYPE = "password_reset_otp"
 
 
+def sanitize_input_text(text: Optional[str]) -> Optional[str]:
+    """
+    Sanitize user input string against XSS and HTML injection.
+    Strips dangerous tags (<script>, <iframe>, event handlers) and escapes special characters.
+    """
+    if text is None:
+        return None
+    # Strip dangerous HTML elements and event handlers
+    cleaned = re.sub(
+        r"<\s*(script|iframe|object|embed|applet|style)[^>]*>.*?<\s*/\s*\1\s*>",
+        "",
+        text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    cleaned = re.sub(
+        r"<\s*(script|iframe|object|embed|applet|style)[^>]*>",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"on\w+\s*=\s*([\"'][^\"']*[\"']|[^\s>]+)", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"javascript\s*:", "", cleaned, flags=re.IGNORECASE)
+    return html.escape(cleaned.strip())
+
+
 def hash_password(plain_password: str) -> str:
-    """Hash a plain-text password using bcrypt."""
+    """Hash a plain-text password using strong bcrypt with 12 salt rounds."""
     pwd_bytes = plain_password.encode("utf-8")[:72]
-    salt = bcrypt.gensalt()
+    salt = bcrypt.gensalt(rounds=12)
     return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
@@ -168,15 +195,15 @@ def _credential_vault_fernet() -> Fernet:
 
 
 def encrypt_credential_vault(plain_password: Optional[str]) -> Optional[str]:
-    """Encrypt a user's password into the recoverable Admin credential vault."""
-    if not plain_password:
+    """Encrypt a user's password into the recoverable Admin credential vault (disabled in production)."""
+    if not plain_password or not settings.STORE_CREDENTIAL_VAULT:
         return None
     return _credential_vault_fernet().encrypt(plain_password.encode("utf-8")).decode("utf-8")
 
 
 def decrypt_credential_vault(cipher_text: Optional[str]) -> Optional[str]:
-    """Decrypt a stored Admin-recoverable credential from the vault, or None if unavailable."""
-    if not cipher_text:
+    """Decrypt a stored Admin-recoverable credential from the vault, or None if unavailable/disabled."""
+    if not cipher_text or not settings.STORE_CREDENTIAL_VAULT:
         return None
     try:
         return _credential_vault_fernet().decrypt(cipher_text.encode("utf-8")).decode("utf-8")

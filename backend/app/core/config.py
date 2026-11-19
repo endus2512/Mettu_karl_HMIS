@@ -6,7 +6,7 @@ Provides type-safe configuration with validation.
 """
 import os
 from functools import lru_cache
-from typing import List
+from typing import Any, List
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from pydantic import Field, field_validator
@@ -49,18 +49,42 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     APP_ENV: str = "development"
     APP_DEBUG: bool = False
-    SECRET_KEY: str = "ci-default-secret-key-mettu-karl-his"
+    SECRET_KEY: str = Field(default_factory=lambda: os.environ.get("SECRET_KEY", "ci-default-secret-key-mettu-karl-his"))
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Enterprise Security Hardening Controls
-    ALLOW_DEV_PASSWORD_FALLBACK: bool = True
-    STORE_CREDENTIAL_VAULT: bool = True
+    ALLOW_DEV_PASSWORD_FALLBACK: bool = False
+    STORE_CREDENTIAL_VAULT: bool = False
     STAFF_LOGIN_RATE_LIMIT_MAX_ATTEMPTS: int = 8
     STAFF_LOGIN_IP_BURST_MAX_ATTEMPTS: int = 40
     STAFF_LOGIN_LOCKOUT_SECONDS: int = 900
     PASSWORD_RESET_OTP_EXPIRE_MINUTES: int = 5
+    COOKIE_SECURE: bool = Field(default_factory=lambda: os.environ.get("COOKIE_SECURE", "true").lower() in ("true", "1"))
+    COOKIE_SAMESITE: str = "strict"
+
+    @field_validator("SECRET_KEY", mode="after")
+    @classmethod
+    def validate_secret_key(cls, v: str) -> str:
+        app_env = (os.environ.get("APP_ENV") or "").lower()
+        if app_env == "production":
+            if not v or v in ("ci-default-secret-key-mettu-karl-his", "your-secret-key-min-32-chars-here") or len(v) < 32:
+                raise ValueError(
+                    "CRITICAL SECURITY ERROR: A secure, random SECRET_KEY with at least 32 characters "
+                    "must be configured in environment variables for production."
+                )
+        return v
+
+    @field_validator("ALLOW_DEV_PASSWORD_FALLBACK", mode="before")
+    @classmethod
+    def enforce_no_dev_password_in_production(cls, v: Any) -> bool:
+        app_env = (os.environ.get("APP_ENV") or "").lower()
+        if app_env == "production":
+            return False
+        if isinstance(v, str):
+            return v.lower() in ("true", "1", "yes")
+        return bool(v)
 
     # Optional Email Gateways (for live 5-min OTP & security alerts)
     RESEND_API_KEY: str = ""
@@ -117,11 +141,11 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # MinIO / Object Storage
-    MINIO_ENDPOINT: str = "localhost:9000"
-    MINIO_ACCESS_KEY: str = "minioadmin"
-    MINIO_SECRET_KEY: str = "minioadmin"
-    MINIO_BUCKET_NAME: str = "mettu-karl-his"
-    MINIO_SECURE: bool = False
+    MINIO_ENDPOINT: str = Field(default_factory=lambda: os.environ.get("MINIO_ENDPOINT", "localhost:9000"))
+    MINIO_ACCESS_KEY: str = Field(default_factory=lambda: os.environ.get("MINIO_ACCESS_KEY", "minioadmin"))
+    MINIO_SECRET_KEY: str = Field(default_factory=lambda: os.environ.get("MINIO_SECRET_KEY", "minioadmin"))
+    MINIO_BUCKET_NAME: str = Field(default_factory=lambda: os.environ.get("MINIO_BUCKET_NAME", "mettu-karl-his"))
+    MINIO_SECURE: bool = Field(default_factory=lambda: os.environ.get("MINIO_SECURE", "false").lower() in ("true", "1"))
 
     # Sentry
     SENTRY_DSN: str = ""

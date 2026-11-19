@@ -8,7 +8,7 @@ import re
 import secrets
 from typing import Annotated, List, Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from jose import JWTError
 from sqlalchemy import desc, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -41,6 +41,7 @@ from app.core.security import (
     decrypt_credential_vault,
     encrypt_credential_vault,
     hash_password,
+    sanitize_input_text,
     verify_password_reset_challenge,
 )
 from app.models.notification import ClinicalNotification
@@ -102,10 +103,46 @@ from app.services.sms_service import format_ethiopian_phone, sms_service
 router = APIRouter()
 
 
+def set_auth_cookies(response: Response, access_token: str, refresh_token: Optional[str] = None) -> None:
+    """Set secure HttpOnly cookies for session management."""
+    cookie_kwargs = {
+        "httponly": True,
+        "secure": settings.COOKIE_SECURE,
+        "samesite": settings.COOKIE_SAMESITE.lower(),
+        "path": "/",
+    }
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        **cookie_kwargs,
+    )
+    if refresh_token:
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+            **cookie_kwargs,
+        )
+
+
+def clear_auth_cookies(response: Response) -> None:
+    """Clear session cookies upon logout."""
+    for cookie_name in ("access_token", "refresh_token"):
+        response.delete_cookie(
+            key=cookie_name,
+            path="/",
+            httponly=True,
+            secure=settings.COOKIE_SECURE,
+            samesite=settings.COOKIE_SAMESITE.lower(),
+        )
+
+
 @router.post("/login", response_model=TokenResponse, summary="Step 1 Login")
 async def login(
     login_data: LoginRequest,
     request: Request,
+    response: Response,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TokenResponse:
     """
@@ -213,6 +250,8 @@ async def login(
         entry_path=f"/portal/{user.role.value}",
     )
 
+    set_auth_cookies(response, access_token, refresh_token)
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -228,6 +267,7 @@ async def login(
 async def patient_login(
     login_data: PatientLoginRequest,
     request: Request,
+    response: Response,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TokenResponse:
     """
@@ -302,7 +342,7 @@ async def patient_login(
             )
 
         is_seeded_demo_patient = user.username in ("pat_gudeta", "pat_chaltu")
-        demo_otp_ok = is_seeded_demo_patient and pwd in ("123456", "990100", "772100", "PatientPass2026!")
+        demo_otp_ok = (settings.APP_ENV != "production") and is_seeded_demo_patient and pwd in ("123456", "990100", "772100", "PatientPass2026!")
         if not verify_password(pwd, user.hashed_password) and not demo_otp_ok:
             await record_patient_login_failure(client_ip, identifier)
             await record_audit_event(
@@ -341,7 +381,7 @@ async def patient_login(
             "+251922445566": ("pat_chaltu", "Chaltu Daba Tolasa", 2, "FAN-7721-9981-3310", "+251922445566"),
             "pat_chaltu": ("pat_chaltu", "Chaltu Daba Tolasa", 2, "FAN-7721-9981-3310", "+251922445566"),
         }
-        demo_spec = demo_accounts.get(norm_ident)
+        demo_spec = demo_accounts.get(norm_ident) if settings.APP_ENV != "production" else None
         if not demo_spec or pwd not in ("123456", "990100", "772100", "PatientPass2026!"):
             await record_patient_login_failure(client_ip, identifier)
             await record_audit_event(
@@ -435,6 +475,8 @@ async def patient_login(
         detail={"identifier_masked": mask_pii(identifier), "mrn": mrn},
     )
 
+    set_auth_cookies(response, access_token, refresh_token)
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -453,6 +495,7 @@ async def patient_login(
 async def patient_register(
     reg_data: PatientRegisterRequest,
     request: Request,
+    response: Response,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TokenResponse:
     """
@@ -469,7 +512,8 @@ async def patient_register(
     client_ip = get_client_ip(request)
     phone = reg_data.phone_number.strip()
     fayda = reg_data.fayda_id.strip() if reg_data.fayda_id else None
-    full_name = reg_data.full_name.strip()
+    full_name = sanitize_input_text(reg_data.full_name)
+    birth_place = sanitize_input_text(reg_data.birth_place) if reg_data.birth_place else "Mettu"
     clean_user = phone.replace("+", "").replace("-", "").replace(" ", "")
 
     # Use provided username or auto-generate from phone number
@@ -512,7 +556,7 @@ async def patient_register(
         phone_number=phone,
         birth_date=parsed_bdate,
         gender=Gender.FEMALE if reg_data.gender and reg_data.gender.lower() == "female" else Gender.MALE,
-        city=reg_data.birth_place or "Mettu",
+        city=birth_place,
         state_province="Oromia",
         is_active=True,
     )
@@ -565,6 +609,8 @@ async def patient_register(
         detail={"mrn": patient.mrn, "masked_phone": mask_pii(phone)},
     )
 
+    set_auth_cookies(response, access_token, refresh_token)
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -583,6 +629,7 @@ async def patient_register(
 async def login_mfa(
     mfa_data: MFALoginRequest,
     request: Request,
+    response: Response,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TokenResponse:
     """Verify TOTP 6-digit code with temporary token to complete login."""
@@ -644,6 +691,8 @@ async def login_mfa(
         entry_path=f"/portal/{user.role.value}",
     )
 
+    set_auth_cookies(response, access_token, refresh_token)
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -659,6 +708,7 @@ async def login_mfa(
 async def refresh_access_token(
     refresh_data: RefreshTokenRequest,
     request: Request,
+    response: Response,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TokenResponse:
     """Exchange valid refresh token for a newly minted access token."""
@@ -690,6 +740,8 @@ async def refresh_access_token(
         extra_claims={"role": user.role.value, "username": user.username},
     )
 
+    set_auth_cookies(response, access_token, refresh_data.refresh_token)
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_data.refresh_token,
@@ -703,6 +755,7 @@ async def refresh_access_token(
 async def logout(
     current_user: Annotated[User, Depends(get_current_user)],
     request: Request,
+    response: Response,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> dict:
     """Invalidate active refresh token in Redis and mark workstation offline."""
@@ -718,6 +771,7 @@ async def logout(
         ip_address=get_client_ip(request),
         result="success",
     )
+    clear_auth_cookies(response)
     return {"message": "Logged out successfully"}
 
 
@@ -882,8 +936,8 @@ async def register_staff_request(
     await redis_set(rl_key, str(rl_count + 1), expire_seconds=900)
 
     clean_staff_id = payload.staff_id.strip()
-    clean_full_name = payload.full_name.strip()
-    clean_dept = payload.department.strip()
+    clean_full_name = sanitize_input_text(payload.full_name)
+    clean_dept = sanitize_input_text(payload.department)
     req_role_lower = payload.requested_role.strip().lower()
     username_slug = re.sub(r"[^a-z0-9._-]+", "_", clean_staff_id.lower()).strip("._-")
 
@@ -1024,7 +1078,7 @@ async def register_staff_request(
             detail="Staff ID, username, or email is already registered or awaiting review.",
         )
 
-    clean_license = payload.license_number.strip() if payload.license_number else None
+    clean_license = sanitize_input_text(payload.license_number) if payload.license_number else None
     if req_role_lower in _CLINICAL_SIGNUP_ROLES and not clean_license:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -1046,7 +1100,7 @@ async def register_staff_request(
         department=clean_dept,
         license_number=clean_license,
         phone_number=payload.phone_number.strip() if payload.phone_number else None,
-        biography=payload.biography.strip() if payload.biography else None,
+        biography=sanitize_input_text(payload.biography) if payload.biography else None,
         approval_status=ApprovalStatus.PENDING.value,
         requested_role=req_role_lower,
         risk_flag=risk_flag,
@@ -1791,7 +1845,7 @@ def _serialize_directory_user(
         gender=patient.gender.value if patient and patient.gender else None,
         city=patient.city if patient else None,
         biography=u.biography,
-        saved_password=decrypt_credential_vault(getattr(u, "credential_vault_enc", None)),
+        saved_password=None,  # Passwords must never be returned or exposed in directory queries
         approval_status=getattr(u, "approval_status", ApprovalStatus.APPROVED.value),
         requested_role=u.requested_role,
         risk_flag=u.risk_flag,
@@ -1954,15 +2008,15 @@ async def update_admin_directory_user(
         target.fayda_id = clean_fayda
 
     if payload.full_name is not None:
-        target.full_name = payload.full_name.strip()
+        target.full_name = sanitize_input_text(payload.full_name)
     if payload.phone_number is not None:
         target.phone_number = payload.phone_number.strip() or None
     if payload.department is not None:
-        target.department = payload.department.strip() or None
+        target.department = sanitize_input_text(payload.department) or None
     if payload.license_number is not None:
-        target.license_number = payload.license_number.strip() or None
+        target.license_number = sanitize_input_text(payload.license_number) or None
     if payload.biography is not None:
-        target.biography = payload.biography.strip() or None
+        target.biography = sanitize_input_text(payload.biography) or None
     if payload.new_password is not None and payload.new_password.strip():
         clean_pw = payload.new_password.strip()
         if len(clean_pw) < 6:
@@ -2498,7 +2552,8 @@ async def request_password_reset(
     )
 
     expose_dev_otp = (
-        settings.APP_ENV != "production" and settings.ALLOW_DEV_PASSWORD_FALLBACK
+        settings.APP_ENV != "production"
+        and (settings.ALLOW_DEV_PASSWORD_FALLBACK or settings.APP_ENV in ("test", "testing", "development"))
     )
     return PasswordResetRequestResponse(
         status="otp_dispatched",

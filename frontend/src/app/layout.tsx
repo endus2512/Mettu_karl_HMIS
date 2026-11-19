@@ -14,6 +14,15 @@ export const metadata: Metadata = {
   title: 'Mettu Karl Hospital Information System',
   description: 'Integrated Hospital Information System for Mettu Karl Referral Hospital',
   manifest: '/manifest.json',
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
   keywords: ['hospital', 'HIS', 'FHIR', 'healthcare', 'Ethiopia'],
   authors: [{ name: 'Mettu Karl HIS Team' }],
   appleWebApp: {
@@ -39,6 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="robots" content="noindex, nofollow" />
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />

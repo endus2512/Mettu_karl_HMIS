@@ -49,6 +49,7 @@ pnpm-debug.log*
 k8s/overlays/*/secrets.yaml
 charts/*/secrets.yaml
 secrets.yaml
+infra/k8s/secrets.yaml
 
 # ─── IDE ──────────────────────────────────────────────────────
 .vscode/
@@ -94,10 +95,13 @@ log/
 uploads/
 media/
 
-# ─── Temporary ────────────────────────────────────────────────
+# ─── Temporary & SQLite ──────────────────────────────────────────
 *.tmp
 *.bak
 *.orig
+*.db-journal
+*.db-wal
+*.db-shm
 .cache/
 tmp/
 temp/

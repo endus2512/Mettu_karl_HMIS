@@ -29,7 +29,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(self), microphone=(self), geolocation=()"
         response.headers["Content-Security-Policy"] = (
@@ -65,11 +65,17 @@ def create_application() -> FastAPI:
         openapi_url="/api/openapi.json" if settings.APP_DEBUG else None,
     )
 
-    # CORS middleware
+    # CORS middleware with strict production origin restrictions
+    cors_origin_regex = (
+        r"^https://mettu-karl-(hospital|his)(-[a-z0-9-]+)?\.vercel\.app$"
+        if settings.APP_ENV == "production"
+        else r"^(https://mettu-karl-(hospital|his)(-[a-z0-9-]+)?\.vercel\.app|http://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?)$"
+    )
+
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
-        allow_origin_regex=r"^(https://.*\.vercel\.app|http://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?)$",
+        allow_origin_regex=cors_origin_regex,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

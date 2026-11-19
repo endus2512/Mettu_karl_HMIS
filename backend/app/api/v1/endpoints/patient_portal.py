@@ -22,6 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_client_ip, get_current_user
 from app.core.audit import record_audit_event
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.rate_limiter import mask_pii
 from app.models.billing import CBHIPolicy, Invoice, Payment, PaymentStatus
@@ -132,57 +133,47 @@ class PatientAppointmentResponse(BaseModel):
 def _resolve_patient_identity(current_patient: User) -> Dict[str, Any]:
     """
     Deterministically resolves the authenticated patient's identity without any risk
-    of cross-patient data pollution.
+    of cross-patient data pollution or horizontal privilege escalation (IDOR).
     """
-    pat_id = current_patient.patient_id or 1
-    username = (current_patient.username or "").lower()
-    fayda = current_patient.fayda_id or ""
-    phone = current_patient.phone_number or ""
+    username = (current_patient.username or "").lower().strip()
 
-    is_chaltu = (
-        pat_id == 2 or
-        "chaltu" in username or
-        "7721" in fayda or
-        "922" in phone or
-        "0042" in username
-    )
+    # Pre-seeded demo patients only in dev/testing mode
+    if settings.APP_ENV != "production":
+        if username == "pat_chaltu":
+            return {
+                "id": 2,
+                "full_name": "Chaltu Daba Tolasa",
+                "mrn": "MKH-2026-0042",
+                "fhir_id": "pat-mkrh-0042",
+                "fayda_id": "FAN-7721-9981-3310",
+                "phone_number": "+251 922 445 566",
+                "gender": "female",
+                "birth_date": "1992-08-20",
+                "woreda": "Mettu Town, Kebele 04",
+                "blood_group": "A+",
+                "allergies": ["Penicillin"],
+                "cbhi_active": True,
+                "cbhi_policy_number": "CBHI-OR-MET-99104",
+            }
+        if username == "pat_gudeta":
+            return {
+                "id": 1,
+                "full_name": "Gudeta Hailu Tadesse",
+                "mrn": "MKH-2026-0001",
+                "fhir_id": "pat-mkrh-0001",
+                "fayda_id": "FAN-9901-2384-5120",
+                "phone_number": "+251 911 002 233",
+                "gender": "male",
+                "birth_date": "1985-04-12",
+                "woreda": "Mettu Town, Kebele 02",
+                "blood_group": "O+",
+                "allergies": ["Penicillin", "Sulfa"],
+                "cbhi_active": True,
+                "cbhi_policy_number": "CBHI-OR-MET-88902",
+            }
 
-    if is_chaltu:
-        return {
-            "id": 2,
-            "full_name": "Chaltu Daba Tolasa",
-            "mrn": "MKH-2026-0042",
-            "fhir_id": "pat-mkrh-0042",
-            "fayda_id": "FAN-7721-9981-3310",
-            "phone_number": "+251 922 445 566",
-            "gender": "female",
-            "birth_date": "1992-08-20",
-            "woreda": "Mettu Town, Kebele 04",
-            "blood_group": "A+",
-            "allergies": ["Penicillin"],
-            "cbhi_active": True,
-            "cbhi_policy_number": "CBHI-OR-MET-99104",
-        }
-
-    # Default Verified Demo Patient: Gudeta Hailu Tadesse
-    if pat_id == 1 or "gudeta" in username or "9901" in fayda or "911" in phone or "0001" in username:
-        return {
-            "id": 1,
-            "full_name": "Gudeta Hailu Tadesse",
-            "mrn": "MKH-2026-0001",
-            "fhir_id": "pat-mkrh-0001",
-            "fayda_id": "FAN-9901-2384-5120",
-            "phone_number": "+251 911 002 233",
-            "gender": "male",
-            "birth_date": "1985-04-12",
-            "woreda": "Mettu Town, Kebele 02",
-            "blood_group": "O+",
-            "allergies": ["Penicillin", "Sulfa"],
-            "cbhi_active": True,
-            "cbhi_policy_number": "CBHI-OR-MET-88902",
-        }
-
-    # Dynamic Isolated Patient
+    # Strict caller-isolated identity derived purely from the authenticated user token
+    pat_id = current_patient.patient_id or current_patient.id
     return {
         "id": pat_id,
         "full_name": current_patient.full_name or f"Patient #{pat_id}",
@@ -245,73 +236,60 @@ async def get_patient_clinical_history(
     )
 
     # Strictly isolated encounter records
-    if pat_id == 2:  # Chaltu Daba: Cardiology Patient
-        return [
-            PatientEncounter(
-                date="2026-10-24 10:15",
-                department="Cardiology Clinic",
-                clinician="Dr. Senait Bekele",
-                chief_complaint="Mild dizziness and routine blood pressure evaluation",
-                vitals={
-                    "blood_pressure": "128/82 mmHg",
-                    "pulse": "72 bpm",
-                    "temperature": "36.8 °C",
-                    "spo2": "99%",
-                },
-                diagnosis="Essential Hypertension (ICD-10: I10) - Stable control on Amlodipine",
-                status="Completed",
-            ),
-        ]
+    username = (current_patient.username or "").lower().strip()
+    if settings.APP_ENV != "production":
+        if username == "pat_chaltu":
+            return [
+                PatientEncounter(
+                    date="2026-10-24 10:15",
+                    department="Cardiology Clinic",
+                    clinician="Dr. Senait Bekele",
+                    chief_complaint="Mild dizziness and routine blood pressure evaluation",
+                    vitals={
+                        "blood_pressure": "128/82 mmHg",
+                        "pulse": "72 bpm",
+                        "temperature": "36.8 °C",
+                        "spo2": "99%",
+                    },
+                    diagnosis="Essential Hypertension (ICD-10: I10) - Stable control on Amlodipine",
+                    status="Completed",
+                ),
+            ]
 
-    if pat_id == 1:  # Gudeta Hailu: Internal Medicine Patient
-        return [
-            PatientEncounter(
-                date="2026-10-25 09:30",
-                department="Internal Medicine OPD",
-                clinician="Dr. Bekele Tadesse",
-                chief_complaint="Persistent dry cough and moderate fever for 3 days",
-                vitals={
-                    "blood_pressure": "120/80 mmHg",
-                    "pulse": "76 bpm",
-                    "temperature": "37.4 °C",
-                    "spo2": "98%",
-                },
-                diagnosis="Acute Bronchitis (ICD-10: J20.9) - Responding well to therapy",
-                status="Completed",
-            ),
-            PatientEncounter(
-                date="2026-08-14 11:15",
-                department="General OPD",
-                clinician="Dr. Bekele Tadesse",
-                chief_complaint="Annual routine preventive health check",
-                vitals={
-                    "blood_pressure": "118/78 mmHg",
-                    "pulse": "70 bpm",
-                    "temperature": "36.6 °C",
-                    "spo2": "99%",
-                },
-                diagnosis="Routine general medical examination (ICD-10: Z00.00)",
-                status="Completed",
-            ),
-        ]
+        if username == "pat_gudeta":
+            return [
+                PatientEncounter(
+                    date="2026-10-25 09:30",
+                    department="Internal Medicine OPD",
+                    clinician="Dr. Bekele Tadesse",
+                    chief_complaint="Persistent dry cough and moderate fever for 3 days",
+                    vitals={
+                        "blood_pressure": "120/80 mmHg",
+                        "pulse": "76 bpm",
+                        "temperature": "37.4 °C",
+                        "spo2": "98%",
+                    },
+                    diagnosis="Acute Bronchitis (ICD-10: J20.9) - Responding well to therapy",
+                    status="Completed",
+                ),
+                PatientEncounter(
+                    date="2026-08-14 11:15",
+                    department="General OPD",
+                    clinician="Dr. Bekele Tadesse",
+                    chief_complaint="Annual routine preventive health check",
+                    vitals={
+                        "blood_pressure": "118/78 mmHg",
+                        "pulse": "70 bpm",
+                        "temperature": "36.6 °C",
+                        "spo2": "99%",
+                    },
+                    diagnosis="Routine general medical examination (ICD-10: Z00.00)",
+                    status="Completed",
+                ),
+            ]
 
-    # Any other patient has their own clean record
-    return [
-        PatientEncounter(
-            date="2026-10-26 14:00",
-            department="Triage & OPD",
-            clinician="Dr. Bekele Tadesse",
-            chief_complaint="New patient intake and initial vital check",
-            vitals={
-                "blood_pressure": "120/80 mmHg",
-                "pulse": "74 bpm",
-                "temperature": "36.9 °C",
-                "spo2": "98%",
-            },
-            diagnosis="Initial medical evaluation (ICD-10: Z01.89)",
-            status="Completed",
-        ),
-    ]
+    # Non-demo patients return their own isolated encounters
+    return []
 
 
 @router.get("/prescriptions", response_model=List[PatientPrescriptionResponse], summary="Get Patient Prescriptions (Strictly Isolated)")
@@ -334,61 +312,63 @@ async def get_patient_prescriptions(
         result="success",
     )
 
-    if pat_id == 2:  # Chaltu Daba's Prescriptions
-        return [
-            PatientPrescriptionResponse(
-                prescription_code="RX-2026-MKH-0640",
-                prescribed_date="2026-10-24",
-                prescriber_name="Dr. Senait Bekele",
-                status="Dispensed (Kenfameera)",
-                items=[
-                    PatientPrescriptionItem(
-                        drug_name="Amlodipine 5mg Tablet",
-                        dosage="1 tablet",
-                        frequency="Once daily in morning (Ganama ganama)",
-                        duration_days=30,
-                        instructions="Dhiibbaa dhiigaa to'achuuf guyyaa hunda fudhadhaa",
-                        is_dispensed=True,
-                    ),
-                    PatientPrescriptionItem(
-                        drug_name="Paracetamol 500mg Tablet",
-                        dosage="1 tablet",
-                        frequency="As needed (Yoo mataan dhibe)",
-                        duration_days=5,
-                        instructions="Mataa dhukkubbii yoo qabaattan qofa fudhadhaa",
-                        is_dispensed=True,
-                    ),
-                ],
-            ),
-        ]
+    username = (current_patient.username or "").lower().strip()
+    if settings.APP_ENV != "production":
+        if username == "pat_chaltu":  # Chaltu Daba's Prescriptions
+            return [
+                PatientPrescriptionResponse(
+                    prescription_code="RX-2026-MKH-0640",
+                    prescribed_date="2026-10-24",
+                    prescriber_name="Dr. Senait Bekele",
+                    status="Dispensed (Kenfameera)",
+                    items=[
+                        PatientPrescriptionItem(
+                            drug_name="Amlodipine 5mg Tablet",
+                            dosage="1 tablet",
+                            frequency="Once daily in morning (Ganama ganama)",
+                            duration_days=30,
+                            instructions="Dhiibbaa dhiigaa to'achuuf guyyaa hunda fudhadhaa",
+                            is_dispensed=True,
+                        ),
+                        PatientPrescriptionItem(
+                            drug_name="Paracetamol 500mg Tablet",
+                            dosage="1 tablet",
+                            frequency="As needed (Yoo mataan dhibe)",
+                            duration_days=5,
+                            instructions="Mataa dhukkubbii yoo qabaattan qofa fudhadhaa",
+                            is_dispensed=True,
+                        ),
+                    ],
+                ),
+            ]
 
-    if pat_id == 1:  # Gudeta Hailu's Prescriptions
-        return [
-            PatientPrescriptionResponse(
-                prescription_code="RX-2026-MKH-0881",
-                prescribed_date="2026-10-25",
-                prescriber_name="Dr. Bekele Tadesse",
-                status="Dispensed (Kenfameera)",
-                items=[
-                    PatientPrescriptionItem(
-                        drug_name="Amoxicillin + Clavulanic Acid 625mg",
-                        dosage="1 tablet",
-                        frequency="Twice daily (Sa'aatii 12'n)",
-                        duration_days=7,
-                        instructions="Nyaata booda bishaan ga'aa wajjin liqimsaa",
-                        is_dispensed=True,
-                    ),
-                    PatientPrescriptionItem(
-                        drug_name="Paracetamol 500mg Tablet",
-                        dosage="1-2 tablets",
-                        frequency="As needed for fever (Yoo ho'i dhufe)",
-                        duration_days=5,
-                        instructions="Ho'a ykn dhukkubbiif qofa fayyadamaa",
-                        is_dispensed=True,
-                    ),
-                ],
-            ),
-        ]
+        if username == "pat_gudeta":  # Gudeta Hailu's Prescriptions
+            return [
+                PatientPrescriptionResponse(
+                    prescription_code="RX-2026-MKH-0881",
+                    prescribed_date="2026-10-25",
+                    prescriber_name="Dr. Bekele Tadesse",
+                    status="Dispensed (Kenfameera)",
+                    items=[
+                        PatientPrescriptionItem(
+                            drug_name="Amoxicillin + Clavulanic Acid 625mg",
+                            dosage="1 tablet",
+                            frequency="Twice daily (Sa'aatii 12'n)",
+                            duration_days=7,
+                            instructions="Nyaata booda bishaan ga'aa wajjin liqimsaa",
+                            is_dispensed=True,
+                        ),
+                        PatientPrescriptionItem(
+                            drug_name="Paracetamol 500mg Tablet",
+                            dosage="1-2 tablets",
+                            frequency="As needed for fever (Yoo ho'i dhufe)",
+                            duration_days=5,
+                            instructions="Ho'a ykn dhukkubbiif qofa fayyadamaa",
+                            is_dispensed=True,
+                        ),
+                    ],
+                ),
+            ]
 
     return []
 
@@ -413,40 +393,42 @@ async def get_patient_invoices(
         result="success",
     )
 
-    if pat_id == 2:  # Chaltu Daba's Invoice
-        return [
-            PatientInvoiceResponse(
-                id=102,
-                invoice_number="INV-2026-MKH-0084",
-                date="2026-10-24",
-                total_amount_etb=280.0,
-                insurance_covered_etb=224.0,  # 80% CBHI
-                patient_payable_etb=56.0,     # 20% co-pay
-                status="PAID (Kaffalameera)",
-                items=[
-                    PatientInvoiceItem(description="Cardiology Specialist Consultation", amount_etb=150.0),
-                    PatientInvoiceItem(description="ECG 12-Lead Diagnostic Tracing", amount_etb=130.0),
-                ],
-            ),
-        ]
+    username = (current_patient.username or "").lower().strip()
+    if settings.APP_ENV != "production":
+        if username == "pat_chaltu":  # Chaltu Daba's Invoice
+            return [
+                PatientInvoiceResponse(
+                    id=102,
+                    invoice_number="INV-2026-MKH-0084",
+                    date="2026-10-24",
+                    total_amount_etb=280.0,
+                    insurance_covered_etb=224.0,  # 80% CBHI
+                    patient_payable_etb=56.0,     # 20% co-pay
+                    status="PAID (Kaffalameera)",
+                    items=[
+                        PatientInvoiceItem(description="Cardiology Specialist Consultation", amount_etb=150.0),
+                        PatientInvoiceItem(description="ECG 12-Lead Diagnostic Tracing", amount_etb=130.0),
+                    ],
+                ),
+            ]
 
-    if pat_id == 1:  # Gudeta Hailu's Invoice
-        return [
-            PatientInvoiceResponse(
-                id=101,
-                invoice_number="INV-2026-MKH-0192",
-                date="2026-10-25",
-                total_amount_etb=420.0,
-                insurance_covered_etb=336.0,  # 80% CBHI
-                patient_payable_etb=84.0,     # 20% co-pay
-                status="PENDING_PAYMENT (Kaffaltii Eega)",
-                items=[
-                    PatientInvoiceItem(description="OPD Senior Physician Consultation", amount_etb=120.0),
-                    PatientInvoiceItem(description="Laboratory CBC & CRP Diagnostic Panel", amount_etb=180.0),
-                    PatientInvoiceItem(description="Pharmacy Prescription Dispensing", amount_etb=120.0),
-                ],
-            ),
-        ]
+        if username == "pat_gudeta":  # Gudeta Hailu's Invoice
+            return [
+                PatientInvoiceResponse(
+                    id=101,
+                    invoice_number="INV-2026-MKH-0192",
+                    date="2026-10-25",
+                    total_amount_etb=420.0,
+                    insurance_covered_etb=336.0,  # 80% CBHI
+                    patient_payable_etb=84.0,     # 20% co-pay
+                    status="PENDING_PAYMENT (Kaffaltii Eega)",
+                    items=[
+                        PatientInvoiceItem(description="OPD Senior Physician Consultation", amount_etb=120.0),
+                        PatientInvoiceItem(description="Laboratory CBC & CRP Diagnostic Panel", amount_etb=180.0),
+                        PatientInvoiceItem(description="Pharmacy Prescription Dispensing", amount_etb=120.0),
+                    ],
+                ),
+            ]
 
     return []
 
@@ -458,30 +440,30 @@ async def get_patient_queue_status(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> PatientQueueStatusResponse:
     """Retrieve patient's live token for today's clinic without cross-queue leakage."""
-    ident = _resolve_patient_identity(current_patient)
-    pat_id = ident["id"]
+    username = (current_patient.username or "").lower().strip()
 
-    if pat_id == 2:  # Chaltu's queue in Cardiology
-        return PatientQueueStatusResponse(
-            has_active_token=True,
-            token_number="B-015",
-            department="Cardiology Clinic (Kutaa 02)",
-            current_serving_token="B-012",
-            queue_position=3,
-            estimated_wait_minutes=12,
-            status="WAITING (Dabaree Eegaa Jira)",
-        )
+    if settings.APP_ENV != "production":
+        if username == "pat_chaltu":  # Chaltu's queue in Cardiology
+            return PatientQueueStatusResponse(
+                has_active_token=True,
+                token_number="B-015",
+                department="Cardiology Clinic (Kutaa 02)",
+                current_serving_token="B-012",
+                queue_position=3,
+                estimated_wait_minutes=12,
+                status="WAITING (Dabaree Eegaa Jira)",
+            )
 
-    if pat_id == 1:  # Gudeta's queue in Internal Medicine
-        return PatientQueueStatusResponse(
-            has_active_token=True,
-            token_number="A-042",
-            department="OPD Internal Medicine (Kutaa 04)",
-            current_serving_token="A-038",
-            queue_position=4,
-            estimated_wait_minutes=18,
-            status="WAITING (Dabaree Eegaa Jira)",
-        )
+        if username == "pat_gudeta":  # Gudeta's queue in Internal Medicine
+            return PatientQueueStatusResponse(
+                has_active_token=True,
+                token_number="A-042",
+                department="OPD Internal Medicine (Kutaa 04)",
+                current_serving_token="A-038",
+                queue_position=4,
+                estimated_wait_minutes=18,
+                status="WAITING (Dabaree Eegaa Jira)",
+            )
 
     return PatientQueueStatusResponse(
         has_active_token=False,
@@ -501,33 +483,33 @@ async def get_patient_appointments(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> List[PatientAppointmentResponse]:
     """Retrieve upcoming telemedicine and clinic appointments for caller ONLY."""
-    ident = _resolve_patient_identity(current_patient)
-    pat_id = ident["id"]
+    username = (current_patient.username or "").lower().strip()
 
-    if pat_id == 2:  # Chaltu's appointments
-        return [
-            PatientAppointmentResponse(
-                id=502,
-                scheduled_time="2026-11-04 11:00 AM",
-                clinician_name="Dr. Senait Bekele",
-                department="Cardiology Clinic",
-                type="Telemedicine Video Call",
-                meeting_link="https://meet.mettukarl.gov.et/room/telemed-dr-senait-pat-0042",
-                status="CONFIRMED (Mirkanaa'eera)",
-            ),
-        ]
+    if settings.APP_ENV != "production":
+        if username == "pat_chaltu":  # Chaltu's appointments
+            return [
+                PatientAppointmentResponse(
+                    id=502,
+                    scheduled_time="2026-11-04 11:00 AM",
+                    clinician_name="Dr. Senait Bekele",
+                    department="Cardiology Clinic",
+                    type="Telemedicine Video Call",
+                    meeting_link="https://meet.mettukarl.gov.et/room/telemed-dr-senait-pat-0042",
+                    status="CONFIRMED (Mirkanaa'eera)",
+                ),
+            ]
 
-    if pat_id == 1:  # Gudeta's appointments
-        return [
-            PatientAppointmentResponse(
-                id=501,
-                scheduled_time="2026-10-29 10:00 AM",
-                clinician_name="Dr. Bekele Tadesse",
-                department="Internal Medicine Follow-up",
-                type="Telemedicine Video Call",
-                meeting_link="https://meet.mettukarl.gov.et/room/telemed-dr-bekele-pat-001",
-                status="CONFIRMED (Mirkanaa'eera)",
-            ),
-        ]
+        if username == "pat_gudeta":  # Gudeta's appointments
+            return [
+                PatientAppointmentResponse(
+                    id=501,
+                    scheduled_time="2026-10-29 10:00 AM",
+                    clinician_name="Dr. Bekele Tadesse",
+                    department="Internal Medicine Follow-up",
+                    type="Telemedicine Video Call",
+                    meeting_link="https://meet.mettukarl.gov.et/room/telemed-dr-bekele-pat-001",
+                    status="CONFIRMED (Mirkanaa'eera)",
+                ),
+            ]
 
     return []

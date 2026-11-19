@@ -48,22 +48,30 @@ function getRefreshToken(): string | null {
   return localStorage.getItem('refresh_token');
 }
 
-/** Persist tokens to localStorage */
+/** Persist tokens to localStorage and secure session cookies for SSR middleware */
 export function saveTokens(accessToken: string, refreshToken: string): void {
-  localStorage.setItem('access_token', accessToken);
-  localStorage.setItem('refresh_token', refreshToken);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('refresh_token', refreshToken);
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `access_token=${encodeURIComponent(accessToken)}; Path=/; SameSite=Strict${secure}; max-age=${60 * 60 * 24 * 7}`;
+  }
 }
 
-/** Remove all auth tokens from localStorage */
+/** Remove all auth tokens from localStorage and clear session cookies */
 export function clearTokens(): void {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict';
+  }
 }
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: `${BASE_URL}/api/v1`,
   headers: { 'Content-Type': 'application/json' },
   timeout: 15000,
+  withCredentials: true,
 });
 
 // Request interceptor: set runtime baseURL & inject Bearer token

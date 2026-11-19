@@ -19,16 +19,17 @@ from app.core.security import decode_token
 from app.models.user import User, UserRole
 from app.services.auth_service import get_user_by_id
 
-bearer_scheme = HTTPBearer(auto_error=True)
+bearer_scheme = HTTPBearer(auto_error=False)
 optional_bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
+    request: Request,
+    credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(bearer_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> User:
     """
-    Extract and validate the current user from the Bearer token.
+    Extract and validate the current user from the Bearer token or HttpOnly cookie.
 
     Raises:
         HTTPException 401: If the token is missing, invalid, or expired.
@@ -39,8 +40,17 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    raw_token: Optional[str] = None
+    if credentials and credentials.credentials:
+        raw_token = credentials.credentials
+    elif request.cookies.get("access_token"):
+        raw_token = request.cookies.get("access_token")
+
+    if not raw_token:
+        raise credentials_exception
+
     try:
-        payload = decode_token(credentials.credentials)
+        payload = decode_token(raw_token)
         user_id_str: str | None = payload.get("sub")
         token_type: str | None = payload.get("type")
         if user_id_str is None or token_type != "access":
@@ -60,14 +70,16 @@ async def get_current_user(
 
 
 async def get_optional_current_user(
+    request: Request,
     credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(optional_bearer_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Optional[User]:
-    """Extract current user if bearer token is provided, otherwise return None."""
-    if not credentials:
+    """Extract current user if bearer token or cookie is provided, otherwise return None."""
+    raw_token = credentials.credentials if credentials else request.cookies.get("access_token")
+    if not raw_token:
         return None
     try:
-        payload = decode_token(credentials.credentials)
+        payload = decode_token(raw_token)
         user_id_str: str | None = payload.get("sub")
         token_type: str | None = payload.get("type")
         if user_id_str and token_type == "access":

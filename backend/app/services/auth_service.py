@@ -139,11 +139,12 @@ async def authenticate_user(
     if (
         not is_valid
         and settings.ALLOW_DEV_PASSWORD_FALLBACK
+        and settings.APP_ENV != "production"
         and user.staff_id is None
         and approval_state == "approved"
         and user.is_active
     ):
-        # Controlled enterprise demo/development password fallback (pre-seeded dev accounts only; disable via ALLOW_DEV_PASSWORD_FALLBACK=false)
+        # Controlled development-only fallback (disabled in production; disable via ALLOW_DEV_PASSWORD_FALLBACK=false)
         dev_passwords = {
             "AdminSecurePassword2026!",
             "DoctorPassword2026!",
@@ -153,7 +154,6 @@ async def authenticate_user(
             "ReceptionPassword2026!",
             "BillingPassword2026!",
             "DoctorSecurePass123!",
-            "password",
         }
         if password in dev_passwords:
             is_valid = True

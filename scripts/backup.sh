@@ -31,7 +31,11 @@ echo "=========================================="
 # 1. PostgreSQL Database Dump
 echo "[1/5] Dumping PostgreSQL database..."
 PG_DUMP_FILE="${WORK_DIR}/postgres_${PGDATABASE}_${TIMESTAMP}.sql.gz"
-PGPASSWORD="${PGPASSWORD:-HospitalSecurePass2026!}" pg_dump -h "${PGHOST}" -p "${PGPORT}" -U "${PGUSER}" -F c "${PGDATABASE}" | gzip > "${PG_DUMP_FILE}"
+if [ -z "${PGPASSWORD:-}" ]; then
+  echo "ERROR: PGPASSWORD environment variable must be configured before running database backups." >&2
+  exit 1
+fi
+pg_dump -h "${PGHOST}" -p "${PGPORT}" -U "${PGUSER}" -F c "${PGDATABASE}" | gzip > "${PG_DUMP_FILE}"
 echo "      PostgreSQL dump created: $(du -h "${PG_DUMP_FILE}" | cut -f1)"
 
 # 2. Archive Audit Log Files
