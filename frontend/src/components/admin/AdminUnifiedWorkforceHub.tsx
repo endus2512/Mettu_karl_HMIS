@@ -135,11 +135,7 @@ export function AdminUnifiedWorkforceHub(): React.ReactElement {
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
-                  {lang === 'om'
-                    ? "Wiirtuu Ogeeyyii (Staff Center)"
-                    : lang === 'am'
-                    ? "የሰራተኞች ማዕከል (Staff Center)"
-                    : "Staff Center"}
+                  Staff Center
                 </h2>
                 <span className="text-xs font-mono font-black px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/25 text-indigo-950 dark:text-indigo-200 border-2 border-indigo-500/60 dark:border-indigo-400/50 flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
